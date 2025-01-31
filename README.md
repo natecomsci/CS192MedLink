@@ -8,3 +8,25 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 - Nathaniel Feliciano
 - Judelle Clareese Gaza
 - Jordan Neil Sta Maria
+
+# Dependencies Guides:
+- React Native https://reactnative.dev/docs/set-up-your-environment
+- SvelteKit https://svelte.dev/docs/kit/creating-a-project
+- TailwindCSS https://tailwindcss.com/docs/installation/framework-guides/sveltekit
+
+# To run
+## React Native
+- Navigate to facilitySide directory
+- Run either of the following commands
+```
+npm run android
+npm run ios
+npm run web
+```
+
+## SvelteKit
+- Navigate to patientSide directory
+- Run ```npm run dev```
+
+# In case of errors
+- Run ```npm install``` inside the directory with the error then rerun command
