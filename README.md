@@ -10,9 +10,13 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 - Jordan Neil Sta Maria
 
 # Dependencies Guides:
-- React Native https://reactnative.dev/docs/set-up-your-environment
-- SvelteKit https://svelte.dev/docs/kit/creating-a-project
-- TailwindCSS https://tailwindcss.com/docs/installation/framework-guides/sveltekit
+- Patient Side
+	- React Native https://reactnative.dev/docs/set-up-your-environment
+	- NativeWind https://blog.logrocket.com/getting-started-nativewind-tailwind-react-native/
+	
+- Facility Side
+	- SvelteKit https://svelte.dev/docs/kit/creating-a-project
+	- TailwindCSS https://tailwindcss.com/docs/installation/framework-guides/sveltekit
 
 # To run
 ## React Native

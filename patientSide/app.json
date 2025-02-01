@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "facilitySide",
-    "slug": "facilitySide",
+    "name": "patientSide",
+    "slug": "patientSide",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

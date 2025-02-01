@@ -1,23 +1,38 @@
-node_modules
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# Output
-.output
-.vercel
-.netlify
-.wrangler
-/.svelte-kit
-/build
+# dependencies
+node_modules/
 
-# OS
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
 .DS_Store
-Thumbs.db
+*.pem
 
-# Env
-.env
-.env.*
-!.env.example
-!.env.test
+# local env files
+.env*.local
 
-# Vite
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
+# typescript
+*.tsbuildinfo
+
+app-example
