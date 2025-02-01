@@ -22,6 +22,7 @@
 	},
 	"dependencies": {
 		"@tailwindcss/vite": "^4.0.1",
+		"nativewind": "^4.1.23",
 		"tailwindcss": "^4.0.1"
 	}
 }
