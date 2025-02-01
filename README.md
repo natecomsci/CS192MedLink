@@ -20,7 +20,7 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 
 # To run
 ## React Native
-- Navigate to facilitySide directory
+- Navigate to patientSide directory
 - Run either of the following commands
 ```
 npm run android
@@ -29,7 +29,7 @@ npm run web
 ```
 
 ## SvelteKit
-- Navigate to patientSide directory
+- Navigate to facilitySide directory
 - Run ```npm run dev```
 
 # In case of errors
