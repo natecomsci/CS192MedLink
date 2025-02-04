@@ -34,3 +34,8 @@ npm run web
 
 # In case of errors
 - Run ```npm install``` inside the directory with the error then rerun command
+
+# Framework guides
+## SvelteKit 
+- https://svelte.dev/docs/kit
+- https://svelte.dev/tutorial
