@@ -1,23 +1,32 @@
-<script>
-	let id = $state('ID');
-	let password = $state('Password');
-	let show = false;
-
+<script lang='ts'>
+	export let id = "";
+	export let password = "";
+	export let show = false;
 </script>
 
 
-<div class="box">
+<div class="signInBox">
 	<h3>SIGN IN</h3>
-	<input bind:value={id} />
+
+	<input 
+		bind:value={id} 
+		placeholder="ID"
+	/>
+
 	<div class ="passwordBox">
-		<input bind:value={password} />
+
+		<input 
+			bind:value={password} 
+			placeholder="Password"
+		/>
+
 		<button 
-			onclick={() => show ? false : true }
+			onclick={() => show ? show = false : show =true}
+		>
+			Show
+		</button>
 
-		>Show</button>
 	</div>
-
-	<!-- <a href="/forgot">forget password?</a> -->
 
 	<button>Sign In</button>
 
@@ -26,7 +35,7 @@
 
 <!-- @paul, @elle padesign-->
 <style>
-	.box {
+	.signInBox {
 		width: 20em;
 		height: 20em;
 		border-radius: 0.5em;
@@ -37,10 +46,8 @@
 	    align: center;
 	}
 
-
-
 	h3 {
-		display: grid; /* or grid */
+		display: flex; 
 	    justify-content: left;
 	    align-items: left;
 	    color: goldenrod;

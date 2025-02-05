@@ -1,29 +1,36 @@
 <script>
-  import logo from '$lib/assets/logo.png';
+  import Logo from '$lib/assets/Logo.png';
 
   import SignInBox from './SignInBox.svelte';
 
   let id;
   let password;
-</script>
+  let show;
 
-<!-- to add child to parent data passing
-<Child SignInBox:id />
-<Child SignInBox:password />
- -->
+  function checkCredentials() {
+    console.log("Checking Credentials")
+  }
+
+</script>
 
 <nav>
   <a href="/">Landing Page</a>
   <a href="/dashboard">Dashboard</a>
 </nav>
 
-<img src={logo} alt="The project logo" clss='c' />
+<img src={Logo} alt="The project logo" />
 
 <h1 class="text-3xl font-bold underline">
   MedLink
 </h1>
 
-<SignInBox class='c' />
+<p>id = {id}, password = {password}, showPassword = {show}, sign in clicked = </p>
+
+<SignInBox 
+  bind:id
+  bind:password
+  bind:show
+/>
 
 <!-- @paul, @elle padesign-->
 <style>
@@ -38,7 +45,4 @@
     align-items: center;
   }
 
-
-
 </style>
-
