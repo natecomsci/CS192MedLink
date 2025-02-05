@@ -1,5 +1,8 @@
 <script>
+  import logo from '$lib/assets/logo.png';
+
   import SignInBox from './SignInBox.svelte';
+
   let id;
   let password;
 </script>
@@ -14,15 +17,13 @@
   <a href="/dashboard">Dashboard</a>
 </nav>
 
+<img src={logo} alt="The project logo" clss='c' />
 
 <h1 class="text-3xl font-bold underline">
-  Landing Page
+  MedLink
 </h1>
 
-
-<SignInBox />
-
-
+<SignInBox class='c' />
 
 
 <style>
