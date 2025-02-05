@@ -1,10 +1,10 @@
 <nav>
   <a href="/">Landing Page</a>
-  <a href="/managerDashboard">Manager Dashboard</a>
+  <a href="/dashboard">Dashboard</a>
 </nav>
 
 <h1 class="text-3xl font-bold underline">
-  ManagerDashboard
+  Dashboard
 </h1>
 <style>
   @reference "tailwindcss/theme";
