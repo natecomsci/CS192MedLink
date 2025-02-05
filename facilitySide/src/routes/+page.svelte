@@ -4,7 +4,7 @@
   let password;
 </script>
 
-<!-- 
+<!-- to add child to parent data passing
 <Child SignInBox:id />
 <Child SignInBox:password />
  -->
@@ -37,7 +37,7 @@
     align-items: center;
   }
 
-  
+
 
 </style>
 
