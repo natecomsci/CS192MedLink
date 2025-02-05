@@ -9,6 +9,11 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 - Judelle Clareese Gaza
 - Jordan Neil Sta Maria
 
+# Sprint 1 To dos:
+- @elle, @paul 
+	- pagawa ng square sized logo to replace logo in static
+	- padesign
+
 # Dependencies Guides:
 - Patient Side
 	- React Native https://reactnative.dev/docs/set-up-your-environment

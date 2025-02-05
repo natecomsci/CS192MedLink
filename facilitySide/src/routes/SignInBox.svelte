@@ -17,7 +17,7 @@
 		>Show</button>
 	</div>
 
-	<a href="/forgot">forget password?</a>
+	<!-- <a href="/forgot">forget password?</a> -->
 
 	<button>Sign In</button>
 
