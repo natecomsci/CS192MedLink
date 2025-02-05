@@ -24,13 +24,13 @@
   MedLink
 </h1>
 
-<p>id = {id}, password = {password}, showPassword = {show}, sign in clicked = </p>
-
 <SignInBox 
   bind:id
   bind:password
   bind:show
 />
+
+<p>id = {id}, password = {password}, showPassword = {show}, sign in clicked = </p>
 
 <!-- @paul, @elle padesign-->
 <style>

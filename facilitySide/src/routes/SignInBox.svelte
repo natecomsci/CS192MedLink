@@ -28,7 +28,8 @@
 
 	</div>
 
-	<button>Sign In</button>
+	<!-- to change to function check -->
+	<a href="/dashboard">Sign In</a>
 
 </div>
 
