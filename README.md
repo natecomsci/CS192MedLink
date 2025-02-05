@@ -21,6 +21,7 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 	
 - Facility Side
 	- SvelteKit https://svelte.dev/docs/kit/creating-a-project
+		- Routing https://www.youtube.com/watch?v=7hXHbGj6iE0
 	- TailwindCSS https://tailwindcss.com/docs/installation/framework-guides/sveltekit
 
 # To run
