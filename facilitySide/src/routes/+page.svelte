@@ -5,7 +5,6 @@
 
   let id;
   let password;
-  let show;
 
   function checkCredentials() {
     console.log("Checking Credentials")
@@ -30,13 +29,12 @@
     <SignInBox 
       bind:id
       bind:password
-      bind:show
-    />
+]    />
   </div>
 </article>
 
 
-<p>id = {id}, password = {password}, showPassword = {show}, sign in clicked = </p>
+<p>id = {id}, password = {password}, sign in clicked = </p>
 
 <!-- @paul, @elle padesign-->
 <style>

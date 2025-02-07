@@ -22,9 +22,9 @@
 		/>
 
 		<button 
-			onclick={() => show ? show = false : show =true}
+			onclick={() => show = !show}
 		>
-			Show
+			{show ? "Hide" : "Show"}
 		</button>
 
 	</div>
