@@ -5,15 +5,16 @@
 </script>
 
 
-<div class="signInBox">
+<div class="bg-gray-400 m-6 space-y-2 rounded-2xl p-6">
 	<h3>SIGN IN</h3>
 
 	<input 
 		bind:value={id} 
 		placeholder="ID"
+		class="bg-purple-300 rounded-2xl"
 	/>
 
-	<div class ="passwordBox">
+	<div class ="bg-purple-300 rounded-2xl">
 
 		<input 
 			bind:value={password} 
@@ -29,40 +30,6 @@
 	</div>
 
 	<!-- to change to function check -->
-	<a href="/dashboard">Sign In</a>
+	<a class="bg-purple-800 rounded-2xl" href="/dashboard">Sign In</a>
 
 </div>
-
-
-<!-- @paul, @elle padesign-->
-<style>
-	.signInBox {
-		width: 20em;
-		height: 20em;
-		border-radius: 0.5em;
-		margin: 0 0 0 0;
-
-		background-color: #eee;
-
-	    align: center;
-	}
-
-	h3 {
-		display: flex; 
-	    justify-content: left;
-	    align-items: left;
-	    color: goldenrod;
-		font-family: 'Comic Sans MS', cursize;
-		font-size: 2em;
-		color: #171519;
-		font-weight: bold;
-
-	}
-
-	input {
-		background-color: #ddd;
-		outline-style: solid;
-  		outline-color: red;
-	}
-</style>
-

@@ -18,17 +18,23 @@
   <a href="/dashboard">Dashboard</a>
 </nav>
 
-<img src={Logo} alt="The project logo" />
 
-<h1 class="text-3xl font-bold underline">
-  MedLink
-</h1>
+<article class="flex h-screen items-center justify-center">
+  <div>
+    <img src={Logo} alt="The project logo" width="100" height="100"/>
 
-<SignInBox 
-  bind:id
-  bind:password
-  bind:show
-/>
+    <h1 class="text-3xl font-bold underline">
+      MedLink
+    </h1>
+  
+    <SignInBox 
+      bind:id
+      bind:password
+      bind:show
+    />
+  </div>
+</article>
+
 
 <p>id = {id}, password = {password}, showPassword = {show}, sign in clicked = </p>
 
@@ -37,12 +43,6 @@
   @reference "tailwindcss/theme";
   :global(html) {
     background-color: theme(--color-gray-100);
-  }
-
-  h1 {
-    display: flex; /* or grid */
-    justify-content: center;
-    align-items: center;
   }
 
 </style>
