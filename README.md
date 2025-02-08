@@ -9,11 +9,6 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 - Judelle Clareese Gaza
 - Jordan Neil Sta Maria
 
-# Sprint 1 To dos:
-- @elle, @paul 
-	- pagawa ng square sized logo to replace logo in static
-	- padesign
-
 # Dependencies Guides:
 - Patient Side
 	- React Native https://reactnative.dev/docs/set-up-your-environment
@@ -21,7 +16,6 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 	
 - Facility Side
 	- SvelteKit https://svelte.dev/docs/kit/creating-a-project
-		- Routing https://www.youtube.com/watch?v=7hXHbGj6iE0
 	- TailwindCSS https://tailwindcss.com/docs/installation/framework-guides/sveltekit
 
 # To run
@@ -36,12 +30,10 @@ npm run web
 
 ## SvelteKit
 - Navigate to facilitySide directory
-- Run ```npm run dev```
+- Run ```npm run dev``` or ```npm run dev -- --open```
+- To create a production version of the app, run ```npm run build```
+- To preview the production build, run ```npm run preview```
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
 
 # In case of errors
 - Run ```npm install``` inside the directory with the error then rerun command
-
-# Framework guides
-## SvelteKit 
-- https://svelte.dev/docs/kit
-- https://svelte.dev/tutorial

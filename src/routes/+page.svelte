@@ -1,10 +1,8 @@
-<nav>
-  <a href="/">Landing Page</a>
-  <a href="/dashboard">Dashboard</a>
-</nav>
+<h1>Welcome to SvelteKit</h1>
+<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
 
 <h1 class="text-3xl font-bold underline">
-  Dashboard
+  Hello world!
 </h1>
 <style>
   @reference "tailwindcss/theme";
