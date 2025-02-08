@@ -1,7 +1,7 @@
 <script lang='ts'>
 	export let id = "";
 	export let password = "";
-	export let show = false;
+	export let show = $state(false);
 </script>
 
 
