@@ -5,8 +5,7 @@ import { error } from '@sveltejs/kit';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = ({ params }) => {
-	console.log(params.id);
-	if (true) {
+	if (params.id != undefined) {
 		return {
 			id: params.id,
 		};
