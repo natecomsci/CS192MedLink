@@ -9,6 +9,7 @@
 	let { search, guest } = $props();
 </script>
 
+<!-- @elle, @paul: padesign -->
 <div class="grid grid-cols-3 gap-8 sm:gap-6">
 	<div>
 		<Icon icon={Back} width="20" height="20" />
@@ -20,7 +21,6 @@
 
 	<div>		
 		<button onclick={() => filterOn = !filterOn}>
-			hello
 			<Icon icon={Filter} width="20" height="20" />
 		</button>
 	</div>

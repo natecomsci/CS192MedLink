@@ -12,12 +12,17 @@
 	let search = $state("");
 </script>
 
+<!-- temp -->
 <h1>Search: {guest ? "in guest mode" : "in signed in mode"}</h1>
 
+
+<!-- @elle, @paul: padesign -->
 <div class="grid grid-cols-3 gap-8 sm:gap-6">
 	<div>
 		<Icon icon={Search} width="20" height="20" />
 	</div>
+
+	<!-- insert vertical line -->
 	
 	<div>
 		<input placeholder="Search" bind:value={search} />

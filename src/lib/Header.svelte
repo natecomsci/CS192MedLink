@@ -7,6 +7,8 @@
 	let { guest = true, id = undefined } = $props();
 </script>
 
+
+<!-- @elle, @paul, padesign -->
 <header class="sticky top-0 z-10 w-full bg-brand shadow-md">
     <nav>
         <ul class="flex justify-center">
