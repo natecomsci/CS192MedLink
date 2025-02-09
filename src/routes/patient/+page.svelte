@@ -8,7 +8,7 @@
 <Search />
 
 <div class="grid grid-cols-2 justify-items-center p-8">
-  <button type="button" class="btn variant-filled-surface">Sign In</button>
+  <button type="button" class="btn variant-filled">Sign In</button>
   <button type="button" class="btn variant-filled">Sign Up</button>
 </div>
 

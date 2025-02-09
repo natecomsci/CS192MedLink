@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Logo from '$lib/images/Logo.png';
 	import Icon from '@iconify/svelte';
 
 	import FilterSettings from './FilterSettings.svelte'
@@ -16,7 +17,22 @@
 <form
 	class="grid grid-cols-1 justify-items-center p-8"
 >
-		
+	<div class="grid grid-cols-1 justify-items-center">
+    <img 
+      src={Logo} 
+      alt="MedLink logo" 
+      width="100" 
+      height="100"/>
+
+    <h1 class="">
+      Connecting you to healthcare, one search at a time.
+    </h1>
+  </div>
+
+	<div class="btn-group variant-filled">
+		<button>Facility</button>
+		<button>Service</button>
+	</div>
 	<div class="flex">
 		<div>
 			<Icon icon={Search} width="20" height="20" />

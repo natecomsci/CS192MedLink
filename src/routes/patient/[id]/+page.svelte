@@ -7,6 +7,6 @@
   let { data }: PageProps = $props();
 </script>
 
-<h1  class='text-3xl font-bold underline'>User ID: {data.id} Page</h1>
+<Header guest={false} id={data.id} />
 
-<Search guest={false}/>
+<Search guest={false} />

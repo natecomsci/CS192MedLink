@@ -5,12 +5,9 @@
 
   import type { PageProps } from './$types';
 
-  let { data, children } = $props();
-
+  let { children } = $props();
 
 </script>
-
-<Header guest={false} id={data.id} />
 
 {@render children()}
 
