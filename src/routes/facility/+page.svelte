@@ -34,4 +34,4 @@
 </article>
 
 <!-- temp for functionality -->
-<p>id = {fid}, password = {password}, sign in clicked = </p>
+<!-- <p>id = {fid}, password = {password}, sign in clicked = </p> -->

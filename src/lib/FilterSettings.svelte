@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { Accordion, AccordionItem } from '@skeletonlabs/skeleton';
-
 	import Icon from '@iconify/svelte';
 
   let Back = "mdi-light:back"

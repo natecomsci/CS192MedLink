@@ -1,6 +1,4 @@
 <script lang='ts'>
-	import { focusTrap } from '@skeletonlabs/skeleton';
-
 	let { fid=$bindable(), password=$bindable() } = $props();
 	let show = $state(true);
 </script>
@@ -21,7 +19,7 @@
 				class="input" 
 				type="text" 
 				placeholder="ID" 
-				data-focusindex="0" 
+				required 
 			/>
 		</label>
 	</div>
@@ -34,11 +32,11 @@
 				class="input" 
 				type={show ? 'text' : 'password'}
 				placeholder="Password"
-				data-focusindex="1" 
+				required 
 			/>
 
 			<button 
-				class="btn variant-filled-surface" 
+				class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
 				type="button" 
 				onclick="{ () => show = !show }"
 			>
@@ -52,6 +50,11 @@
 		
 
 	<!-- to change to function check -->
-	<a class="bg-purple-800 rounded-2xl" href="/facility/{fid}/dashboard">Sign In</a>
+	<a 
+		class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800" 
+		href="/facility/{fid}/dashboard"
+	>
+		Sign In
+	</a>
 
 </form>
