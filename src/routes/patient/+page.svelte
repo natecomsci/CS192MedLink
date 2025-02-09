@@ -5,14 +5,11 @@
 
 <Header />
 
-<nav>
-  <a href="/">Landing Page</a>
-  <a href="/patient/1">Patient 1</a>
-
-</nav>
-
-<h1 class='text-3xl font-bold underline'>Patient: Landing Page, guest search</h1>
-
-
-
 <Search />
+
+<div class="grid grid-cols-2 justify-items-center p-8">
+  <button type="button" class="btn variant-filled-surface">Sign In</button>
+  <button type="button" class="btn variant-filled">Sign Up</button>
+</div>
+
+

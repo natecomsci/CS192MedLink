@@ -38,7 +38,7 @@
 			/>
 
 			<button 
-				class="btn variant-filled" 
+				class="btn variant-filled-surface" 
 				type="button" 
 				onclick="{ () => show = !show }"
 			>
