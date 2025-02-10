@@ -8,8 +8,21 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Manager {
+  hospitalId Int    @id @default(autoincrement())
+  name       String @unique
+  password   String
+}
+
+model Admin {
+  adminId Int    @id @default(autoincrement())
+  name       String 
+  password   String
+}
+
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
-  email String @unique
+  userId        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
 }
