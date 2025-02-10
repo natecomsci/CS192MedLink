@@ -26,6 +26,7 @@
     "@iconify/icons-simple-icons": "^1.2.74",
     "@iconify/svelte": "^4.2.0",
     "@iconify/types": "^2.0.0",
+    "@supabase/supabase-js": "^2.48.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.0.5",
     "tailwindcss": "^4.0.5"
