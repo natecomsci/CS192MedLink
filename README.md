@@ -11,7 +11,7 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 
 # Dependencies Guides:
 - SvelteKit https://svelte.dev/docs/kit/creating-a-project
-- Prisma (@jdn-12, pa add here)
+- Prisma https://www.prisma.io/docs
 - TailwindCSS https://tailwindcss.com/docs/installation/framework-guides/sveltekit
 
 # To run
@@ -22,3 +22,8 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 
 # In case of errors
 - Run ```npm install``` then rerun command
+
+# To run Prisma
+- Run ```npm install @faker-js/faker @prisma/client```
+- Faker generates realistic data for the database
+- All initializations for Prisma should already be done in the repository when cloned 
