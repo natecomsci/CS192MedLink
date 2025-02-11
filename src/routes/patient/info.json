@@ -1,0 +1,12 @@
+{
+  "admins": [
+    {
+      "userID": "1"
+    }
+  ],
+  "patients": [
+    {
+      "userID": "1"
+    }
+  ]
+}
