@@ -1,14 +1,13 @@
-<script>
+<script lang="ts">
   import Logo from '$lib/images/Logo.png';
 
   import SignInBox from './SignInBox.svelte';
 
+
+  let { data } = $props();
+
   let fid = $state('');
   let password = $state('');
-
-  function checkCredentials() {
-    console.log("Checking Credentials")
-  }
 
 </script>
 
@@ -35,3 +34,6 @@
 
 <!-- temp for functionality -->
 <!-- <p>id = {fid}, password = {password}, sign in clicked = </p> -->
+
+
+{console.log(data.feed[0])}

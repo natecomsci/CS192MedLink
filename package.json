@@ -33,9 +33,10 @@
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/vite": "^4.0.5",
     "tailwindcss": "^4.0.5",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "vite-node": "^3.0.5"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "vite-node prisma/seed.ts"
   }
 }
