@@ -3,8 +3,9 @@
 
   import SignInBox from './SignInBox.svelte';
 
+  import type { PageData } from './$types';
 
-  let { data } = $props();
+  let { data }: PageData = $props();
 
   let fid = $state('');
   let password = $state('');
@@ -34,6 +35,5 @@
 
 <!-- temp for functionality -->
 <!-- <p>id = {fid}, password = {password}, sign in clicked = </p> -->
-
 
 {console.log(data.feed[0])}

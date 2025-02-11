@@ -3,8 +3,7 @@
 
   let Settings = "mdi-light:settings"
   let Bookmarks = "mdi-light:bookmark"
-
-	let { guest = true, id = undefined } = $props();
+  let { guest = true, id = undefined } = $props();
 </script>
 
 
@@ -14,7 +13,7 @@
         <ul class="flex justify-center">
         		{#if !guest}
 							<li>
-	                <a href="/patient/{id}/settings"
+	                <a 
 	                    ><Icon icon={Settings} width="20" height="20" /></a
 	                >
 	            </li>
@@ -28,7 +27,7 @@
 
             {#if !guest}
 							<li>
-	                <a href="/patient/{id}/bookmarks"
+	                <a 
 	                    ><Icon icon={Bookmarks} width="20" height="20" /></a
 	                >
 	            </li>
@@ -37,3 +36,6 @@
         </ul>
     </nav>
 </header>
+
+<!-- href="/patient/{id}/settings" -->
+<!-- href="/patient/{id}/bookmarks" -->
