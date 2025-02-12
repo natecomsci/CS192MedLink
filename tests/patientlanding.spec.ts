@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Check if all elements are present on MedLink homepage', async ({ page }) => {
   // Navigate to the webpage
-  await page.goto('http://localhost:5173');
+  await page.goto('/');
 
   // Check if the MedLink title is present
   await expect(page.locator('text=MedLink')).toBeVisible();
