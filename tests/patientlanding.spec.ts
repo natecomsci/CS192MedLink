@@ -41,34 +41,3 @@ test.describe('MedLink Homepage UI Tests', () => {
   });
 
 });
-
-
-/*
-test('Check if filter button toggles filter options', async ({ page }) => {
-  // Navigate to the webpage
-  await page.goto('http://localhost:4173');
-
-  // Locate the filter button (assuming it's the button with an SVG inside)
-  const filterButton = page.locator('button:has(svg)');
-
-  // Ensure the filter button is visible before interacting
-  await expect(filterButton).toBeVisible();
-
-  // Click the filter button
-  await filterButton.click();
-
-  await expect(page.getByText('Type', { exact: true })).toBeVisible();
-  await expect(page.getByText('Ownership', { exact: true })).toBeVisible();
-  await expect(page.getByText('Distance Range', { exact: true })).toBeVisible();
-  await expect(page.getByText('Insurance Coverage', { exact: true })).toBeVisible();
-  await expect(page.getByText('Show Only Covered Facilities', { exact: true })).toBeVisible();
-  await expect(page.getByText('View Filtered Results', { exact: true })).toBeVisible();
-
-  // (Optional) Click again to hide the filters
-  await filterButton.click();
-
-  // Ensure the options are hidden
-  await expect(page.getByText('Type', { exact: true })).not.toBeVisible();
-  await expect(page.getByText('Ownership', { exact: true })).not.toBeVisible();
-});
-*/

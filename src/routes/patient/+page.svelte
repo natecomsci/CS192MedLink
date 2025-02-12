@@ -1,7 +1,6 @@
 <script>
   import Search from '$lib/Search.svelte'
   import Header from '$lib/Header.svelte'
-  import info from './info.json'
 </script>
 
 <Header />

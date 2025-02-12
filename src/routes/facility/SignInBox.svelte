@@ -6,15 +6,11 @@
 
 </script>
 
-
-
 <!-- @elle, @paul: padesign -->
 <form 
 	class="bg-gray-400 m-6 space-y-2 rounded-2xl p-6 "
 >
-
 	<h3>SIGN IN</h3>
-
 
 	<div>
 		<label class="label">
@@ -54,8 +50,6 @@
 
 	</div>
 		
-
-	<!-- to change to function check -->
 	<a 
 		class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800" 
 	>
@@ -63,5 +57,3 @@
 	</a>
 
 </form>
-
-<!-- 		onclick="{ () => goto('facility/' + fid + '/dashboard') }" -->

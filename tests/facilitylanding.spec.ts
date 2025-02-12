@@ -41,33 +41,3 @@ test.describe('Facility Page UI Tests', () => {
   });
 
 });
-
-
-
-/*
-test('Check password hide functionality', async ({ page }) => {
-
-  await page.goto('http://localhost:5173/facility');
-  // Locate the password field
-  const passwordField = page.getByPlaceholder('Password');
-  await expect(passwordField).toBeVisible();
-
-  // Type a password (e.g., "12345")
-  await passwordField.fill('12345');
-
-  //  Ensure password is initially visible (type is 'text')
-  await expect(passwordField).toHaveAttribute('type', 'text');
-
-  // Click the Hide button
-  await page.getByText('Hide', { exact: true }).click({force: true});
-
-  //  Ensure password is  hidden
-  await expect(passwordField).toHaveAttribute('type', 'password');
-
-  // Click the Hide button again (toggle back)
-  await page.getByText('Show', { exact: true }).click({force: true});
-
-  //  Ensure password is visible again
-  await expect(passwordField).toHaveAttribute('type', 'text');
-});
-*/
