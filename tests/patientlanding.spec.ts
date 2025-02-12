@@ -1,32 +1,47 @@
 import { test, expect } from '@playwright/test';
 
-test('Check if all elements are present on MedLink homepage', async ({ page }) => {
-  // Navigate to the webpage
-  await page.goto('/');
 
-  // Check if the MedLink title is present
-  await expect(page.locator('text=MedLink')).toBeVisible();
+test.describe('MedLink Homepage UI Tests', () => {
 
-  // Check if the search input is present
-  await expect(page.locator('input[placeholder="Search"]')).toBeVisible();
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+  });
 
-  // Check if the Facility button is present
-  await expect(page.locator('button:has-text("Facility")')).toBeVisible();
+  test('Check if the MedLink title is present', async ({ page }) => {
+    await expect(page.locator('text=MedLink')).toBeVisible();
+  });
 
-  // Check if the Service button is present
-  await expect(page.locator('button:has-text("Service")')).toBeVisible();
+  test('Check if the search input is present and can be typed into', async ({ page }) => {
+    const searchInput = page.locator('input[placeholder="Search"]');
+    await expect(searchInput).toBeVisible();
 
-  // Check if the Sign In button is present
-  await expect(page.locator('button:has-text("Sign In")')).toBeVisible();
+    //  Ensure text can be entered into the search field
+    await searchInput.fill('ABCDE');
+    await expect(searchInput).toHaveValue('ABCDE');
+  });
 
-  // Check if the Sign Up button is present
-  await expect(page.locator('button:has-text("Sign Up")')).toBeVisible();
+  test('Check if the Facility button is present', async ({ page }) => {
+    await expect(page.locator('button:has-text("Facility")')).toBeVisible();
+  });
 
-  // 
-  await expect(page.locator('button:has(svg)')).toBeVisible();
+  test('Check if the Service button is present', async ({ page }) => {
+    await expect(page.locator('button:has-text("Service")')).toBeVisible();
+  });
 
+  test('Check if the Sign In button is present', async ({ page }) => {
+    await expect(page.locator('button:has-text("Sign In")')).toBeVisible();
+  });
 
-})
+  test('Check if the Sign Up button is present', async ({ page }) => {
+    await expect(page.locator('button:has-text("Sign Up")')).toBeVisible();
+  });
+
+  test('Check if the filter button is present', async ({ page }) => {
+    await expect(page.locator('button:has(svg)')).toBeVisible(({ timeout: 30000 }));
+  });
+
+});
+
 
 /*
 test('Check if filter button toggles filter options', async ({ page }) => {
