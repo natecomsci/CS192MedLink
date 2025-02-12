@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Check UI elements and password toggle', async ({ page }) => {
   // Navigate to the webpage
-  await page.goto('http://localhost:4173/facility');
+  await page.goto('http://localhost:5173/facility');
 
   // ✅ Check if "MedLink" text is present
   await expect(page.getByText('MedLink', { exact: true })).toBeVisible();
@@ -29,7 +29,7 @@ test('Check UI elements and password toggle', async ({ page }) => {
 
 test('Check password hide functionality', async ({ page }) => {
 
-  await page.goto('http://localhost:4173/facility');
+  await page.goto('http://localhost:5173/facility');
   // Locate the password field
   const passwordField = page.getByPlaceholder('Password');
   await expect(passwordField).toBeVisible();
