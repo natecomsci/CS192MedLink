@@ -9,33 +9,22 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 - Judelle Clareese Gaza
 - Jordan Neil Sta Maria
 
-# Dependencies Guides:
-- Patient Side
-	- React Native https://reactnative.dev/docs/set-up-your-environment
-	- NativeWind https://blog.logrocket.com/getting-started-nativewind-tailwind-react-native/
-	
-- Facility Side
-	- SvelteKit https://svelte.dev/docs/kit/creating-a-project
-	- TailwindCSS https://tailwindcss.com/docs/installation/framework-guides/sveltekit
+# To run locally
+- `git clone` the repo
+- `cd` to the repo
+- `npm install` to install the dependencies
+- `npx prisma studio` to run the database; this should open a localhost:5555 tab
+- `npm run dev` or `npm run dev -- --open` to run the actual web app
 
-# To run
-## React Native
-- Navigate to patientSide directory
-- Run either of the following commands
-```
-npm run android
-npm run ios
-npm run web
-```
+> In case of errors, run `npm install` then rerun command
 
-## SvelteKit
-- Navigate to facilitySide directory
-- Run ```npm run dev```
+# Production version
+- `npm run build` to build a production version
+- `npm run preview` to preview the production build
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
 
-# In case of errors
-- Run ```npm install``` inside the directory with the error then rerun command
-
-# Framework guides
-## SvelteKit 
-- https://svelte.dev/docs/kit
-- https://svelte.dev/tutorial
+# Dependency Guides:
+- Svelte https://svelte.dev/docs/svelte/overview
+- SvelteKit https://svelte.dev/docs/kit/introduction
+- Prisma https://www.prisma.io/docs
+- TailwindCSS https://tailwindcss.com/docs/installation/framework-guides/sveltekit
