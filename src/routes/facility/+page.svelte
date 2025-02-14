@@ -1,9 +1,13 @@
 <script lang="ts">
+  import type { PageData } from './$types';
+
   import Logo from '$lib/images/Logo.png';
 
   let fid = $state('');
   let password = $state('');
   let show = $state(false);
+
+  let { data }: PageData = $props();
 
 </script>
 
@@ -58,3 +62,6 @@
     <button type="submit" class="text-white bg-purple-700 rounded-2xl">Log in</button>
   </form>
 </div>
+
+
+{console.log(data.feed)}
