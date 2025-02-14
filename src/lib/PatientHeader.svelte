@@ -3,7 +3,7 @@
 
   let Settings = "mdi-light:settings"
   let Bookmarks = "mdi-light:bookmark"
-  let { guest = true, id } = $props();
+  let { guest = true, id = 0} = $props();
 </script>
 
 <!-- @elle, @paul, padesign -->

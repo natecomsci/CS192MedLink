@@ -1,9 +1,9 @@
 <script>
   import Search from '$lib/Search.svelte'
-  import Header from '$lib/Header.svelte'
+  import PatientHeader from '$lib/PatientHeader.svelte'
 </script>
 
-<Header />
+<PatientHeader />
 
 <Search />
 

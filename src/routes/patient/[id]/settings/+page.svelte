@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Header from '$lib/Header.svelte'
+  import PatientHeader from '$lib/PatientHeader.svelte'
 </script>
 
-<Header />
+<PatientHeader />
 
 <h1>Patient Settings Page</h1>
