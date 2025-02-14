@@ -32,6 +32,7 @@
       value={fid}
       placeholder="Employee ID" 
       class="bg-white rounded-md"
+      required
     >
 
     <div
@@ -42,6 +43,7 @@
         type={show ? "text" : "password"}
         value={password}
         placeholder="Password" 
+        required
       >
       <label
         class="text-purple-500 pr-2"
