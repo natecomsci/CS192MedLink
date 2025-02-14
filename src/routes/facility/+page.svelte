@@ -1,15 +1,14 @@
 <script lang="ts">
   import Logo from '$lib/images/Logo.png';
 
-  import SignInBox from './SignInBox.svelte';
-
   let fid = $state('');
   let password = $state('');
+  let show = $state(false);
 
 </script>
 
 <!-- @elle, @paul: padesign -->
-<article class="grid grid-cols-1 justify-items-center p-8">
+<div class="grid grid-cols-1 justify-items-center p-8">
   <div class="grid grid-cols-1 justify-items-center">
     <img 
       src={Logo} 
@@ -21,10 +20,41 @@
       MedLink
     </h1>
   </div>
-  <div>
-    <SignInBox 
-      bind:fid
-      bind:password
-    />
-  </div>
-</article>
+
+  <form 
+    method="POST"
+    class="grid grid-cols-1 bg-gray-400 m-6 space-y-2 rounded-2xl p-6"
+  >
+    <h2>SIGN IN</h2>
+    <input 
+      name="fid"
+      type="text"
+      value={fid}
+      placeholder="Employee ID" 
+      class="bg-white rounded-md"
+    >
+
+    <div
+      class="bg-white rounded-md"
+    >
+      <input 
+        name="password" 
+        type={show ? "text" : "password"}
+        value={password}
+        placeholder="Password" 
+      >
+      <label
+        class="text-purple-500 pr-2"
+      >
+        show
+        <input type="button" onclick={() => show = !show}>
+      </label>
+
+    </div>
+      
+
+    <button type="submit" class="text-white bg-purple-700 rounded-2xl">Log in</button>
+  </form>
+</div>
+
+
