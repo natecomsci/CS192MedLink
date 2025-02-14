@@ -1,11 +1,11 @@
 <script>
-  import Search from '$lib/Search.svelte'
+  import PatientSearch from '$lib/PatientSearch.svelte'
   import PatientHeader from '$lib/PatientHeader.svelte'
 </script>
 
 <PatientHeader />
 
-<Search />
+<PatientSearch />
 
 <div class="grid grid-cols-2 justify-items-center p-8">
 

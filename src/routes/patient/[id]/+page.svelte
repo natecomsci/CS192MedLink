@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Search from '$lib/Search.svelte'
+  import PatientSearch from '$lib/PatientSearch.svelte'
   import PatientHeader from '$lib/PatientHeader.svelte'
 
   import type { PageProps } from './$types';
@@ -9,4 +9,4 @@
 
 <PatientHeader guest={false} id={data.id} />
 
-<Search guest={false} />
+<PatientSearch guest={false} />
