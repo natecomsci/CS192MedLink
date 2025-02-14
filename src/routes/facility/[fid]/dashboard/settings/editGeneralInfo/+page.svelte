@@ -26,7 +26,6 @@
 
       <Button>{region}<ChevronDownOutline class="w-6 h-6 ms-2 text-white dark:text-white" /></Button>
       <Dropdown>
-        
           <DropdownItem on:click={() => region = "NCR"}>NCR</DropdownItem>
         
       </Dropdown>
