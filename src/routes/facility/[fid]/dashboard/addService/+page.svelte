@@ -3,8 +3,19 @@
   import { Button, Dropdown, DropdownItem } from 'flowbite-svelte';
   import { ChevronDownOutline } from 'flowbite-svelte-icons';
 
-  let serviceType: String = $state('Select Service')
+  import type { PageProps } from './$types';
 
+  import Ambulance from './Ambulance.svelte';
+  import BloodBank from './BloodBank.svelte';
+  import ER from './ER.svelte';
+  import ICU from './ICU.svelte';
+  import OutPatient from './OutPatient.svelte';
+
+
+
+  let { data }: PageProps = $props();
+
+  let serviceType: String = $state('Select Service')
 
   function changeServiceType (service: String) {
     serviceType = service;
@@ -33,53 +44,26 @@
       </Dropdown>
     </label>
 
-
-
-
-    <label>
-      Service Title
+    <label
+      class="grid grid-cols-1"
+    >
       {#if serviceType == "Ambulance"}
-        <p>ambulance init fields</p>
-        <label>
-          Availability
-          <input 
-            type="text"
-            placeholder="value" 
-          >
-        </label>
-        
+        <Ambulance {serviceType}/>
       {:else if serviceType == "Blood Bank"}
-        <p>bloodBank init fields</p>
+        <BloodBank {serviceType}/>
       {:else if serviceType == "Emergency Room"}
-        <p>er init fields</p>
+        <ER {serviceType}/>
       {:else if serviceType == "ICU"}
-        <p>icu init fields</p>
+        <ICU {serviceType}/>
       {:else if serviceType == "Out Patient"}
-        <p>outPatient init fields</p>
+        <OutPatient {serviceType}/>
       {/if}
     </label>
-    <!-- <div
-      class="bg-white rounded-md"
-    >
-      <input 
-        name="password" 
-        type={show ? "text" : "password"}
-        bind:value={password}
-        placeholder="Password" 
-        required
-      >
-      <label
-        class="text-purple-500 pr-2"
-      >
-        {show ? "hide" : "show"}
-        <input type="button" onclick={() => show = !show}>
-      </label>
 
-    </div> -->
-      
-    <div>
-      <button type="submit" class="text-white bg-purple-700 rounded-2xl">Add</button>
-      
+    <div class="flex justify-end p-2">
+      <button type="submit" class="text-white bg-purple-700 rounded-2xl p-2 m-2">Add</button>
+      <a href="../dashboard" class="text-black bg-gray-100 rounded-2xl p-2 m-2">Cancel</a>
+
     </div>
     
   </form>
