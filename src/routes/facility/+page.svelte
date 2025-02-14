@@ -29,7 +29,7 @@
     <input 
       name="fid"
       type="text"
-      value={fid}
+      bind:value={fid}
       placeholder="Employee ID" 
       class="bg-white rounded-md"
       required
@@ -41,14 +41,14 @@
       <input 
         name="password" 
         type={show ? "text" : "password"}
-        value={password}
+        bind:value={password}
         placeholder="Password" 
         required
       >
       <label
         class="text-purple-500 pr-2"
       >
-        show
+        {show ? "hide" : "show"}
         <input type="button" onclick={() => show = !show}>
       </label>
 
@@ -58,5 +58,3 @@
     <button type="submit" class="text-white bg-purple-700 rounded-2xl">Log in</button>
   </form>
 </div>
-
-
