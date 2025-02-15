@@ -18,18 +18,6 @@ enum SecurityQuestion {
   TO_ADD
 }
 
-enum region {
-  TO_ADD
-}
-
-enum pOrC { // Province or Chartered City
-  TO_ADD
-}
-
-enum mOrB { // Municipality or Barangay
-  TO_ADD
-}
-
 enum FacilityType {
   TO_ADD
 }
