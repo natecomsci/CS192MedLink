@@ -18,15 +18,15 @@ enum SecurityQuestion {
   TO_ADD
 }
 
-enum Region {
+enum region {
   TO_ADD
 }
 
-enum POrC { // Province or Chartered City
+enum pOrC { // Province or Chartered City
   TO_ADD
 }
 
-enum MOrB { // Municipality or Barangay
+enum mOrB { // Municipality or Barangay
   TO_ADD
 }
 
@@ -93,6 +93,46 @@ model Patient {
   folders     Folder[]
 }
 
+model Region {
+  regionID String @id @default(uuid())
+  name     String @unique
+
+  // RELATIONS
+
+  // Region - POrC : A Region may have multiple Provinces or Cities.
+  pOrCs    POrC[]
+
+  // Region - Address : A Region may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
+model POrC {
+  pOrCID   String @id @default(uuid())
+  name     String @unique
+  region   Region @relation(fields: [regionID], references: [regionID])
+  regionID String
+
+  // RELATIONS
+
+  // POrC - MOrB : A Province or City may have multiple Municipalities or Barangays.
+  mOrBs    MOrB[]
+
+  // POrC - Address : A Province or City may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
+model MOrB {
+  mOrBID  String @id @default(uuid())
+  name    String @unique
+  pOrC    POrC @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID  String
+
+  // RELATIONS
+
+  // MOrB - Address : A Municipality or Barangay may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
 // Address cohesion is (e.g. region = 3, pOrC = NCR, mOrB = Platero is not allowed) is handled by business logic.
 
 // A separate Prisma model may not be so good for performance but a needed cop-out solution because only Prisma + MongoDB supports composite attributes.
@@ -100,9 +140,15 @@ model Patient {
 model Address {
   addressID String @id @default(uuid())
 
-  region    Region
-  pOrC      POrC
-  mOrB      MOrB
+  region    Region @relation(fields: [regionID], references: [regionID])
+  regionID  String
+
+  pOrC      POrC   @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID    String
+
+  mOrB      MOrB   @relation(fields: [mOrBID], references: [mOrBID])
+  mOrBID    String
+
   street    String
 
   // RELATIONS
@@ -111,7 +157,7 @@ model Address {
   facility   Facility @relation(fields: [facilityID], references: [facilityID])
   facilityID String   @unique
 
-  @@unique([region, pOrC, mOrB, street]) // Ensures that each Facility has a unique address.
+  @@unique([regionID, pOrCID, mOrBID, street]) // Ensures each Facility has a unique Address.
 }
 
 // The data layer merged Managers and Facilities.
