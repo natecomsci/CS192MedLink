@@ -24,10 +24,7 @@
                 <a class="block p-4" href="/facility/1/dashboard/addService">F-Add</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/1/dashboard/settings">F-Set</a>
-            </li>
-            <li>
-                <a class="block p-4" href="/facility/1/dashboard/settings/editGeneralInfo">F-Edit</a>
+                <a class="block p-4" href="/facility/1/dashboard/editGeneralInfo">F-Edit</a>
             </li>
         </ul>
     </nav>
