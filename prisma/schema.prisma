@@ -605,7 +605,7 @@ model AmbulanceService {
   facilityID String    @id
 
   // Service - Division : If a Facility has Divisions, every AmbulanceService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is managed by business logic.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
   divisionID String?   @unique                                                                      // "@unique" is needed to enforce one-to-one relationships on Prisma.
 
   @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
@@ -646,7 +646,7 @@ model BloodBankService {
   facilityID String    @id
 
   // Service - Division : If a Facility has Divisions, every BloodBankService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is managed by business logic.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
   divisionID String?   @unique                                                                      // unique indicator needed to enforce one-to-one relationships on Prisma.
 
   @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
@@ -672,7 +672,7 @@ model ERService {
   facilityID String    @id
 
   // Service - Division : If a Facility has Divisions, every ERService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is managed by business logic.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
   divisionID String?   @unique                                                                      // unique indicator needed to enforce one-to-one relationships on Prisma.
 
   @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
@@ -697,7 +697,7 @@ model ICUService {
   facilityID String    @id
 
   // Service - Division : If a Facility has Divisions, every ICUService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is managed by business logic.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
   divisionID String?   @unique                                                                      // unique indicator needed to enforce one-to-one relationships on Prisma.
 
   @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
@@ -720,7 +720,7 @@ model OutpatientService {
   facilityID String
 
   // Service - Division : If a Facility has Divisions, every OutpatientService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is managed by business logic.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
   divisionID String?
 
   @@id([facilityID, serviceType])
