@@ -8,101 +8,117 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-// ENUMS 
+// ENUMS
 
 enum Provider {
-  INTELLICARE           // Asalus Corporation
-  ASIACARE              // Asiancare Health Systems, Inc.
-  AVEGA                 // Avega Managed Care, Inc.
-  CAREWELL              // Carewell Health Systems, Inc.
-  COOPERATIVE_HEALTH    // Cooperative Health Management Federation
-  DYNAMIC_CARE          // Dynamic Care Corporation
-  EASTWEST_HEALTH       // EastWest Healthcare, Inc.
-  FORTICARE             // Forticare Health Systems International, Inc.
-  GETWELL_HEALTH        // Getwell Health Systems, Inc.
-  HCDC                  // Healthcare and Development Corporation of the Philippines
-  HEALTH_DELIVERY       // Health Delivery System, Inc.
-  HEALTH_MAINTENANCE    // Health Maintenance, Inc.
-  HEALTH_PLAN_PH        // Health Plan Philippines, Inc.
-  IMS_WELLTH_CARE       // IMS Wellth Care, Inc.
-  ICARE                 // Insular Health Care, Inc.
-  KAISER_INTERNATIONAL  // Kaiser International Healthgroup, Inc.
-  LIFE_HEALTH_HMP       // Life & Health HMP, Inc.
-  MAXICARE              // Maxicare Healthcare Corp.
-  MEDICARD              // Medicard Philippines, Inc.
-  IMEDICARE             // iMedicare Plus, Inc.
-  MEDOCARE              // Medocare Health Systems, Inc.
-  METROCARE             // Metrocare Health Systems, Incorporated
-  OPTIMUM_MEDICAL       // Optimum Medical and Healthcare Services, Inc.
-  PACIFIC_CROSS         // Pacific Cross Health Care, Inc.
-  PHILHEALTHCARE        // PhilhealthCare, Inc.
-  VALUE_CARE            // Value Care Health Systems, Inc.
-  WELLCARE_HEALTH       // Wellcare Health Maintenance, Inc.
+  INTELLICARE              // Asalus Corporation
+  ASIACARE                 // Asiancare Health Systems, Inc.
+  AVEGA                    // Avega Managed Care, Inc.
+  CAREWELL                 // Carewell Health Systems, Inc.
+  one_COOPHEALTH           // Cooperative Health Management Federation
+  DYNAMIC_CARE_CORPORATION // Dynamic Care Corporation
+  EASTWEST_HEALTHCARE      // EastWest Healthcare, Inc.
+  FORTICARE                // Forticare Health Systems International, Inc.
+  GETWELL                  // Getwell Health Systems, Inc.
+  HC_and_D                 // Healthcare and Development Corporation of the Philippines
+  HEALTHFIRST              // Health Delivery System, Inc.
+  HMI                      // Health Maintenance, Inc. // has optional Dental Plan
+  HPPI                     // Health Plan Philippines, Inc.
+  IWC                      // IMS Wellth Care, Inc.
+  ICARE                    // Insular Health Care, Inc.
+  KAISER                   // Kaiser International Healthgroup, Inc.
+  LIFE_and_HEALTH          // Life & Health HMP, Inc.
+  MAXICARE                 // Maxicare Healthcare Corp.
+  MEDICARD                 // Medicard Philippines, Inc.
+  MEDICARE                 // iMedicare Plus, Inc.
+  MEDOCARE                 // Medocare Health Systems, Inc.
+  METROCARE                // Metrocare Health Systems, Incorporated
+  OMHSI                    // Optimum Medical and Healthcare Services, Inc.
+  PACIFIC_CROSS            // Pacific Cross Health Care, Inc.
+  PHILHEALTH               // PhilhealthCare, Inc.
+  VALUCARE                 // Value Care Health Systems, Inc.
+  WELLCARE                 // Wellcare Health Maintenance, Inc.
 }
 
 enum SecurityQuestion {
-  StreetName            // What is the name of the street you grew up on?
-  FirstFriendNickname   // What was the nickname of your first childhood friend?
-  FavoriteOutdoorGame   // What was your favorite game to play outside as a kid?
-  FirstPetName          // What was the name of your first pet?
-  InfluentialTeacher    // What was the name of a childhood teacher who influenced you?
-  FavoriteTVShow        // What was the first TV show you loved watching?
-  FavoriteUlam          // What was your childhood favorite ulam?
-  UnusualStreetFood     // What’s the most unusual street food you ever tried as a child?
-  FirstJob              // What was your first job or side hustle?
-  MemorableBirthdayGift // What is the most memorable birthday gift you received as a child?
+  STREETNAME            // What is the name of the street you grew up on?
+  FIRSTFRIENDNICKNAME   // What was the nickname of your first childhood friend?
+  FAVORITEOUTDOORGAME   // What was your favorite game to play outside as a kid?
+  FIRSTPETNAME          // What was the name of your first pet?
+  INFLUENTIALTEACHER    // What was the name of a childhood teacher who influenced you?
+  FAVORITETVSHOW        // What was the first TV show you loved watching?
+  FAVORITEULAM          // What was your childhood favorite ulam?
+  UNUSUALSTREETFOOD     // What’s the most unusual street food you ever tried as a child?
+  FIRSTJOB              // What was your first job or side hustle?
+  MEMORABLEBIRTHDAYGIFT // What is the most memorable birthday gift you received as a child?
 }
 
 enum FacilityType {
-  HOSPITAL 
-  CLINIC 
-  HEALTH_CENTER 
-  POLYCLINIC 
-  URGENT_CARE_CENTER 
-  DIAGNOSTIC_LAB 
-  RADIOLOGY_CENTER 
-  PATHOLOGY_LAB 
-  GENETIC_TESTING_LAB 
-  DENTAL_CLINIC 
-  DERMATOLOGY_CLINIC 
-  OPHTHALMOLOGY_CLINIC 
-  ENT_CLINIC 
-  ORTHOPEDIC_CLINIC 
-  CARDIOLOGY_CLINIC 
-  NEUROLOGY_CLINIC 
-  ENDOCRINOLOGY_CLINIC 
-  GASTROENTEROLOGY_CLINIC 
-  PULMONOLOGY_CLINIC 
-  RHEUMATOLOGY_CLINIC 
-  UROLOGY_CLINIC 
-  NEPHROLOGY_CLINIC 
-  MATERNITY_CENTER 
-  PEDIATRIC_CLINIC 
-  FERTILITY_CLINIC 
-  NEONATAL_CARE_UNIT 
-  EMERGENCY_CENTER 
-  TRAUMA_CENTER 
-  CRITICAL_CARE_CENTER 
-  BURN_CENTER 
-  POISON_CONTROL_CENTER 
-  DIALYSIS_CENTER 
-  REHABILITATION_CENTER 
-  MENTAL_HEALTH_FACILITY 
-  SUBSTANCE_ABUSE_CENTER 
-  PAIN_MANAGEMENT_CLINIC 
-  SLEEP_CENTER 
-  BLOOD_BANK 
-  TRANSPLANT_CENTER 
-  RENAL_TRANSPLANT_CENTER 
-  AMBULATORY_CARE_CENTER 
-  ONCOLOGY_CENTER 
+  // Hospitals & General Medical Centers  
+  BARANGAY_HEALTH_CENTER
+  CLINIC
+  HEALTH_CENTER
+  HOSPITAL
+  INFIRMARY
+  POLYCLINIC
+  PRIMARY_CARE_CLINIC
+
+  // Specialty Medical Clinics
+  CARDIOLOGY_CLINIC
+  DENTAL_CLINIC
+  DERMATOLOGY_CLINIC
+  ENDOCRINOLOGY_CLINIC
+  ENT_CLINIC
+  FERTILITY_CLINIC
+  GASTROENTEROLOGY_CLINIC
   IMMUNOLOGY_CENTER
-  PHYSICAL_THERAPY_CENTER 
-  INFECTIOUS_DISEASE_CENTER 
-  ALTERNATIVE_MEDICINE_CENTER 
-  HERBAL_MEDICINE_CENTER 
-  AMBULANCE_SERVICE 
-  INFIRMARY 
+  INFECTIOUS_DISEASE_CENTER
+  MATERNITY_CENTER
+  NEPHROLOGY_CLINIC
+  NEUROLOGY_CLINIC
+  ONCOLOGY_CENTER
+  OPHTHALMOLOGY_CLINIC
+  ORTHOPEDIC_CLINIC
+  PEDIATRIC_CLINIC
+  PULMONOLOGY_CLINIC
+  RHEUMATOLOGY_CLINIC
+  UROLOGY_CLINIC
+
+  // Diagnostic & Laboratory Facilities
+  DIAGNOSTIC_LAB
+  GENETIC_TESTING_LAB
+  PATHOLOGY_LAB
+  RADIOLOGY_CENTER
+
+  // Emergency & Critical Care
+  BURN_CENTER
+  CRITICAL_CARE_CENTER
+  EMERGENCY_CENTER
+  POISON_CONTROL_CENTER
+  TRAUMA_CENTER
+  URGENT_CARE_CENTER
+
+  // Specialized Treatment Centers
+  BLOOD_BANK
+  DIALYSIS_CENTER
+  MENTAL_HEALTH_FACILITY
+  PAIN_MANAGEMENT_CLINIC
+  REHABILITATION_CENTER
+  SLEEP_CENTER
+  SUBSTANCE_ABUSE_CENTER
+  TRANSPLANT_CENTER
+
+  // Therapy & Alternative Medicine
+  ALTERNATIVE_MEDICINE_CENTER
+  HERBAL_MEDICINE_CENTER
+  PHYSICAL_THERAPY_CENTER
+
+  // Surgical & Ambulatory Care
+  AMBULATORY_CARE_CENTER
+  SURGICAL_CENTER
+
+  // Ambulance & Mobile Services
+  AMBULANCE_SERVICE
 }
 
 enum Ownership {
@@ -128,6 +144,25 @@ enum Load {
 }
 
 enum ServiceType {
+  // Consultation
+  CONSULTATION_GENERAL                // General & Family Medicine 
+  CONSULTATION_CARDIOLOGY             // Heart & Cardiovascular 
+  CONSULTATION_DERMATOLOGY            // Skin Hair & Nail 
+  CONSULTATION_ENDOCRINOLOGY          // Diabetes, Thyroid & Hormonal 
+  CONSULTATION_ENT                    // Ear, Nose & Throat (ENT) 
+  CONSULTATION_GASTROENTEROLOGY       // Digestive Health & Liver 
+  CONSULTATION_NEUROLOGY              // Brain & Nervous System 
+  CONSULTATION_OB_GYNE                // Women's Health & Pregnancy 
+  CONSULTATION_ONCOLOGY               // Cancer & Screening
+  CONSULTATION_OPHTHALMOLOGY          // Eye Health 
+  CONSULTATION_ORTHOPEDICS            // Bone, Joint & Spine 
+  CONSULTATION_PEDIATRICS             // Children's Health 
+  CONSULTATION_PSYCHIATRY             // Mental Health & Behavioral 
+  CONSULTATION_PULMONOLOGY            // Lung & Respiratory 
+  CONSULTATION_REHABILITATION         // Physical Therapy & Rehabilitation 
+  CONSULTATION_RHEUMATOLOGY           // Arthritis & Autoimmune Disease 
+  CONSULTATION_UROLOGY                // Kidney, Bladder & Prostate 
+
   // Laboratory - Blood Chemistry
   BLOOD_CHEMISTRY_BUA            // Blood Uric Acid (BUA)
   BLOOD_CHEMISTRY_BUN            // Blood Urea Nitrogen (BUN)
@@ -270,10 +305,9 @@ enum ServiceType {
   ONCOLOGY_CHEMOTHERAPY          // Chemotherapy
   ONCOLOGY_RADIATION_THERAPY     // Radiation Therapy
   ONCOLOGY_PALLIATIVE_CARE       // Palliative Care
-  ONCOLOGY_SURGICAL_ONCOLOGY     // Surgical Oncology
   ONCOLOGY_HORMONAL_THERAPY      // Hormonal Therapy
   ONCOLOGY_IMMUNOTHERAPY         // Immunotherapy
-  ONCOLOGY_TARGETED_THERAPY      // Targeted 
+  ONCOLOGY_TARGETED_THERAPY      // Targeted Therapy
 
   // Minor Procedures  
   PROCEDURE_CAUTERIZATION        // Cauterization  
@@ -396,9 +430,12 @@ model MOrB {
   addresses Address[]
 }
 
-// Address cohesion is (e.g. region = 3, pOrC = NCR, mOrB = Platero is not allowed) is handled by business logic.
-
 // A separate Prisma model may not be so good for performance but a needed cop-out solution because only Prisma + MongoDB supports composite attributes.
+
+// Address cohesion is handled by business logic.
+//    e.g. region: 3, pOrC: NCR, mOrB: Platero is not allowed.
+
+// However, the basis of the business logic is manually added.
 
 model Address {
   addressID String @id @default(uuid())
@@ -443,7 +480,6 @@ model Facility {
   acceptedProviders Provider[]
 
   // RELATIONS
-
 
   // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
 
