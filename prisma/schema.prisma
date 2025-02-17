@@ -369,7 +369,6 @@ model Credentials {
   // Credentials - Patient : Each Credentials must belong to one Patient.
   patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
   patientID String  @unique
-
 }
 
 model Patient {
@@ -392,11 +391,12 @@ model Patient {
 
 model Region {
   regionID String @id @default(uuid())
+
   name     String @unique
 
   // RELATIONS
 
-  // Region - POrC : A Region may have multiple Provinces or Cities.
+  // Region - POrC : A Region may have multiple Provinces or Chartered Cities.
   pOrCs    POrC[]
 
   // Region - Address : A Region may be referenced by multiple Addresses.
@@ -405,26 +405,32 @@ model Region {
 
 model POrC {
   pOrCID   String @id @default(uuid())
+
   name     String @unique
-  region   Region @relation(fields: [regionID], references: [regionID])
-  regionID String
 
   // RELATIONS
 
-  // POrC - MOrB : A Province or City may have multiple Municipalities or Barangays.
+  // POrC - Region : A Province or Chartered City is associated with one Region.
+  region   Region @relation(fields: [regionID], references: [regionID])
+  regionID String
+
+  // POrC - MOrB : A Province or Chartered City may have multiple Municipalities or Barangays.
   mOrBs    MOrB[]
 
-  // POrC - Address : A Province or City may be referenced by multiple Addresses.
+  // POrC - Address : A Province or Chartered City may be referenced by multiple Addresses.
   addresses Address[]
 }
 
 model MOrB {
   mOrBID  String @id @default(uuid())
+
   name    String @unique
-  pOrC    POrC @relation(fields: [pOrCID], references: [pOrCID])
-  pOrCID  String
 
   // RELATIONS
+
+  // MorB - POrC : A Municipality or Barangay is associated with one Province or Chartered City.
+  pOrC    POrC @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID  String
 
   // MOrB - Address : A Municipality or Barangay may be referenced by multiple Addresses.
   addresses Address[]
@@ -455,7 +461,7 @@ model Address {
 
   // Address - Facility : Each Address is tied to one Facility.
   facility   Facility @relation(fields: [facilityID], references: [facilityID])
-  facilityID String   @unique
+  facilityID String   @unique // @@unique indicator needed to enforce one-to-one relationships on Prisma.
 
   @@unique([regionID, pOrCID, mOrBID, street]) // Ensures each Facility has a unique Address.
 }
@@ -647,7 +653,7 @@ model BloodBankService {
 
   // Service - Division : If a Facility has Divisions, every BloodBankService must belong to a Division.
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // unique indicator needed to enforce one-to-one relationships on Prisma.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
 
   @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
 }
@@ -673,7 +679,7 @@ model ERService {
 
   // Service - Division : If a Facility has Divisions, every ERService must belong to a Division.
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // unique indicator needed to enforce one-to-one relationships on Prisma.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
 
   @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
 }
@@ -698,7 +704,7 @@ model ICUService {
 
   // Service - Division : If a Facility has Divisions, every ICUService must belong to a Division.
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // unique indicator needed to enforce one-to-one relationships on Prisma.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
 
   @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
 }
