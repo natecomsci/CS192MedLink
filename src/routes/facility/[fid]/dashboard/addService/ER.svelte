@@ -4,13 +4,15 @@
 
 <h3>{serviceType}</h3>
 <label>
-  Service Phone Number
+  <h3>Service Phone Number</h3>
+  <p>
+    Format: +63 912 345 6789
+  </p>
   <input 
     name="phoneNumber"
     type="tel"
-    placeholder="+63 9"
     value="+63 9"
-    required
+    required 
   >
 </label>
 <label>

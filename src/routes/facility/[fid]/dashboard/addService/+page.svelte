@@ -10,7 +10,7 @@
 
   let { data }: PageProps = $props();
 
-  let serviceType: String = $state('Select Service')
+  let serviceType: String = $state('');
 
 </script>
 
@@ -24,7 +24,7 @@
   >
     <label>
       Service Type to Offer: 
-      <select name="serviceType" bind:value={serviceType}>
+      <select name="serviceType" bind:value={serviceType} required>
         <option value="Ambulance" onclick={() => serviceType = "Ambulance"}>Ambulance</option>
         <option value="Blood Bank" onclick={() => serviceType = "Blood Bank"}>Blood Bank</option>
         <option value="Emergency Room" onclick={() => serviceType = "Emergency Room"}>Emergency Room</option>
