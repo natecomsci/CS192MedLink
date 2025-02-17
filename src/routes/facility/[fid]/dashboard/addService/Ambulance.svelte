@@ -2,6 +2,10 @@
   let { serviceType} = $props();
 </script>
 
+<!-- @elle: edit mga class declarations ng mga tags na need mo 
+      sample is yung input tag for phoneNumber
+-->
+
 <h3>{serviceType}</h3>
 <label>
   <h3>Service Phone Number</h3>
@@ -13,6 +17,7 @@
     type="tel"
     value="+63 9"
     required 
+    class="grid grid-cols-1"
   >
 </label>
 <label>
