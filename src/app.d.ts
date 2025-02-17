@@ -1,3 +1,5 @@
+import { PrismaClient } from "@prisma/client";
+
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 declare global {
@@ -8,6 +10,7 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	var prisma: PrismaClient;
 }
 
 export {};
