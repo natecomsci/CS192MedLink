@@ -1,7 +1,8 @@
 import { fail } from '@sveltejs/kit';
-import { addService } from '$lib/server/prisma';
+import { getAmbulanceService } from '$lib/server/prisma';
 
-import type { Actions } from './$types';
+import type { PageServerLoad, Actions } from './$types';
+
 
 type AmbulanceData = {
   phoneNumber:        string;
@@ -95,7 +96,7 @@ export const actions = {
           availability
         }
 
-        console.log(service)
+        // console.log(service)
         break;
       }
       case "Blood Bank": {
@@ -133,7 +134,7 @@ export const actions = {
           AB_P,
           AB_N
         }
-        console.log(service)
+        // console.log(service)
         break;
       }
       case "Emergency Room": {
@@ -159,7 +160,7 @@ export const actions = {
           criticalQueueLength
         }
 
-        console.log(service)
+        // console.log(service)
         break;
       }
       case "ICU": {
@@ -183,7 +184,7 @@ export const actions = {
           respiratorySupport
         }
 
-        console.log(service)
+        // console.log(service)
         break;
       }
       case "Out Patient": {
@@ -201,13 +202,15 @@ export const actions = {
           acceptsWalkIns
         }
 
-        console.log(service)
+        // console.log(service)
         break;
       }
       default: {
         return fail(400, { serviceType, missing: true });
       }
     }
+
+    console.log(await getAmbulanceService("12"))
 
     // send data to db
 
