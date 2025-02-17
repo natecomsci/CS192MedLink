@@ -70,90 +70,132 @@ export const actions = {
     
     switch (serviceType){
       case "Ambulance": {
-        const phone     = data.get('phoneNumber');
-        const open      = data.get('opening');
-        const close     = data.get('closing');
-        const price     = data.get('price');
-        const minRange  = data.get('minCoverageRadius');
-        const mileage   = data.get('mileageRate');
-        const maxRange  = data.get('maxCoverageRadius');
-        const avail     = data.get('availability');
 
-        console.log(phone)
-        console.log(open)
-        console.log(close)
-        console.log(price)
-        console.log(minRange)
-        console.log(mileage)
-        console.log(maxRange)
-        console.log(avail)
+        const phone     = data.get('phoneNumber') as string;
+        const open      = data.get('opening') as string;
+        const close     = data.get('closing') as string;
+        const price     = Number(data.get('price'));
+        const minRange  = Number(data.get('minCoverageRadius'));
+        const mileage   = Number(data.get('mileageRate'));
+        const maxRange  = Number(data.get('maxCoverageRadius'));
+        const avail     = data.get('availability') === 'in';
 
-        // const service: AmbulanceData = {
-        //   phone:    phone,
-        //   open:     open,
-        //   close:    close,
-        //   price:    price,
-        //   minRange: minRange,
-        //   mileage:  mileage,
-        //   maxRange: maxRange,
-        //   avail:    avail
-        // }
+        const service: AmbulanceData = {
+          phone,
+          open,
+          close,
+          price,
+          minRange,
+          mileage,
+          maxRange,
+          avail
+        }
+
+        console.log(service)
         break;
       }
       case "Blood Bank": {
-        const phone       = data.get('phoneNumber');
-        const open        = data.get('opening');
-        const close       = data.get('closing');
-        const price       = data.get('price');
-        const turnarDay   = data.get('turnaroundDays');
-        const turnarHour  = data.get('turnaroundHours');
-        const Ap          = data.get('blood-A+');
-        const An          = data.get('blood-A-');
-        const Bp          = data.get('blood-B+');
-        const Bn          = data.get('blood-B-');
-        const ABp         = data.get('blood-AB+');
-        const ABn         = data.get('blood-AB-');
-        const Op          = data.get('blood-O+');
-        const On          = data.get('blood-O-');
-        const avail       = data.get('availability');
+        const phone       = data.get('phoneNumber') as string;
+        const open        = data.get('opening') as string;
+        const close       = data.get('closing') as string;
+        const price       = Number(data.get('price'));
+        const turnarDay   = Number(data.get('turnaroundDays'));
+        const turnarHour  = Number(data.get('turnaroundHours'));
+        const Ap          = data.get('blood-A+') === 'in';
+        const An          = data.get('blood-A-') === 'in';
+        const Bp          = data.get('blood-B+') === 'in';
+        const Bn          = data.get('blood-B-') === 'in';
+        const ABp         = data.get('blood-AB+') === 'in';
+        const ABn         = data.get('blood-AB-') === 'in';
+        const Op          = data.get('blood-O+') === 'in';
+        const On          = data.get('blood-O-') === 'in';
+        const avail       = data.get('availability') === 'in';
 
-        // const service: BloodData = {}
+        const service: BloodData = {
+          phone:      phone,
+          open:       open,
+          close:      close,
+          price:      price,
+          turnarDay:  turnarDay,
+          turnarHour: turnarHour,
+          Ap,
+          An,
+          Bp,
+          Bn,
+          ABp,
+          ABn,
+          Op,
+          On,
+          avail,
+        }
+
+        console.log(service)
         break;
       }
       case "Emergency Room": {
-        const phone       = data.get('phoneNumber');
-        const load        = data.get('load');
-        const bedsAvail   = data.get('availableBeds');
-        const nonAttend   = data.get('nonUrgentAttended');
-        const nonQueue    = data.get('nonUrgentQueue');
-        const urgAttend   = data.get('urgentAttended');
-        const urgQueue    = data.get('urgentQueue');
-        const crtAttend   = data.get('criticalAttended');
-        const crtQueue    = data.get('criticalQueue');
+        const phone       = data.get('phoneNumber') as string;
+        const load        = data.get('load') as string;
+        const bedsAvail   = Number(data.get('availableBeds'));
+        const nonAttend   = Number(data.get('nonUrgentAttended'));
+        const nonQueue    = Number(data.get('nonUrgentQueue'));
+        const urgAttend   = Number(data.get('urgentAttended'));
+        const urgQueue    = Number(data.get('urgentQueue'));
+        const crtAttend   = Number(data.get('criticalAttended'));
+        const crtQueue    = Number(data.get('criticalQueue'));
 
-        // const service: ERData = {}
+        const service: ERData = {
+          phone,
+          load,
+          bedsAvail,
+          nonAttend,
+          nonQueue,
+          urgAttend,
+          urgQueue,
+          crtAttend,
+          crtQueue
+        }
+
+        console.log(service)
         break;
       }
       case "ICU": {
-        const phone       = data.get('phoneNumber');
-        const price       = data.get('price');
-        const bedsAvail   = data.get('availableBeds');
-        const cardiac     = data.get('cardiacSupport');
-        const neuro       = data.get('neurologicalSupport');
-        const renal       = data.get('renalSupport');
-        const resp        = data.get('respiratorySupport');
+        const phone       = data.get('phoneNumber') as string;
+        const price       = Number(data.get('price'));
+        const bedsAvail   = Number(data.get('availableBeds'));
+        const cardiac     = data.get('cardiacSupport') === 'in';
+        const neuro       = data.get('neurologicalSupport') === 'in';
+        const renal       = data.get('renalSupport') === 'in';
+        const resp        = data.get('respiratorySupport') === 'in';
 
-        // const service: ICUData = {}
+        const service: ICUData = {
+          phone,
+          price,
+          bedsAvail,
+          cardiac,
+          neuro,
+          renal,
+          resp
+        }
+
+        console.log(service)
         break;
       }
       case "Out Patient": {
-        const price       = data.get('price');
-        const compDay     = data.get('completionDays');
-        const compHour    = data.get('completionHOURS');
-        const avail       = data.get('availability');
-        const walkins     = data.get('acceptWalkins');
+        const price       = Number(data.get('price'));
+        const compDay     = Number(data.get('completionDays'));
+        const compHour    = Number(data.get('completionHOURS'));
+        const avail       = data.get('availability') === 'in';
+        const walkins     = data.get('acceptWalkins') === 'in';
 
-        // const service: OPData = {}
+        const service: OPData = {
+          price,
+          compDay,
+          compHour,
+          avail,
+          walkins
+        }
+
+        console.log(service)
         break;
       }
       default: {
