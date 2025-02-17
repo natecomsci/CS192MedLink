@@ -78,7 +78,7 @@ export const actions = {
         const minRange  = Number(data.get('minCoverageRadius'));
         const mileage   = Number(data.get('mileageRate'));
         const maxRange  = Number(data.get('maxCoverageRadius'));
-        const avail     = data.get('availability') === 'in';
+        const avail     = data.get('availability') === 'on';
 
         const service: AmbulanceData = {
           phone,
@@ -101,15 +101,15 @@ export const actions = {
         const price       = Number(data.get('price'));
         const turnarDay   = Number(data.get('turnaroundDays'));
         const turnarHour  = Number(data.get('turnaroundHours'));
-        const Ap          = data.get('blood-A+') === 'in';
-        const An          = data.get('blood-A-') === 'in';
-        const Bp          = data.get('blood-B+') === 'in';
-        const Bn          = data.get('blood-B-') === 'in';
-        const ABp         = data.get('blood-AB+') === 'in';
-        const ABn         = data.get('blood-AB-') === 'in';
-        const Op          = data.get('blood-O+') === 'in';
-        const On          = data.get('blood-O-') === 'in';
-        const avail       = data.get('availability') === 'in';
+        const Ap          = data.get('blood-A+') === 'on';
+        const An          = data.get('blood-A-') === 'on';
+        const Bp          = data.get('blood-B+') === 'on';
+        const Bn          = data.get('blood-B-') === 'on';
+        const ABp         = data.get('blood-AB+') === 'on';
+        const ABn         = data.get('blood-AB-') === 'on';
+        const Op          = data.get('blood-O+') === 'on';
+        const On          = data.get('blood-O-') === 'on';
+        const avail       = data.get('availability') === 'on';
 
         const service: BloodData = {
           phone:      phone,
@@ -162,10 +162,10 @@ export const actions = {
         const phone       = data.get('phoneNumber') as string;
         const price       = Number(data.get('price'));
         const bedsAvail   = Number(data.get('availableBeds'));
-        const cardiac     = data.get('cardiacSupport') === 'in';
-        const neuro       = data.get('neurologicalSupport') === 'in';
-        const renal       = data.get('renalSupport') === 'in';
-        const resp        = data.get('respiratorySupport') === 'in';
+        const cardiac     = data.get('cardiacSupport') === 'on';
+        const neuro       = data.get('neurologicalSupport') === 'on';
+        const renal       = data.get('renalSupport') === 'on';
+        const resp        = data.get('respiratorySupport') === 'on';
 
         const service: ICUData = {
           phone,
@@ -184,8 +184,8 @@ export const actions = {
         const price       = Number(data.get('price'));
         const compDay     = Number(data.get('completionDays'));
         const compHour    = Number(data.get('completionHOURS'));
-        const avail       = data.get('availability') === 'in';
-        const walkins     = data.get('acceptWalkins') === 'in';
+        const avail       = data.get('availability') === 'on';
+        const walkins     = data.get('acceptWalkins') === 'on';
 
         const service: OPData = {
           price,
@@ -203,6 +203,7 @@ export const actions = {
       }
     }
 
+    // send data to 
 
     return { success: true };
   }
