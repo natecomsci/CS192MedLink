@@ -132,10 +132,3 @@
 </label>
 
 <!-- div class = "blood-type-availability -->
-<label>
-  Availability
-  <input 
-    name="availability"
-    type="checkbox"
-  >
-</label>
