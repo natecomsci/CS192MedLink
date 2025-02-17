@@ -6,7 +6,7 @@
   import BloodBank from './BloodBank.svelte';
   import ER from './ER.svelte';
   import ICU from './ICU.svelte';
-  import OutPatient from './OutPatient.svelte';
+  import Outpatient from './Outpatient.svelte';
 
   let { data }: PageProps = $props();
 
@@ -29,7 +29,7 @@
         <option value="Blood Bank" onclick={() => serviceType = "Blood Bank"}>Blood Bank</option>
         <option value="Emergency Room" onclick={() => serviceType = "Emergency Room"}>Emergency Room</option>
         <option value="ICU" onclick={() => serviceType = "ICU"}>ICU</option>
-        <option value="Out Patient" onclick={() => serviceType = "Out Patient"}>Out Patient</option>
+        <option value="Outpatient" onclick={() => serviceType = "Outpatient"}>Outpatient</option>
       </select>
     </label>
 
@@ -44,8 +44,8 @@
         <ER {serviceType}/>
       {:else if serviceType == "ICU"}
         <ICU {serviceType}/>
-      {:else if serviceType == "Out Patient"}
-        <OutPatient {serviceType}/>
+      {:else if serviceType == "Outpatient"}
+        <Outpatient {serviceType}/>
       {/if}
     </label>
 
