@@ -112,12 +112,12 @@ export const actions = {
         const avail       = data.get('availability') === 'on';
 
         const service: BloodData = {
-          phone:      phone,
-          open:       open,
-          close:      close,
-          price:      price,
-          turnarDay:  turnarDay,
-          turnarHour: turnarHour,
+          phone,
+          open,
+          close,
+          price,
+          turnarDay,
+          turnarHour,
           Ap,
           An,
           Bp,
