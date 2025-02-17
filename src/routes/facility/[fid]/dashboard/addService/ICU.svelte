@@ -15,6 +15,7 @@
     required 
   >
 </label>
+
 <label>
   Base Rate
   <input 
@@ -25,6 +26,16 @@
     required
   >
   pesos
+</label>
+
+<label>
+  Load
+  <input 
+    name="load" 
+    type="text"
+    placeholder="steady, closed (to update to drop down)"
+    required
+  >
 </label>
 
 <label>
