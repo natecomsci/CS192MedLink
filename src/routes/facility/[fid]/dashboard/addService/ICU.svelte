@@ -12,7 +12,6 @@
     name="phoneNumber"
     type="tel"
     value="+63 9"
-    pattern="+63 9[0-9]{2} [0-9]{3} [0-9]{4}"
     required 
   >
 </label>
