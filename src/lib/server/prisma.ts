@@ -144,6 +144,12 @@ export interface M_UpdatePasswordFacilityDTO {
 // DAOs
 
 export class FacilityDAO { // call functions under these DAOs sa page.server.ts instead of writing raw commands there.
+  // attributes
+  attributeName: string;
+
+  constructor(input: string) {
+    this.attributeName = input;
+  }
 
   static async deleteFacility(facilityID: string) { // this function has no actual associated use case. sample lang to.
     try {
@@ -226,6 +232,7 @@ export class ServiceDAO { // to hell with making this an interface for now sorry
     } catch (error) {
       throw new Error("Could not delete the AmbulanceService.");
     }
+<<<<<<< HEAD
   }
 
   static async deleteBloodBankService(facilityID: string) {
@@ -278,3 +285,8 @@ export class ServiceDAO { // to hell with making this an interface for now sorry
 
   // TO ADD MORE SHIT
 }
+=======
+  });
+  return ambulanceService;
+}
+>>>>>>> de0c608 (temp: to restructure code)

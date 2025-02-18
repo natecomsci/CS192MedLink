@@ -209,8 +209,7 @@ export const actions = {
         return fail(400, { serviceType, missing: true });
       }
     }
-
-    console.log(await getAmbulanceService("12"))
+    console.log(await getAmbulanceService("0"))
 
     // send data to db
 
