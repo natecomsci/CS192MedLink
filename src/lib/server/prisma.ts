@@ -232,7 +232,6 @@ export class ServiceDAO { // to hell with making this an interface for now sorry
     } catch (error) {
       throw new Error("Could not delete the AmbulanceService.");
     }
-<<<<<<< HEAD
   }
 
   static async deleteBloodBankService(facilityID: string) {
@@ -285,8 +284,3 @@ export class ServiceDAO { // to hell with making this an interface for now sorry
 
   // TO ADD MORE SHIT
 }
-=======
-  });
-  return ambulanceService;
-}
->>>>>>> de0c608 (temp: to restructure code)
