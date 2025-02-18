@@ -388,56 +388,73 @@ model Patient {
   // Patient - Folder : A Patient may or may not have Folders.
   folders     Folder[]
 }
+
 model Region {
-  id Int  @default(autoincrement())
-  name     String @unique
-  regionID  Int @id @unique
+  regionID Int @id
+
+  name String @unique
+  id   Int    @default(autoincrement())
 
   // RELATIONS
 
   // Region - POrC : A Region may have multiple Provinces or Cities.
-  pOrCs    POrC[]
+  pOrCs     POrC[]
 
   // Region - Address : A Region may be referenced by multiple Addresses.
   addresses Address[]
 }
 
-model POrC {
-  id Int  @default(autoincrement())
-  pOrCID Int @id 
-  name     String @unique
-  region   Region  @relation(fields: [regionID], references: [regionID])
-  regionID Int
+model POrC { // well, provinces + NCR
+  pOrCID Int @id
+
+  name String @unique
+  id   Int    @default(autoincrement())
 
   // RELATIONS
 
-  // POrC - MOrB : A Province or City may have multiple Municipalities or Barangays.
-  cOrMs    COrM[]
+  // POrC - Region : A Province is associated with one Region.
+  region    Region @relation(fields: [regionID], references: [regionID])
+  regionID  Int
 
-  // POrC - Address : A Province or City may be referenced by multiple Addresses.
+  // POrC - COrM : A Province may have multiple Cities or Municipalities.
+  cOrMs     COrM[]
+
+  // POrC - Address : A Province may be referenced by multiple Addresses.
   addresses Address[]
 }
 
 model COrM {
-  id Int  @default(autoincrement())
   cOrMID  Int @id 
+
   name    String 
-  pOrC    POrC @relation(fields: [pOrCID], references: [pOrCID])
-  pOrCID  Int
+  id      Int    @default(autoincrement())
 
   // RELATIONS
-  brgys    Brgy[]
+
+  // COrM - POrC : A City or Municipality is associated with one Province.
+  pOrC      POrC @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID    Int
+
+  // COrM - Brgy : A City or Municipality may have multiple Barangays.
+  brgys     Brgy[]
+
   // COrM - Address : A Municipality or Barangay may be referenced by multiple Addresses.
   addresses Address[]
 }
 
 model Brgy {
-  id Int  @default(autoincrement())
   brgyID  Int @id 
+
   name    String 
-  cOrM    COrM @relation(fields: [cOrMID], references: [cOrMID])
-  cOrMID  Int
+  id      Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // Brgy - COrM : A Barangay is associated with one City or Municipality.
+  cOrM      COrM @relation(fields: [cOrMID], references: [cOrMID])
+  cOrMID    Int
   
+  // Brgy - Address : A Barangay may be referenced by multiple Addresses.
   addresses Address[]
 
 }
