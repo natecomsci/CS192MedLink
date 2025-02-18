@@ -1,4 +1,4 @@
-import { PrismaClient, Provider, SecurityQuestion, FacilityType, Ownership, Availability, Load, ServiceType } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 const prisma = global.prisma || new PrismaClient();
 
@@ -19,11 +19,28 @@ export interface RegionDTO {
   pOrC     : POrCDTO[];
 }
 
+export function mapModelToRegionDTO(region: Region): RegionDTO {
+  return {
+    regionID : region.regionID,
+    name     : region.name,
+    pOrC     : region.pOrC.map(mapModelToPOrCDTO),
+  };
+}
+
 export interface POrCDTO {
   pOrCID   : number;
   name     : string;
   regionID : number;
   brgy     : COrMDTO[];
+}
+
+function mapModelToPOrCDTO(pOrC: POrC): POrCDTO {
+  return {
+    pOrCID   : pOrC.pOrCID,
+    name     : pOrC.name,
+    regionID : pOrC.regionID,
+    brgy     : pOrC.brgy.map(mapModelToCOrMDTO),
+  };
 }
 
 export interface COrMDTO {
@@ -33,10 +50,43 @@ export interface COrMDTO {
   brgy   : BrgyDTO[];
 }
 
+export function mapModelToCOrMDTO(cOrM: COrM): COrMDTO {
+  return {
+    cOrMID : cOrM.cOrMID,
+    name   : cOrM.name,
+    pOrCID : cOrM.pOrCID,
+    brgy   : cOrM.brgy.map(mapModelToBrgyDTO),
+  };
+}
+
 export interface BrgyDTO {
   brgyID : number;
   name   : string;
   cOrMID : number;
+}
+
+export function mapModelToBrgyDTO(brgy: Brgy): BrgyDTO {
+  return {
+    brgyID : brgy.brgyID,
+    name   : brgy.name,
+    cOrMID : brgy.cOrMID,
+  };
+}
+
+export function mapFormDataToBrgyDTO(formData: FormData): BrgyDTO {
+  const brgyID = formData.get("brgyID");
+  const name   = formData.get("name");
+  const cOrMID = formData.get("cOrMID");
+
+  if (!name || !cOrMID || !brgyID) {
+    throw new Error("Error: One or more data unavailable.");
+  }
+
+  return {
+    brgyID : parseInt(brgyID as string),
+    name   : name as string,
+    cOrMID : parseInt(cOrMID as string),
+  };
 }
 
 export interface AddressDTO {
@@ -47,45 +97,37 @@ export interface AddressDTO {
   street   : string;
 }
 
+export function mapModelToAddressDTO(address: Address): AddressDTO {
+  return {
+    regionID : address.regionID,
+    pOrCID   : address.pOrCID,
+    cOrMID   : address.cOrMID,
+    brgyID   : address.brgyID,
+    street   : address.street,
+  };
+}
+
+export function mapFormDataToAddressDTO(formData: FormData): AddressDTO {
+  const regionID = formData.get("regionID");
+  const pOrCID   = formData.get("pOrCID");
+  const cOrMID   = formData.get("cOrMID");
+  const brgyID   = formData.get("brgyID");
+  const street   = formData.get("street");
+
+  if (!regionID || !pOrCID || !cOrMID || !brgyID || !street) {
+    throw new Error("Error: One or more data unavailable.");
+  }
+
+  return {
+    regionID : parseInt(regionID as string),
+    pOrCID   : parseInt(pOrCID as string),
+    cOrMID   : parseInt(cOrMID as string),
+    brgyID   : parseInt(brgyID as string),
+    street   : street as string,
+  };
+}
+
 // The above DTOs have an atypical naming convention kasi yan lang naman talaga kailangang data dyan in any scenario.
-
-export interface P_M_ViewFacilityDTO {
-  facilityID        : string;
-  name              : string;
-  photo             : string;
-  address           : AddressDTO;
-  email             : string;
-  phoneNumber       : string;
-  facilityType      : FacilityType;
-  ownership         : Ownership;
-  LTO               : string;
-  COA               : string;
-  bookingSystem?    : string;
-  acceptedProviders : Provider[];
-  ambulanceService? : P_M_ViewAmbulanceServiceDTO;
-  bloodBankService? : P_M_ViewBloodBankServiceDTO;
-  erService?        : P_M_ViewERServiceDTO;
-  icuService?       : P_M_ViewICUServiceDTO;
-  outpatientService : P_M_ViewOutpatientServiceDTO[];
-  divisions         : P_M_ViewDivisionDTO[];
-}
-
-// ^ to change
-
-export interface M_UpdateGeneralInfoFacilityDTO {
-  facilityID         : string;
-  name               : string;
-  photo              : string;
-  address            : AddressDTO;
-  email              : string;
-  phoneNumber        : string;
-  facilityType       : FacilityType;
-  ownership          : Ownership;
-  LTO                : string;
-  COA                : string;
-  bookingSystem?     : string;
-  acceptedProviders  : Provider[];
-}
 
 // Illustration of functionality ng DTOs : An intermediary between DAOs and the database containing only necessary information for specific scenarios.
 
@@ -97,40 +139,13 @@ export interface M_UpdatePasswordFacilityDTO {
 
 // No <Actor>_CreateFacilityDTO because Facilities are created externally.
 
+// TO ADD MORE DTOs AND MAPPING FUNCTIONS
+
 // DAOs
 
 export class FacilityDAO { // call functions under these DAOs sa page.server.ts instead of writing raw commands there.
 
-  static async updateFacilityGeneralInfo(data: M_UpdateGeneralInfoFacilityDTO) {
-    try {
-      const facilityToUpdate = await prisma.facility.update({
-        where: {
-          facilityID: data.facilityID,
-        },
-      
-        data: {
-          name              : data.name,
-
-          // to insert updating photo and address
-
-          email             : data.email,
-          phoneNumber       : data.phoneNumber,
-          facilityType      : data.facilityType,
-          ownership         : data.ownership,
-          LTO               : data.LTO,
-          COA               : data.COA,
-          bookingSystem     : data.bookingSystem,
-          acceptedProviders : data.acceptedProviders,
-        },
-      });
-
-      return facilityToUpdate;
-    } catch (error) {
-      throw new Error("Could not update general facility information.");
-    }
-  }
-
-  static async deleteFacility(facilityID: string) { // no this function has associated use case. sample lang to.
+  static async deleteFacility(facilityID: string) { // this function has no actual associated use case. sample lang to.
     try {
       const facilityToDelete = await prisma.facility.delete({
         where: { facilityID },
@@ -145,18 +160,121 @@ export class FacilityDAO { // call functions under these DAOs sa page.server.ts 
 
 //
 
-export async function getAmbulanceService(id: string) {
-  const ambulanceService = await prisma.ambulanceService.findUnique({
-    where: { facilityID: id },
-    select: {
-      phoneNumber: true,
-      openingTime: true,
-      closingTime: true,
-      baseRate: true,
-      minCoverageRadius: true,
-      mileageRate: true,
-      maxCoverageRadius: true,
-      availability: true,
+export class ServiceDAO { // to hell with making this an interface for now sorry Sir Juancho. i-if else nyo nalang sa business logic layer.
+
+  static async getAmbulanceService(facilityID: string) {
+    const ambulanceService = await prisma.ambulanceService.findUnique({
+      where: { facilityID },
+      select: {
+        phoneNumber       : true,
+        openingTime       : true,
+        closingTime       : true,
+        baseRate          : true,
+        minCoverageRadius : true,
+        mileageRate       : true,
+        maxCoverageRadius : true,
+        availability      : true,
+      }
+    });
+  }
+
+  static async getBloodBankService(facilityID: string) {
+
+  }
+
+  static async getERService(facilityID: string) {
+    
+  }
+
+  static async getICUService(facilityID: string) {
+    
+  }
+
+  static async getOutpatientService(facilityID: string, serviceType: serviceType) { // serviceType needs mapping
+    
+  }
+
+  static async createAmbulanceService( ) {
+
+  }
+
+  static async createBloodBankService( ) {
+
+  }
+
+  static async createERService( ) {
+    
+  }
+
+  static async createICUService( ) {
+    
+  }
+
+  static async createOutpatientService( ) {
+    
+  }
+
+  // TO ADD UPDATE FUNCTIONS
+
+  static async deleteAmbulanceService(facilityID: string) {
+    try {
+      const ambulanceServiceToDelete = await prisma.ambulanceService.delete({
+        where: { facilityID },
+      });
+
+      return ambulanceServiceToDelete;
+    } catch (error) {
+      throw new Error("Could not delete the AmbulanceService.");
     }
-  });
+  }
+
+  static async deleteBloodBankService(facilityID: string) {
+    try {
+      const bloodBankServiceToDelete = await prisma.bloodBankService.delete({
+        where: { facilityID },
+      });
+
+      return bloodBankServiceToDelete;
+    } catch (error) {
+      throw new Error("Could not delete the BloodBankService.");
+    }
+  }
+
+  static async deleteERService(facilityID: string) {
+    try {
+      const eRServiceToDelete = await prisma.eRService.delete({
+        where: { facilityID },
+      });
+
+      return eRServiceToDelete;
+    } catch (error) {
+      throw new Error("Could not delete the ERService.");
+    }
+  }
+
+  static async deleteICUService(facilityID: string) {
+    try {
+      const iCUServiceToDelete = await prisma.iCUService.delete({
+        where: { facilityID },
+      });
+
+      return iCUServiceToDelete;
+    } catch (error) {
+      throw new Error("Could not delete the ICUService.");
+    }
+  }
+
+  static async deleteOutpatientService(facilityID: string) {
+    try {
+      const outpatientServiceToDelete = await prisma.outpatientService.delete({
+        where: { facilityID },
+      });
+
+      return outpatientServiceToDelete;
+    } catch (error) {
+      throw new Error("Could not delete the ICUService.");
+    }
+  }
+
+  // TO ADD MORE SHIT
 }
