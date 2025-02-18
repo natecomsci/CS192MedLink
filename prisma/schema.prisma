@@ -8,21 +8,749 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Manager {
-  hospitalId Int    @id @default(autoincrement())
-  name       String @unique
-  password   String
+// ENUMS
+
+enum Provider {
+  INTELLICARE              // Asalus Corporation
+  ASIACARE                 // Asiancare Health Systems, Inc.
+  AVEGA                    // Avega Managed Care, Inc.
+  CAREWELL                 // Carewell Health Systems, Inc.
+  one_COOPHEALTH           // Cooperative Health Management Federation
+  DYNAMIC_CARE_CORPORATION // Dynamic Care Corporation
+  EASTWEST_HEALTHCARE      // EastWest Healthcare, Inc.
+  FORTICARE                // Forticare Health Systems International, Inc.
+  GETWELL                  // Getwell Health Systems, Inc.
+  HC_and_D                 // Healthcare and Development Corporation of the Philippines
+  HEALTHFIRST              // Health Delivery System, Inc.
+  HMI                      // Health Maintenance, Inc. // has optional Dental Plan
+  HPPI                     // Health Plan Philippines, Inc.
+  IWC                      // IMS Wellth Care, Inc.
+  ICARE                    // Insular Health Care, Inc.
+  KAISER                   // Kaiser International Healthgroup, Inc.
+  LIFE_and_HEALTH          // Life & Health HMP, Inc.
+  MAXICARE                 // Maxicare Healthcare Corp.
+  MEDICARD                 // Medicard Philippines, Inc.
+  MEDICARE                 // iMedicare Plus, Inc.
+  MEDOCARE                 // Medocare Health Systems, Inc.
+  METROCARE                // Metrocare Health Systems, Incorporated
+  OMHSI                    // Optimum Medical and Healthcare Services, Inc.
+  PACIFIC_CROSS            // Pacific Cross Health Care, Inc.
+  PHILHEALTH               // PhilhealthCare, Inc.
+  VALUCARE                 // Value Care Health Systems, Inc.
+  WELLCARE                 // Wellcare Health Maintenance, Inc.
+}
+
+enum SecurityQuestion {
+  STREETNAME            // What is the name of the street you grew up on?
+  FIRSTFRIENDNICKNAME   // What was the nickname of your first childhood friend?
+  FAVORITEOUTDOORGAME   // What was your favorite game to play outside as a kid?
+  FIRSTPETNAME          // What was the name of your first pet?
+  INFLUENTIALTEACHER    // What was the name of a childhood teacher who influenced you?
+  FAVORITETVSHOW        // What was the first TV show you loved watching?
+  FAVORITEULAM          // What was your childhood favorite ulam?
+  UNUSUALSTREETFOOD     // What’s the most unusual street food you ever tried as a child?
+  FIRSTJOB              // What was your first job or side hustle?
+  MEMORABLEBIRTHDAYGIFT // What is the most memorable birthday gift you received as a child?
+}
+
+enum FacilityType {
+  // Hospitals & General Medical Centers  
+  BARANGAY_HEALTH_CENTER
+  CLINIC
+  HEALTH_CENTER
+  HOSPITAL
+  INFIRMARY
+  POLYCLINIC
+  PRIMARY_CARE_CLINIC
+
+  // Specialty Medical Clinics
+  CARDIOLOGY_CLINIC
+  DENTAL_CLINIC
+  DERMATOLOGY_CLINIC
+  ENDOCRINOLOGY_CLINIC
+  ENT_CLINIC
+  FERTILITY_CLINIC
+  GASTROENTEROLOGY_CLINIC
+  IMMUNOLOGY_CENTER
+  INFECTIOUS_DISEASE_CENTER
+  MATERNITY_CENTER
+  NEPHROLOGY_CLINIC
+  NEUROLOGY_CLINIC
+  ONCOLOGY_CENTER
+  OPHTHALMOLOGY_CLINIC
+  ORTHOPEDIC_CLINIC
+  PEDIATRIC_CLINIC
+  PULMONOLOGY_CLINIC
+  RHEUMATOLOGY_CLINIC
+  UROLOGY_CLINIC
+
+  // Diagnostic & Laboratory Facilities
+  DIAGNOSTIC_LAB
+  GENETIC_TESTING_LAB
+  PATHOLOGY_LAB
+  RADIOLOGY_CENTER
+
+  // Emergency & Critical Care
+  BURN_CENTER
+  CRITICAL_CARE_CENTER
+  EMERGENCY_CENTER
+  POISON_CONTROL_CENTER
+  TRAUMA_CENTER
+  URGENT_CARE_CENTER
+
+  // Specialized Treatment Centers
+  BLOOD_BANK
+  DIALYSIS_CENTER
+  MENTAL_HEALTH_FACILITY
+  PAIN_MANAGEMENT_CLINIC
+  REHABILITATION_CENTER
+  SLEEP_CENTER
+  SUBSTANCE_ABUSE_CENTER
+  TRANSPLANT_CENTER
+
+  // Therapy & Alternative Medicine
+  ALTERNATIVE_MEDICINE_CENTER
+  HERBAL_MEDICINE_CENTER
+  PHYSICAL_THERAPY_CENTER
+
+  // Surgical & Ambulatory Care
+  AMBULATORY_CARE_CENTER
+  SURGICAL_CENTER
+
+  // Ambulance & Mobile Services
+  AMBULANCE_SERVICE
+}
+
+enum Ownership {
+  PUBLIC
+  PRIVATE
+}
+
+enum Availability {
+  AVAILABLE
+  SHORT_DELAY
+  MODERATE_DELAY
+  EXTENDED_DELAY
+  UNAVAILABLE
+}
+
+enum Load {
+  STEADY
+  MODERATE
+  CROWDED
+  NEAR_CAPACITY
+  FULL_CAPACITY
+  CLOSED
+}
+
+enum ServiceType {
+  // Consultation
+  CONSULTATION_GENERAL                // General & Family Medicine 
+  CONSULTATION_CARDIOLOGY             // Heart & Cardiovascular 
+  CONSULTATION_DERMATOLOGY            // Skin Hair & Nail 
+  CONSULTATION_ENDOCRINOLOGY          // Diabetes, Thyroid & Hormonal 
+  CONSULTATION_ENT                    // Ear, Nose & Throat (ENT) 
+  CONSULTATION_GASTROENTEROLOGY       // Digestive Health & Liver 
+  CONSULTATION_NEUROLOGY              // Brain & Nervous System 
+  CONSULTATION_OB_GYNE                // Women's Health & Pregnancy 
+  CONSULTATION_ONCOLOGY               // Cancer & Screening
+  CONSULTATION_OPHTHALMOLOGY          // Eye Health 
+  CONSULTATION_ORTHOPEDICS            // Bone, Joint & Spine 
+  CONSULTATION_PEDIATRICS             // Children's Health 
+  CONSULTATION_PSYCHIATRY             // Mental Health & Behavioral 
+  CONSULTATION_PULMONOLOGY            // Lung & Respiratory 
+  CONSULTATION_REHABILITATION         // Physical Therapy & Rehabilitation 
+  CONSULTATION_RHEUMATOLOGY           // Arthritis & Autoimmune Disease 
+  CONSULTATION_UROLOGY                // Kidney, Bladder & Prostate 
+
+  // Laboratory - Blood Chemistry
+  BLOOD_CHEMISTRY_BUA            // Blood Uric Acid (BUA)
+  BLOOD_CHEMISTRY_BUN            // Blood Urea Nitrogen (BUN)
+  BLOOD_CHEMISTRY_CREATININE     // Creatinine
+  BLOOD_CHEMISTRY_FBS            // Fasting Blood Sugar (FBS)
+  BLOOD_CHEMISTRY_RBS            // Random Blood Sugar (RBS)
+  BLOOD_CHEMISTRY_CHOLESTEROL    // Cholesterol
+  BLOOD_CHEMISTRY_TRIGLYCERIDES  // Triglycerides
+  BLOOD_CHEMISTRY_HDL            // High-Density Lipoprotein (HDL)
+  BLOOD_CHEMISTRY_LDL            // Low-Density Lipoprotein (LDL)
+  BLOOD_CHEMISTRY_AST            // Aspartate Aminotransferase (AST/GOT)
+  BLOOD_CHEMISTRY_ALT            // Alanine Aminotransferase (ALT/GPT)
+  BLOOD_CHEMISTRY_LDH            // Lactate Dehydrogenase (LDH)
+  BLOOD_CHEMISTRY_ELECTROLYTES   // Electrolytes (Na, K, Cl, etc.)
+
+  // Laboratory - Hematology
+  HEMATOLOGY_CBC                 // Complete Blood Count (CBC)
+  HEMATOLOGY_HEMOGLOBIN          // Hemoglobin (Hgb)
+  HEMATOLOGY_HEMATOCRIT          // Hematocrit (Hct)
+  HEMATOLOGY_PLATELET_COUNT      // Platelet Count
+  HEMATOLOGY_COAGULATION         // Coagulation Studies (Prothrombin Time (PT), Activated Partial Thromboplastin Time (APTT))
+  HEMATOLOGY_CT_BT               // Clotting Time (CT) / Bleeding Time (BT)
+  HEMATOLOGY_PERIPHERAL_SMEAR    // Peripheral Blood Smear
+
+  // Laboratory - Clinical Microscopy  
+  CLINICAL_FECALYSIS             // Fecalysis  
+  CLINICAL_URINALYSIS            // Urinalysis  
+  CLINICAL_OCCULT_BLOOD          // Occult Blood Test  
+  CLINICAL_SEMEN_ANALYSIS        // Semen Analysis  
+  CLINICAL_BODY_FLUID_ANALYSIS   // Body Fluid Analysis (CSF, synovial, etc.)  
+  CLINICAL_PREGNANCY_TEST        // Pregnancy Test  
+
+  // Laboratory - Bacteriology  
+  BACTERIOLOGY_SPUTUM            // Sputum Exam/AFB  
+  BACTERIOLOGY_GRAM_STAIN        // Gram Stain  
+  BACTERIOLOGY_CULTURE_SENS      // Culture & Sensitivity Test
+  BACTERIOLOGY_THROAT_SWAB       // Throat Swab Culture  
+  BACTERIOLOGY_BLOOD_CULTURE     // Blood Culture  
+  BACTERIOLOGY_URINE_CULTURE     // Urine Culture & Sensitivity  
+
+  // Laboratory - Histopathology  
+  HISTOPATHOLOGY_PAPS            // PAP'S Smear  
+  HISTOPATHOLOGY_BIOPSY          // Biopsy  
+  HISTOPATHOLOGY_CYTOLOGY        // Cytology  
+
+  // Imaging - X-ray  
+  X_RAY_CHEST_PA                 // Chest PA  
+  X_RAY_CHEST_AP_LAT             // Chest AP/Lateral (Pedia)  
+  X_RAY_SKULL_AP_LAT             // Skull AP/Lateral  
+  X_RAY_C_SPINE                  // Cervical Spine  
+  X_RAY_L_SPINE                  // Lumbar Spine  
+  X_RAY_THORACIC_CAGE            // Thoracic Cage  
+  X_RAY_SHOULDER                 // Shoulder  
+  X_RAY_CLAVICLE                 // Clavicle  
+  X_RAY_ARM_AP_LAT               // Arm AP/Lateral  
+  X_RAY_HAND                     // Hand  
+  X_RAY_FOOT                     // Foot
+
+  // Imaging - Ultrasound  
+  ULTRASOUND_ABDOMINAL           // Abdominal Ultrasound  
+  ULTRASOUND_WHOLE_ABD           // Whole Abdomen Ultrasound  
+  ULTRASOUND_PELVIC              // Pelvic Ultrasound  
+  ULTRASOUND_TRANSVAGINAL        // Transvaginal Ultrasound  
+  ULTRASOUND_THYROID             // Thyroid Ultrasound  
+  ULTRASOUND_BREAST              // Breast Ultrasound  
+  ULTRASOUND_KUB                 // Kidney-Ureter-Bladder (KUB) Ultrasound  
+  ULTRASOUND_OB                  // OB Ultrasound  
+  ULTRASOUND_OB_NO_READING       // OB Scanning Only (No Reading)  
+  ULTRASOUND_DOPPLER             // Doppler Ultrasound
+  ULTRASOUND_SCROTAL             // Scrotal Ultrasound  
+  ULTRASOUND_PROSTATE            // Prostate Ultrasound  
+
+  // Imaging - CT Scan
+  CT_SCAN_HEAD                   // Head (With or Without Contrast)  
+  CT_SCAN_BRAIN_STROKE           // Brain (Stroke Protocol)  
+  CT_SCAN_SINUSES                // Sinuses  
+  CT_SCAN_ANGIOGRAM_HEAD         // Angiogram (Head)  
+  CT_SCAN_ANGIOGRAM_NECK         // Angiogram (Neck)  
+  CT_SCAN_CHEST                  // Chest (With or Without Contrast)  
+  CT_SCAN_CHEST_HRCT             // High-Resolution CT (HRCT) Chest  
+  CT_SCAN_CHEST_PULMO_EMB        // Pulmonary Embolism (PE) Protocol  
+  CT_SCAN_ANGIOGRAM_CORONARY     // Angiogram (Coronary)  
+  CT_SCAN_ABD                    // Abdomen (With or Without Contrast)  
+  CT_SCAN_ABD_PELVIS             // Abdomen & Pelvis  
+  CT_SCAN_KUB                    // Kidneys, Ureters, Bladder (KUB)  
+  CT_SCAN_ANGIOGRAM_ABD          // Angiogram (Abdomen)  
+  CT_SCAN_C_SPINE                // Cervical Spine  
+  CT_SCAN_T_SPINE                // Thoracic Spine  
+  CT_SCAN_L_SPINE                // Lumbar Spine  
+  CT_SCAN_JOINT                  // Joint  
+
+  // Imaging - MRI
+  MRI_BRAIN                      // Brain
+  MRI_C_SPINE                    // Cervical Spine
+  MRI_T_SPINE                    // Thoracic Spine
+  MRI_L_SPINE                    // Lumbar 
+
+  // Imaging - Mammography
+  MAMMOGRAPHY_BILATERAL          // Bilateral
+  MAMMOGRAPHY_UNILATERAL         // Unilateral
+
+  // Optical Procedures
+  OPTICAL_REFRACTION             // Refraction
+  OPTICAL_TONOMETRY              // Tonometry
+  OPTICAL_CHALAZION_REMOVAL      // Chalazion Removal
+  OPTICAL_FOREIGN_BODY_REMOVAL   // Corneal Foreign Body Removal
+  OPTICAL_OCT_OPTIC_NERVE        // Optical Coherence Tomography (OCT) - Optic Nerve
+  OPTICAL_OCT_MACULA             // Optical Coherence Tomography (OCT) - Macula
+
+  // ENT Procedures
+  HEARING_AUDIOMETRY             // Audiometry Hearing Test
+  HEARING_TYMPANOMETRY           // Tympanometry
+  ENT_EAR_IRRIGATION             // Ear Irrigation
+  ENT_EAR_WAX_REMOVAL            // Ear Wax Removal
+  ENT_NASAL_ENDOSCOPY            // Nasal Endoscopy
+  ENT_LARYNGOSCOPY               // Laryngoscopy
+  ENT_VIDEOSTROBOSCOPY           // Videostroboscopy
+
+  // Dental Procedures  
+  DENTAL_EXTRACTION              // Tooth Extraction  
+  DENTAL_SCALING                 // Oral Prophylaxis / Scaling  
+  DENTAL_FILLING_TEMPORARY       // Temporary Filling  
+  DENTAL_FILLING_PERMANENT       // Permanent Filling  
+  DENTAL_ROOT_CANAL              // Root Canal Treatment  
+  DENTAL_CROWN_PLACEMENT         // Dental Crown Placement  
+  DENTAL_BRIDGE_PLACEMENT        // Dental Bridge Placement  
+  DENTAL_WHITENING               // Teeth Whitening 
+
+  // Rehabilitation & Therapy
+  THERAPY_PHYSICAL               // Physical Therapy
+  THERAPY_OCCUPATIONAL           // Occupational Therapy
+  THERAPY_SPEECH                 // Speech Therapy
+  THERAPY_RESPIRATORY            // Pulmonary Rehabilitation / Respiratory Therapy
+  THERAPY_VESTIBULAR             // Vestibular Therapy (Balance Rehabilitation)
+  THERAPY_CARDIAC                // Cardiac Rehabilitation
+  THERAPY_LYMPHEDEMA             // Lymphedema Therapy
+  THERAPY_NEUROLOGICAL           // Neurological Rehabilitation
+
+  // Cancer Treatment
+  ONCOLOGY_CHEMOTHERAPY          // Chemotherapy
+  ONCOLOGY_RADIATION_THERAPY     // Radiation Therapy
+  ONCOLOGY_PALLIATIVE_CARE       // Palliative Care
+  ONCOLOGY_HORMONAL_THERAPY      // Hormonal Therapy
+  ONCOLOGY_IMMUNOTHERAPY         // Immunotherapy
+  ONCOLOGY_TARGETED_THERAPY      // Targeted Therapy
+
+  // Minor Procedures  
+  PROCEDURE_CAUTERIZATION        // Cauterization  
+  PROCEDURE_CIRCUMCISION         // Circumcision  
+  PROCEDURE_DEBRIDEMENT          // Debridement  
+  PROCEDURE_DRESSING             // Dressing  
+  PROCEDURE_EAR_PIERCING         // Ear Piercing  
+  PROCEDURE_INCISION             // Incision
+  PROCEDURE_DRAINAGE             // Drainage
+  PROCEDURE_WOUND_SUTURING       // Suturing  
+  PROCEDURE_WOUND_SUTURE_REMOVAL // Suture Removal  
+  PROCEDURE_CYST_REMOVAL         // Cyst Removal  
+  PROCEDURE_LIPOMA_REMOVAL       // Lipoma Removal  
+  PROCEDURE_SKIN_TAG_REMOVAL     // Skin Tag Removal  
+  PROCEDURE_NAIL_REMOVAL         // Toenail/Fingernail Removal  
+  PROCEDURE_WART_REMOVAL         // Wart Removal  
+  PROCEDURE_BIOPSY               // Skin or Soft Tissue Biopsy  
+
+  // Diagnostic Tests  
+  PROCEDURE_EEG                  // EEG  
+  PROCEDURE_ECG                  // ECG  
+  PROCEDURE_PFT                  // Pulmonary Function Test (Spirometry)
+
+  // Specialized Procedures  
+  PROCEDURE_DIALYSIS             // Acute Peritoneal Dialysis  
+  PROCEDURE_LUMBAR_TAP           // Lumbar Tap  
+  PROCEDURE_PARACENTESIS         // Paracentesis  
+  PROCEDURE_UMBILICAL_CATH       // Umbilical Catheterization  
+  PROCEDURE_COLONOSCOPY          // Colonoscopy  
+  PROCEDURE_GASTROSCOPY          // Gastroscopy  
+  PROCEDURE_BRONCHOSCOPY         // Bronchoscopy  
+  PROCEDURE_THORACENTESIS        // Thoracentesis  
+  PROCEDURE_LABOR_DELIVERY       // Labor and Delivery Services
+
+  // Vaccinations
+  VACCINATION_HEPATITIS_A        // Hepatitis A  
+  VACCINATION_HEPATITIS_B        // Hepatitis B  
+  VACCINATION_HPV                // Human Papillomavirus (HPV)  
+  VACCINATION_INFLUENZA          // Influenza  
+  VACCINATION_MMR                // Measles, Mumps, Rubella (MMR)  
+  VACCINATION_POLIO              // Polio  
+  VACCINATION_RABIES             // Rabies  
+  VACCINATION_COVID19            // COVID-19  
+  VACCINATION_ROTAVIRUS          // Rotavirus  
+  VACCINATION_PNEUMOCOCCAL       // Pneumococcal  
+  VACCINATION_MENINGOCOCCAL      // Meningococcal  
+  VACCINATION_TDAP               // Tetanus, Diphtheria, and Pertussis (Tdap)
+}
+
+// MODELS
+
+model Credentials {
+  id        String @id // Either a unique email or a phone number. This constraint is handled by business logic.
+
+  password  String
+
+  // RELATIONS
+
+  // Credentials - Patient : Each Credentials must belong to one Patient.
+  patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
+  patientID String  @unique
+}
+
+model Patient {
+  patientID        String @id @default(uuid())
+
+  securityQuestion SecurityQuestion
+  providers        Provider[]
+
+  // RELATIONS
+
+  // Patient Credentials - Patient : Every Patient must have at least one and at most two Credentials. The second constraint is handled by business logic.
+  credentials Credentials[]
+
+  // Patient - Bookmark : A Patient may or may not have Bookmarks.
+  bookmarks   Bookmark[]
+
+  // Patient - Folder : A Patient may or may not have Folders.
+  folders     Folder[]
+}
+
+model Region {
+  regionID Int @id
+
+  name String @unique
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // Region - POrC : A Region may have multiple Provinces or Cities.
+  pOrCs     POrC[]
+
+  // Region - Address : A Region may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
+model POrC { // well, provinces + NCR
+  pOrCID Int @id
+
+  name String @unique
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // POrC - Region : A Province is associated with one Region.
+  region    Region @relation(fields: [regionID], references: [regionID])
+  regionID  Int
+
+  // POrC - COrM : A Province may have multiple Cities or Municipalities.
+  cOrMs     COrM[]
+
+  // POrC - Address : A Province may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
+model COrM {
+  cOrMID  Int @id 
+
+  name    String 
+  id      Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // COrM - POrC : A City or Municipality is associated with one Province.
+  pOrC      POrC @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID    Int
+
+  // COrM - Brgy : A City or Municipality may have multiple Barangays.
+  brgys     Brgy[]
+
+  // COrM - Address : A Municipality or Barangay may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
+model Brgy {
+  brgyID  Int @id 
+
+  name    String 
+  id      Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // Brgy - COrM : A Barangay is associated with one City or Municipality.
+  cOrM      COrM @relation(fields: [cOrMID], references: [cOrMID])
+  cOrMID    Int
+  
+  // Brgy - Address : A Barangay may be referenced by multiple Addresses.
+  addresses Address[]
+
+}
+
+// Address cohesion is (e.g. region = 3, pOrC = NCR, COrM = Platero is not allowed) is handled by business logic.
+
+// A separate Prisma model may not be so good for performance but a needed cop-out solution because only Prisma + MongoDB supports composite attributes.
+
+model Address {
+  addressID String @id @default(uuid())
+
+  region    Region @relation(fields: [regionID], references: [regionID])
+  regionID  Int
+
+  pOrC      POrC   @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID    Int
+
+  cOrM      COrM   @relation(fields: [cOrMID], references: [cOrMID])
+  cOrMID    Int
+
+  brgy      Brgy   @relation(fields: [brgyID], references: [brgyID])
+  brgyID    Int
+
+  street    String
+
+  // RELATIONS
+
+  // Address - Facility : Each Address is tied to one Facility.
+  facility   Facility @relation(fields: [facilityID], references: [facilityID])
+  facilityID String   @unique
+
+  @@unique([regionID, pOrCID, cOrMID, brgyID, street]) // Ensures each Facility has a unique Address.
+}
+
+// The data layer merged Managers and Facilities.
+
+model Facility {
+  facilityID        String @id @default(uuid())
+
+  password          String
+
+  name              String
+  photo             String       @default("https://placehold.co/1920x1440/png")
+  address           Address?             // "?" because Prisma cannot enforce "at least one ..." constraints.
+  email             String       @unique // Uniqueness constraint is subject to change based on internal poll results.
+  phoneNumber       String       @unique // Uniqueness constraint is subject to change based on internal poll results.
+  facilityType      FacilityType
+  ownership         Ownership
+  LTO               String               // License to Operate          
+  COA               String               // Certificate of Accreditation
+  bookingSystem     String?
+  acceptedProviders Provider[]
+
+  // RELATIONS
+
+  // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
+
+  // Every Facility may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
+  ambulanceService  AmbulanceService?
+  bloodBankService  BloodBankService?
+  erService         ERService?
+  icuService        ICUService?
+  outpatientService OutpatientService[]
+
+  // Facility - Admin : A Facility may or may not have Admins.
+  admins            Admin[]
+
+  // Facility - Division : A Facility may or may not have Divisions.
+  divisions         Division[]
+
+  // Facility - Bookmark : A Facility may or may not be bookmarked.
+  bookmarks         Bookmark[]
+}
+
+model Division {
+  divisionID  String @id @default(uuid())
+
+  name        String
+  phoneNumber String
+  openingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // RELATIONS
+
+  // Facility - Divisions : A Facility may or may not have Divisions.
+  facility          Facility @relation(fields: [facilityID], references: [facilityID])
+  facilityID        String
+
+  // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
+
+  // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
+  ambulanceService  AmbulanceService?
+  bloodBankService  BloodBankService?
+  erService         ERService?
+  icuService        ICUService?
+  outpatientService OutpatientService[]
+
+  // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
+  admins            Admin[]
 }
 
 model Admin {
-  adminId Int    @id @default(autoincrement())
-  name       String 
-  password   String
+  adminID  String @id @default(uuid())
+
+  password String
+
+  photo    String @default("https://placehold.co/1080x1080/png")
+
+  // RELATIONS
+
+  // Admin - Facility : Every Admin must work for exactly one Facility.
+  facility   Facility   @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
+  divisions  Division[]
 }
 
-model User {
-  userId        Int       @id @default(autoincrement())
+model Bookmark {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // RELATIONS
+
+  // Bookmark - Patient : A Bookmark must belong to one Patient.
+  patient    Patient  @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
+  patientID  String
+
+  // Bookmark - Facility : A Bookmark must belong to one Facility.
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Bookmark - Folder : A Bookmark may or may not be placed in a Folder.
+  folder     Folder?  @relation(fields: [folderID], references: [folderID], onDelete: SetNull)
+  folderID   String?
+
+  @@id([patientID, facilityID])
+}
+
+model Folder {
+  folderID  String @id @default(uuid())
+
   name      String
-  email     String    @unique
-  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // RELATIONS
+
+  // Folder - Patient : Every Folder must belong to one Patient.
+  patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
+  patientID String
+
+  // Folder - Bookmark : A Folder may or may not contain Bookmarks.
+  bookmarks Bookmark[]
+
+  @@unique([patientID, name]) // Prevents duplicate folder names for a single patient.
+}
+
+model AmbulanceService {
+  phoneNumber       String
+  openingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  baseRate          Float
+  minCoverageRadius Float
+  mileageRate       Float
+  maxCoverageRadius Float
+  availability      Availability @default(UNAVAILABLE)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each AmbulanceService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String    @id
+
+  // Service - Division : If a Facility has Divisions, every AmbulanceService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?   @unique                                                                      // "@unique" is needed to enforce one-to-one relationships on Prisma.
+
+  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+}
+
+model BloodTypeMapping {
+  // Naming Convention: _P = Positive, _N = Negative
+  A_P  Boolean @default(false)
+  A_N  Boolean @default(false)
+  B_P  Boolean @default(false)
+  B_N  Boolean @default(false)
+  O_P  Boolean @default(false)
+  O_N  Boolean @default(false)
+  AB_P Boolean @default(false)
+  AB_N Boolean @default(false)
+
+  // RELATIONS
+
+  BloodBankService BloodBankService @relation(fields: [facilityID], references: [facilityID])
+  facilityID       String           @id
+}
+
+model BloodBankService {
+  phoneNumber           String
+  openingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  pricePerUnit          Float
+  turnaroundTimeD       Int                               // Day.
+  turnaroundTimeH       Int                               // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  bloodTypeAvailability BloodTypeMapping?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each BloodBankService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String    @id
+
+  // Service - Division : If a Facility has Divisions, every BloodBankService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
+
+  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+}
+
+model ERService {
+  phoneNumber          String
+  load                 Load     @default(CLOSED)
+  availableBeds        Int      @default(0)
+  nonUrgentPatients    Int      @default(0)
+  nonUrgentQueueLength Int      @default(0)
+  urgentPatients       Int      @default(0)
+  urgentQueueLength    Int      @default(0)
+  criticalPatients     Int      @default(0)
+  criticalQueueLength  Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each ERService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String    @id
+
+  // Service - Division : If a Facility has Divisions, every ERService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
+
+  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+}
+
+model ICUService {
+  phoneNumber         String
+  baseRate            Float
+  load                Load
+  availableBeds       Int      @default(0)
+  cardiacSupport      Boolean  @default(false)
+  neurologicalSupport Boolean  @default(false)
+  renalSupport        Boolean  @default(false)
+  respiratorySupport  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each ICUService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String    @id
+
+  // Service - Division : If a Facility has Divisions, every ICUService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
+
+  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+}
+
+model OutpatientService {
+  serviceType     ServiceType
+  price           Float
+  completionTimeD Int                      // Day.
+  completionTimeH Int                      // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  isAvailable     Boolean  @default(false)
+  acceptsWalkIns  Boolean                  // Made this attribute universally applicable across all OutpatientServices.
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each OutpatientService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Service - Division : If a Facility has Divisions, every OutpatientService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?
+
+  @@id([facilityID, serviceType])
 }
