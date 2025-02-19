@@ -21,10 +21,10 @@
                 <a class="block p-4" href="/facility/1/dashboard">F-Dash</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/1/dashboard/addService">F-Add</a>
+                <a class="block p-4" href="/facility/1/dashboard/manageServices/addService">F-Add</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/1/dashboard/editGeneralInfo">F-Edit</a>
+                <a class="block p-4" href="/facility/1/dashboard/updateFacilityInfo">F-Edit</a>
             </li>
         </ul>
     </nav>

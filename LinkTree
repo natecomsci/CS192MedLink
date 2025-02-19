@@ -1,0 +1,54 @@
+Link Tree: / sveltePageName (Software Design Docu UI name)
+
+/                                     (patientInit)
+/signUp                               (patientSignUp)
+/signIn                               (patientSignIn)
+/forgotPassword                       (patientForgotPassword)
+
+/patient/[patientID]                  (patientSignedInSearch)
+  ../settings                         (patientAccountSettings)
+  ../bookmarks                        (patientBookmarks)
+    ../allFolders                     (patientBookmarksAllFolders)
+    ../[folderName]                   (patientBookmarksOneFolder)
+
+/searchFilter                         (patientSearchFilter) [to discuss more]
+/searchResults/[searchQuery]          (patientSearchResults)
+
+/[facilityID]                         (patientFacilityInfo) [to discuss as kind of security risk]
+  ../divisions                        (patientFacilityDivisions)
+  ../services                         (patientFacilityServices)
+
+/facility                             (facilitySignIn)
+  ../[userID]/dashboard               (managerDashboard, adminDashboard) [to discuss as kind of security risk, backend determines layout and whats seen]
+    ../updateFacilityInfo             (managerUpdateFacilityInfo)
+    ../manageAdmins                   (managerManageAdmins)
+      ../addAdmin                     (managerAddAdmin)
+      ../editAdmin                    (managerEditAdmin)
+
+    ../manageServices                 (managerManageServices, adminManageServices) [backend determines layout and whats seen]
+      ../addService                   (managerAddService)
+      ../editService                  (facilityAmbulanceServiceEdit,
+                                         facilityBloodBankServiceEdit,
+                                         facilityERServiceEdit,
+                                         facilityICUServiceEdit,
+                                         facilityOutpatientServiceEdit)
+      ../deleteService                 (managerDeleteServiceRestricted)
+
+    ../manageDivisions                (managerManageDivisions)
+      ../addDivision                  (managerAddDivision)
+      ../editDivision                 (managerEditDivision)
+      ../deleteDivision               (managerDeleteDivisionRestricted, managerDeleteDivisionDependency) [to discuss on how this is structured]
+
+
+
+addt: /patient also routes to patientInit
+
+Manager access:
+- updateFacilityInfo, addAdmin, editAdmin, addService, editService, deleteService, addDivision, editDivision, deleteDivision
+  Dashboard routes: updateFacilityInfo, manageAdmins, manageServices, manageDivisions
+    can see control log
+
+Admin access:
+- adminDashboard, editService
+  Dashboard routes: manageServices(restricted to editService)
+    can see control log
