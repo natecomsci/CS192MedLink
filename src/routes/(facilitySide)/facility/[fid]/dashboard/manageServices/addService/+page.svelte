@@ -51,7 +51,7 @@
 
     <div class="flex justify-end p-2">
       <button type="submit" class="text-white bg-purple-700 rounded-2xl p-2 m-2">Add</button>
-      <a href="../dashboard" class="text-black bg-gray-100 rounded-2xl p-2 m-2">Cancel</a>
+      <a href="../../dashboard" class="text-black bg-gray-100 rounded-2xl p-2 m-2">Cancel</a>
 
     </div>
     

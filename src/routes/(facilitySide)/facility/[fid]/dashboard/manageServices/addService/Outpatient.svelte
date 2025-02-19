@@ -42,7 +42,6 @@
   <input 
     name="availability"
     type="checkbox"
-    required
   >
 </label>
 
@@ -51,6 +50,5 @@
   <input 
     name="acceptWalkins" 
     type="checkbox"
-    required
   >
 </label>
