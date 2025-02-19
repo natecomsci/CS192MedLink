@@ -11,7 +11,7 @@ Link Tree: / sveltePageName (Software Design Docu UI name)
     ../allFolders                     (patientBookmarksAllFolders)
     ../[folderName]                   (patientBookmarksOneFolder)
 
-/searchFilter                         (patientSearchFilter) [to discuss kasi kinda weird if separate page, ifl better component inside searches]
+/searchFilter                         (patientSearchFilter) [to discuss more]
 /searchResults/[searchQuery]          (patientSearchResults)
 
 /[facilityID]                         (patientFacilityInfo) [to discuss as kind of security risk]

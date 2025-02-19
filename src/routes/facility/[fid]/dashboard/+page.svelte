@@ -2,6 +2,6 @@
   Facility Dashboard
 </h1>
 
-<a class="block p-4" href="./dashboard/addService">Add Service Button</a>
+<a class="block p-4" href="./dashboard/manageServices/addService">Add Service Button</a>
 
-<a class="block p-4" href="./dashboard/editGeneralInfo">Edit General Info Button</a>
+<a class="block p-4" href="./dashboard/updateFacilityInfo">Edit General Info Button</a>
