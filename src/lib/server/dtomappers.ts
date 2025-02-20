@@ -55,14 +55,23 @@ export function mapModelToRegionDTO(region: Region): RegionDTO {
     const street   = formData.get("street");
   
     if (!regionID || !pOrCID || !cOrMID || !brgyID || !street) {
-      throw new Error("Error: One or more data unavailable.");
+      throw new Error("Error: One or more address fields unavailable.");
+    }
+  
+    const parsedRegionID = parseInt(regionID as string, 10);
+    const parsedPOrCID   = parseInt(pOrCID as string, 10);
+    const parsedCOrMID   = parseInt(cOrMID as string, 10);
+    const parsedBrgyID   = parseInt(brgyID as string, 10);
+  
+    if (isNaN(parsedRegionID) || isNaN(parsedPOrCID) || isNaN(parsedCOrMID) || isNaN(parsedBrgyID)) {
+      throw new Error("Error: One or more address fields contain invalid numbers.");
     }
   
     return {
-      regionID : parseInt(regionID as string),
-      pOrCID   : parseInt(pOrCID as string),
-      cOrMID   : parseInt(cOrMID as string),
-      brgyID   : parseInt(brgyID as string),
-      street   : street as string,
+      regionID: parsedRegionID,
+      pOrCID: parsedPOrCID,
+      cOrMID: parsedCOrMID,
+      brgyID: parsedBrgyID,
+      street: street as string,
     };
   }

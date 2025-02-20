@@ -1,3 +1,9 @@
+import { PrismaClient } from '@prisma/client'
+
+import { Provider, SecurityQuestion, FacilityType, Ownership, Availability, Load, ServiceType } from '@prisma/client'
+
+import type { Region, POrC, COrM, Brgy, Address } from '@prisma/client';
+
 // DTOs
 
 // Naming Convention: (First Letter of Actor(s) Separated by _)_(View | Create | Update | <Insert Other Action>)<Model Name>DTO
@@ -38,76 +44,20 @@ export interface AddressDTO {
 
 // Illustration of functionality ng DTOs : An intermediary between DAOs and the database containing only necessary information for specific scenarios.
 
+export interface M_UpdateGenInfoFacilityDTO {
+  name              : string;
+  photo             : string;       // hardcode for now sa business logic
+  address           : AddressDTO;
+  phoneNumber       : string;
+  facilityType      : FacilityType;
+  ownership         : Ownership;
+  bookingSystem     : string;
+  acceptedProviders : string;
+}
+
+// mehh wag na tong baba na to lowkey hahahaha
+
 export interface M_UpdatePasswordFacilityDTO {
-  facilityID      : string;
   currentPassword : string;
   newPassword     : string;
 }
-
-// INSERT DTOs
-
-export interface AmbulanceData {
-  phoneNumber:        string;
-  openingTime:        string;
-  closingTime:        string;
-  baseRate:           number;
-  minCoverageRadius:  number;
-  mileageRate:        number;
-  maxCoverageRadius:  number;
-  availability:       boolean;
-};
-
-interface BloodtypeData {
-  A_P:  boolean;
-  A_N:  boolean;
-  B_P:  boolean;
-  B_N:  boolean;
-  O_P:  boolean;
-  O_N:  boolean;
-  AB_P: boolean;
-  AB_N: boolean;
-}
-
-export interface BloodData {
-  phoneNumber:            string;
-  openingTime:            string;
-  closingTime:            string;
-  pricePerUnit:           number;
-  turnaroundTimeD:        number;
-  turnaroundTimeH:        number;
-  bloodTypeAvailability:  BloodtypeData;
-};
-
-
-export interface ERData {
-  phoneNumber:          string;
-  load:                 string;
-  availableBeds:        number;
-  nonUrgentPatients:    number;
-  nonUrgentQueueLength: number;
-  urgentPatients:       number;
-  urgentQueueLength:    number;
-  criticalPatients:     number;
-  criticalQueueLength:  number;
-};
-
-
-export interface ICUData {
-  phoneNumber:          string;
-  baseRate:             number;
-  load:                 string;
-  availableBeds:        number;
-  cardiacSupport:       boolean;
-  neurologicalSupport:  boolean;
-  renalSupport:         boolean;
-  respiratorySupport:   boolean;
-};
-
-export interface OPData {
-  price:                number;
-  completionTimeD:      number;
-  completionTimeH:      number;
-  isAvailable:          boolean;
-  acceptsWalkIns:       boolean;
-};
-
