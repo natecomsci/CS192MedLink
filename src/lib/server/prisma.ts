@@ -1,4 +1,11 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, ServiceType } from '@prisma/client'
+
+import type { Region, POrC } from '@prisma/client';
+
+import { RegionDTO, POrCDTO }
+
+
+// Initialization of prisma
 
 const prisma = global.prisma || new PrismaClient();
 
@@ -13,25 +20,12 @@ export { prisma }
 // Naming Convention: (First Letter of Actor(s) Separated by _)_(View | Create | Update | <Insert Other Action>)<Model Name>DTO
 // On the first part: e.g. F corresponds to "Facility" - both Managers and Admins
 
-export interface RegionDTO {
-  regionID : number;
-  name     : string;
-  pOrC     : POrCDTO[];
-}
-
 export function mapModelToRegionDTO(region: Region): RegionDTO {
   return {
     regionID : region.regionID,
     name     : region.name,
     pOrC     : region.pOrC.map(mapModelToPOrCDTO),
   };
-}
-
-export interface POrCDTO {
-  pOrCID   : number;
-  name     : string;
-  regionID : number;
-  brgy     : COrMDTO[];
 }
 
 function mapModelToPOrCDTO(pOrC: POrC): POrCDTO {
@@ -43,13 +37,6 @@ function mapModelToPOrCDTO(pOrC: POrC): POrCDTO {
   };
 }
 
-export interface COrMDTO {
-  cOrMID : number;
-  name   : string;
-  pOrCID : number;
-  brgy   : BrgyDTO[];
-}
-
 export function mapModelToCOrMDTO(cOrM: COrM): COrMDTO {
   return {
     cOrMID : cOrM.cOrMID,
@@ -57,12 +44,6 @@ export function mapModelToCOrMDTO(cOrM: COrM): COrMDTO {
     pOrCID : cOrM.pOrCID,
     brgy   : cOrM.brgy.map(mapModelToBrgyDTO),
   };
-}
-
-export interface BrgyDTO {
-  brgyID : number;
-  name   : string;
-  cOrMID : number;
 }
 
 export function mapModelToBrgyDTO(brgy: Brgy): BrgyDTO {
@@ -87,14 +68,6 @@ export function mapFormDataToBrgyDTO(formData: FormData): BrgyDTO {
     name   : name as string,
     cOrMID : parseInt(cOrMID as string),
   };
-}
-
-export interface AddressDTO {
-  regionID : number;
-  pOrCID   : number;
-  cOrMID   : number;
-  brgyID   : number;
-  street   : string;
 }
 
 export function mapModelToAddressDTO(address: Address): AddressDTO {
@@ -131,11 +104,7 @@ export function mapFormDataToAddressDTO(formData: FormData): AddressDTO {
 
 // Illustration of functionality ng DTOs : An intermediary between DAOs and the database containing only necessary information for specific scenarios.
 
-export interface M_UpdatePasswordFacilityDTO {
-  facilityID      : string;
-  currentPassword : string;
-  newPassword     : string;
-}
+
 
 // No <Actor>_CreateFacilityDTO because Facilities are created externally.
 
@@ -196,7 +165,7 @@ export class ServiceDAO { // to hell with making this an interface for now sorry
     
   }
 
-  static async getOutpatientService(facilityID: string, serviceType: serviceType) { // serviceType needs mapping
+  static async getOutpatientService(facilityID: string, serviceType: ServiceType) { // serviceType needs mapping
     
   }
 
