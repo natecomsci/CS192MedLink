@@ -1,3 +1,8 @@
+// DTOs
+
+// Naming Convention: (First Letter of Actor(s) Separated by _)_(View | Create | Update | <Insert Other Action>)<Model Name>DTO
+// On the first part: e.g. F corresponds to "Facility" - both Managers and Admins
+
 export interface RegionDTO {
   regionID : number;
   name     : string;
@@ -29,11 +34,17 @@ export interface AddressDTO {
   street   : string;
 }
 
+// The above DTOs have an atypical naming convention kasi yan lang naman talaga kailangang data dyan in any scenario.
+
+// Illustration of functionality ng DTOs : An intermediary between DAOs and the database containing only necessary information for specific scenarios.
+
 export interface M_UpdatePasswordFacilityDTO {
   facilityID      : string;
   currentPassword : string;
   newPassword     : string;
 }
+
+// INSERT DTOs
 
 export interface AmbulanceData {
   phoneNumber:        string;

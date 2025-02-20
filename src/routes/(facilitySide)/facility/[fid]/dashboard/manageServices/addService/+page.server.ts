@@ -3,7 +3,7 @@ import { prisma } from '$lib/server/prisma';
 
 import type { PageServerLoad, Actions } from './$types';
 
-import type { AmbulanceData, BloodData, ERData, ICUData, OPData } from '$lib/server/interfaces';
+import type { AmbulanceData, BloodData, ERData, ICUData, OPData } from '$lib/server/dtos';
 
 export const actions = {
   default: async ({ cookies, request }) => {
