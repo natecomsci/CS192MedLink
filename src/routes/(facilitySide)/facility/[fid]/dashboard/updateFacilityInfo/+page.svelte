@@ -1,30 +1,26 @@
 <script lang="ts">
+  import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib/server/interfaces';
   import type { PageProps } from './$types';
-  import type { Region } from "@prisma/client"
+  
 
-
-  let region: String = $state('1');
+  let region: String = $state('Region');
   let province: String = $state('Province');
+  let city: String = $state('City');
   let barangay: String = $state('Barangay');
   let street: String = $state('Street');
 
-  let provinceList: Region[] = [];
-  let barangayList: Region[] = [];
-  let streetList: Region[] = [];
+  let provinceList: POrCDTO[] = [];
+  let cityList: COrMDTO[] = [];
+  let barangayList: BrgyDTO[] = [];
 
   let { data }: PageProps = $props();
 
-  async function getProvinces(regionID: Number) {
-    const response = await fetch('./updateFacilityInfo', {
-      method: 'POST',
-      body: JSON.stringify({ regionID }),
-      headers: {
-        'content-type': 'application/json'
-      }
+  let form;
 
-    });
-
-    provinceList = await response.json();
+  async function updateValues() {
+    if (data.provinces) {
+      provinceList = data.provinces
+    }
   }
 
 </script>
@@ -36,6 +32,8 @@
 
 <form
   class="grid grid-cols-1 bg-gray-400 m-6 space-y-2 rounded-2xl p-6"
+  method="POST" 
+  onchange={(e) => {e.currentTarget.requestSubmit(), updateValues()}}
 >
   
   <label>
@@ -47,7 +45,7 @@
     Location
     <div class="grid grid-cols-1">
     
-      <select bind:value={region} required onchange={() => getProvinces(Number(region))}>
+      <select name="region" bind:value={region} required>
         {#each data.regions as { regionID, name }}
           <option value={regionID}>{name}</option>
         {/each}
