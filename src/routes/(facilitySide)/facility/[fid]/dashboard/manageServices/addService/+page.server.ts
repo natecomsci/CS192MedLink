@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-// import { getAmbulanceService } from '$lib/server/prisma';
+import { prisma } from '$lib/server/prisma';
 
 import type { PageServerLoad, Actions } from './$types';
 
@@ -150,6 +150,8 @@ export const actions = {
     // console.log(await getAmbulanceService("0"))
 
     // send data to db
+
+    // console.log(await prisma.ambulanceService.findUnique( {where: { facilityID: "0eea8939-c386-46ad-95a2-12ae60740758" }} ));
 
     return { success: true };
   }

@@ -1,8 +1,31 @@
 <script lang="ts">
-  import { Button, Dropdown, DropdownItem } from 'flowbite-svelte';
-  import { ChevronDownOutline } from 'flowbite-svelte-icons';
+  import type { PageProps } from './$types';
+  import type { Region } from "@prisma/client"
 
-  let region: String = $state('Select Region')
+
+  let region: String = $state('1');
+  let province: String = $state('Province');
+  let barangay: String = $state('Barangay');
+  let street: String = $state('Street');
+
+  let provinceList: Region[] = [];
+  let barangayList: Region[] = [];
+  let streetList: Region[] = [];
+
+  let { data }: PageProps = $props();
+
+  async function getProvinces(regionID: Number) {
+    const response = await fetch('./updateFacilityInfo', {
+      method: 'POST',
+      body: JSON.stringify({ regionID }),
+      headers: {
+        'content-type': 'application/json'
+      }
+
+    });
+
+    provinceList = await response.json();
+  }
 
 </script>
 
@@ -23,14 +46,17 @@
   <label>
     Location
     <div class="grid grid-cols-1">
+    
+      <select bind:value={region} required onchange={() => getProvinces(Number(region))}>
+        {#each data.regions as { regionID, name }}
+          <option value={regionID}>{name}</option>
+        {/each}
+      </select>
 
-      <Button>{region}<ChevronDownOutline class="w-6 h-6 ms-2 text-white dark:text-white" /></Button>
-      <Dropdown>
-          <DropdownItem on:click={() => region = "NCR"}>NCR</DropdownItem>
-        
-      </Dropdown>
+      <p>{region}</p>
     </div>
     
   </label>
 
 </form>
+

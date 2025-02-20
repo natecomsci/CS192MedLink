@@ -1,21 +1,18 @@
 export interface RegionDTO {
   regionID : number;
   name     : string;
-  pOrC     : POrCDTO[];
 }
 
 export interface POrCDTO {
   pOrCID   : number;
   name     : string;
   regionID : number;
-  brgy     : COrMDTO[];
 }
 
 export interface COrMDTO {
   cOrMID : number;
   name   : string;
   pOrCID : number;
-  brgy   : BrgyDTO[];
 }
 
 export interface BrgyDTO {
@@ -38,7 +35,7 @@ export interface M_UpdatePasswordFacilityDTO {
   newPassword     : string;
 }
 
-export interface AmbulanceData = {
+export interface AmbulanceData {
   phoneNumber:        string;
   openingTime:        string;
   closingTime:        string;
@@ -49,7 +46,7 @@ export interface AmbulanceData = {
   availability:       boolean;
 };
 
-interface BloodtypeData = {
+interface BloodtypeData {
   A_P:  boolean;
   A_N:  boolean;
   B_P:  boolean;
@@ -60,7 +57,7 @@ interface BloodtypeData = {
   AB_N: boolean;
 }
 
-export interface BloodData = {
+export interface BloodData {
   phoneNumber:            string;
   openingTime:            string;
   closingTime:            string;
@@ -71,7 +68,7 @@ export interface BloodData = {
 };
 
 
-export interface ERData = {
+export interface ERData {
   phoneNumber:          string;
   load:                 string;
   availableBeds:        number;
@@ -84,7 +81,7 @@ export interface ERData = {
 };
 
 
-export interface ICUData = {
+export interface ICUData {
   phoneNumber:          string;
   baseRate:             number;
   load:                 string;
@@ -95,11 +92,11 @@ export interface ICUData = {
   respiratorySupport:   boolean;
 };
 
-export interface OPData = {
-  price:    number;
-  completionTimeD:  number;
-  completionTimeH: number;
-  isAvailable:    boolean;
-  acceptsWalkIns:  boolean;
+export interface OPData {
+  price:                number;
+  completionTimeD:      number;
+  completionTimeH:      number;
+  isAvailable:          boolean;
+  acceptsWalkIns:       boolean;
 };
 

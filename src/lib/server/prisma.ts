@@ -2,7 +2,9 @@ import { PrismaClient, ServiceType } from '@prisma/client'
 
 import type { Region, POrC } from '@prisma/client';
 
-import { RegionDTO, POrCDTO }
+import { json } from '@sveltejs/kit';
+
+import type { RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO } from './interfaces';
 
 
 // Initialization of prisma
@@ -20,9 +22,47 @@ export { prisma }
 // Naming Convention: (First Letter of Actor(s) Separated by _)_(View | Create | Update | <Insert Other Action>)<Model Name>DTO
 // On the first part: e.g. F corresponds to "Facility" - both Managers and Admins
 
+export async function getRegions(): Promise<RegionDTO[]> {
+  const regions = await prisma.region.findMany({
+    select: {regionID: true, name: true}
+  });
+
+  return regions.map(region => ({
+      name: region.name,
+      regionID: Number(region.regionID)
+    }));
+}
+
+export async function getProvinces(regionID: Number): Promise<POrCDTO[]> {
+  const provinces = await prisma.pOrC.findMany({
+    where: {regionID: String(regionID)},
+    select: {pOrCID: true, name: true, regionID: true}
+  });
+
+  return provinces.map(province => ({
+      name: province.name,
+      pOrCID: Number(province.pOrCID),
+      regionID: Number(province.regionID)
+    }));
+}
+
+export async function getCities(provinceID: Number): Promise<COrMDTO[]> {
+  const cities = await prisma.cOrM.findMany({
+    where: {pOrCID: String(provinceID)},
+    select: {pOrCID: true, name: true, cOrMID: true}
+  });
+
+  return cities.map(city => ({
+      name: city.name,  
+      pOrCID: Number(city.pOrCID),
+      cOrMID: Number(city.cOrMID)
+    }));
+}
+
+
 export function mapModelToRegionDTO(region: Region): RegionDTO {
   return {
-    regionID : region.regionID,
+    regionID : Number(region.regionID),
     name     : region.name,
     pOrC     : region.pOrC.map(mapModelToPOrCDTO),
   };
