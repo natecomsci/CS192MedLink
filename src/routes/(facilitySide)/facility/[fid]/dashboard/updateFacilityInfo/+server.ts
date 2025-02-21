@@ -4,13 +4,15 @@ import { AddressDAO } from '$lib/server/prisma';
 
 let address: AddressDAO = new AddressDAO();
 
+interface Message<T> extends Response {
+  message: T[];
+}
 export const POST: RequestHandler = async ({ request }) => {
   // location is of type RegionDTO | POrCDTO | COrMDTO | BrgyDTO
   const location = await request.json();
-  console.log(location)
+
   if (location.regionID) {
     const rv = await address.getPOrCOfRegion(location.regionID);
-    console.log(rv)
     return json(rv);
   }
   else if (location.pOrCID) {
