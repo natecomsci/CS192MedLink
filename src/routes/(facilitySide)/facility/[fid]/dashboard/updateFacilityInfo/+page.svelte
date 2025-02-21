@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib/server/interfaces';
+  import type { RegionDTO, POrCDTO, COrMDTO, BrgyDTO } from '$lib/server/dtos';
   import type { PageProps } from './$types';
   
 
@@ -17,11 +17,33 @@
 
   let form;
 
-  async function updateValues() {
-    if (data.provinces) {
-      provinceList = data.provinces
+  const getProvinces = async () => {
+    let responseMessage = '';
+
+    try {
+      const response = await fetch("./updateFacilityInfo", {
+        method: "POST", // Method
+        headers: {
+          "Content-Type": "application/json", // Set Content-Type to JSON
+        },
+        body: JSON.stringify({regionID: Number(region)}), // Convert JavaScript object to JSON string
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data)
+        responseMessage = data.message; 
+      } else {
+        responseMessage = "Error: Unable to send data.";
+      }
+    } catch (error) {
+      console.error(error);
+      responseMessage = "Network error occurred.";
     }
-  }
+
+    console.log(responseMessage)
+  };
+
 
 </script>
 
@@ -33,8 +55,8 @@
 <form
   class="grid grid-cols-1 bg-gray-400 m-6 space-y-2 rounded-2xl p-6"
   method="POST" 
-  onchange={(e) => {e.currentTarget.requestSubmit(), updateValues()}}
 >
+  <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
   
   <label>
     Facility Photo
@@ -44,8 +66,8 @@
   <label>
     Location
     <div class="grid grid-cols-1">
-    
-      <select name="region" bind:value={region} required>
+    {console.log(data.regions)}
+      <select name="region" bind:value={region} required onchange={() => getProvinces()}>
         {#each data.regions as { regionID, name }}
           <option value={regionID}>{name}</option>
         {/each}

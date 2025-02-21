@@ -40,15 +40,15 @@ export class AddressDAO {
 
   }
 
-  static async getRegions(): Promise<RegionDTO[]> {
-    const regions = await prisma.pOrC.findMany({
+  async getRegions(): Promise<RegionDTO[]> {
+    const regions = await prisma.region.findMany({
       select: {regionID: true, name: true}
     });
 
     return regions
   }
 
-  static async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
+  async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
     const provinces = await prisma.pOrC.findMany({
       where: {regionID: regionID},
       select: {pOrCID: true, name: true, regionID: true}
@@ -57,7 +57,7 @@ export class AddressDAO {
     return provinces
   }
 
-  static async getCOrMOfProvince(pOrCID: number): Promise<COrMDTO[]> {
+  async getCOrMOfProvince(pOrCID: number): Promise<COrMDTO[]> {
     const cities = await prisma.cOrM.findMany({
       where: {pOrCID: pOrCID},
       select: {pOrCID: true, name: true, cOrMID: true}
@@ -66,7 +66,7 @@ export class AddressDAO {
     return cities
   }
 
-  static async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
+  async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
     const brgys = await prisma.brgy.findMany({
       where: {cOrMID: cOrMID},
       select: {brgyID: true, name: true, cOrMID: true}
