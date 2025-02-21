@@ -4,7 +4,8 @@ import { Provider, SecurityQuestion, FacilityType, Ownership, Availability, Load
 
 import type { Region, POrC, COrM, Brgy, Address, Facility } from '@prisma/client';
 
-import type { CreateServiceDTO, RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO, M_UpdateGenInfoFacilityDTO } from './dtos';
+// import type { CreateServiceDTO, RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO, M_UpdateGenInfoFacilityDTO } from './dtos';
+import type { RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO, M_UpdateGenInfoFacilityDTO } from './dtos';
 
 // Initialization of Prisma
 
@@ -29,24 +30,49 @@ export interface ServiceDAO<T, U, CreateServiceDTO, UpdateServiceDTO> {
 }
 
 export class AddressDAO {
-  static async getAddressByID(addressID: string) {
+  static async getAddressByID(addressID: string) {      
+    // @paul, more apt ata na facilityID ang param dito given what we have is facility info
+    // is this not redundant sa facilityDAO getAddress??
+  }
+
+  static async updateAddress(addressID: string, data: AddressDTO) {
+    // @paul, as this is an update address, no need to return addressDTO, just have to return success or not (or no return if dito ang checking)
 
   }
 
-  static async updateAddress(addressID: string, data: AddressDTO): Promise<AddressDTO> {
+  static async getRegions(): Promise<RegionDTO[]> {
+    const regions = await prisma.pOrC.findMany({
+      select: {regionID: true, name: true}
+    });
 
+    return regions
   }
 
   static async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
+    const provinces = await prisma.pOrC.findMany({
+      where: {regionID: regionID},
+      select: {pOrCID: true, name: true, regionID: true}
+    });
 
+    return provinces
   }
 
   static async getCOrMOfProvince(pOrCID: number): Promise<COrMDTO[]> {
+    const cities = await prisma.cOrM.findMany({
+      where: {pOrCID: pOrCID},
+      select: {pOrCID: true, name: true, cOrMID: true}
+    });
 
+    return cities
   }
 
   static async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
+    const brgys = await prisma.brgy.findMany({
+      where: {cOrMID: cOrMID},
+      select: {brgyID: true, name: true, cOrMID: true}
+    });
 
+    return brgys;
   }
 }
 
@@ -57,11 +83,26 @@ export class FacilityDAO { // call functions under these DAOs sa page.server.ts 
   }
 
   static async getAddressByFacility(facilityID: string): Promise<AddressDTO> {
-    
+    const address = await prisma.address.findUniqueOrThrow({
+      where: {facilityID: facilityID},
+      select: {
+        regionID: true,
+        pOrCID: true,
+        cOrMID: true,
+        brgyID: true,
+        street: true
+    }});
+
+    return address;
   }
 
   static async getInsurancesByFacility(facilityID: string): Promise<Provider[]> {
-    
+    const insuraceProviders = await prisma.facility.findUniqueOrThrow({
+      where: {facilityID: facilityID},
+      select: {acceptedProviders: true}
+    });
+
+    return insuraceProviders.acceptedProviders;
   }
 
   /*
