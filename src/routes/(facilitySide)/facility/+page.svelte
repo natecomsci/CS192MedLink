@@ -11,6 +11,7 @@
 
 </script>
 
+
 <!-- @elle, @paul: padesign -->
 <div class="grid grid-cols-1 justify-items-center p-8">
   <div class="grid grid-cols-1 justify-items-center">
@@ -21,7 +22,7 @@
       width="120" 
       height="120"/>
     <!-- MedLink -->
-    <h1 class="py-10 mb-5 font-['DM_Sans'] text-[86px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+    <h1 class="py-10 mb-5 font-['DM_Sans'] text-[80px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
       Med<span class="text-[#9044C4]">Link</span>
     </h1>
   </div>
@@ -29,11 +30,11 @@
   <!-- sign in -->
   <form 
     method="POST"
-    class="w-96 grid grid-cols-1 bg-white m-0 space-y-8 rounded-2xl p-5 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+    class="w-96 grid grid-cols-1 bg-white m-0 space-y-8 rounded-2xl p-8 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     >
-    <h2 class="text-xl font-bold font-['DM_Sans'] mb-4">SIGN IN</h2>
+    <h3 class="text-[25px] font-black font-['DM_Sans'] mb-0">SIGN IN</h3>
 
-    <div class="space-y-5">
+    <div class="space-y-5 py-2">
       <!-- Employee -->
       <input 
         name="fid"
