@@ -1,9 +1,8 @@
 import { fail } from '@sveltejs/kit';
-import { prisma } from '$lib/server/prisma';
 
 import type { PageServerLoad, Actions } from './$types';
 
-import type { AmbulanceData, BloodData, ERData, ICUData, OPData } from '$lib/server/dtos';
+import type { AmbulanceData, BloodData, ERData, ICUData, OPData } from '$lib/server/formmapers';
 
 export const actions = {
   default: async ({ cookies, request }) => {
