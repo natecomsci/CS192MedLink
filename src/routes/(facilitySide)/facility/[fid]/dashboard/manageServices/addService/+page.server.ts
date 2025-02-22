@@ -2,7 +2,8 @@ import { fail } from '@sveltejs/kit';
 
 import type { PageServerLoad, Actions } from './$types';
 
-import type { AmbulanceData, BloodData, ERData, ICUData, OPData } from '$lib/server/formmapers';
+import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from '$lib/server/dtos';
+import type { ServiceType } from '@prisma/client';
 
 export const actions = {
   default: async ({ cookies, request }) => {
@@ -20,17 +21,15 @@ export const actions = {
         const minCoverageRadius = Number(data.get('minCoverageRadius'));
         const mileageRate       = Number(data.get('mileageRate'));
         const maxCoverageRadius = Number(data.get('maxCoverageRadius'));
-        const availability      = data.get('availability') === 'on';
 
-        const service: AmbulanceData = {
+        const service: CreateAmbulanceServiceDTO = {
           phoneNumber,
           openingTime,
           closingTime,
           baseRate,
           minCoverageRadius,
           mileageRate,
-          maxCoverageRadius,
-          availability
+          maxCoverageRadius
         }
 
         // console.log(service)
@@ -43,32 +42,14 @@ export const actions = {
         const pricePerUnit       = Number(data.get('price'));
         const turnaroundTimeD   = Number(data.get('turnaroundDays'));
         const turnaroundTimeH  = Number(data.get('turnaroundHours'));
-        const A_P          = data.get('blood-A+') === 'on';
-        const A_N          = data.get('blood-A-') === 'on';
-        const B_P          = data.get('blood-B+') === 'on';
-        const B_N          = data.get('blood-B-') === 'on';
-        const O_P          = data.get('blood-O+') === 'on';
-        const O_N          = data.get('blood-O-') === 'on';
-        const AB_P         = data.get('blood-AB+') === 'on';
-        const AB_N         = data.get('blood-AB-') === 'on';
 
-        const service: BloodData = {
+        const service: CreateBloodBankServiceDTO = {
           phoneNumber,
           openingTime,
           closingTime,
           pricePerUnit,
           turnaroundTimeD,
-          turnaroundTimeH,
-          bloodTypeAvailability : {
-            A_P,
-            A_N,
-            B_P,
-            B_N,
-            O_P,
-            O_N,
-            AB_P,
-            AB_N
-          }
+          turnaroundTimeH
         }
 
         console.log(service)
@@ -76,25 +57,9 @@ export const actions = {
       }
       case "Emergency Room": {
         const phoneNumber           = data.get('phoneNumber') as string;
-        const load                  = data.get('load') as string;
-        const availableBeds         = Number(data.get('availableBeds'));
-        const nonUrgentPatients     = Number(data.get('nonUrgentAttended'));
-        const nonUrgentQueueLength  = Number(data.get('nonUrgentQueue'));
-        const urgentPatients        = Number(data.get('urgentAttended'));
-        const urgentQueueLength     = Number(data.get('urgentQueue'));
-        const criticalPatients      = Number(data.get('criticalAttended'));
-        const criticalQueueLength   = Number(data.get('criticalQueue'));
 
-        const service: ERData = {
-          phoneNumber,
-          load,
-          availableBeds,
-          nonUrgentPatients,
-          nonUrgentQueueLength,
-          urgentPatients,
-          urgentQueueLength,
-          criticalPatients,
-          criticalQueueLength
+        const service: CreateERServiceDTO = {
+          phoneNumber
         }
 
         // console.log(service)
@@ -103,39 +68,27 @@ export const actions = {
       case "ICU": {
         const phoneNumber         = data.get('phoneNumber') as string;
         const baseRate            = Number(data.get('price'));
-        const load                = data.get('load') as string;
-        const availableBeds       = Number(data.get('availableBeds'));
-        const cardiacSupport      = data.get('cardiacSupport') === 'on';
-        const neurologicalSupport = data.get('neurologicalSupport') === 'on';
-        const renalSupport        = data.get('renalSupport') === 'on';
-        const respiratorySupport  = data.get('respiratorySupport') === 'on';
 
-        const service: ICUData = {
+        const service: CreateICUServiceDTO = {
           phoneNumber,
-          baseRate,
-          load,
-          availableBeds,
-          cardiacSupport,
-          neurologicalSupport,
-          renalSupport,
-          respiratorySupport
+          baseRate
         }
 
         // console.log(service)
         break;
       }
       case "Out Patient": {
+        const OPserviceType   = data.get('OPserviceType') as ServiceType;
         const price           = Number(data.get('price'));
         const completionTimeD = Number(data.get('completionDays'));
         const completionTimeH = Number(data.get('completionHOURS'));
-        const isAvailable     = data.get('availability') === 'on';
         const acceptsWalkIns  = data.get('acceptWalkins') === 'on';
 
-        const service: OPData = {
+        const service: CreateOutpatientServiceDTO = {
+          serviceType: OPserviceType,
           price,
           completionTimeD,
           completionTimeH,
-          isAvailable,
           acceptsWalkIns
         }
 

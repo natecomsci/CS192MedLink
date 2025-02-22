@@ -2,6 +2,8 @@
   import { invalidate } from '$app/navigation'
   import { onMount } from 'svelte'
 
+  import DebugRouting from './DebugRouting.svelte';
+
   let { data, children } = $props()
   let { session, supabase } = $derived(data)
 
@@ -15,5 +17,7 @@
     return () => data.subscription.unsubscribe()
   })
 </script>
+
+<DebugRouting />
 
 {@render children()}

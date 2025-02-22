@@ -1,8 +1,16 @@
 <script>
-  let { serviceType} = $props();
+  let { serviceType } = $props();
 </script>
 
 <h3>{serviceType}</h3>
+
+<label>
+  <select
+    name="OPserviceType"
+  >
+    <option>sample</option>
+  </select>
+</label>
 
 <label>
   <h3>Service Phone Number</h3>
@@ -35,14 +43,6 @@
     required
   >
   hours
-</label>
-
-<label>
-  Availability
-  <input 
-    name="availability"
-    type="checkbox"
-  >
 </label>
 
 <label>

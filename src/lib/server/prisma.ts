@@ -25,7 +25,7 @@ export { prisma }
 // DAOs
 
 export class AmbulanceServiceDAO {
-  static async getByID(facilityID: string): Promise<AmbulanceService | null> {
+  async getByID(facilityID: string): Promise<AmbulanceService | null> {
     try {
       const service = await prisma.ambulanceService.findUnique({
         where: { facilityID }
@@ -42,7 +42,7 @@ export class AmbulanceServiceDAO {
     }
   }
 
-  static async create(facilityID: string, data: CreateAmbulanceServiceDTO): Promise<void> {
+  async create(facilityID: string, data: CreateAmbulanceServiceDTO): Promise<void> {
     try {
       await prisma.ambulanceService.create({
         data: { ...data, facility: { connect: { facilityID } } }
@@ -52,11 +52,11 @@ export class AmbulanceServiceDAO {
     }
   }
 
-  //static async update(facilityID: string, data: UpdateAmbulanceServiceDTO): Promise<void> {
+  //async update(facilityID: string, data: UpdateAmbulanceServiceDTO): Promise<void> {
     
   //}
 
-  static async delete(facilityID: string): Promise<void> {
+  async delete(facilityID: string): Promise<void> {
     try {
       await prisma.ambulanceService.delete({
         where: { facilityID }
@@ -68,7 +68,7 @@ export class AmbulanceServiceDAO {
 }
 
 export class BloodBankServiceDAO {
-  static async getByID(facilityID: string): Promise<BloodBankService | null> {
+  async getByID(facilityID: string): Promise<BloodBankService | null> {
     try {
       const service = await prisma.bloodBankService.findUnique({
         where: { facilityID }
@@ -85,7 +85,7 @@ export class BloodBankServiceDAO {
     }
   }  
 
-  static async create(facilityID: string, data: CreateBloodBankServiceDTO): Promise<void> {
+  async create(facilityID: string, data: CreateBloodBankServiceDTO): Promise<void> {
     try {
       await prisma.bloodBankService.create({
         data: { ...data, facility: { connect: { facilityID } } }
@@ -95,11 +95,11 @@ export class BloodBankServiceDAO {
     }
   }
 
-  //static async update(facilityID: string, data: UpdateBloodBankServiceDTO): Promise<void> {
+  //async update(facilityID: string, data: UpdateBloodBankServiceDTO): Promise<void> {
     
   //}
 
-  static async delete(facilityID: string): Promise<void> {
+  async delete(facilityID: string): Promise<void> {
     try {
       await prisma.bloodBankService.delete({
         where: { facilityID }
@@ -112,7 +112,7 @@ export class BloodBankServiceDAO {
 }
 
 export class ERServiceDAO {
-  static async getByID(facilityID: string): Promise<ERService | null> {
+  async getByID(facilityID: string): Promise<ERService | null> {
     try {
       const service = await prisma.eRService.findUnique({
         where: { facilityID }
@@ -129,7 +129,7 @@ export class ERServiceDAO {
     }
   }
   
-  static async create(facilityID: string, data: CreateERServiceDTO): Promise<void> {
+  async create(facilityID: string, data: CreateERServiceDTO): Promise<void> {
     try {
       await prisma.eRService.create({
         data: { ...data, facility: { connect: { facilityID } } },
@@ -139,11 +139,11 @@ export class ERServiceDAO {
     }
   }
 
-  //static async update(facilityID: string, data: UpdateERServiceDTO): Promise<void> {
+  //async update(facilityID: string, data: UpdateERServiceDTO): Promise<void> {
     
   //}
 
-  static async delete(facilityID: string): Promise<void> {
+  async delete(facilityID: string): Promise<void> {
     try {
       await prisma.eRService.delete({
         where: { facilityID }
@@ -156,7 +156,7 @@ export class ERServiceDAO {
 }
 
 export class ICUServiceDAO {
-  static async getByID(facilityID: string): Promise<ICUService | null> {
+  async getByID(facilityID: string): Promise<ICUService | null> {
     try {
       const service = await prisma.iCUService.findUnique({
         where: { facilityID }
@@ -173,7 +173,7 @@ export class ICUServiceDAO {
     }
   }
 
-  static async create(facilityID: string, data: CreateICUServiceDTO): Promise<void> {
+  async create(facilityID: string, data: CreateICUServiceDTO): Promise<void> {
     try {
       await prisma.iCUService.create({
         data: { ...data, facility: { connect: { facilityID } } },
@@ -183,11 +183,11 @@ export class ICUServiceDAO {
     }
   }
 
-  //static async update(facilityID: string, data: UpdateICUServiceDTO): Promise<void> {
+  //async update(facilityID: string, data: UpdateICUServiceDTO): Promise<void> {
     
   //}
 
-  static async delete(facilityID: string): Promise<void> {
+  async delete(facilityID: string): Promise<void> {
     try {
       const iCUServiceToDelete = await prisma.iCUService.delete({
         where: { facilityID }
@@ -200,7 +200,7 @@ export class ICUServiceDAO {
 }
 
 export class OutpatientServiceDAO {
-  static async getByID(facilityID: string, serviceType: ServiceType): Promise<OutpatientService | null> {
+  async getByID(facilityID: string, serviceType: ServiceType): Promise<OutpatientService | null> {
     try {
       const service = await prisma.outpatientService.findUnique({
         where: { facilityID_serviceType: { facilityID, serviceType } }
@@ -217,7 +217,7 @@ export class OutpatientServiceDAO {
     }
   }
 
-  static async getAll(facilityID: string): Promise<OutpatientService[]> {
+  async getAll(facilityID: string): Promise<OutpatientService[]> {
     try {
       const outpatientServices = await prisma.outpatientService.findMany({
          where: { facilityID }
@@ -229,7 +229,7 @@ export class OutpatientServiceDAO {
     }
   }
 
-  static async create(facilityID: string, data: CreateOutpatientServiceDTO): Promise<void> {
+  async create(facilityID: string, data: CreateOutpatientServiceDTO): Promise<void> {
     try {
       await prisma.outpatientService.create({
         data: { ...data, facility: { connect: { facilityID } } },
@@ -239,11 +239,11 @@ export class OutpatientServiceDAO {
     }
   }
 
-  //static async update(facilityID: string, serviceType: ServiceType, data: UpdateOutpatientServiceDTO): Promise<void> {
+  //async update(facilityID: string, serviceType: ServiceType, data: UpdateOutpatientServiceDTO): Promise<void> {
     
   //}
 
-  static async delete(facilityID: string, serviceType: ServiceType): Promise<void> {
+  async delete(facilityID: string, serviceType: ServiceType): Promise<void> {
     try {
       await prisma.outpatientService.delete({
         where: { facilityID_serviceType: { facilityID, serviceType } }
@@ -256,7 +256,7 @@ export class OutpatientServiceDAO {
 }
 
 export class AddressDAO {
-  static async updateAddress(facilityID: string, data: AddressDTO): Promise<void> {
+  async updateAddress(facilityID: string, data: AddressDTO): Promise<void> {
     try {
       await prisma.address.update({
         where: { facilityID },
@@ -272,8 +272,16 @@ export class AddressDAO {
       throw new Error("Could not update Address.");
     }
   }
-  
-  static async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
+
+  async getRegions(): Promise<RegionDTO[]> {
+    const regions = await prisma.pOrC.findMany({
+      select: {regionID: true, name: true}
+    });
+
+    return regions
+  }
+
+  async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
     try {
       const pOrC = await prisma.pOrC.findMany({
         where: { regionID },
@@ -290,7 +298,7 @@ export class AddressDAO {
     }
   }
 
-  static async getCOrMOfProvince(pOrCID: number): Promise<COrMDTO[]> {
+  async getCOrMOfProvince(pOrCID: number): Promise<COrMDTO[]> {
     try {
       const cOrMs = await prisma.cOrM.findMany({
         where: { pOrCID },
@@ -307,7 +315,7 @@ export class AddressDAO {
     }
   }
 
-  static async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
+  async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
     try {
       const brgys = await prisma.brgy.findMany({
         where: { cOrMID },
@@ -327,38 +335,38 @@ export class AddressDAO {
 
 export class FacilityDAO {
   /*
-  static async updateGeneralInformation(facility: string, data: M_UpdateGenInfoFacilityDTO): {
+  async updateGeneralInformation(facility: string, data: M_UpdateGenInfoFacilityDTO): {
 
   }
-  static async updatePassword(facility: string, data: M_UpdatePasswordFacilityDTO): {
+  async updatePassword(facility: string, data: M_UpdatePasswordFacilityDTO): {
 
   }
 
-  static async getAddressByFacility(facilityID: string): Promise<AddressDTO> {
+  async getAddressByFacility(facilityID: string): Promise<AddressDTO> {
     
   }
 
-  static async getInsurancesByFacility(facilityID: string): Promise<Provider[]> {
+  async getInsurancesByFacility(facilityID: string): Promise<Provider[]> {
     
   }
 
-  static async getServicesByFacility(facilityID: string) Promise< // to insert // > {
+  async getServicesByFacility(facilityID: string) Promise< // to insert // > {
     
   }
 
-  static async getAdminsByFacility(facilityID: string) Promise< // to insert // > {
+  async getAdminsByFacility(facilityID: string) Promise< // to insert // > {
     
   }
 
-  static async getDivisionsByFacility(facilityID: string): Promise< // to insert // > {
+  async getDivisionsByFacility(facilityID: string): Promise< // to insert // > {
     
   }
 
-  static async facilityHasAdmins(facilityID: string): Promise<boolean> {
+  async facilityHasAdmins(facilityID: string): Promise<boolean> {
     
   }
 
-  static async facilityHasDivisions(facilityID: string): Promise<boolean> {
+  async facilityHasDivisions(facilityID: string): Promise<boolean> {
     
   }
   */

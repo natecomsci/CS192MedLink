@@ -1,12 +1,9 @@
 // import type { PageServerLoad } from './$types';
 
 import { AddressDAO } from '$lib/server/prisma';
-import { fail } from '@sveltejs/kit';
-import { prisma } from '$lib/server/prisma';
+// import { fail } from '@sveltejs/kit';
 
 import type { PageServerLoad, Actions } from './$types';
-
-import type { AmbulanceData, BloodData, ERData, ICUData, OPData } from '$lib/server/formmapers';
 
 // import type { RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO} from '$lib/server/interfaces.ts';
 

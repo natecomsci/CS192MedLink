@@ -82,11 +82,3 @@
   >
   km
 </label>
-
-<label>
-  Availability
-  <input
-    name="availability" 
-    type="checkbox"
-  >
-</label>
