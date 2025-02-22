@@ -18,6 +18,8 @@
   Add Service
 </h1>
 
+<h3>{serviceType}</h3>
+
 <form 
     method="POST"
     class="grid grid-cols-1 bg-gray-400 m-6 space-y-2 rounded-2xl p-6"
@@ -37,15 +39,15 @@
       class="grid grid-cols-1"
     >
       {#if serviceType == "Ambulance"}
-        <Ambulance {serviceType}/>
+        <Ambulance/>
       {:else if serviceType == "Blood Bank"}
-        <BloodBank {serviceType}/>
+        <BloodBank/>
       {:else if serviceType == "Emergency Room"}
-        <ER {serviceType}/>
+        <ER/>
       {:else if serviceType == "ICU"}
-        <ICU {serviceType}/>
+        <ICU/>
       {:else if serviceType == "Outpatient"}
-        <Outpatient {serviceType}/>
+        <Outpatient />
       {/if}
     </label>
 
