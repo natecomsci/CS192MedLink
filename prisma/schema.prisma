@@ -2,10 +2,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// hardcoded url for some reason it cant fetch my env will remove this soon
+
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = "postgresql://postgres.sxwzziejwsctipkgjnne:password@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?pgbouncer=true"
+  directUrl = "postgresql://postgres.sxwzziejwsctipkgjnne:password@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
 }
 
 // ENUMS
@@ -360,7 +362,7 @@ enum ServiceType {
 // MODELS
 
 model Credentials {
-  id        String @id // Either a unique email or a phone number. This constraint is handled by business logic.
+  id String @id // Either a unique email or a phone number. This constraint is handled by business logic.
 
   password  String
 
@@ -372,7 +374,7 @@ model Credentials {
 }
 
 model Patient {
-  patientID        String @id @default(uuid())
+  patientID String @id @default(uuid())
 
   securityQuestion SecurityQuestion
   providers        Provider[]
@@ -424,10 +426,10 @@ model POrC { // well, provinces + NCR
 }
 
 model COrM {
-  cOrMID  Int @id 
+  cOrMID Int @id 
 
-  name    String 
-  id      Int    @default(autoincrement())
+  name String 
+  id   Int    @default(autoincrement())
 
   // RELATIONS
 
@@ -443,10 +445,10 @@ model COrM {
 }
 
 model Brgy {
-  brgyID  Int @id 
+  brgyID Int @id 
 
-  name    String 
-  id      Int    @default(autoincrement())
+  name   String 
+  id     Int    @default(autoincrement())
 
   // RELATIONS
 
@@ -464,8 +466,6 @@ model Brgy {
 // A separate Prisma model may not be so good for performance but a needed cop-out solution because only Prisma + MongoDB supports composite attributes.
 
 model Address {
-  addressID String @id @default(uuid())
-
   region    Region @relation(fields: [regionID], references: [regionID])
   regionID  Int
 
@@ -484,7 +484,7 @@ model Address {
 
   // Address - Facility : Each Address is tied to one Facility.
   facility   Facility @relation(fields: [facilityID], references: [facilityID])
-  facilityID String   @unique
+  facilityID String   @id
 
   @@unique([regionID, pOrCID, cOrMID, brgyID, street]) // Ensures each Facility has a unique Address.
 }
@@ -492,7 +492,7 @@ model Address {
 // The data layer merged Managers and Facilities.
 
 model Facility {
-  facilityID        String @id @default(uuid())
+  facilityID String @id @default(uuid())
 
   password          String
 
@@ -530,7 +530,7 @@ model Facility {
 }
 
 model Division {
-  divisionID  String @id @default(uuid())
+  divisionID String @id @default(uuid())
 
   name        String
   phoneNumber String
@@ -555,15 +555,17 @@ model Division {
   outpatientService OutpatientService[]
 
   // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
-  admins            Admin[]
+  admins            Admin[]  @relation("AdminToDivision")
 }
 
 model Admin {
-  adminID  String @id @default(uuid())
+  adminID String @id @default(uuid())
 
-  password String
+  password  String
 
-  photo    String @default("https://placehold.co/1080x1080/png")
+  photo     String   @default("https://placehold.co/1080x1080/png")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // RELATIONS
 
@@ -572,7 +574,7 @@ model Admin {
   facilityID String
 
   // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
-  divisions  Division[]
+  divisions  Division[] @relation("AdminToDivision")
 }
 
 model Bookmark {
@@ -597,7 +599,7 @@ model Bookmark {
 }
 
 model Folder {
-  folderID  String @id @default(uuid())
+  folderID String @id @default(uuid())
 
   name      String
   createdAt DateTime @default(now())
@@ -710,7 +712,7 @@ model ERService {
 model ICUService {
   phoneNumber         String
   baseRate            Float
-  load                Load
+  load                Load     @default(CLOSED)
   availableBeds       Int      @default(0)
   cardiacSupport      Boolean  @default(false)
   neurologicalSupport Boolean  @default(false)
