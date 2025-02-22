@@ -1,39 +1,46 @@
-import { fail } from '@sveltejs/kit';
-// import * as db from '$lib/server/db';
+// facility log in no cookies made during successful login.
+// try id:20250001 pw:password for testing
+import { fail, redirect } from '@sveltejs/kit';
+import bcrypt from 'bcryptjs';
 import { prisma } from '$lib/server/prisma';
 
-import type { PageServerLoad, Actions } from './$types';
-
-// export const load = (async () => {
-//   const response = await prisma.user.findUnique({
-//       where: { userId: 1 },
-//     })
-
-//   return { feed: response };
-// }) satisfies PageServerLoad;
+import type { Actions } from './$types';
 
 export const actions = {
-  default: async ({ cookies, request }) => {
+  default: async ({ request }) => {
     const data = await request.formData();
-    const fid = data.get('fid');
-    const password = data.get('password');
+    const fid = data.get('fid') as string;
+    const password = data.get('password') as string;
 
-    if (!fid) {
-      return fail(400, { fid, missing: true });
+    console.log(`🔹 Login Attempt:`);
+    console.log(`➡️ Employee ID: ${fid}`);
+    console.log(`➡️ Password: ${password}`); // 🚨 Remove this in production!
+
+    if (!fid || !password) {
+      console.log(`❌ Missing Employee ID or Password.`);
+      return fail(400, { error: 'Missing Employee ID or Password.' });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { userId: Number(fid) },
-    })
+    // Fetch facility by facilityID
+    const facility = await prisma.facility.findUnique({
+      where: { facilityID: fid },
+    });
 
-
-    if (!user || user.password !== password) {
-      return fail(400, { fid, incorrect: true });
+    if (!facility) {
+      console.log(`❌ Invalid Employee ID: ${fid}`);
+      return fail(400, { error: 'Invalid Employee ID or Password.' });
     }
 
-    console.log(user)
-    // cookies.set('sessionid', await db.createSession(user), { path: '/facility/' + user.id + '/dashboard' });
+    // Compare entered password with hashed password
+    const passwordMatch = await bcrypt.compare(password, facility.password);
+    if (!passwordMatch) {
+      console.log(`❌ Password mismatch for Employee ID: ${fid}`);
+      return fail(400, { error: 'Invalid Employee ID or Password.' });
+    }
 
-    return { success: true };
+    console.log(`✅ Login successful for Employee ID: ${fid}`);
+
+    // Redirect to dashboard on success
+    throw redirect(303, '/dashboard');
   }
 } satisfies Actions;
