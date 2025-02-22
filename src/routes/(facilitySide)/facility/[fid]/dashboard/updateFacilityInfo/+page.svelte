@@ -94,7 +94,12 @@
   
   <label>
     Facility Photo
-    <input type="file" class="text-white bg-purple-700 rounded-2xl p-2 m-2">
+    <input 
+      name="facilityImage"
+      type="text" 
+      placeholder="insert link to image..." 
+      class="text-white bg-purple-700 rounded-2xl p-2 m-2"
+    >
   </label>
 
   <label>

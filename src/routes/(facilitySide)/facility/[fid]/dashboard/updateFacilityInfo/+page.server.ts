@@ -16,12 +16,12 @@ export const actions = {
   default: async ({ cookies, request }) => {
     const data = await request.formData();
 
-    // const facilityImage = ...;
-    const regionID  = Number(data.get('region'));
-    const pOrCID    = Number(data.get('province'));
-    const cOrMID    = Number(data.get('city'));
-    const brgyID    = Number(data.get('brgy'));
-    const street    = data.get('street') as string;
+    const facilityImage = data.get('facilityImage') as string
+    const regionID      = Number(data.get('region'));
+    const pOrCID        = Number(data.get('province'));
+    const cOrMID        = Number(data.get('city'));
+    const brgyID        = Number(data.get('brgy'));
+    const street        = data.get('street') as string;
 
     const address: AddressDTO = {
       regionID,

@@ -3,7 +3,13 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from '$lib/server/dtos';
-import type { ServiceType } from '@prisma/client';
+import { ServiceType } from '@prisma/client';
+
+// export const load: PageServerLoad = async () => {
+//   return {
+//     OPserviceType: ServiceType
+//   };
+// };
 
 export const actions = {
   default: async ({ cookies, request }) => {
