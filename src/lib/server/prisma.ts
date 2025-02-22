@@ -274,7 +274,7 @@ export class AddressDAO {
   }
 
   async getRegions(): Promise<RegionDTO[]> {
-    const regions = await prisma.pOrC.findMany({
+    const regions = await prisma.region.findMany({
       select: {regionID: true, name: true}
     });
 
