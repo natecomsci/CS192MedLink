@@ -42,6 +42,8 @@ export interface AddressDTO {
 
 // The above DTOs have an atypical naming convention kasi yan lang naman talaga kailangang data dyan in any scenario.
 
+// Create and Update DTOs assume that a Facility has no Divisions.
+
 export interface CreateAmbulanceServiceDTO {
   phoneNumber       : string;
   openingTime       : string; // format: hh:mm:ss

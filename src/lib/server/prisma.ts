@@ -38,7 +38,7 @@ export class AmbulanceServiceDAO {
   
       return service;
     } catch (error) {
-      throw new Error("Could not retrieve the AmbulanceService.");
+      throw new Error("Could not get AmbulanceService.");
     }
   }
 
@@ -81,7 +81,7 @@ export class BloodBankServiceDAO {
   
       return service;
     } catch (error) {
-      throw new Error("Could not retrieve the BloodBankService.");
+      throw new Error("Could not get BloodBankService.");
     }
   }  
 
@@ -125,7 +125,7 @@ export class ERServiceDAO {
   
       return service;
     } catch (error) {
-      throw new Error("Could not retrieve the ERService.");
+      throw new Error("Could not get ERService.");
     }
   }
   
@@ -169,7 +169,7 @@ export class ICUServiceDAO {
   
       return service;
     } catch (error) {
-      throw new Error("Could not retrieve the ICUService.");
+      throw new Error("Could not get ICUService.");
     }
   }
 
@@ -213,7 +213,7 @@ export class OutpatientServiceDAO {
   
       return service;
     } catch (error) {
-      throw new Error("Could not retrieve the OutpatientService.");
+      throw new Error("Could not get OutpatientService.");
     }
   }
 

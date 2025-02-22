@@ -142,20 +142,22 @@ model Address {
 
 // The data layer merged Managers and Facilities.
 
+// Should be required but cannot be because Supabase register thingy. Their necessity 
+
 model Facility {
   facilityID String @id @default(uuid())
 
   password          String
 
   name              String
-  photo             String       @default("https://placehold.co/1920x1440/png")
-  address           Address?             // "?" because Prisma cannot enforce "at least one ..." constraints.
-  email             String       @unique // Uniqueness constraint is subject to change based on internal poll results.
-  phoneNumber       String       @unique // Uniqueness constraint is subject to change based on internal poll results.
-  facilityType      FacilityType
-  ownership         Ownership
-  LTO               String               // License to Operate          
-  COA               String               // Certificate of Accreditation
+  photo             String        @default("https://placehold.co/1920x1440/png")
+  address           Address?              // "?" because Prisma cannot enforce "at least one ..." constraints.
+  email             String?       @unique
+  phoneNumber       String?       @unique
+  facilityType      FacilityType?
+  ownership         Ownership?
+  LTO               String?               // License to Operate          
+  COA               String?               // Certificate of Accreditation
   bookingSystem     String?
   acceptedProviders Provider[]
 
