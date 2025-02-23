@@ -224,7 +224,7 @@ export class AmbulanceServiceDAO {
           mileageRate       : data.mileageRate,
           maxCoverageRadius : data.maxCoverageRadius,
           availability      : data.availability,
-        },
+        }
       });
     } catch (error) {
       throw new Error("Could not update AmbulanceService.");
@@ -406,7 +406,7 @@ export class ERServiceDAO {
   async create(facilityID: string, data: CreateERServiceDTO): Promise<void> {
     try {
       await prisma.eRService.create({
-        data: { ...data, facility: { connect: { facilityID } } },
+        data: { ...data, facility: { connect: { facilityID } } }
       });
     } catch (error) {
       throw new Error("Could not create ERService.");
@@ -472,7 +472,7 @@ export class ICUServiceDAO {
   async create(facilityID: string, data: CreateICUServiceDTO): Promise<void> {
     try {
       await prisma.iCUService.create({
-        data: { ...data, facility: { connect: { facilityID } } },
+        data: { ...data, facility: { connect: { facilityID } } }
       });
     } catch (error) {
       throw new Error("Could not create ICUService.");
@@ -551,7 +551,7 @@ export class OutpatientServiceDAO {
   async create(facilityID: string, data: CreateOutpatientServiceDTO): Promise<void> {
     try {
       await prisma.outpatientService.create({
-        data: { ...data, facility: { connect: { facilityID } } },
+        data: { ...data, facility: { connect: { facilityID } } }
       });
     } catch (error) {
       throw new Error("Could not create OutpatientService.");

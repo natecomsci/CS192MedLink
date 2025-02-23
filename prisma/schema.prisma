@@ -548,213 +548,54 @@ enum Load {
 enum ServiceType {
   // Consultation
   CONSULTATION_GENERAL                // General & Family Medicine 
-  CONSULTATION_CARDIOLOGY             // Heart & Cardiovascular 
-  CONSULTATION_DERMATOLOGY            // Skin Hair & Nail 
-  CONSULTATION_ENDOCRINOLOGY          // Diabetes, Thyroid & Hormonal 
-  CONSULTATION_ENT                    // Ear, Nose & Throat (ENT) 
-  CONSULTATION_GASTROENTEROLOGY       // Digestive Health & Liver 
-  CONSULTATION_NEUROLOGY              // Brain & Nervous System 
-  CONSULTATION_OB_GYNE                // Women's Health & Pregnancy 
-  CONSULTATION_ONCOLOGY               // Cancer & Screening
-  CONSULTATION_OPHTHALMOLOGY          // Eye Health 
-  CONSULTATION_ORTHOPEDICS            // Bone, Joint & Spine 
-  CONSULTATION_PEDIATRICS             // Children's Health 
-  CONSULTATION_PSYCHIATRY             // Mental Health & Behavioral 
-  CONSULTATION_PULMONOLOGY            // Lung & Respiratory 
-  CONSULTATION_REHABILITATION         // Physical Therapy & Rehabilitation 
-  CONSULTATION_RHEUMATOLOGY           // Arthritis & Autoimmune Disease 
-  CONSULTATION_UROLOGY                // Kidney, Bladder & Prostate 
 
   // Laboratory - Blood Chemistry
   BLOOD_CHEMISTRY_BUA            // Blood Uric Acid (BUA)
-  BLOOD_CHEMISTRY_BUN            // Blood Urea Nitrogen (BUN)
-  BLOOD_CHEMISTRY_CREATININE     // Creatinine
-  BLOOD_CHEMISTRY_FBS            // Fasting Blood Sugar (FBS)
-  BLOOD_CHEMISTRY_RBS            // Random Blood Sugar (RBS)
-  BLOOD_CHEMISTRY_CHOLESTEROL    // Cholesterol
-  BLOOD_CHEMISTRY_TRIGLYCERIDES  // Triglycerides
-  BLOOD_CHEMISTRY_HDL            // High-Density Lipoprotein (HDL)
-  BLOOD_CHEMISTRY_LDL            // Low-Density Lipoprotein (LDL)
-  BLOOD_CHEMISTRY_AST            // Aspartate Aminotransferase (AST/GOT)
-  BLOOD_CHEMISTRY_ALT            // Alanine Aminotransferase (ALT/GPT)
-  BLOOD_CHEMISTRY_LDH            // Lactate Dehydrogenase (LDH)
-  BLOOD_CHEMISTRY_ELECTROLYTES   // Electrolytes (Na, K, Cl, etc.)
 
   // Laboratory - Hematology
   HEMATOLOGY_CBC                 // Complete Blood Count (CBC)
-  HEMATOLOGY_HEMOGLOBIN          // Hemoglobin (Hgb)
-  HEMATOLOGY_HEMATOCRIT          // Hematocrit (Hct)
-  HEMATOLOGY_PLATELET_COUNT      // Platelet Count
-  HEMATOLOGY_COAGULATION         // Coagulation Studies (Prothrombin Time (PT), Activated Partial Thromboplastin Time (APTT))
-  HEMATOLOGY_CT_BT               // Clotting Time (CT) / Bleeding Time (BT)
-  HEMATOLOGY_PERIPHERAL_SMEAR    // Peripheral Blood Smear
 
   // Laboratory - Clinical Microscopy  
   CLINICAL_FECALYSIS             // Fecalysis  
   CLINICAL_URINALYSIS            // Urinalysis  
-  CLINICAL_OCCULT_BLOOD          // Occult Blood Test  
-  CLINICAL_SEMEN_ANALYSIS        // Semen Analysis  
-  CLINICAL_BODY_FLUID_ANALYSIS   // Body Fluid Analysis (CSF, synovial, etc.)  
-  CLINICAL_PREGNANCY_TEST        // Pregnancy Test  
-
-  // Laboratory - Bacteriology  
-  BACTERIOLOGY_SPUTUM            // Sputum Exam/AFB  
-  BACTERIOLOGY_GRAM_STAIN        // Gram Stain  
-  BACTERIOLOGY_CULTURE_SENS      // Culture & Sensitivity Test
-  BACTERIOLOGY_THROAT_SWAB       // Throat Swab Culture  
-  BACTERIOLOGY_BLOOD_CULTURE     // Blood Culture  
-  BACTERIOLOGY_URINE_CULTURE     // Urine Culture & Sensitivity  
-
-  // Laboratory - Histopathology  
-  HISTOPATHOLOGY_PAPS            // PAP'S Smear  
-  HISTOPATHOLOGY_BIOPSY          // Biopsy  
-  HISTOPATHOLOGY_CYTOLOGY        // Cytology  
 
   // Imaging - X-ray  
-  X_RAY_CHEST_PA                 // Chest PA  
-  X_RAY_CHEST_AP_LAT             // Chest AP/Lateral (Pedia)  
-  X_RAY_SKULL_AP_LAT             // Skull AP/Lateral  
-  X_RAY_C_SPINE                  // Cervical Spine  
+  X_RAY_CHEST_PA                 // Chest PA   
+  X_RAY_C_SPINE                  // Cervical Spine
+  X_RAY_T_SPINE                  // Thoracic Spine
   X_RAY_L_SPINE                  // Lumbar Spine  
-  X_RAY_THORACIC_CAGE            // Thoracic Cage  
-  X_RAY_SHOULDER                 // Shoulder  
-  X_RAY_CLAVICLE                 // Clavicle  
-  X_RAY_ARM_AP_LAT               // Arm AP/Lateral  
-  X_RAY_HAND                     // Hand  
-  X_RAY_FOOT                     // Foot
 
   // Imaging - Ultrasound  
   ULTRASOUND_ABDOMINAL           // Abdominal Ultrasound  
-  ULTRASOUND_WHOLE_ABD           // Whole Abdomen Ultrasound  
-  ULTRASOUND_PELVIC              // Pelvic Ultrasound  
-  ULTRASOUND_TRANSVAGINAL        // Transvaginal Ultrasound  
-  ULTRASOUND_THYROID             // Thyroid Ultrasound  
-  ULTRASOUND_BREAST              // Breast Ultrasound  
-  ULTRASOUND_KUB                 // Kidney-Ureter-Bladder (KUB) Ultrasound  
-  ULTRASOUND_OB                  // OB Ultrasound  
-  ULTRASOUND_OB_NO_READING       // OB Scanning Only (No Reading)  
-  ULTRASOUND_DOPPLER             // Doppler Ultrasound
-  ULTRASOUND_SCROTAL             // Scrotal Ultrasound  
-  ULTRASOUND_PROSTATE            // Prostate Ultrasound  
 
   // Imaging - CT Scan
   CT_SCAN_HEAD                   // Head (With or Without Contrast)  
-  CT_SCAN_BRAIN_STROKE           // Brain (Stroke Protocol)  
-  CT_SCAN_SINUSES                // Sinuses  
-  CT_SCAN_ANGIOGRAM_HEAD         // Angiogram (Head)  
-  CT_SCAN_ANGIOGRAM_NECK         // Angiogram (Neck)  
-  CT_SCAN_CHEST                  // Chest (With or Without Contrast)  
-  CT_SCAN_CHEST_HRCT             // High-Resolution CT (HRCT) Chest  
-  CT_SCAN_CHEST_PULMO_EMB        // Pulmonary Embolism (PE) Protocol  
-  CT_SCAN_ANGIOGRAM_CORONARY     // Angiogram (Coronary)  
-  CT_SCAN_ABD                    // Abdomen (With or Without Contrast)  
-  CT_SCAN_ABD_PELVIS             // Abdomen & Pelvis  
-  CT_SCAN_KUB                    // Kidneys, Ureters, Bladder (KUB)  
-  CT_SCAN_ANGIOGRAM_ABD          // Angiogram (Abdomen)  
   CT_SCAN_C_SPINE                // Cervical Spine  
   CT_SCAN_T_SPINE                // Thoracic Spine  
   CT_SCAN_L_SPINE                // Lumbar Spine  
-  CT_SCAN_JOINT                  // Joint  
 
   // Imaging - MRI
   MRI_BRAIN                      // Brain
-  MRI_C_SPINE                    // Cervical Spine
-  MRI_T_SPINE                    // Thoracic Spine
-  MRI_L_SPINE                    // Lumbar 
-
-  // Imaging - Mammography
-  MAMMOGRAPHY_BILATERAL          // Bilateral
-  MAMMOGRAPHY_UNILATERAL         // Unilateral
-
-  // Optical Procedures
-  OPTICAL_REFRACTION             // Refraction
-  OPTICAL_TONOMETRY              // Tonometry
-  OPTICAL_CHALAZION_REMOVAL      // Chalazion Removal
-  OPTICAL_FOREIGN_BODY_REMOVAL   // Corneal Foreign Body Removal
-  OPTICAL_OCT_OPTIC_NERVE        // Optical Coherence Tomography (OCT) - Optic Nerve
-  OPTICAL_OCT_MACULA             // Optical Coherence Tomography (OCT) - Macula
-
-  // ENT Procedures
-  HEARING_AUDIOMETRY             // Audiometry Hearing Test
-  HEARING_TYMPANOMETRY           // Tympanometry
-  ENT_EAR_IRRIGATION             // Ear Irrigation
-  ENT_EAR_WAX_REMOVAL            // Ear Wax Removal
-  ENT_NASAL_ENDOSCOPY            // Nasal Endoscopy
-  ENT_LARYNGOSCOPY               // Laryngoscopy
-  ENT_VIDEOSTROBOSCOPY           // Videostroboscopy
 
   // Dental Procedures  
-  DENTAL_EXTRACTION              // Tooth Extraction  
   DENTAL_SCALING                 // Oral Prophylaxis / Scaling  
-  DENTAL_FILLING_TEMPORARY       // Temporary Filling  
-  DENTAL_FILLING_PERMANENT       // Permanent Filling  
-  DENTAL_ROOT_CANAL              // Root Canal Treatment  
-  DENTAL_CROWN_PLACEMENT         // Dental Crown Placement  
-  DENTAL_BRIDGE_PLACEMENT        // Dental Bridge Placement  
-  DENTAL_WHITENING               // Teeth Whitening 
 
   // Rehabilitation & Therapy
   THERAPY_PHYSICAL               // Physical Therapy
-  THERAPY_OCCUPATIONAL           // Occupational Therapy
-  THERAPY_SPEECH                 // Speech Therapy
-  THERAPY_RESPIRATORY            // Pulmonary Rehabilitation / Respiratory Therapy
-  THERAPY_VESTIBULAR             // Vestibular Therapy (Balance Rehabilitation)
-  THERAPY_CARDIAC                // Cardiac Rehabilitation
-  THERAPY_LYMPHEDEMA             // Lymphedema Therapy
-  THERAPY_NEUROLOGICAL           // Neurological Rehabilitation
 
   // Cancer Treatment
   ONCOLOGY_CHEMOTHERAPY          // Chemotherapy
-  ONCOLOGY_RADIATION_THERAPY     // Radiation Therapy
-  ONCOLOGY_PALLIATIVE_CARE       // Palliative Care
-  ONCOLOGY_HORMONAL_THERAPY      // Hormonal Therapy
-  ONCOLOGY_IMMUNOTHERAPY         // Immunotherapy
-  ONCOLOGY_TARGETED_THERAPY      // Targeted Therapy
-
-  // Minor Procedures  
-  PROCEDURE_CAUTERIZATION        // Cauterization  
-  PROCEDURE_CIRCUMCISION         // Circumcision  
-  PROCEDURE_DEBRIDEMENT          // Debridement  
-  PROCEDURE_DRESSING             // Dressing  
-  PROCEDURE_EAR_PIERCING         // Ear Piercing  
-  PROCEDURE_INCISION             // Incision
-  PROCEDURE_DRAINAGE             // Drainage
-  PROCEDURE_WOUND_SUTURING       // Suturing  
-  PROCEDURE_WOUND_SUTURE_REMOVAL // Suture Removal  
-  PROCEDURE_CYST_REMOVAL         // Cyst Removal  
-  PROCEDURE_LIPOMA_REMOVAL       // Lipoma Removal  
-  PROCEDURE_SKIN_TAG_REMOVAL     // Skin Tag Removal  
-  PROCEDURE_NAIL_REMOVAL         // Toenail/Fingernail Removal  
-  PROCEDURE_WART_REMOVAL         // Wart Removal  
-  PROCEDURE_BIOPSY               // Skin or Soft Tissue Biopsy  
 
   // Diagnostic Tests  
   PROCEDURE_EEG                  // EEG  
   PROCEDURE_ECG                  // ECG  
-  PROCEDURE_PFT                  // Pulmonary Function Test (Spirometry)
 
   // Specialized Procedures  
   PROCEDURE_DIALYSIS             // Acute Peritoneal Dialysis  
-  PROCEDURE_LUMBAR_TAP           // Lumbar Tap  
-  PROCEDURE_PARACENTESIS         // Paracentesis  
-  PROCEDURE_UMBILICAL_CATH       // Umbilical Catheterization  
   PROCEDURE_COLONOSCOPY          // Colonoscopy  
   PROCEDURE_GASTROSCOPY          // Gastroscopy  
-  PROCEDURE_BRONCHOSCOPY         // Bronchoscopy  
-  PROCEDURE_THORACENTESIS        // Thoracentesis  
   PROCEDURE_LABOR_DELIVERY       // Labor and Delivery Services
 
   // Vaccinations
-  VACCINATION_HEPATITIS_A        // Hepatitis A  
-  VACCINATION_HEPATITIS_B        // Hepatitis B  
-  VACCINATION_HPV                // Human Papillomavirus (HPV)  
-  VACCINATION_INFLUENZA          // Influenza  
-  VACCINATION_MMR                // Measles, Mumps, Rubella (MMR)  
-  VACCINATION_POLIO              // Polio  
-  VACCINATION_RABIES             // Rabies  
   VACCINATION_COVID19            // COVID-19  
-  VACCINATION_ROTAVIRUS          // Rotavirus  
-  VACCINATION_PNEUMOCOCCAL       // Pneumococcal  
-  VACCINATION_MENINGOCOCCAL      // Meningococcal  
-  VACCINATION_TDAP               // Tetanus, Diphtheria, and Pertussis (Tdap)
 }
