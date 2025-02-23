@@ -2,10 +2,412 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// hardcoded url for some reason it cant fetch my env will remove this soon
+
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = DATABASE_URL
+  directUrl = DIRECT_URL
+}
+
+// MODELS
+
+model Credentials {
+  id String @id // Either a unique email or a phone number. This constraint is handled by business logic.
+
+  password  String
+
+  // RELATIONS
+
+  // Credentials - Patient : Each Credentials must belong to one Patient.
+  patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
+  patientID String  @unique
+}
+
+model Patient {
+  patientID String @id @default(uuid())
+
+  securityQuestion SecurityQuestion
+  providers        Provider[]
+
+  // RELATIONS
+
+  // Patient Credentials - Patient : Every Patient must have at least one and at most two Credentials. The second constraint is handled by business logic.
+  credentials Credentials[]
+
+  // Patient - Bookmark : A Patient may or may not have Bookmarks.
+  bookmarks   Bookmark[]
+
+  // Patient - Folder : A Patient may or may not have Folders.
+  folders     Folder[]
+}
+
+model Region {
+  regionID Int @id
+
+  name String @unique
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // Region - POrC : A Region may have multiple Provinces or Cities.
+  pOrCs     POrC[]
+
+  // Region - Address : A Region may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
+model POrC { // well, provinces + NCR
+  pOrCID Int @id
+
+  name String @unique
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // POrC - Region : A Province is associated with one Region.
+  region    Region @relation(fields: [regionID], references: [regionID])
+  regionID  Int
+
+  // POrC - COrM : A Province may have multiple Cities or Municipalities.
+  cOrMs     COrM[]
+
+  // POrC - Address : A Province may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
+model COrM {
+  cOrMID Int @id 
+
+  name String 
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // COrM - POrC : A City or Municipality is associated with one Province.
+  pOrC      POrC @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID    Int
+
+  // COrM - Brgy : A City or Municipality may have multiple Barangays.
+  brgys     Brgy[]
+
+  // COrM - Address : A Municipality or Barangay may be referenced by multiple Addresses.
+  addresses Address[]
+}
+
+model Brgy {
+  brgyID Int @id 
+
+  name   String 
+  id     Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // Brgy - COrM : A Barangay is associated with one City or Municipality.
+  cOrM      COrM @relation(fields: [cOrMID], references: [cOrMID])
+  cOrMID    Int
+  
+  // Brgy - Address : A Barangay may be referenced by multiple Addresses.
+  addresses Address[]
+
+}
+
+// Address cohesion is (e.g. region = 3, pOrC = NCR, COrM = Platero is not allowed) is handled by business logic.
+
+// A separate Prisma model may not be so good for performance but a needed cop-out solution because only Prisma + MongoDB supports composite attributes.
+
+model Address {
+  region    Region @relation(fields: [regionID], references: [regionID])
+  regionID  Int
+
+  pOrC      POrC   @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID    Int
+
+  cOrM      COrM   @relation(fields: [cOrMID], references: [cOrMID])
+  cOrMID    Int
+
+  brgy      Brgy   @relation(fields: [brgyID], references: [brgyID])
+  brgyID    Int
+
+  street    String
+
+  // RELATIONS
+
+  // Address - Facility : Each Address is tied to one Facility.
+  facility   Facility @relation(fields: [facilityID], references: [facilityID])
+  facilityID String   @id
+
+  @@unique([regionID, pOrCID, cOrMID, brgyID, street]) // Ensures each Facility has a unique Address.
+}
+
+// The data layer merged Managers and Facilities.
+
+// Should be required but cannot be because Supabase register thingy. Their necessity 
+
+model Facility {
+  facilityID String @id @default(uuid())
+
+  password          String
+
+  name              String
+  photo             String        @default("https://placehold.co/1920x1440/png")
+  address           Address?              // "?" because Prisma cannot enforce "at least one ..." constraints.
+  email             String?       @unique
+  phoneNumber       String?       @unique
+  facilityType      FacilityType?
+  ownership         Ownership?
+  LTO               String?               // License to Operate          
+  COA               String?               // Certificate of Accreditation
+  bookingSystem     String?
+  acceptedProviders Provider[]
+
+  // RELATIONS
+
+  // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
+
+  // Every Facility may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
+  ambulanceService  AmbulanceService?
+  bloodBankService  BloodBankService?
+  erService         ERService?
+  icuService        ICUService?
+  outpatientService OutpatientService[]
+
+  // Facility - Admin : A Facility may or may not have Admins.
+  admins            Admin[]
+
+  // Facility - Division : A Facility may or may not have Divisions.
+  divisions         Division[]
+
+  // Facility - Bookmark : A Facility may or may not be bookmarked.
+  bookmarks         Bookmark[]
+}
+
+model Division {
+  divisionID String @id @default(uuid())
+
+  name        String
+  phoneNumber String
+  openingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // RELATIONS
+
+  // Facility - Divisions : A Facility may or may not have Divisions.
+  facility          Facility @relation(fields: [facilityID], references: [facilityID])
+  facilityID        String
+
+  // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
+
+  // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
+  ambulanceService  AmbulanceService?
+  bloodBankService  BloodBankService?
+  erService         ERService?
+  icuService        ICUService?
+  outpatientService OutpatientService[]
+
+  // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
+  admins            Admin[]  @relation("AdminToDivision")
+}
+
+model Admin {
+  adminID String @id @default(uuid())
+
+  password  String
+
+  photo     String   @default("https://placehold.co/1080x1080/png")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // RELATIONS
+
+  // Admin - Facility : Every Admin must work for exactly one Facility.
+  facility   Facility   @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
+  divisions  Division[] @relation("AdminToDivision")
+}
+
+model Bookmark {
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // RELATIONS
+
+  // Bookmark - Patient : A Bookmark must belong to one Patient.
+  patient    Patient  @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
+  patientID  String
+
+  // Bookmark - Facility : A Bookmark must belong to one Facility.
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Bookmark - Folder : A Bookmark may or may not be placed in a Folder.
+  folder     Folder?  @relation(fields: [folderID], references: [folderID], onDelete: SetNull)
+  folderID   String?
+
+  @@id([patientID, facilityID])
+}
+
+model Folder {
+  folderID String @id @default(uuid())
+
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // RELATIONS
+
+  // Folder - Patient : Every Folder must belong to one Patient.
+  patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
+  patientID String
+
+  // Folder - Bookmark : A Folder may or may not contain Bookmarks.
+  bookmarks Bookmark[]
+
+  @@unique([patientID, name]) // Prevents duplicate folder names for a single patient.
+}
+
+model AmbulanceService {
+  phoneNumber       String
+  openingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  baseRate          Float
+  minCoverageRadius Float
+  mileageRate       Float
+  maxCoverageRadius Float
+  availability      Availability @default(UNAVAILABLE)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each AmbulanceService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String    @id
+
+  // Service - Division : If a Facility has Divisions, every AmbulanceService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?   @unique                                                                      // "@unique" is needed to enforce one-to-one relationships on Prisma.
+
+  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+}
+
+model BloodTypeMapping {
+  // Naming Convention: _P = Positive, _N = Negative
+  A_P  Boolean @default(false)
+  A_N  Boolean @default(false)
+  B_P  Boolean @default(false)
+  B_N  Boolean @default(false)
+  O_P  Boolean @default(false)
+  O_N  Boolean @default(false)
+  AB_P Boolean @default(false)
+  AB_N Boolean @default(false)
+
+  // RELATIONS
+
+  BloodBankService BloodBankService @relation(fields: [facilityID], references: [facilityID])
+  facilityID       String           @id
+}
+
+model BloodBankService {
+  phoneNumber           String
+  openingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  pricePerUnit          Float
+  turnaroundTimeD       Int                               // Day.
+  turnaroundTimeH       Int                               // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  bloodTypeAvailability BloodTypeMapping?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each BloodBankService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String    @id
+
+  // Service - Division : If a Facility has Divisions, every BloodBankService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
+
+  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+}
+
+model ERService {
+  phoneNumber          String
+  load                 Load     @default(CLOSED)
+  availableBeds        Int      @default(0)
+  nonUrgentPatients    Int      @default(0)
+  nonUrgentQueueLength Int      @default(0)
+  urgentPatients       Int      @default(0)
+  urgentQueueLength    Int      @default(0)
+  criticalPatients     Int      @default(0)
+  criticalQueueLength  Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each ERService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String    @id
+
+  // Service - Division : If a Facility has Divisions, every ERService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
+
+  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+}
+
+model ICUService {
+  phoneNumber         String
+  baseRate            Float
+  load                Load     @default(CLOSED)
+  availableBeds       Int      @default(0)
+  cardiacSupport      Boolean  @default(false)
+  neurologicalSupport Boolean  @default(false)
+  renalSupport        Boolean  @default(false)
+  respiratorySupport  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each ICUService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String    @id
+
+  // Service - Division : If a Facility has Divisions, every ICUService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
+
+  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+}
+
+model OutpatientService {
+  serviceType     ServiceType
+  price           Float
+  completionTimeD Int                      // Day.
+  completionTimeH Int                      // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  isAvailable     Boolean  @default(false)
+  acceptsWalkIns  Boolean                  // Made this attribute universally applicable across all OutpatientServices.
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each OutpatientService must belong to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Service - Division : If a Facility has Divisions, every OutpatientService must belong to a Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?
+
+  @@id([facilityID, serviceType])
 }
 
 // ENUMS
@@ -355,402 +757,4 @@ enum ServiceType {
   VACCINATION_PNEUMOCOCCAL       // Pneumococcal  
   VACCINATION_MENINGOCOCCAL      // Meningococcal  
   VACCINATION_TDAP               // Tetanus, Diphtheria, and Pertussis (Tdap)
-}
-
-// MODELS
-
-model Credentials {
-  id        String @id // Either a unique email or a phone number. This constraint is handled by business logic.
-
-  password  String
-
-  // RELATIONS
-
-  // Credentials - Patient : Each Credentials must belong to one Patient.
-  patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
-  patientID String  @unique
-}
-
-model Patient {
-  patientID        String @id @default(uuid())
-
-  securityQuestion SecurityQuestion
-  providers        Provider[]
-
-  // RELATIONS
-
-  // Patient Credentials - Patient : Every Patient must have at least one and at most two Credentials. The second constraint is handled by business logic.
-  credentials Credentials[]
-
-  // Patient - Bookmark : A Patient may or may not have Bookmarks.
-  bookmarks   Bookmark[]
-
-  // Patient - Folder : A Patient may or may not have Folders.
-  folders     Folder[]
-}
-
-model Region {
-  regionID Int @id
-
-  name String @unique
-  id   Int    @default(autoincrement())
-
-  // RELATIONS
-
-  // Region - POrC : A Region may have multiple Provinces or Cities.
-  pOrCs     POrC[]
-
-  // Region - Address : A Region may be referenced by multiple Addresses.
-  addresses Address[]
-}
-
-model POrC { // well, provinces + NCR
-  pOrCID Int @id
-
-  name String @unique
-  id   Int    @default(autoincrement())
-
-  // RELATIONS
-
-  // POrC - Region : A Province is associated with one Region.
-  region    Region @relation(fields: [regionID], references: [regionID])
-  regionID  Int
-
-  // POrC - COrM : A Province may have multiple Cities or Municipalities.
-  cOrMs     COrM[]
-
-  // POrC - Address : A Province may be referenced by multiple Addresses.
-  addresses Address[]
-}
-
-model COrM {
-  cOrMID  Int @id 
-
-  name    String 
-  id      Int    @default(autoincrement())
-
-  // RELATIONS
-
-  // COrM - POrC : A City or Municipality is associated with one Province.
-  pOrC      POrC @relation(fields: [pOrCID], references: [pOrCID])
-  pOrCID    Int
-
-  // COrM - Brgy : A City or Municipality may have multiple Barangays.
-  brgys     Brgy[]
-
-  // COrM - Address : A Municipality or Barangay may be referenced by multiple Addresses.
-  addresses Address[]
-}
-
-model Brgy {
-  brgyID  Int @id 
-
-  name    String 
-  id      Int    @default(autoincrement())
-
-  // RELATIONS
-
-  // Brgy - COrM : A Barangay is associated with one City or Municipality.
-  cOrM      COrM @relation(fields: [cOrMID], references: [cOrMID])
-  cOrMID    Int
-  
-  // Brgy - Address : A Barangay may be referenced by multiple Addresses.
-  addresses Address[]
-
-}
-
-// Address cohesion is (e.g. region = 3, pOrC = NCR, COrM = Platero is not allowed) is handled by business logic.
-
-// A separate Prisma model may not be so good for performance but a needed cop-out solution because only Prisma + MongoDB supports composite attributes.
-
-model Address {
-  addressID String @id @default(uuid())
-
-  region    Region @relation(fields: [regionID], references: [regionID])
-  regionID  Int
-
-  pOrC      POrC   @relation(fields: [pOrCID], references: [pOrCID])
-  pOrCID    Int
-
-  cOrM      COrM   @relation(fields: [cOrMID], references: [cOrMID])
-  cOrMID    Int
-
-  brgy      Brgy   @relation(fields: [brgyID], references: [brgyID])
-  brgyID    Int
-
-  street    String
-
-  // RELATIONS
-
-  // Address - Facility : Each Address is tied to one Facility.
-  facility   Facility @relation(fields: [facilityID], references: [facilityID])
-  facilityID String   @unique
-
-  @@unique([regionID, pOrCID, cOrMID, brgyID, street]) // Ensures each Facility has a unique Address.
-}
-
-// The data layer merged Managers and Facilities.
-
-model Facility {
-  facilityID        String @id @default(uuid())
-
-  password          String
-
-  name              String
-  photo             String       @default("https://placehold.co/1920x1440/png")
-  address           Address?             // "?" because Prisma cannot enforce "at least one ..." constraints.
-  email             String       @unique // Uniqueness constraint is subject to change based on internal poll results.
-  phoneNumber       String       @unique // Uniqueness constraint is subject to change based on internal poll results.
-  facilityType      FacilityType
-  ownership         Ownership
-  LTO               String               // License to Operate          
-  COA               String               // Certificate of Accreditation
-  bookingSystem     String?
-  acceptedProviders Provider[]
-
-  // RELATIONS
-
-  // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
-
-  // Every Facility may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
-  ambulanceService  AmbulanceService?
-  bloodBankService  BloodBankService?
-  erService         ERService?
-  icuService        ICUService?
-  outpatientService OutpatientService[]
-
-  // Facility - Admin : A Facility may or may not have Admins.
-  admins            Admin[]
-
-  // Facility - Division : A Facility may or may not have Divisions.
-  divisions         Division[]
-
-  // Facility - Bookmark : A Facility may or may not be bookmarked.
-  bookmarks         Bookmark[]
-}
-
-model Division {
-  divisionID  String @id @default(uuid())
-
-  name        String
-  phoneNumber String
-  openingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  closingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // RELATIONS
-
-  // Facility - Divisions : A Facility may or may not have Divisions.
-  facility          Facility @relation(fields: [facilityID], references: [facilityID])
-  facilityID        String
-
-  // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
-
-  // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
-  ambulanceService  AmbulanceService?
-  bloodBankService  BloodBankService?
-  erService         ERService?
-  icuService        ICUService?
-  outpatientService OutpatientService[]
-
-  // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
-  admins            Admin[]
-}
-
-model Admin {
-  adminID  String @id @default(uuid())
-
-  password String
-
-  photo    String @default("https://placehold.co/1080x1080/png")
-
-  // RELATIONS
-
-  // Admin - Facility : Every Admin must work for exactly one Facility.
-  facility   Facility   @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String
-
-  // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
-  divisions  Division[]
-}
-
-model Bookmark {
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // RELATIONS
-
-  // Bookmark - Patient : A Bookmark must belong to one Patient.
-  patient    Patient  @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
-  patientID  String
-
-  // Bookmark - Facility : A Bookmark must belong to one Facility.
-  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String
-
-  // Bookmark - Folder : A Bookmark may or may not be placed in a Folder.
-  folder     Folder?  @relation(fields: [folderID], references: [folderID], onDelete: SetNull)
-  folderID   String?
-
-  @@id([patientID, facilityID])
-}
-
-model Folder {
-  folderID  String @id @default(uuid())
-
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // RELATIONS
-
-  // Folder - Patient : Every Folder must belong to one Patient.
-  patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
-  patientID String
-
-  // Folder - Bookmark : A Folder may or may not contain Bookmarks.
-  bookmarks Bookmark[]
-
-  @@unique([patientID, name]) // Prevents duplicate folder names for a single patient.
-}
-
-model AmbulanceService {
-  phoneNumber       String
-  openingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  closingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  baseRate          Float
-  minCoverageRadius Float
-  mileageRate       Float
-  maxCoverageRadius Float
-  availability      Availability @default(UNAVAILABLE)
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-
-  // RELATIONS
-
-  // Service - Facility : Each AmbulanceService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @id
-
-  // Service - Division : If a Facility has Divisions, every AmbulanceService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // "@unique" is needed to enforce one-to-one relationships on Prisma.
-
-  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
-}
-
-model BloodTypeMapping {
-  // Naming Convention: _P = Positive, _N = Negative
-  A_P  Boolean @default(false)
-  A_N  Boolean @default(false)
-  B_P  Boolean @default(false)
-  B_N  Boolean @default(false)
-  O_P  Boolean @default(false)
-  O_N  Boolean @default(false)
-  AB_P Boolean @default(false)
-  AB_N Boolean @default(false)
-
-  // RELATIONS
-
-  BloodBankService BloodBankService @relation(fields: [facilityID], references: [facilityID])
-  facilityID       String           @id
-}
-
-model BloodBankService {
-  phoneNumber           String
-  openingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  closingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  pricePerUnit          Float
-  turnaroundTimeD       Int                               // Day.
-  turnaroundTimeH       Int                               // Hour. The limit to its possible values (0 - 23) is handled by business logic.
-  bloodTypeAvailability BloodTypeMapping?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
-
-  // RELATIONS
-
-  // Service - Facility : Each BloodBankService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @id
-
-  // Service - Division : If a Facility has Divisions, every BloodBankService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
-
-  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
-}
-
-model ERService {
-  phoneNumber          String
-  load                 Load     @default(CLOSED)
-  availableBeds        Int      @default(0)
-  nonUrgentPatients    Int      @default(0)
-  nonUrgentQueueLength Int      @default(0)
-  urgentPatients       Int      @default(0)
-  urgentQueueLength    Int      @default(0)
-  criticalPatients     Int      @default(0)
-  criticalQueueLength  Int      @default(0)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-
-  // RELATIONS
-
-  // Service - Facility : Each ERService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @id
-
-  // Service - Division : If a Facility has Divisions, every ERService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
-
-  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
-}
-
-model ICUService {
-  phoneNumber         String
-  baseRate            Float
-  load                Load
-  availableBeds       Int      @default(0)
-  cardiacSupport      Boolean  @default(false)
-  neurologicalSupport Boolean  @default(false)
-  renalSupport        Boolean  @default(false)
-  respiratorySupport  Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  // RELATIONS
-
-  // Service - Facility : Each ICUService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @id
-
-  // Service - Division : If a Facility has Divisions, every ICUService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
-
-  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
-}
-
-model OutpatientService {
-  serviceType     ServiceType
-  price           Float
-  completionTimeD Int                      // Day.
-  completionTimeH Int                      // Hour. The limit to its possible values (0 - 23) is handled by business logic.
-  isAvailable     Boolean  @default(false)
-  acceptsWalkIns  Boolean                  // Made this attribute universally applicable across all OutpatientServices.
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  // RELATIONS
-
-  // Service - Facility : Each OutpatientService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String
-
-  // Service - Division : If a Facility has Divisions, every OutpatientService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?
-
-  @@id([facilityID, serviceType])
 }

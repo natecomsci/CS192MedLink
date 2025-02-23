@@ -1,8 +1,3 @@
-<script>
-  let { serviceType} = $props();
-</script>
-
-<h3>{serviceType}</h3>
 <label>
   <h3>Service Phone Number</h3>
   <p>
@@ -26,57 +21,4 @@
     required
   >
   pesos
-</label>
-
-<label>
-  Load
-  <input 
-    name="load" 
-    type="text"
-    placeholder="steady, closed (to update to drop down)"
-    required
-  >
-</label>
-
-<label>
-  Available Beds
-  <input 
-    name="availableBeds" 
-    type="number"
-    placeholder=3
-    class = "w-20"
-    required
-  >
-</label>
-
-<label>
-  <input 
-    name="cardiacSupport" 
-    type="checkbox"
-  >
-  Cardiac Support
-</label>
-
-<label>
-  <input 
-    name="neurologicalSupport" 
-    type="checkbox"
-  >
-  Neurological Support
-</label>
-
-<label>
-  <input 
-    name="renalSupport" 
-    type="checkbox"
-  >
-  Renal Support
-</label>
-
-<label>
-  <input 
-    name="respiratorySupport" 
-    type="checkbox"
-  >
-  Respiratory Support
 </label>

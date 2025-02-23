@@ -42,7 +42,43 @@ export interface AddressDTO {
 
 // The above DTOs have an atypical naming convention kasi yan lang naman talaga kailangang data dyan in any scenario.
 
-// Illustration of functionality ng DTOs : An intermediary between DAOs and the database containing only necessary information for specific scenarios.
+// Create and Update DTOs assume that a Facility has no Divisions.
+
+export interface CreateAmbulanceServiceDTO {
+  phoneNumber       : string;
+  openingTime       : string; // format: hh:mm:ss
+  closingTime       : string; // format: hh:mm:ss
+  baseRate          : number;
+  minCoverageRadius : number;
+  mileageRate       : number;
+  maxCoverageRadius : number;
+}
+
+export interface CreateBloodBankServiceDTO {
+  phoneNumber     : string;
+  openingTime     : string; // format: hh:mm:ss
+  closingTime     : string; // format: hh:mm:ss
+  pricePerUnit    : number;
+  turnaroundTimeD : number;
+  turnaroundTimeH : number;
+}
+
+export interface CreateERServiceDTO {
+  phoneNumber : string;
+}
+
+export interface CreateICUServiceDTO {
+  phoneNumber : string;
+  baseRate    : number;
+}
+
+export interface CreateOutpatientServiceDTO {
+  serviceType     : ServiceType;
+  price           : number;
+  completionTimeD : number;
+  completionTimeH : number;
+  acceptsWalkIns  : boolean;
+}
 
 export interface M_UpdateGenInfoFacilityDTO {
   name              : string;
@@ -54,8 +90,6 @@ export interface M_UpdateGenInfoFacilityDTO {
   bookingSystem     : string;
   acceptedProviders : string;
 }
-
-// mehh wag na tong baba na to lowkey hahahaha
 
 export interface M_UpdatePasswordFacilityDTO {
   currentPassword : string;

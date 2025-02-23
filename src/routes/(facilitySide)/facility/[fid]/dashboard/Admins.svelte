@@ -2,7 +2,7 @@
     <div class="flex justify-between items-center border-b border-[#DBD8DF] pb-2">
       <h2 class="text-[30px] text-[#9044C4] font-bold">Admins</h2>
         <a 
-          href="/facility/1/dashboard/manageAdmins" 
+          href="./dashboard/manageAdmins" 
           class="text-purple-500 text-sm hover:text-purple-400 transition-colors duration-200"
         >✏️ Manage Admins</a>
     </div>

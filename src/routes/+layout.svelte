@@ -1,16 +1,23 @@
-<!-- Used for showing  -->
+<script>
+  import { invalidate } from '$app/navigation'
+  import { onMount } from 'svelte'
 
-<script lang="ts">
-  let { children } = $props();
-  import "./app.css";
+  import DebugRouting from './DebugRouting.svelte';
 
-  import DebugRouting from './DebugRouting.svelte'
+  let { data, children } = $props()
+  let { session, supabase } = $derived(data)
 
-  let debugMode: Boolean = true;
+  onMount(() => {
+    const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
+      if (newSession?.expires_at !== session?.expires_at) {
+        invalidate('supabase:auth')
+      }
+    })
+
+    return () => data.subscription.unsubscribe()
+  })
 </script>
 
-{#if debugMode}
-  <DebugRouting />
-{/if}
+<DebugRouting />
 
 {@render children()}

@@ -1,41 +1,49 @@
 <script lang="ts">
   import type { PageData } from './$types';
-
   import Logo from '$lib/images/Logo.png';
+  import { enhance } from '$app/forms';
 
-  let fid = $state('');
-  let password = $state('');
-  let show = $state(false);
+  let fid = '';
+  let password = '';
+  let show = false;
+  let errorMessage = '';
 
-  let { data }: PageData = $props();
+  function handleEnhance(event: any) {
+    console.log("Enhance event:", event); // Debugging log
 
+    if (!event.detail || !event.detail.result) {
+      console.error("Enhance failed: event.detail is undefined");
+      return;
+    }
+
+    event.detail.result.then((res: any) => {
+      console.log("Enhance result:", res); // Debugging log
+
+      if (res.type === 'failure') {
+        errorMessage = res.message || 'Invalid Employee ID or Password.';
+      } else if (res.type === 'success') {
+        window.location.href = '/dashboard'; // Redirect on success
+      }
+    });
+  }
 </script>
 
-
-<!-- @elle, @paul: padesign -->
 <div class="grid grid-cols-1 justify-items-center p-8">
   <div class="grid grid-cols-1 justify-items-center">
-    <!-- Logo -->
-    <img 
-      src={Logo} 
-      alt="MedLink logo" 
-      width="120" 
-      height="120"/>
-    <!-- MedLink -->
+    <img src={Logo} alt="MedLink logo" width="120" height="120" />
     <h1 class="py-10 mb-5 font-['DM_Sans'] text-[80px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
       Med<span class="text-[#9044C4]">Link</span>
     </h1>
   </div>
-  
-  <!-- sign in -->
+
   <form 
     method="POST"
     class="w-96 grid grid-cols-1 bg-white m-0 space-y-8 rounded-2xl p-8 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
-    >
+    use:enhance={handleEnhance}
+  >
     <h3 class="text-[25px] font-black font-['DM_Sans'] mb-0">SIGN IN</h3>
 
     <div class="space-y-5 py-2">
-      <!-- Employee -->
       <input 
         name="fid"
         type="text"
@@ -44,7 +52,7 @@
         class="w-full px-4 py-3 border-2 border-[#D9D9D9] rounded-md focus:ring-2 focus:ring-purple-400"
         required
       >
-      <!-- Password -->
+
       <div class="relative w-full">
         <input 
           name="password" 
@@ -57,13 +65,17 @@
         >
         <button 
           type="button" 
-          class="absolute inset-y-0 right-3 flex items-center text-[#9044C4] text-sm font-semibold font-['DM_Sans']"
-          onclick={() => show = !show}
+          class="absolute inset-y-0 right-3 flex items-center text-[#9044C4] text-sm font-semibold"
+          on:click={() => show = !show}
         >
-          { show ? "hide" : "show" }
+          { show ? "Hide" : "Show" }
         </button>
       </div>
     </div>
+
+    {#if errorMessage}
+      <p class="text-red-500 text-sm font-semibold">{errorMessage}</p>
+    {/if}
 
     <button 
       type="submit" 
@@ -73,8 +85,3 @@
     </button>
   </form>
 </div>
-
-
-{console.log(data.feed)}
-
-

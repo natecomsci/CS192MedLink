@@ -1,8 +1,23 @@
-<script>
-  let { serviceType} = $props();
+<script lang="ts">
+  // let { OPserviceType } = $props();
 </script>
 
-<h3>{serviceType}</h3>
+<!--   <select 
+    name="region" 
+    required 
+    class="bg-gray-100"
+  >
+    {#each OPserviceType as t}
+      <option value={t}>{t}</option>
+    {/each}
+  </select> -->
+<label>
+  <select
+    name="OPserviceType"
+  >
+    <option>sample</option>
+  </select>
+</label>
 
 <label>
   <h3>Service Phone Number</h3>
@@ -35,14 +50,6 @@
     required
   >
   hours
-</label>
-
-<label>
-  Availability
-  <input 
-    name="availability"
-    type="checkbox"
-  >
 </label>
 
 <label>

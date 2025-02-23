@@ -1,12 +1,3 @@
-<script>
-  let { serviceType} = $props();
-</script>
-
-<!-- @elle: edit mga class declarations ng mga tags na need mo 
-      sample is yung input tag for phoneNumber
--->
-
-<h3>{serviceType}</h3>
 <label>
   <h3>Service Phone Number</h3>
   <p>
@@ -81,12 +72,4 @@
     required
   >
   km
-</label>
-
-<label>
-  Availability
-  <input
-    name="availability" 
-    type="checkbox"
-  >
 </label>
