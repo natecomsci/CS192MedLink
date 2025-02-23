@@ -2,7 +2,7 @@
     <div class="flex justify-between items-center border-b border-[#DBD8DF] pb-2">
       <h2 class="text-[30px] text-[#9044C4] font-bold">Services</h2>
       <a 
-        href="/manage-admins" 
+        href="/facility/1/dashboard/manageServices" 
         class="text-purple-500 text-sm hover:text-purple-400 transition-colors duration-200"
       >✏️ Manage Services</a>
     </div>
@@ -16,4 +16,3 @@
       {/each}
     </div>
   </div>
-  
