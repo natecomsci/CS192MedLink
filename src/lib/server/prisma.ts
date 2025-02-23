@@ -28,7 +28,9 @@ export class AddressDAO {
   async updateAddress(facilityID: string, data: AddressDTO): Promise<void> {
     try {
       await prisma.address.update({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        },
         data: {
           regionID : data.regionID,
           pOrCID   : data.pOrCID,
@@ -44,12 +46,15 @@ export class AddressDAO {
 
   async getRegions(): Promise<RegionDTO[]> {
     try {
-    const regions = await prisma.region.findMany({
-      select: {regionID: true, name: true}
-    });
+      const regions = await prisma.region.findMany({
+        select: {
+          regionID : true, 
+          name     : true,
+        }
+      });
 
-    return regions;
-  } catch (error) {
+      return regions;
+    } catch (error) {
     throw new Error("Could not get regions.");
   }
   }
@@ -57,7 +62,9 @@ export class AddressDAO {
   async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
     try {
       const pOrC = await prisma.pOrC.findMany({
-        where: { regionID },
+        where: { 
+          regionID
+        },
         select: {
           pOrCID   : true,
           name     : true,
@@ -74,7 +81,9 @@ export class AddressDAO {
   async getCOrMOfProvince(pOrCID: number): Promise<COrMDTO[]> {
     try {
       const cOrMs = await prisma.cOrM.findMany({
-        where: { pOrCID },
+        where: { 
+          pOrCID 
+        },
         select: {
           cOrMID : true,
           name   : true,
@@ -91,7 +100,9 @@ export class AddressDAO {
   async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
     try {
       const brgys = await prisma.brgy.findMany({
-        where: { cOrMID },
+        where: { 
+          cOrMID 
+        },
         select: {
           brgyID : true,
           name   : true,
@@ -112,7 +123,9 @@ export class FacilityDAO {
   async updateGeneralInformation(facilityID: string, data: M_UpdateGenInfoFacilityDTO): Promise<void> {
     try {
       await prisma.facility.update({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        },
         data: {
           name              : data.name,
           photo             : data.photo,
@@ -125,6 +138,7 @@ export class FacilityDAO {
       });
 
       await addressDAO.updateAddress(facilityID, data.address);
+
     } catch (error) {
       throw new Error("Could not update general information for Facility.");
     }
@@ -169,7 +183,9 @@ export class AmbulanceServiceDAO {
   async getByID(facilityID: string): Promise<AmbulanceService | null> {
     try {
       const service = await prisma.ambulanceService.findUnique({
-        where: { facilityID }
+        where: { 
+          facilityID 
+        }
       });
   
       if (!service) {
@@ -196,7 +212,9 @@ export class AmbulanceServiceDAO {
   async update(facilityID: string, data: UpdateAmbulanceServiceDTO): Promise<void> {
     try {
       await prisma.ambulanceService.update({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        },
         data: {
           phoneNumber       : data.phoneNumber,
           openingTime       : data.openingTime,
@@ -216,7 +234,9 @@ export class AmbulanceServiceDAO {
   async delete(facilityID: string): Promise<void> {
     try {
       await prisma.ambulanceService.delete({
-        where: { facilityID }
+        where: { 
+          facilityID 
+        }
       });
     } catch (error) {
       throw new Error("Could not delete AmbulanceService.");
@@ -228,7 +248,9 @@ export class BloodTypeMappingDAO {
   async getBloodTypeMapping(facilityID: string): Promise<BloodTypeMapping | null> {
     try {
       const bloodTypeMapping = await prisma.bloodTypeMapping.findUnique({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        }
       });
   
       if (!bloodTypeMapping) {
@@ -257,10 +279,10 @@ export class BloodTypeMappingDAO {
 
           bloodBankService: {
             connect: {
-              facilityID,
-            },
-          },
-        },
+              facilityID
+            }
+          }
+        }
       });
     } catch (error) {
       throw new Error("Could not create BloodTypeAvailability.");
@@ -270,7 +292,9 @@ export class BloodTypeMappingDAO {
   async updateBloodTypeMapping(facilityID: string, data: BloodTypeMappingDTO): Promise<void> {
     try {
       await prisma.bloodTypeMapping.update({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        },
         data: {
           A_P  : data.A_P,
           A_N  : data.A_N,
@@ -294,7 +318,9 @@ export class BloodBankServiceDAO {
   async getByID(facilityID: string): Promise<BloodBankService | null> {
     try {
       const service = await prisma.bloodBankService.findUnique({
-        where: { facilityID }
+        where: { 
+          facilityID 
+        }
       });
   
       if (!service) {
@@ -324,7 +350,9 @@ export class BloodBankServiceDAO {
   async update(facilityID: string, data: UpdateBloodBankServiceDTO): Promise<void> {
     try {
       await prisma.bloodBankService.update({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        },
         data: {
           phoneNumber     : data.phoneNumber,
           openingTime     : data.openingTime,
@@ -332,7 +360,7 @@ export class BloodBankServiceDAO {
           pricePerUnit    : data.pricePerUnit,
           turnaroundTimeD : data.turnaroundTimeD,
           turnaroundTimeH : data.turnaroundTimeH,
-        },
+        }
       });
   
       await bloodTypeMappingDAO.updateBloodTypeMapping(facilityID, data.bloodTypeAvailability);
@@ -345,9 +373,10 @@ export class BloodBankServiceDAO {
   async delete(facilityID: string): Promise<void> {
     try {
       await prisma.bloodBankService.delete({
-        where: { facilityID }
+        where: { 
+          facilityID 
+        }
       });
-
     } catch (error) {
       throw new Error("Could not delete BloodBankService.");
     }
@@ -358,7 +387,9 @@ export class ERServiceDAO {
   async getByID(facilityID: string): Promise<ERService | null> {
     try {
       const service = await prisma.eRService.findUnique({
-        where: { facilityID }
+        where: { 
+          facilityID 
+        }
       });
   
       if (!service) {
@@ -385,7 +416,9 @@ export class ERServiceDAO {
   async update(facilityID: string, data: UpdateERServiceDTO): Promise<void> {
     try {
       await prisma.erService.update({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        },
         data: {
           phoneNumber          : data.phoneNumber,
           load                 : data.load,
@@ -396,7 +429,7 @@ export class ERServiceDAO {
           urgentQueueLength    : data.urgentQueueLength,
           criticalPatients     : data.criticalPatients,
           criticalQueueLength  : data.criticalQueueLength,
-        },
+        }
       });
     } catch (error) {
       throw new Error("Could not update ERService.");
@@ -406,9 +439,10 @@ export class ERServiceDAO {
   async delete(facilityID: string): Promise<void> {
     try {
       await prisma.eRService.delete({
-        where: { facilityID }
+        where: { 
+          facilityID 
+        }
       });
-
     } catch (error) {
       throw new Error("Could not delete ERService.");
     }
@@ -419,7 +453,9 @@ export class ICUServiceDAO {
   async getByID(facilityID: string): Promise<ICUService | null> {
     try {
       const service = await prisma.iCUService.findUnique({
-        where: { facilityID }
+        where: { 
+          facilityID 
+        }
       });
   
       if (!service) {
@@ -446,7 +482,9 @@ export class ICUServiceDAO {
   async update(facilityID: string, data: UpdateICUServiceDTO): Promise<void> {
     try {
       await prisma.icuService.update({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        },
         data: {
           phoneNumber         : data.phoneNumber,
           baseRate            : data.baseRate,
@@ -456,7 +494,7 @@ export class ICUServiceDAO {
           neurologicalSupport : data.neurologicalSupport,
           renalSupport        : data.renalSupport,
           respiratorySupport  : data.respiratorySupport,
-        },
+        }
       });
     } catch (error) {
       throw new Error("Could not update ICUService.");
@@ -466,9 +504,10 @@ export class ICUServiceDAO {
   async delete(facilityID: string): Promise<void> {
     try {
       await prisma.iCUService.delete({
-        where: { facilityID }
+        where: { 
+          facilityID 
+        }
       });
-
     } catch (error) {
       throw new Error("Could not delete ICUService.");
     }
@@ -479,7 +518,9 @@ export class OutpatientServiceDAO {
   async getByID(facilityID: string, serviceType: ServiceType): Promise<OutpatientService | null> {
     try {
       const service = await prisma.outpatientService.findUnique({
-        where: { facilityID_serviceType: { facilityID, serviceType } }
+        where: { 
+          facilityID_serviceType: { facilityID, serviceType } 
+        }
       });
   
       if (!service) {
@@ -496,8 +537,10 @@ export class OutpatientServiceDAO {
   async getAll(facilityID: string): Promise<OutpatientService[]> {
     try {
       const outpatientServices = await prisma.outpatientService.findMany({
-         where: { facilityID }
-        });
+         where: { 
+          facilityID 
+        }
+      });
 
       return outpatientServices;
     } catch (error) {
@@ -518,7 +561,9 @@ export class OutpatientServiceDAO {
   async update(facilityID: string, data: UpdateOutpatientServiceDTO): Promise<void> {
     try {
       await prisma.outpatientService.update({
-        where: { facilityID },
+        where: { 
+          facilityID 
+        },
         data: {
           serviceType     : data.serviceType,
           price           : data.price,
@@ -526,7 +571,7 @@ export class OutpatientServiceDAO {
           completionTimeH : data.completionTimeH,
           isAvailable     : data.isAvailable,
           acceptsWalkIns  : data.acceptsWalkIns,
-        },
+        }
       });
     } catch (error) {
       throw new Error("Could not update OutpatientService.");
@@ -536,9 +581,10 @@ export class OutpatientServiceDAO {
   async delete(facilityID: string, serviceType: ServiceType): Promise<void> {
     try {
       await prisma.outpatientService.delete({
-        where: { facilityID_serviceType: { facilityID, serviceType } }
+        where: { 
+          facilityID_serviceType: { facilityID, serviceType } 
+        }
       });
-
     } catch (error) {
       throw new Error("Could not delete OutpatientService.");
     }
