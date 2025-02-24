@@ -4,29 +4,53 @@ import type { PageServerLoad, Actions } from './$types';
 
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from '$lib/server/dtos';
 import { ServiceType } from '@prisma/client';
-
-// export const load: PageServerLoad = async () => {
-//   return {
-//     OPserviceType: ServiceType
-//   };
-// };
+import { validateCoverageRadius, validateOpenClose, validatePhone, validateTurnaroundCompletionTime } from '$lib/server/serviceFormValidators';
+import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO } from '$lib/server/prisma';
 
 export const actions = {
   default: async ({ cookies, request }) => {
     const data = await request.formData();
 
     const serviceType = data.get('serviceType');
+
+    const phone    = data.get('phoneNumber');
+    const open     = data.get('opening');
+    const close    = data.get('closing');
+    const rates    = data.get('price');
+    const minCover = data.get('minCoverageRadius');
+    const mileRate = data.get('mileageRate');
+    const maxCover = data.get('maxCoverageRadius');
+
+
+    const turnTD  = data.get('turnaroundDays');
+    const turnTH  = data.get('turnaroundHours');
+
+
+    const OPType = data.get('OPserviceType');
+    const compTD  = data.get('completionDays');
+    const compTH  = data.get('completionHours');
+    const walkins = data.get('acceptWalkins');
+
+
+    const facilityID = cookies.get('facilityID');
+
+    if (!facilityID) {
+      return fail(422, { 
+        description: "Facility not signed in.",
+        success: false  
+      });
+    }
+
     
     switch (serviceType){
       case "Ambulance": {
-
-        const phoneNumber       = data.get('phoneNumber') as string;
-        const openingTime       = data.get('opening') as string;
-        const closingTime       = data.get('closing') as string;
-        const baseRate          = Number(data.get('price'));
-        const minCoverageRadius = Number(data.get('minCoverageRadius'));
-        const mileageRate       = Number(data.get('mileageRate'));
-        const maxCoverageRadius = Number(data.get('maxCoverageRadius'));
+        const phoneNumber       = validatePhone(phone);
+        const { openingTime, 
+                closingTime }   = validateOpenClose(open, close)
+        const baseRate          = Number(rates);
+        const mileageRate           = Number(mileRate);
+        const { minCoverageRadius, 
+                maxCoverageRadius } = validateCoverageRadius(minCover, maxCover)
 
         const service: CreateAmbulanceServiceDTO = {
           phoneNumber,
@@ -38,16 +62,21 @@ export const actions = {
           maxCoverageRadius
         }
 
-        // console.log(service)
+        const dao = new AmbulanceServiceDAO();
+
+        dao.create(facilityID, service)
         break;
       }
       case "Blood Bank": {
-        const phoneNumber       = data.get('phoneNumber') as string;
-        const openingTime        = data.get('opening') as string;
-        const closingTime       = data.get('closing') as string;
-        const pricePerUnit       = Number(data.get('price'));
-        const turnaroundTimeD   = Number(data.get('turnaroundDays'));
-        const turnaroundTimeH  = Number(data.get('turnaroundHours'));
+        const phoneNumber       = validatePhone(phone);
+
+        const { openingTime, 
+                closingTime }   = validateOpenClose(open, close)
+
+        const TTime              = validateTurnaroundCompletionTime(turnTD, turnTH)
+        const turnaroundTimeD   = TTime.days;
+        const turnaroundTimeH   = TTime.hours; 
+        const pricePerUnit      = Number(rates);
 
         const service: CreateBloodBankServiceDTO = {
           phoneNumber,
@@ -58,37 +87,46 @@ export const actions = {
           turnaroundTimeH
         }
 
-        console.log(service)
+        const dao = new BloodBankServiceDAO();
+
+        dao.create(facilityID, service)
         break;
       }
       case "Emergency Room": {
-        const phoneNumber           = data.get('phoneNumber') as string;
+        const phoneNumber       = validatePhone(phone);
 
         const service: CreateERServiceDTO = {
           phoneNumber
         }
 
-        // console.log(service)
+        const dao = new ERServiceDAO();
+
+        dao.create(facilityID, service)
         break;
       }
       case "ICU": {
-        const phoneNumber         = data.get('phoneNumber') as string;
-        const baseRate            = Number(data.get('price'));
+        const phoneNumber       = validatePhone(phone);
+        const baseRate          = Number(rates);
 
         const service: CreateICUServiceDTO = {
           phoneNumber,
           baseRate
         }
 
-        // console.log(service)
+        const dao = new ICUServiceDAO();
+
+        dao.create(facilityID, service)
         break;
       }
       case "Out Patient": {
-        const OPserviceType   = data.get('OPserviceType') as ServiceType;
-        const price           = Number(data.get('price'));
-        const completionTimeD = Number(data.get('completionDays'));
-        const completionTimeH = Number(data.get('completionHOURS'));
-        const acceptsWalkIns  = data.get('acceptWalkins') === 'on';
+        const OPserviceType     = OPType as ServiceType;
+        const price             = Number(rates);
+
+        const CTime             = validateTurnaroundCompletionTime(compTD, compTH)
+        const completionTimeD   = CTime.days
+        const completionTimeH   = CTime.hours
+
+        const acceptsWalkIns    = walkins === 'on';
 
         const service: CreateOutpatientServiceDTO = {
           serviceType: OPserviceType,
@@ -98,18 +136,18 @@ export const actions = {
           acceptsWalkIns
         }
 
-        // console.log(service)
+        const dao = new OutpatientServiceDAO();
+
+        dao.create(facilityID, service)
         break;
       }
       default: {
-        return fail(400, { serviceType, missing: true });
+        return fail(422, { 
+          description: "No service type selected", 
+          success: false
+        });
       }
     }
-    // console.log(await getAmbulanceService("0"))
-
-    // send data to db
-
-    // console.log(await prisma.ambulanceService.findUnique( {where: { facilityID: "0eea8939-c386-46ad-95a2-12ae60740758" }} ));
 
     return { success: true };
   }

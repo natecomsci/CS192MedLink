@@ -77,8 +77,15 @@
 
     <!-- Mileage Rate -->
     <div class="mt-4 bg-white p-4 rounded-lg shadow">
-        <label class="block text-gray-700">Mileage Rate
-            <input type="text" bind:value={mileageRate} class="border p-2 rounded w-full" placeholder="Mileage Rate" />
+        <label class="block text-gray-700">
+            Mileage Rate
+            <input 
+                name="mileageRate"
+                type="text" 
+                bind:value={mileageRate} 
+                class="border p-2 rounded w-full" 
+                placeholder="Mileage Rate" 
+            />
         </label>
     </div>
 
