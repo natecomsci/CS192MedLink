@@ -1,3 +1,9 @@
+<script lang='ts'>
+  let { form } = $props();
+
+</script>
+
+
 <label>
   <h3>Service Phone Number</h3>
   <p>
@@ -10,6 +16,9 @@
     required 
     class="grid grid-cols-1"
   >
+  <!-- {#if form?.error == "Phone"}
+    <p class="error">{form.error}</p>
+  {/if} -->
 </label>
 <label>
   Operating Time
