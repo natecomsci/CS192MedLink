@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 import { ServiceType } from '@prisma/client'
 
-import type { AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService } from '@prisma/client';
+import type { Facility, AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService } from '@prisma/client';
 
 import type { BloodTypeMappingDTO, RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO } from './dtos';
 
@@ -55,14 +55,14 @@ export class AddressDAO {
 
       return regions;
     } catch (error) {
-    throw new Error("Could not get regions.");
-  }
+      throw new Error("Could not get regions.");
+    }
   }
 
   async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
     try {
       const pOrC = await prisma.pOrC.findMany({
-        where: { 
+        where: {
           regionID
         },
         select: {
@@ -120,39 +120,89 @@ export class AddressDAO {
 let addressDAO: AddressDAO = new AddressDAO();
 
 export class FacilityDAO {
-  async updateGeneralInformation(facilityID: string, data: M_UpdateGenInfoFacilityDTO): Promise<void> {
+  async getByID(facilityID: string): Promise<Facility | null> {
     try {
-      await prisma.facility.update({
+      const facility = await prisma.facility.findUnique({
         where: { 
           facilityID 
-        },
-        data: {
-          name              : data.name,
-          photo             : data.photo,
-          phoneNumber       : data.phoneNumber,
-          facilityType      : data.facilityType,
-          ownership         : data.ownership,
-          bookingSystem     : data.bookingSystem,
-          acceptedProviders : data.acceptedProviders,
         }
       });
+  
+      if (!facility) {
+        console.warn("No Facility found.");
+        return null;
+      }
+  
+      return facility;
+    } catch (error) {
+      throw new Error("Could not get Facility.");
+    }
+  }
 
-      await addressDAO.updateAddress(facilityID, data.address);
+  async updateGeneralInformation(facilityID: string, data: M_UpdateGenInfoFacilityDTO): Promise<void> {
+    try {
+      await prisma.$transaction([
+        prisma.facility.update({
+          where: { 
+            facilityID 
+          },
+          data: {
+            name              : data.name,
+            photo             : data.photo,
+            phoneNumber       : data.phoneNumber,
+            facilityType      : data.facilityType,
+            ownership         : data.ownership,
+            bookingSystem     : data.bookingSystem,
+            acceptedProviders : data.acceptedProviders,
+          }
+        }),
 
+        addressDAO.updateAddress(facilityID, data.address)
+      ]);
     } catch (error) {
       throw new Error("Could not update general information for Facility.");
     }
   }  
 
   /*
-  async updatePassword(facility: string, data: M_UpdatePasswordFacilityDTO): {
+  async updatePassword(facility: string, data: <insert>): {
+    try {
+      await prisma.facility.update({
+        where: { 
+          facilityID 
+        },
+        data: {
+        }
+      });
 
+    } catch (error) {
+      throw new Error("<message>");
+    }
   }
+  */
 
   async getAddressByFacility(facilityID: string): Promise<AddressDTO> {
-    
+    try {
+      const address = await prisma.address.findUnique({
+        where: { 
+          facilityID 
+        },
+        select: {
+          regionID : true,
+          pOrCID   : true,
+          cOrMID   : true,
+          brgyID   : true,
+          street   : true,
+        }
+      });
+  
+      return address;
+    } catch (error) {
+      throw new Error("Could not get Address.");
+    }
   }
 
+  /*
   async getInsurancesByFacility(facilityID: string): Promise<Provider[]> {
     
   }
@@ -349,22 +399,23 @@ export class BloodBankServiceDAO {
 
   async update(facilityID: string, data: UpdateBloodBankServiceDTO): Promise<void> {
     try {
-      await prisma.bloodBankService.update({
-        where: { 
-          facilityID 
-        },
-        data: {
-          phoneNumber     : data.phoneNumber,
-          openingTime     : data.openingTime,
-          closingTime     : data.closingTime,
-          pricePerUnit    : data.pricePerUnit,
-          turnaroundTimeD : data.turnaroundTimeD,
-          turnaroundTimeH : data.turnaroundTimeH,
-        }
-      });
-  
-      await bloodTypeMappingDAO.updateBloodTypeMapping(facilityID, data.bloodTypeAvailability);
+      await prisma.$transaction([
+        prisma.bloodBankService.update({
+          where: { 
+            facilityID 
+          },
+          data: {
+            phoneNumber     : data.phoneNumber,
+            openingTime     : data.openingTime,
+            closingTime     : data.closingTime,
+            pricePerUnit    : data.pricePerUnit,
+            turnaroundTimeD : data.turnaroundTimeD,
+            turnaroundTimeH : data.turnaroundTimeH,
+          }
+        }),
 
+        bloodTypeMappingDAO.updateBloodTypeMapping(facilityID, data.bloodTypeAvailability)
+      ]);
     } catch (error) {
       throw new Error("Could not update BloodBankService.");
     }

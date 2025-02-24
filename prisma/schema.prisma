@@ -2,8 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// hardcoded url for some reason it cant fetch my env will remove this soon
-
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
