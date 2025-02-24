@@ -1,9 +1,9 @@
 <script>
-    let opensAt = "";
-    let closesAt = "";
-    let phone = "";
-    let price1 = "";
-    let mileageRate = "";
+    let opensAt = $state('');
+    let closesAt = $state('');
+    let phone = $state('');
+    let price1 = $state('');
+    let mileageRate = $state('');
 </script>
 
 <div class="flex-1 p-6 overflow-y-auto border border-green-100">
@@ -11,7 +11,7 @@
     <div class="mt-4 bg-white p-4 rounded-lg shadow">
         <label class="block text-gray-700">
             Phone No.
-            <input type="text" bind:value={phone} class="border p-2 rounded w-full" placeholder="Phone No." />
+            <input type="tel" bind:value={phone} class="border p-2 rounded w-full" placeholder="Phone No." />
         </label>
     </div>
 
