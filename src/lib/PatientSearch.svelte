@@ -6,6 +6,8 @@
   let Filter = "mingcute:settings-6-line"
 
 	let search = $state("");
+
+	let showFilter = $state(false);
 </script>
 
 <!-- @elle, @paul: padesign -->
@@ -48,11 +50,17 @@
 
 			<button 
 				class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
-				
+				onclick={() => showFilter = !showFilter} 
 			>
 				<Icon icon={Filter} width="20" height="20" />
 			</button>
-		</div>
-
+		</div>		
 	</div>
+
+	{#if showFilter}
+		<p>
+			filters here
+		</p>
+	{/if}
+	
 </form>

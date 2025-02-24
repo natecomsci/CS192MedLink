@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between text-[30px] pl-4 pr-4 text-[#9044C4] font-bold text-lg border-b border-[#DBD8DF] sticky bg-white z-10">
       Control History
       <div class=text-[20px]>
-        Scrollbar 
+        Searchbar 
         View
       </div>
     </div>
