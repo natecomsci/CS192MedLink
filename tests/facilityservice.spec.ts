@@ -23,7 +23,9 @@ test('Ambulance', async ({ page }) => {
     await page.goto('/facility/1/dashboard/manageServices/addService');
 
     // Select "Ambulance" from the dropdown
-    await page.getByRole('combobox', { name: 'Service Type to Offer:' }).selectOption({ label: 'Ambulance' });
+    await page.getByLabel('Select a Service').selectOption({ label: 'Ambulance' });
+
+    await expect(page.getByText('Phone No.', { exact: true })).toBeVisible();
 });
 
 test('Blood Bank', async ({ page }) => {
@@ -31,7 +33,7 @@ test('Blood Bank', async ({ page }) => {
     await page.goto('/facility/1/dashboard/manageServices/addService');
 
     // Select "Ambulance" from the dropdown
-    await page.getByRole('combobox', { name: 'Service Type to Offer:' }).selectOption({ label: 'Blood Bank' });
+    await page.getByLabel('Select a Service').selectOption({ label: 'Blood Bank' });
 });
 
 test('Emergency Room', async ({ page }) => {
@@ -39,7 +41,7 @@ test('Emergency Room', async ({ page }) => {
     await page.goto('/facility/1/dashboard/manageServices/addService');
 
     // Select "Ambulance" from the dropdown
-    await page.getByRole('combobox', { name: 'Service Type to Offer:' }).selectOption({ label: 'Emergency Room' });
+    await page.getByLabel('Select a Service').selectOption({ label: 'Emergency Room' });
 });
 
 test('ICU', async ({ page }) => {
@@ -47,7 +49,7 @@ test('ICU', async ({ page }) => {
     await page.goto('/facility/1/dashboard/manageServices/addService');
 
     // Select "Ambulance" from the dropdown
-    await page.getByRole('combobox', { name: 'Service Type to Offer:' }).selectOption({ label: 'ICU' });
+    await page.getByLabel('Select a Service').selectOption({ label: 'ICU' });
 });
 
 test('Outpatient', async ({ page }) => {
@@ -55,6 +57,6 @@ test('Outpatient', async ({ page }) => {
     await page.goto('/facility/1/dashboard/manageServices/addService');
 
     // Select "Ambulance" from the dropdown
-    await page.getByRole('combobox', { name: 'Service Type to Offer:' }).selectOption({ label: 'Outpatient' });
+    await page.getByLabel('Select a Service').selectOption({ label: 'Outpatient' });
 });
 
