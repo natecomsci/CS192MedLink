@@ -2,22 +2,23 @@
     let opensAt = "";
     let closesAt = "";
     let phone = "";
-    let turnaroundHours = "";
-    let turnaroundDays = "";
     let price1 = "";
     let mileageRate = "";
 </script>
 
 <div class="flex-1 p-6 overflow-y-auto border border-green-100">
-        <!-- Phone Number -->
-        <div class="mt-4 bg-white p-4 rounded-lg shadow">
-            <label class="block text-gray-700">Phone No.</label>
+    <!-- Phone Number -->
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">
+            Phone No.
             <input type="text" bind:value={phone} class="border p-2 rounded w-full" placeholder="Phone No." />
-        </div>
+        </label>
+    </div>
 
-        <!-- Hours of Operation -->
-        <div class="mt-4 bg-white p-4 rounded-lg shadow">
-            <label class="block text-gray-700">Hours of Operation</label>
+    <!-- Hours of Operation -->
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">
+            Hours of Operation
             <div class="flex gap-2">
                 <select bind:value={opensAt} class="border p-2 rounded w-20">
                     <option>Opens at</option>
@@ -31,17 +32,21 @@
                     <option>06:00 PM</option>
                 </select>
             </div>
-        </div>
+        </label>
+    </div>
 
-        <!-- Price Rate -->
-        <div class="mt-4 bg-white p-4 rounded-lg shadow">
-            <label class="block text-gray-700">Price Per Unit</label>
+    <!-- Price Rate -->
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">
+            Price Per Unit
             <input type="text" bind:value={price1} class="border p-2 rounded w-full" placeholder="Price" />
-        </div>
+        </label>
+    </div>
 
-        <!-- Coverage Radius -->
-        <div class="mt-4 bg-white p-4 rounded-lg shadow">
-            <label class="block text-gray-700">Coverage Radius</label>
+    <!-- Coverage Radius -->
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">
+            Coverage Radius
             <div class="flex gap-2">
                 <label>
                     Minimum coverage radius
@@ -67,13 +72,15 @@
                     km
                   </label>
             </div>
-        </div>
-
-        <!-- Mileage Rate -->
-        <div class="mt-4 bg-white p-4 rounded-lg shadow">
-            <label class="block text-gray-700">Mileage Rate</label>
-            <input type="text" bind:value={mileageRate} class="border p-2 rounded w-full" placeholder="Mileage Rate" />
-        </div>
-
+        </label>
     </div>
+
+    <!-- Mileage Rate -->
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">Mileage Rate
+            <input type="text" bind:value={mileageRate} class="border p-2 rounded w-full" placeholder="Mileage Rate" />
+        </label>
+    </div>
+
+</div>
 

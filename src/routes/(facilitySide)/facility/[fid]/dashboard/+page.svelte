@@ -8,6 +8,12 @@
   import Logo from '$lib/images/Logo.png';
   let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
 
+  // import type { PageProps } from './$types';
+
+  let { data } = $props();
+
+  console.log(data.facilityID)
+
 </script>
 
 <header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] top-0 duration-200 px-6 flex items-center justify-between border border-transparent bg-white ">

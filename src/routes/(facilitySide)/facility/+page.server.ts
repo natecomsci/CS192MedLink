@@ -6,8 +6,17 @@ import { prisma } from '$lib/server/prisma';
 
 import type { Actions } from './$types';
 
+export async function load({ cookies }) {
+  const facilityID = 'None';
+  cookies.set('facilityID', 'ijadskfjlakdjf', {path: "/"})
+
+  return {
+    facilityID: facilityID
+  };
+}
+
 export const actions = {
-  default: async ({ request }) => {
+  default: async ({ cookies, request }) => {
     const data = await request.formData();
     const fid = data.get('fid') as string;
     const password = data.get('password') as string;
