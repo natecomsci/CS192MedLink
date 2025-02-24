@@ -5,9 +5,13 @@
   import Ambulance from './Ambulance.svelte';
   import AmbulanceService from './AmbulanceService.svelte';
   import BloodBank from './BloodBank.svelte';
+  import BloodBankService from './BloodBankService.svelte';
   import ER from './ER.svelte';
+  import ERService from './ERService.svelte';
   import ICU from './ICU.svelte';
+  import ICUService from './ICUService.svelte';
   import Outpatient from './Outpatient.svelte';
+  import OutpatientService from './OutpatientService.svelte';
 
   let { data }: PageProps = $props();
 
@@ -63,20 +67,21 @@
 
     <!-- Right Panel (Scrollable) -->
     <div class="flex-1 p-6 overflow-y-auto border border-green-100">
-        <h2 class="text-[30px] font-['DM_Sans'] text-[#3D1853] font-bold text-purple-900">Service Name Attributes</h2>
+        <h2 class="text-[30px] font-['DM_Sans'] text-[#3D1853] font-bold text-purple-900">{serviceType}</h2>
         <label
         class="grid grid-cols-1"
       >
         {#if serviceType == "Ambulance"}
           <AmbulanceService/>
         {:else if serviceType == "Blood Bank"}
-          <BloodBank/>
+          <!-- <AmbulanceService/> -->
+          <BloodBankService/>
         {:else if serviceType == "Emergency Room"}
-          <ER/>
+          <ERService/>
         {:else if serviceType == "ICU"}
-          <ICU/>
+          <ICUService/>
         {:else if serviceType == "Outpatient"}
-          <Outpatient />
+          <OutpatientService/>
         {/if}
       </label>
     </div>
