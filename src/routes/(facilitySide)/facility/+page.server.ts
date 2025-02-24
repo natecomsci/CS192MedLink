@@ -1,20 +1,17 @@
-// facility log in no cookies made during successful login.
-// try id:20250001 pw:password for testing
 import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
-import { prisma } from '$lib/server/prisma';
-
 import type { Actions } from './$types';
+import {FacilityDAO} from '$lib/server/prisma';
+
 
 export const actions = {
-  default: async ({ cookies, request }) => {
+  default: async ({ request, cookies }) => {
     const data = await request.formData();
     const fid = data.get('fid') as string;
     const password = data.get('password') as string;
 
     console.log(`🔹 Login Attempt:`);
     console.log(`➡️ Employee ID: ${fid}`);
-    console.log(`➡️ Password: ${password}`); // 🚨 Remove this in production!
 
     if (!fid || !password) {
       console.log(`❌ Missing Employee ID or Password.`);
@@ -22,9 +19,9 @@ export const actions = {
     }
 
     // Fetch facility by facilityID
-    const facility = await prisma.facility.findUnique({
-      where: { facilityID: fid },
-    });
+    const facilityDAO = new FacilityDAO()
+    const facility = await facilityDAO.getByID(fid);
+
 
     if (!facility) {
       console.log(`❌ Invalid Employee ID: ${fid}`);
@@ -39,6 +36,9 @@ export const actions = {
     }
 
     console.log(`✅ Login successful for Employee ID: ${fid}`);
+
+    // Set cookie on successful login
+    cookies.set('facilityID', fid, {path: '/'});
 
     // Redirect to dashboard on success
     throw redirect(303, '/dashboard');
