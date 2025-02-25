@@ -24,254 +24,6 @@ export { prisma }
 
 // DAOs
 
-export class AddressDAO {
-  async updateAddress(facilityID: string, data: AddressDTO): Promise<void> {
-    try {
-      await prisma.address.update({
-        where: { 
-          facilityID 
-        },
-        data: {
-          regionID : data.regionID,
-          pOrCID   : data.pOrCID,
-          cOrMID   : data.cOrMID,
-          brgyID   : data.brgyID,
-          street   : data.street,
-        }
-      });
-    } catch (error) {
-      throw new Error("Could not update Address.");
-    }
-  }
-
-  async getRegions(): Promise<RegionDTO[]> {
-    try {
-      const regions = await prisma.region.findMany({
-        select: {
-          regionID : true, 
-          name     : true,
-        }
-      });
-
-      return regions;
-    } catch (error) {
-      throw new Error("Could not get regions.");
-    }
-  }
-
-  async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
-    try {
-      const pOrC = await prisma.pOrC.findMany({
-        where: {
-          regionID
-        },
-        select: {
-          pOrCID   : true,
-          name     : true,
-          regionID : true,
-        }
-      });
-
-      return pOrC;
-    } catch (error) {
-      throw new Error("Could not get provinces for the region.");
-    }
-  }
-
-  async getCOrMOfProvince(pOrCID: number): Promise<COrMDTO[]> {
-    try {
-      const cOrMs = await prisma.cOrM.findMany({
-        where: { 
-          pOrCID 
-        },
-        select: {
-          cOrMID : true,
-          name   : true,
-          pOrCID : true,
-        }
-      });
-
-      return cOrMs;
-    } catch (error) {
-      throw new Error("Could not get cities or municipalities for the province.");
-    }
-  }
-
-  async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
-    try {
-      const brgys = await prisma.brgy.findMany({
-        where: { 
-          cOrMID 
-        },
-        select: {
-          brgyID : true,
-          name   : true,
-          cOrMID : true,
-        }
-      });
-
-      return brgys;
-    } catch (error) {
-      throw new Error("Could not get barangays for the city or municipality.");
-    }
-  }
-}
-
-let addressDAO: AddressDAO = new AddressDAO();
-
-export class FacilityDAO {
-  async getByID(facilityID: string): Promise<Facility | null> {
-    try {
-      const facility = await prisma.facility.findUnique({
-        where: { 
-          facilityID 
-        }
-      });
-  
-      if (!facility) {
-        console.warn("No Facility found.");
-        return null;
-      }
-  
-      return facility;
-    } catch (error) {
-      throw new Error("Could not get Facility.");
-    }
-  }
-
-  async getGeneralInformation(facilityID: string): Promise<M_UpdateGenInfoFacilityDTO> {
-    try {
-      const facility = await this.getByID(facilityID);
-
-      if (!facility) {
-        throw new Error("Missing needed Facility data.");
-      }
-
-      const address = await this.getAddressByFacility(facilityID);
-
-      if (!address) {
-        throw new Error("Missing needed Address data.");
-      }
-
-      if (!facility.phoneNumber || !facility.facilityType || !facility.ownership) {
-        throw new Error("Facility information is incomplete.");
-      }
-
-      return {
-        name              : facility.name,
-        photo             : facility.photo,
-        address           : address,
-        phoneNumber       : facility.phoneNumber,
-        facilityType      : facility.facilityType,
-        ownership         : facility.ownership,
-        bookingSystem     : facility.bookingSystem ?? "",
-        acceptedProviders : facility.acceptedProviders,
-      };
-    } catch (error) {
-      throw new Error("Could not get general information for Facility.");
-    }
-  }
-
-  async updateGeneralInformation(facilityID: string, data: M_UpdateGenInfoFacilityDTO): Promise<void> {
-    try {
-      await prisma.$transaction([
-        prisma.facility.update({
-          where: { 
-            facilityID 
-          },
-          data: {
-            name              : data.name,
-            photo             : data.photo,
-            phoneNumber       : data.phoneNumber,
-            facilityType      : data.facilityType,
-            ownership         : data.ownership,
-            bookingSystem     : data.bookingSystem,
-            acceptedProviders : data.acceptedProviders,
-          }
-        }),
-
-        addressDAO.updateAddress(facilityID, data.address)
-      ]);
-    } catch (error) {
-      throw new Error("Could not update general information for Facility.");
-    }
-  }  
-
-  /*
-  async updatePassword(facility: string, data: <insert>): {
-    try {
-      await prisma.facility.update({
-        where: { 
-          facilityID 
-        },
-        data: {
-        }
-      });
-
-    } catch (error) {
-      throw new Error("<message>");
-    }
-  }
-  */
-
-  async getAddressByFacility(facilityID: string): Promise<AddressDTO> {
-    try {
-      const address = await prisma.address.findUnique({
-        where: { 
-          facilityID 
-        },
-        select: {
-          regionID : true,
-          pOrCID   : true,
-          cOrMID   : true,
-          brgyID   : true,
-          street   : true,
-        }
-      });
-  
-      return address;
-    } catch (error) {
-      throw new Error("Could not get Address.");
-    }
-  }
-
-  async getInsurancesByFacility(facilityID: string): Promise<Provider[]> {
-    try {
-      const facility = await this.getByID(facilityID);
-
-      if (!facility) {
-        throw new Error("Missing needed Facility data.");
-      }
-
-      return facility.acceptedProviders;
-    } catch (error) {
-      throw new Error("Could not get accepted providers.");
-    }
-  }
-
-  /*
-  async getServicesByFacility(facilityID: string) Promise< // to insert // > {
-    
-  }
-
-  async getAdminsByFacility(facilityID: string) Promise< // to insert // > {
-    
-  }
-
-  async getDivisionsByFacility(facilityID: string): Promise< // to insert // > {
-    
-  }
-
-  async facilityHasAdmins(facilityID: string): Promise<boolean> {
-    
-  }
-
-  async facilityHasDivisions(facilityID: string): Promise<boolean> {
-    
-  }
-  */
-}
-
 export class AmbulanceServiceDAO {
   async getByID(facilityID: string): Promise<AmbulanceService | null> {
     try {
@@ -688,4 +440,309 @@ export class OutpatientServiceDAO {
       throw new Error("Could not delete OutpatientService.");
     }
   }
+}
+
+export class AddressDAO {
+  async updateAddress(facilityID: string, data: AddressDTO): Promise<void> {
+    try {
+      await prisma.address.update({
+        where: { 
+          facilityID 
+        },
+        data: {
+          regionID : data.regionID,
+          pOrCID   : data.pOrCID,
+          cOrMID   : data.cOrMID,
+          brgyID   : data.brgyID,
+          street   : data.street,
+        }
+      });
+    } catch (error) {
+      throw new Error("Could not update Address.");
+    }
+  }
+
+  async getRegions(): Promise<RegionDTO[]> {
+    try {
+      const regions = await prisma.region.findMany({
+        select: {
+          regionID : true, 
+          name     : true,
+        }
+      });
+
+      return regions;
+    } catch (error) {
+      throw new Error("Could not get regions.");
+    }
+  }
+
+  async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
+    try {
+      const pOrC = await prisma.pOrC.findMany({
+        where: {
+          regionID
+        },
+        select: {
+          pOrCID   : true,
+          name     : true,
+          regionID : true,
+        }
+      });
+
+      return pOrC;
+    } catch (error) {
+      throw new Error("Could not get provinces for the region.");
+    }
+  }
+
+  async getCOrMOfProvince(pOrCID: number): Promise<COrMDTO[]> {
+    try {
+      const cOrMs = await prisma.cOrM.findMany({
+        where: { 
+          pOrCID 
+        },
+        select: {
+          cOrMID : true,
+          name   : true,
+          pOrCID : true,
+        }
+      });
+
+      return cOrMs;
+    } catch (error) {
+      throw new Error("Could not get cities or municipalities for the province.");
+    }
+  }
+
+  async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
+    try {
+      const brgys = await prisma.brgy.findMany({
+        where: { 
+          cOrMID 
+        },
+        select: {
+          brgyID : true,
+          name   : true,
+          cOrMID : true,
+        }
+      });
+
+      return brgys;
+    } catch (error) {
+      throw new Error("Could not get barangays for the city or municipality.");
+    }
+  }
+}
+
+let addressDAO: AddressDAO = new AddressDAO();
+let ambulanceServiceDAO : AmbulanceServiceDAO = new AmbulanceServiceDAO();
+let bloodBankServiceDAO : BloodBankServiceDAO = new BloodBankServiceDAO();
+let eRServiceDAO : ERServiceDAO = new ERServiceDAO();
+let iCUServiceDAO : ICUServiceDAO = new ICUServiceDAO();
+let outpatientServiceDAO : OutpatientServiceDAO = new OutpatientServiceDAO();
+
+export class FacilityDAO {
+  async getByID(facilityID: string): Promise<Facility | null> {
+    try {
+      const facility = await prisma.facility.findUnique({
+        where: { 
+          facilityID 
+        }
+      });
+  
+      if (!facility) {
+        console.warn("No Facility found.");
+        return null;
+      }
+  
+      return facility;
+    } catch (error) {
+      throw new Error("Could not get Facility.");
+    }
+  }
+
+  async getGeneralInformation(facilityID: string): Promise<M_UpdateGenInfoFacilityDTO> {
+    try {
+      const facility = await this.getByID(facilityID);
+
+      if (!facility) {
+        throw new Error("Missing needed Facility data.");
+      }
+
+      const address = await this.getAddressByFacility(facilityID);
+
+      if (!address) {
+        throw new Error("Missing needed Address data.");
+      }
+
+      if (!facility.phoneNumber || !facility.facilityType || !facility.ownership) {
+        throw new Error("Facility information is incomplete.");
+      }
+
+      return {
+        name              : facility.name,
+        photo             : facility.photo,
+        address           : address,
+        phoneNumber       : facility.phoneNumber,
+        facilityType      : facility.facilityType,
+        ownership         : facility.ownership,
+        bookingSystem     : facility.bookingSystem ?? "",
+        acceptedProviders : facility.acceptedProviders,
+      };
+    } catch (error) {
+      throw new Error("Could not get general information for Facility.");
+    }
+  }
+
+  async updateGeneralInformation(facilityID: string, data: M_UpdateGenInfoFacilityDTO): Promise<void> {
+    try {
+      await prisma.$transaction([
+        prisma.facility.update({
+          where: { 
+            facilityID 
+          },
+          data: {
+            name              : data.name,
+            photo             : data.photo,
+            phoneNumber       : data.phoneNumber,
+            facilityType      : data.facilityType,
+            ownership         : data.ownership,
+            bookingSystem     : data.bookingSystem,
+            acceptedProviders : data.acceptedProviders,
+          }
+        }),
+
+        addressDAO.updateAddress(facilityID, data.address)
+      ]);
+    } catch (error) {
+      throw new Error("Could not update general information for Facility.");
+    }
+  }  
+
+  /*
+  async updatePassword(facility: string, data: <insert>): {
+    try {
+      await prisma.facility.update({
+        where: { 
+          facilityID 
+        },
+        data: {
+        }
+      });
+
+    } catch (error) {
+      throw new Error("<message>");
+    }
+  }
+  */
+
+  async getAddressByFacility(facilityID: string): Promise<AddressDTO> {
+    try {
+      const address = await prisma.address.findUnique({
+        where: { 
+          facilityID 
+        },
+        select: {
+          regionID : true,
+          pOrCID   : true,
+          cOrMID   : true,
+          brgyID   : true,
+          street   : true,
+        }
+      });
+  
+      return address;
+    } catch (error) {
+      throw new Error("Could not get Address.");
+    }
+  }
+
+  async getInsurancesByFacility(facilityID: string): Promise<Provider[]> {
+    try {
+      const facility = await this.getByID(facilityID);
+
+      if (!facility) {
+        throw new Error("Missing needed Facility data.");
+      }
+
+      return facility.acceptedProviders;
+    } catch (error) {
+      throw new Error("Could not get accepted providers.");
+    }
+  }
+
+  async getServicesByFacility(facilityID: string): Promise<{
+    ambulanceService   : AmbulanceService | null;
+    bloodBankService   : BloodBankService | null;
+    erService          : ERService | null;
+    icuService         : ICUService | null;
+    outpatientServices : OutpatientService[];
+  }> {
+    const [
+      ambulanceService,
+      bloodBankService,
+      erService,
+      icuService,
+      outpatientServices,
+    ] = await Promise.all([
+      ambulanceServiceDAO.getByID(facilityID).catch(() => null),
+      bloodBankServiceDAO.getByID(facilityID).catch(() => null),
+      eRServiceDAO.getByID(facilityID).catch(() => null),
+      iCUServiceDAO.getByID(facilityID).catch(() => null),
+      outpatientServiceDAO.getAll(facilityID).catch(() => []),
+    ]);
+  
+    return {
+      ambulanceService,
+      bloodBankService,
+      erService,
+      icuService,
+      outpatientServices,
+    };
+  } 
+
+  /*
+  Sample Outputs:
+
+  1 OutpatientService:
+
+  {
+    "ambulanceService"   : null,
+    "bloodBankService"   : null,
+    "erService"          : null,
+    "icuService"         : null,
+    "outpatientServices" : [
+      { *info on outpatientservice1*, }
+    ]
+  }
+
+  No Services:
+
+  {
+    "ambulanceService"   : null,
+    "bloodBankService"   : null,
+    "erService"          : null,
+    "icuService"         : null,
+    "outpatientServices" : []
+  }
+  */
+
+  /*
+  async getAdminsByFacility(facilityID: string) Promise< // to insert // > {
+    
+  }
+
+  async getDivisionsByFacility(facilityID: string): Promise< // to insert // > {
+    
+  }
+
+  async facilityHasAdmins(facilityID: string): Promise<boolean> {
+    
+  }
+
+  async facilityHasDivisions(facilityID: string): Promise<boolean> {
+    
+  }
+  */
 }

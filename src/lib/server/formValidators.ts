@@ -1,11 +1,4 @@
-function convertTimeStringToDate(timeString: string): Date {
-  const [hours, minutes, seconds] = timeString.split(":").map(Number);
-  const date = new Date();
-  date.setUTCHours(hours, minutes, seconds, 0); // Ensure it's in UTC
-  return date;
-}
-
-// ^ chat
+import { promises as dns } from "dns";
 
 export function validatePhone(phone: FormDataEntryValue | null): string {
   if (!phone) {
@@ -23,6 +16,43 @@ export function validatePhone(phone: FormDataEntryValue | null): string {
   }
 
   return phoneNumber;
+}
+
+async function hasMXRecords(domain: string): Promise<boolean> {
+  try {
+      const records = await dns.resolveMx(domain);
+      return records.length > 0;
+  } catch (error) {
+      console.error(`DNS lookup failed for ${domain}:`, error);
+      return false;
+  }
+}
+
+export async function validateEmail(email: string): Promise<string | null> {
+  const emailRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const consecutiveDotsRegex = /\.\./;
+
+  if (!email) {
+      console.log("Result: No email provided.");
+      return null;
+  }
+
+  const emailStr = email.trim();
+
+  if (!emailRegex.test(emailStr) || consecutiveDotsRegex.test(emailStr)) {
+      console.log(`${emailStr} has an invalid format.`);
+      return null;
+  }
+
+  const domain = emailStr.split("@")[1];
+
+  if (!(await hasMXRecords(domain))) {
+      console.log(`${domain} is not a valid domain, so ${emailStr} has an invalid format.`);
+      return null;
+  }
+
+  console.log(`${emailStr} has a valid format.`);
+  return emailStr;
 }
 
 export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: string, closingTime: string} {

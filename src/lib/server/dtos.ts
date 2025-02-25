@@ -42,7 +42,7 @@ export interface AddressDTO {
 
 export interface M_UpdateGenInfoFacilityDTO {
   name              : string;
-  photo             : string;       // hardcode for now sa business logic
+  photo             : string;
   address           : AddressDTO;
   phoneNumber       : string;
   facilityType      : FacilityType;
@@ -60,8 +60,8 @@ export interface M_UpdatePasswordFacilityDTO {
 
 export interface CreateAmbulanceServiceDTO {
   phoneNumber       : string;
-  openingTime       : string; // format: hh:mm:ss
-  closingTime       : string; // format: hh:mm:ss
+  openingTime       : Date; // format: hh:mm:ss
+  closingTime       : Date; // format: hh:mm:ss
   baseRate          : number;
   minCoverageRadius : number;
   mileageRate       : number;
@@ -70,8 +70,8 @@ export interface CreateAmbulanceServiceDTO {
 
 export interface UpdateAmbulanceServiceDTO {
   phoneNumber       : string;
-  openingTime       : string; // format: hh:mm:ss
-  closingTime       : string; // format: hh:mm:ss
+  openingTime       : Date; // format: hh:mm:ss
+  closingTime       : Date; // format: hh:mm:ss
   baseRate          : number;
   minCoverageRadius : number;
   mileageRate       : number;
@@ -92,8 +92,8 @@ export interface BloodTypeMappingDTO {
 
 export interface CreateBloodBankServiceDTO {
   phoneNumber     : string;
-  openingTime     : string; // format: hh:mm:ss
-  closingTime     : string; // format: hh:mm:ss
+  openingTime     : Date; // format: hh:mm:ss
+  closingTime     : Date; // format: hh:mm:ss
   pricePerUnit    : number;
   turnaroundTimeD : number;
   turnaroundTimeH : number;

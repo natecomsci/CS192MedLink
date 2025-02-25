@@ -140,7 +140,7 @@ model Address {
 
 // The data layer merged Managers and Facilities.
 
-// Should be required but cannot be because Supabase register thingy. Their necessity 
+// Should be required but cannot be because Supabase register thingy. Their necessity is handled by business logic.
 
 model Facility {
   facilityID String @id @default(uuid())
