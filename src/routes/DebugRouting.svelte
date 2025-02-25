@@ -26,6 +26,9 @@
             <li>
                 <a class="block p-4" href="/facility/1/dashboard/updateFacilityInfo">F-Edit</a>
             </li>
+            <li>
+                <a class="block p-4" href="/facility/1/dashboard/upFI">Elle</a>
+            </li>
         </ul>
     </nav>
 </header>
