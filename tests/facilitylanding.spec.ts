@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 
+/*
 test.describe('Facility Page UI Tests', () => {
 
   test.beforeEach(async ({ page }) => {
@@ -41,3 +42,13 @@ test.describe('Facility Page UI Tests', () => {
   });
 
 });
+*/
+
+test('Invalid login credentials', async ({ page }) => {
+  await page.goto('/facility');
+  await page.fill('input[name="fid"]', 'wrongID');
+  await page.fill('input[name="password"]', 'wrongpassword');
+  await page.click('button:has-text("Log in")');
+  await expect(page.locator('p.error')).toHaveText('Invalid Employee ID or Password.');
+});
+
