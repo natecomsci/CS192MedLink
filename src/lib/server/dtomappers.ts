@@ -30,6 +30,25 @@ function getNumber(formData: FormData, field: string): number {
   return parse;
 }
 
+// eh should be moved elsewhere ata
+
+function mapStringToProvider(value: string): Provider {
+  if (!Object.values(Provider).includes(value as Provider)) {
+    throw new Error("Invalid provider.");
+  }
+
+  return value as Provider;
+}
+
+function getProviderArray(formData: FormData, field: string): Provider[] {
+  const values = formData.getAll(field);
+
+  if (!values)
+    throw new Error(`Error: Missing ${field} field.`);
+
+  return values.map((value) => mapStringToProvider(value.toString()));
+}
+
 export function mapFDataToCAmbulanceServiceDTO(formData: FormData): CreateAmbulanceServiceDTO {
   return {
     phoneNumber       : getField(formData, "phoneNumber") as string,
@@ -93,7 +112,7 @@ export function mapFormDataToM_UpdateGenInfoFacilityDTO(formData: FormData): M_U
     facilityType      : getField(formData, "facilityType") as FacilityType,
     ownership         : getField(formData, "ownership") as Ownership,
     bookingSystem     : getField(formData, "bookingSystem") as string,
-    acceptedProviders : getField(formData, "acceptedProviders") as string,
+    acceptedProviders : getProviderArray(formData, "acceptedProviders"),
   };
 }
 

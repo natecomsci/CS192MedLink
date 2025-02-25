@@ -14,10 +14,10 @@
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
             <label class="block text-gray-700">Phone No.
                 <input 
-                    name="phoneNumber"
-                    type="text" 
                     class="border p-2 rounded w-full" 
-                    placeholder="Phone No." 
+                    name="phoneNumber"
+                    type="tel"
+                    value="+63 9"
                     required 
                 />
                 {#if form?.description === "phoneNumber"}

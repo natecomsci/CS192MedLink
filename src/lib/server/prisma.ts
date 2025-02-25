@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 
-import { ServiceType } from '@prisma/client'
+import { Provider, ServiceType } from '@prisma/client'
 
 import type { Facility, AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService } from '@prisma/client';
 
@@ -139,6 +139,39 @@ export class FacilityDAO {
     }
   }
 
+  async getGeneralInformation(facilityID: string): Promise<M_UpdateGenInfoFacilityDTO> {
+    try {
+      const facility = await this.getByID(facilityID);
+
+      if (!facility) {
+        throw new Error("Missing needed Facility data.");
+      }
+
+      const address = await this.getAddressByFacility(facilityID);
+
+      if (!address) {
+        throw new Error("Missing needed Address data.");
+      }
+
+      if (!facility.phoneNumber || !facility.facilityType || !facility.ownership) {
+        throw new Error("Facility information is incomplete.");
+      }
+
+      return {
+        name              : facility.name,
+        photo             : facility.photo,
+        address           : address,
+        phoneNumber       : facility.phoneNumber,
+        facilityType      : facility.facilityType,
+        ownership         : facility.ownership,
+        bookingSystem     : facility.bookingSystem ?? "",
+        acceptedProviders : facility.acceptedProviders,
+      };
+    } catch (error) {
+      throw new Error("Could not get general information for Facility.");
+    }
+  }
+
   async updateGeneralInformation(facilityID: string, data: M_UpdateGenInfoFacilityDTO): Promise<void> {
     try {
       await prisma.$transaction([
@@ -202,11 +235,21 @@ export class FacilityDAO {
     }
   }
 
-  /*
   async getInsurancesByFacility(facilityID: string): Promise<Provider[]> {
-    
+    try {
+      const facility = await this.getByID(facilityID);
+
+      if (!facility) {
+        throw new Error("Missing needed Facility data.");
+      }
+
+      return facility.acceptedProviders;
+    } catch (error) {
+      throw new Error("Could not get accepted providers.");
+    }
   }
 
+  /*
   async getServicesByFacility(facilityID: string) Promise< // to insert // > {
     
   }
