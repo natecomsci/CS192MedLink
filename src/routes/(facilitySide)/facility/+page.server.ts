@@ -41,6 +41,6 @@ export const actions = {
     cookies.set('facilityID', fid, {path: '/'});
 
     // Redirect to dashboard on success
-    throw redirect(303, '/dashboard');
+    throw redirect(303, '/facility/'+fid+'/dashboard');
   }
 } satisfies Actions;

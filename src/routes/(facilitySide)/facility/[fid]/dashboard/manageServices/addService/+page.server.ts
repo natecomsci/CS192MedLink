@@ -46,9 +46,9 @@ export const actions = {
     switch (serviceType){
       case "Ambulance": {
         try {
-          const phoneNumber       = validatePhone(phone);
+          validatePhone(phone);
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "phoneNumber",
@@ -57,31 +57,34 @@ console.log((error as Error).message)
         }
 
         try {
-          const { openingTime, closingTime }   = validateOpenClose(open, close)
+          validateOpenClose(open, close)
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "openClose",
             success: false
           });
         }
+
+        const phoneNumber       = validatePhone(phone);
         
         const baseRate          = Number(rates);
         
         const mileageRate       = Number(mileRate);
+        const { openingTime, closingTime }   = validateOpenClose(open, close)
         
         try {
-          const { minCoverageRadius, maxCoverageRadius } = validateCoverageRadius(minCover, maxCover)
-
+          validateCoverageRadius(minCover, maxCover)
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "coverage",
             success: false
           });
         }
+        const { minCoverageRadius, maxCoverageRadius } = validateCoverageRadius(minCover, maxCover)
         
         const service: CreateAmbulanceServiceDTO = {
           phoneNumber,
@@ -96,14 +99,14 @@ console.log((error as Error).message)
 
         const dao = new AmbulanceServiceDAO();
 
-        // dao.create(facilityID, service)
+        dao.create(facilityID, service)
         break;
       }
       case "Blood Bank": {
         try {
-          const phoneNumber       = validatePhone(phone);
+          validatePhone(phone);
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "phoneNumber",
@@ -112,9 +115,9 @@ console.log((error as Error).message)
         }
 
         try {
-          const { openingTime, closingTime }   = validateOpenClose(open, close)
+          validateOpenClose(open, close)
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "openClose",
@@ -123,17 +126,21 @@ console.log((error as Error).message)
         }
 
         try {
-          const TTime              = validateTurnaroundCompletionTime(turnTD, turnTH)
-          const turnaroundTimeD   = TTime.days;
-          const turnaroundTimeH   = TTime.hours; 
+          validateTurnaroundCompletionTime(turnTD, turnTH)
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "turnaround",
             success: false
           });
         }
+
+        const phoneNumber       = validatePhone(phone);
+        const { openingTime, closingTime }   = validateOpenClose(open, close)
+        const TTime              = validateTurnaroundCompletionTime(turnTD, turnTH)
+        const turnaroundTimeD   = TTime.days;
+        const turnaroundTimeH   = TTime.hours; 
 
         const pricePerUnit      = Number(rates);
         
@@ -149,20 +156,21 @@ console.log((error as Error).message)
 
         const dao = new BloodBankServiceDAO();
 
-        // dao.create(facilityID, service)
+        dao.create(facilityID, service)
         break;
       }
       case "Emergency Room": {
         try {
-          const phoneNumber       = validatePhone(phone);
+          validatePhone(phone);
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "phoneNumber",
             success: false
           });
         }
+        const phoneNumber       = validatePhone(phone);
 
         const service: CreateERServiceDTO = {
           phoneNumber
@@ -171,20 +179,21 @@ console.log((error as Error).message)
 
         const dao = new ERServiceDAO();
 
-        // dao.create(facilityID, service)
+        dao.create(facilityID, service)
         break;
       }
       case "ICU": {
         try {
-          const phoneNumber       = validatePhone(phone);
+          validatePhone(phone);
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "phoneNumber",
             success: false
           });
         }
+        const phoneNumber       = validatePhone(phone);
         const baseRate          = Number(rates);
 
         const service: CreateICUServiceDTO = {
@@ -195,7 +204,7 @@ console.log((error as Error).message)
 
         const dao = new ICUServiceDAO();
 
-        // dao.create(facilityID, service)
+        dao.create(facilityID, service)
         break;
       }
       case "Out Patient": {
@@ -203,17 +212,19 @@ console.log((error as Error).message)
         const price             = Number(rates);
 
         try {
-          const CTime             = validateTurnaroundCompletionTime(compTD, compTH)
-          const completionTimeD   = CTime.days
-          const completionTimeH   = CTime.hours
+          validateTurnaroundCompletionTime(compTD, compTH)
         } catch (error) {
-console.log((error as Error).message)
+
           return fail(422, {
             error: (error as Error).message,
             description: "completion",
             success: false
           });
         }
+
+        const CTime             = validateTurnaroundCompletionTime(compTD, compTH)
+        const completionTimeD   = CTime.days
+        const completionTimeH   = CTime.hours
 
         const acceptsWalkIns    = walkins === 'on';
 
@@ -228,7 +239,7 @@ console.log((error as Error).message)
 
         const dao = new OutpatientServiceDAO();
 
-        // dao.create(facilityID, service)
+        dao.create(facilityID, service)
         break;
       }
       default: {
