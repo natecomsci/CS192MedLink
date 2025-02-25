@@ -28,7 +28,7 @@ export function validateOpenClose(open: FormDataEntryValue | null, close: FormDa
   if (closeHour <= openHour && closeMin < openMin) {
     throw new Error("Closing time is earlier than opening time.");
   }
-  return {openingTime: String(open), closingTime: String(close)};
+  return {openingTime: String(open)+":00", closingTime: String(close)+":00"};
 }
 
 export function validateCoverageRadius(min: FormDataEntryValue | null, max: FormDataEntryValue | null): {minCoverageRadius: number, maxCoverageRadius: number} {
