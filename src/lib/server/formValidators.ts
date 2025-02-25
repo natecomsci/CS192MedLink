@@ -7,12 +7,16 @@ export function validatePhone(phone: FormDataEntryValue | null): string {
   const phoneNumber = (phone as string).split(' ').join('');
 
   if (phoneNumber.slice(0, 4) !== "+639" && phoneNumber.slice(0, 2) !== "09") {
-    console.log(phoneNumber.slice(0, 4), phoneNumber.slice(0, 2), phoneNumber.length)
     throw new Error("Phone Number country code is not in the right format. (use either +639 or 09)");
   }
 
+
   if ((phoneNumber.slice(0, 4) === "+639" && phoneNumber.length !==13) && (phoneNumber.slice(0, 2) !== "09" && phoneNumber.length !== 11)) {
     throw new Error("Phone Number length is not correct");
+  }
+
+  if (!(/[0-9]{9}/).test(phoneNumber.slice(-9))) {
+    throw new Error("Phone Number must only be numeric");
   }
 
   return phoneNumber;
@@ -20,11 +24,10 @@ export function validatePhone(phone: FormDataEntryValue | null): string {
 
 async function hasMXRecords(domain: string): Promise<boolean> {
   try {
-      const records = await dns.resolveMx(domain);
-      return records.length > 0;
+    const records = await dns.resolveMx(domain);
+    return records.length > 0;
   } catch (error) {
-      console.error(`DNS lookup failed for ${domain}:`, error);
-      return false;
+    throw new Error(`DNS lookup failed for ${domain}: ${error}`);
   }
 }
 
@@ -33,25 +36,21 @@ export async function validateEmail(email: string): Promise<string | null> {
   const consecutiveDotsRegex = /\.\./;
 
   if (!email) {
-      console.log("Result: No email provided.");
-      return null;
+    throw new Error("Result: No email provided.");
   }
 
   const emailStr = email.trim();
 
   if (!emailRegex.test(emailStr) || consecutiveDotsRegex.test(emailStr)) {
-      console.log(`${emailStr} has an invalid format.`);
-      return null;
+    throw new Error(`${emailStr} has an invalid format.`);
   }
 
   const domain = emailStr.split("@")[1];
 
   if (!(await hasMXRecords(domain))) {
-      console.log(`${domain} is not a valid domain, so ${emailStr} has an invalid format.`);
-      return null;
+    throw new Error(`${domain} is not a valid domain, so ${emailStr} has an invalid format.`);
   }
 
-  console.log(`${emailStr} has a valid format.`);
   return emailStr;
 }
 
