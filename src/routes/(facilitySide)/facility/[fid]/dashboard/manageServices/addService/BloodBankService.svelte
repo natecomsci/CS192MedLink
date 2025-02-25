@@ -1,4 +1,7 @@
-<script>
+<script lang="ts">
+    import type { PageProps } from './$types';
+    let { data, form }: PageProps = $props();
+
     let opensAt = $state('');
     let closesAt = $state('');
     let phone = $state('');
@@ -17,7 +20,10 @@
                     type="tel"
                     value="+63 9"
                     required 
-                    />
+                />  
+                {#if form?.description === "phoneNumber"}
+                    <p class="error">{form.error}</p>
+                {/if}
             </label>
         </div>
 
@@ -40,6 +46,9 @@
                         value="16:00" 
                         required
                     >
+                    {#if form?.description === "openClose"}
+                        <p class="error">{form.error}</p>
+                    {/if}
                 </div>
             </label>
         </div>
@@ -52,10 +61,11 @@
                     type="number" 
                     bind:value={price1} 
                     class="border p-2 rounded w-full" 
-                    placeholder="Price" />
+                    placeholder="Price" 
+                    required
+                />
             </label>
         </div>
-
 
         <!-- Turnaround Time -->
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
@@ -67,18 +77,22 @@
                         name="turnaroundDays"
                         class="border p-2 rounded  w-30" 
                         placeholder="Days" 
-                        required />
+                        required 
+                    />
                     Days
                 
                     <input 
-                    type="number" 
-                    name="turnaroundHours"
-                    class="border p-2 rounded  w-30" 
-                    placeholder="Hours" 
-                    required
+                        type="number" 
+                        name="turnaroundHours"
+                        class="border p-2 rounded  w-30" 
+                        placeholder="Hours" 
+                        required
                     />
                     Hours
                 </div>
+                {#if form?.description === "turnaround"}
+                    <p class="error">{form.error}</p>
+                {/if}
             </label>
         </div>
 

@@ -2,31 +2,24 @@
 
   import type { PageProps } from './$types';
 
-  import Ambulance from './Ambulance.svelte';
   import AmbulanceService from './AmbulanceService.svelte';
-  import BloodBank from './BloodBank.svelte';
   import BloodBankService from './BloodBankService.svelte';
-  import ER from './ER.svelte';
   import ERService from './ERService.svelte';
-  import ICU from './ICU.svelte';
   import ICUService from './ICUService.svelte';
-  import Outpatient from './Outpatient.svelte';
   import OutpatientService from './OutpatientService.svelte';
 
-  let { data }: PageProps = $props();
+  import { enhance } from '$app/forms';
+
+  let { data, form }: PageProps = $props();
 
   let serviceType: String = $state('');
   let division: String = $state('');
 </script>
-<!-- 
-<h1 class="text-3xl font-bold underline">
-  Add Service
-</h1>
-
-<h3>{serviceType}</h3>
- -->
-<form 
-    method="POST"
+ 
+ <form 
+    method="POST" 
+    action="?/create"
+    use:enhance
     class="grid grid-cols-1 bg-gray-400 bg-white m-6 space-y-2 rounded-2xl p-2 shadow  drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
   >
   <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border bg-black border-black">
@@ -50,7 +43,7 @@
 
         <label class="mt-4 text-gray-700">
           Division
-          <select bind:value={division} required class="border p-2 rounded w-full">
+          <select bind:value={division} class="border p-2 rounded w-full">
               <option>Division</option>
               <option>Division 1</option>
               <option>Division 2</option>
@@ -72,16 +65,16 @@
         class="grid grid-cols-1"
       >
         {#if serviceType == "Ambulance"}
-          <AmbulanceService/>
+          <AmbulanceService {data} {form}/>
         {:else if serviceType == "Blood Bank"}
           <!-- <AmbulanceService/> -->
-          <BloodBankService/>
+          <BloodBankService {data} {form}/>
         {:else if serviceType == "Emergency Room"}
-          <ERService/>
+          <ERService {data} {form}/>
         {:else if serviceType == "ICU"}
-          <ICUService/>
+          <ICUService {data} {form}/>
         {:else if serviceType == "Outpatient"}
-          <OutpatientService/>
+          <OutpatientService {data} {form}/>
         {/if}
       </label>
     </div>

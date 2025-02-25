@@ -1,6 +1,7 @@
 <script lang="ts">
-  import type { RegionDTO, POrCDTO, COrMDTO, BrgyDTO } from '$lib/server/dtos';
+  import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib/server/dtos';
   import type { PageProps } from './$types';
+  import { enhance } from '$app/forms';
   
 
   let region: String = $state('Region');
@@ -18,8 +19,7 @@
   let enableBarangays = $state(false);
   let enableStreet = $state(false);
 
-
-  let { data }: PageProps = $props();
+  let { data, form }: PageProps = $props();
 
   const get_ = async (scope: String) => {
     let body = JSON.stringify({})
@@ -89,6 +89,7 @@
 <form
   class="grid grid-cols-1 bg-gray-400 m-6 space-y-2 rounded-2xl p-6"
   method="POST" 
+  use:enhance
 >
   <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
   
@@ -96,7 +97,7 @@
     Facility Photo
     <input 
       name="facilityImage"
-      type="text" 
+      type="file" 
       placeholder="insert link to image..." 
       class="text-white bg-purple-700 rounded-2xl p-2 m-2"
     >
@@ -165,6 +166,9 @@
         class="bg-gray-500 text-white"
       >
 
+      {#if form?.description === "street"}
+          <p class="error">{form.error}</p>
+      {/if}
     </div>
     <button type="submit">Submit</button>
     <a href="../dashboard">Cancel</a>

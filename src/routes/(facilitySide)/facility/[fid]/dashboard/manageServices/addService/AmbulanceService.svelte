@@ -1,4 +1,7 @@
-<script>
+<script lang='ts'>
+    import type { PageProps } from './$types';
+    let { data, form }: PageProps = $props();
+
     let opensAt = $state('');
     let closesAt = $state('');
     let phone = $state('');
@@ -10,7 +13,16 @@
         <!-- Phone Number -->
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
             <label class="block text-gray-700">Phone No.
-                <input type="text" class="border p-2 rounded w-full" placeholder="Phone No." />
+                <input 
+                    name="phoneNumber"
+                    type="text" 
+                    class="border p-2 rounded w-full" 
+                    placeholder="Phone No." 
+                    required 
+                />
+                {#if form?.description === "phoneNumber"}
+                    <p class="error">{form.error}</p>
+                {/if}
             </label>
         </div>
 
@@ -33,6 +45,9 @@
                     value="16:00" 
                     required
                     >
+                    {#if form?.description === "openClose"}
+                        <p class="error">{form.error}</p>
+                    {/if}
                 </div>
             </label>
         </div>
@@ -46,7 +61,7 @@
                     class="border p-2 rounded w-full" 
                     placeholder="Price"
                     required 
-                    />
+                />
             </label>
         </div>
 
@@ -77,6 +92,9 @@
                         >
                         km
                     </label>
+                    {#if form?.description === "coverage"}
+                        <p class="error">{form.error}</p>
+                    {/if}
                 </div>
             </label>
         </div>
@@ -85,6 +103,7 @@
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
             <label class="block text-gray-700">Mileage Rate
             <input 
+                name="mileageRate" 
                 type="number" 
                 class="border p-2 rounded w-full" 
                 placeholder="Mileage Rate" />
