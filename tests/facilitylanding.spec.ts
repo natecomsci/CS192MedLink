@@ -33,7 +33,7 @@ test.describe('Facility Page UI Tests', () => {
   });
 
   test('Check if "Hide" button is present', async ({ page }) => {
-    await expect(page.getByText('show', { exact: true })).toBeVisible();
+    await expect(page.getByText('Show', { exact: true })).toBeVisible();
   });
 
   test('Check if "Sign In" button is present', async ({ page }) => {
