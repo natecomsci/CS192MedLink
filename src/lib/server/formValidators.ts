@@ -37,7 +37,7 @@ export function validateCoverageRadius(min: FormDataEntryValue | null, max: Form
     throw new Error("No minimum and maximum coverage radius provided.");
   }
 
-  if (Number(max) < Number(max)) {
+  if (Number(max) < Number(min)) {
     throw new Error("Max is less than min coverage radius.");
   }
   return {minCoverageRadius: Number(min), maxCoverageRadius: Number(max)};
