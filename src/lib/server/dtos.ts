@@ -47,8 +47,8 @@ export interface M_UpdateGenInfoFacilityDTO {
   phoneNumber       : string;
   facilityType      : FacilityType;
   ownership         : Ownership;
-  bookingSystem     : string;
-  acceptedProviders : string;
+  bookingSystem?    : string;
+  acceptedProviders : Provider[];
 }
 
 export interface M_UpdatePasswordFacilityDTO {

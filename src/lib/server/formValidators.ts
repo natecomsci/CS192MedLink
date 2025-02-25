@@ -1,3 +1,12 @@
+function convertTimeStringToDate(timeString: string): Date {
+  const [hours, minutes, seconds] = timeString.split(":").map(Number);
+  const date = new Date();
+  date.setUTCHours(hours, minutes, seconds, 0); // Ensure it's in UTC
+  return date;
+}
+
+// ^ chat
+
 export function validatePhone(phone: FormDataEntryValue | null): string {
   if (!phone) {
     throw new Error("No phone number provided.");

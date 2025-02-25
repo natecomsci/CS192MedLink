@@ -298,6 +298,7 @@ export class AmbulanceServiceDAO {
         data: { ...data, facility: { connect: { facilityID } } }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not create AmbulanceService.");
     }
   }
@@ -436,6 +437,7 @@ export class BloodBankServiceDAO {
       await bloodTypeMappingDAO.createBloodTypeMapping(facilityID);
 
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not create BloodBankService.");
     }
   }
@@ -503,6 +505,7 @@ export class ERServiceDAO {
         data: { ...data, facility: { connect: { facilityID } } }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not create ERService.");
     }
   }
@@ -569,6 +572,7 @@ export class ICUServiceDAO {
         data: { ...data, facility: { connect: { facilityID } } }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not create ICUService.");
     }
   }
@@ -638,6 +642,7 @@ export class OutpatientServiceDAO {
 
       return outpatientServices;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get OutpatientServices.");
     }
   }

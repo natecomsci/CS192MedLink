@@ -52,8 +52,8 @@ function getProviderArray(formData: FormData, field: string): Provider[] {
 export function mapFDataToCAmbulanceServiceDTO(formData: FormData): CreateAmbulanceServiceDTO {
   return {
     phoneNumber       : getField(formData, "phoneNumber") as string,
-    openingTime       : getField(formData, "opening") as string,
-    closingTime       : getField(formData, "closing") as string,
+    openingTime       : getField(formData, "opening") as Date, // to fix
+    closingTime       : getField(formData, "closing") as Date, // to fix
     baseRate          : getNumber(formData, "price"),
     minCoverageRadius : getNumber(formData, "minCoverageRadius"),
     mileageRate       : getNumber(formData, "mileageRate"),
@@ -64,8 +64,8 @@ export function mapFDataToCAmbulanceServiceDTO(formData: FormData): CreateAmbula
 export function mapFDataToCBloodBankServiceDTO(formData: FormData): CreateBloodBankServiceDTO {
   return {
     phoneNumber     : getField(formData, "phoneNumber") as string,
-    openingTime     : getField(formData, "opening") as string,
-    closingTime     : getField(formData, "closing") as string,
+    openingTime     : getField(formData, "opening") as Date, // to fix
+    closingTime     : getField(formData, "closing") as Date, // to fix
     pricePerUnit    : getNumber(formData, "price"),
     turnaroundTimeD : getNumber(formData, "turnaroundDays"),
     turnaroundTimeH : getNumber(formData, "turnaroundHours"),
