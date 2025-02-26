@@ -75,6 +75,8 @@
                         type="number"
                         placeholder=1
                         class = "border p-2 rounded w-20"
+                        step=0.01
+                        min=0
                         required
                         >
                         km
@@ -87,6 +89,8 @@
                         type="number"
                         placeholder=1
                         class = "border p-2 rounded w-20"
+                        step=0.01
+                        min=0
                         required
                         >
                         km
