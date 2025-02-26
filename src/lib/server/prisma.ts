@@ -620,12 +620,12 @@ export class FacilityDAO {
           },
           data: {
             name              : data.name,
-            photo             : data.photo,
+            photo             : data.photo ?? "https://placehold.co/1920x1440/png",
             email             : data.email,
             phoneNumber       : data.phoneNumber,
             facilityType      : data.facilityType,
             ownership         : data.ownership,
-            bookingSystem     : data.bookingSystem,
+            bookingSystem     : data.bookingSystem ?? "",
             acceptedProviders : data.acceptedProviders,
           }
         }),

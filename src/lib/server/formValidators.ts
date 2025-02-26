@@ -1,45 +1,38 @@
 import { promises as dns } from "dns";
 
 export function validatePhone(phone: FormDataEntryValue | null): string {
-  const phoneNumberFormat = /^\+?[\d\s]+$/;
-  const consecutiveSpaces = /\s{2,}/;
-
   if (!phone) {
     throw new Error("No phone number provided.");
   }
 
   const phoneNumberStr = (phone as string).trim();
 
-  if (!phoneNumberFormat.test(phoneNumberStr)) {
+  const validChars = /^\+?\d[\d\s]*$/;
+
+  if (!validChars.test(phoneNumberStr)) {
     throw new Error(`(${phoneNumberStr}) Phone number contains invalid characters.`);
   }
 
-  if (consecutiveSpaces.test(phoneNumberStr)) {
-    throw new Error(`(${phoneNumberStr}) Phone number contains consecutive spaces.`);
-  }
-
-  const phoneNumberNoSpaces = phoneNumberStr.split(" ").join("");
-
-  /*
-  console.log(
-    phoneNumberNoSpaces.slice(0, 4),
-    phoneNumberNoSpaces.slice(0, 2),
-    phoneNumberNoSpaces.length
-  );
-  */
+  const digits = phoneNumberStr.replace(/\s+/g, "");
   
-  if (phoneNumberNoSpaces.startsWith("+639")) {
-    if (phoneNumberNoSpaces.length !== 13) {
+  if (digits.startsWith("+639")) {
+    if (digits.length !== 13) {
       throw new Error(`(${phoneNumberStr}) Phone number length is incorrect for +639 format.`);
     }
 
-  } else if (phoneNumberNoSpaces.startsWith("09")) {
-    if (phoneNumberNoSpaces.length !== 11) {
+  } else if (digits.startsWith("09")) {
+    if (digits.length !== 11) {
       throw new Error(`(${phoneNumberStr}) Phone number length is incorrect for 09 format.`);
     }
 
   } else {
     throw new Error(`(${phoneNumberStr}) Phone number country code is neither in +639 nor the 09 format.`);
+  }
+
+  const validSpaces = /^\+639\d{2} \d{3} \d{4}$|^09\d{2} \d{3} \d{4}$/;
+
+  if (phoneNumberStr.includes(" ") && !validSpaces.test(phoneNumberStr)) {
+    throw new Error(`(${phoneNumberStr}) Phone number spacing is incorrect.`);
   }
 
   return phoneNumberStr;
