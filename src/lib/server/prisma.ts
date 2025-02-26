@@ -618,6 +618,7 @@ export class FacilityDAO {
         addressDAO.updateAddress(facilityID, data.address)
       ]);
     } catch (error) {
+      console.log("Details: ", error)
       throw new Error("Could not update general information for Facility.");
     }
   }  

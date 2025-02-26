@@ -1,119 +1,186 @@
 import { promises as dns } from "dns";
 
 export function validatePhone(phone: FormDataEntryValue | null): string {
+  const phoneNumberFormat = /^\+?[\d\s]+$/;
+  const consecutiveSpaces = /\s{2,}/;
+
   if (!phone) {
     throw new Error("No phone number provided.");
   }
-  const phoneNumber = (phone as string).split(' ').join('');
 
-  if (phoneNumber.slice(0, 4) !== "+639" && phoneNumber.slice(0, 2) !== "09") {
-    throw new Error("Phone Number country code is not in the right format. (use either +639 or 09)");
+  const phoneNumberStr = (phone as string).trim();
+
+  if (!phoneNumberFormat.test(phoneNumberStr)) {
+    throw new Error(`(${phoneNumberStr}) Phone number contains invalid characters.`);
   }
 
-
-  if ((phoneNumber.slice(0, 4) === "+639" && phoneNumber.length !==13) && (phoneNumber.slice(0, 2) !== "09" && phoneNumber.length !== 11)) {
-    throw new Error("Phone Number length is not correct");
+  if (consecutiveSpaces.test(phoneNumberStr)) {
+    throw new Error(`(${phoneNumberStr}) Phone number contains consecutive spaces.`);
   }
 
-  if (!(/[0-9]{9}/).test(phoneNumber.slice(-9))) {
-    throw new Error("Phone Number must only be numeric");
+  const phoneNumberNoSpaces = phoneNumberStr.split(" ").join("");
+
+  /*
+  console.log(
+    phoneNumberNoSpaces.slice(0, 4),
+    phoneNumberNoSpaces.slice(0, 2),
+    phoneNumberNoSpaces.length
+  );
+  */
+  
+  if (phoneNumberNoSpaces.startsWith("+639")) {
+    if (phoneNumberNoSpaces.length !== 13) {
+      throw new Error(`(${phoneNumberStr}) Phone number length is incorrect for +639 format.`);
+    }
+
+  } else if (phoneNumberNoSpaces.startsWith("09")) {
+    if (phoneNumberNoSpaces.length !== 11) {
+      throw new Error(`(${phoneNumberStr}) Phone number length is incorrect for 09 format.`);
+    }
+
+  } else {
+    throw new Error(`(${phoneNumberStr}) Phone number country code is neither in +639 nor the 09 format.`);
   }
 
-  return phoneNumber;
+  return phoneNumberStr;
 }
 
 async function hasMXRecords(domain: string): Promise<boolean> {
   try {
-    const records = await dns.resolveMx(domain);
-    return records.length > 0;
+      const records = await dns.resolveMx(domain);
+      return records.length > 0;
   } catch (error) {
-    throw new Error(`DNS lookup failed for ${domain}: ${error}`);
+      return false;
   }
 }
 
-export async function validateEmail(emailData: FormDataEntryValue | null): Promise<string> {
-  if (!emailData) {
-    throw new Error("No email provided.");
-  }
-  const email = emailData as string
-
-  const emailRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const consecutiveDotsRegex = /\.\./;
+export async function validateEmail(email: string): Promise<string> {
+  const emailFormat = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const consecutiveDots = /\.\./;
 
   if (!email) {
-    throw new Error("Result: No email provided.");
+    throw new Error("No email provided.");
   }
 
   const emailStr = email.trim();
 
-  if (!emailRegex.test(emailStr) || consecutiveDotsRegex.test(emailStr)) {
-    throw new Error(`${emailStr} has an invalid format.`);
+  if (!emailFormat.test(emailStr)) {
+    throw new Error(`(${emailStr}) Email contains invalid characters.`);
+  }
+
+  if (consecutiveDots.test(emailStr)) {
+    throw new Error(`(${emailStr}) Email contains consecutive dots.`);
   }
 
   const domain = emailStr.split("@")[1];
 
   if (!(await hasMXRecords(domain))) {
-    throw new Error(`${domain} is not a valid domain, so ${emailStr} has an invalid format.`);
+    throw new Error(`(${domain}) Email domain is invalid.`);
   }
 
   return emailStr;
 }
 
-export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: Date, closingTime: Date} {
+export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: string, closingTime: string} {
+  const timeFormat = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
   if (!open || !close) {
     throw new Error("No opening and closing time provided.");
   }
 
-  const openHour = Number(String(open).slice(0, 2))
-  const openMin = Number(String(open).slice(3, 5))
-  const closeHour = Number(String(close).slice(0, 2))
-  const closeMin = Number(String(close).slice(3, 5))
+  const openStr  = String(open).trim();
+  const closeStr = String(close).trim();
 
-  if (closeHour <= openHour && closeMin < openMin) {
-    throw new Error("Closing time is earlier than opening time.");
+  if (!timeFormat.test(openStr) || !timeFormat.test(closeStr)) {
+    throw new Error("Invalid time format. Use HH:MM (24-hour format).");
   }
-  return {openingTime: new Date("25 February 2025 "+String(open)+" UTC"), closingTime: new Date("25 February 2025 "+String(close)+" UTC")};
+
+  const openHour  = Number(openStr.slice(0, 2));
+  const openMin   = Number(openStr.slice(3, 5));
+  const closeHour = Number(closeStr.slice(0, 2));
+  const closeMin  = Number(closeStr.slice(3, 5));
+
+  if (closeHour < openHour || (closeHour === openHour && closeMin <= openMin)) {
+    throw new Error("Closing time must be later than opening time.");
+  }
+
+  const today = new Date().toISOString();
+
+  return {
+    openingTime: `${today} ${openStr} UTC`,
+    closingTime: `${today} ${closeStr} UTC`,
+  };
 }
 
 export function validateCoverageRadius(min: FormDataEntryValue | null, max: FormDataEntryValue | null): {minCoverageRadius: number, maxCoverageRadius: number} {
+  const floatFormat = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
+
   if (!min || !max) {
     throw new Error("No minimum and maximum coverage radius provided.");
   }
 
+  const minStr = String(min).trim();
+  const maxStr = String(max).trim();
+  
+  if (!floatFormat.test(minStr) || !floatFormat.test(maxStr)) {
+    throw new Error("Coverage radius must be a valid float with up to two decimal places.");
+  }
+
+  const minCoverageRadius = parseFloat(minStr);
+  const maxCoverageRadius = parseFloat(maxStr);
+
   if (Number(max) < Number(min)) {
     throw new Error("Max is less than min coverage radius.");
   }
-  return {minCoverageRadius: Number(min), maxCoverageRadius: Number(max)};
+  return { minCoverageRadius, maxCoverageRadius };
 }
 
 export function validateTurnaroundCompletionTime(days: FormDataEntryValue | null, hours: FormDataEntryValue | null): {days: number, hours: number} {
+  const integerFormat = /^[0-9]+$/;
+  
   if (!days || !hours) {
     throw new Error("No days or hours provided.");
   }
 
-  if (!Number.isInteger(Number(days)) || !!Number.isInteger(Number(hours))) {
-    throw new Error("Values must be integers");
+  const daysStr  = String(days).trim();
+  const hoursStr = String(hours).trim();
+
+  if (!integerFormat.test(daysStr) || !integerFormat.test(hoursStr)) {
+    throw new Error("Days and hours must be non-negative integers.");
   }
 
-  if (Number(days) < 0 && Number(hours) <= 0) {
-    throw new Error("Not enough time provided.");
+  const daysValue  = Number(daysStr);
+  const hoursValue = Number(hoursStr);
+
+  if (daysValue === 0 && hoursValue === 0) {
+    throw new Error("Total turnaround time must be greater than zero.");
   }
 
-  if (Number(hours) > 0) {
-    throw new Error("Hours must be between 0 and 23 (inclusive)");
+  if (hoursValue > 23) {
+    throw new Error("Hours must be between 0 and 23 (inclusive).");
   }
 
-  return {days: Number(days), hours: Number(hours)};
+  return { days: daysValue, hours: hoursValue };
 }
 
 export function validateStreet(street: FormDataEntryValue | null): string {
+  const streetFormat = /^[a-zA-Z0-9.,\- ]+$/;
+
   if (!street) {
     throw new Error("No street address provided.");
   }
 
-  if (String(street).length > 100) {
-    throw new Error("Street address is too long. Must not exceed 100 characters");
+  let streetStr = String(street).trim();
+
+  if (!streetFormat.test(streetStr)) {
+    throw new Error(`(${streetStr}) Street address contains invalid characters.`);
   }
 
-  return String(street);
+  streetStr = streetStr.replace(/\s+/g, " ");
+
+  if (streetStr.length > 100) {
+    throw new Error(`(${streetStr}) Street address is too long. Must not exceed 100 characters.`);
+  }
+
+  return streetStr;
 }
