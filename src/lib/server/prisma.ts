@@ -583,6 +583,7 @@ export class FacilityDAO {
       return {
         name              : facility.name,
         photo             : facility.photo,
+        email             : facility.email,
         address           : address,
         phoneNumber       : facility.phoneNumber,
         facilityType      : facility.facilityType,
@@ -605,6 +606,7 @@ export class FacilityDAO {
           data: {
             name              : data.name,
             photo             : data.photo,
+            email             : data.email,
             phoneNumber       : data.phoneNumber,
             facilityType      : data.facilityType,
             ownership         : data.ownership,

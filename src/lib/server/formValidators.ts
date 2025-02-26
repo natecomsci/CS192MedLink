@@ -31,7 +31,12 @@ async function hasMXRecords(domain: string): Promise<boolean> {
   }
 }
 
-export async function validateEmail(email: string): Promise<string | null> {
+export async function validateEmail(emailData: FormDataEntryValue | null): Promise<string> {
+  if (!emailData) {
+    throw new Error("No email provided.");
+  }
+  const email = emailData as string
+
   const emailRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   const consecutiveDotsRegex = /\.\./;
 
@@ -54,7 +59,7 @@ export async function validateEmail(email: string): Promise<string | null> {
   return emailStr;
 }
 
-export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: string, closingTime: string} {
+export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: Date, closingTime: Date} {
   if (!open || !close) {
     throw new Error("No opening and closing time provided.");
   }
@@ -67,7 +72,7 @@ export function validateOpenClose(open: FormDataEntryValue | null, close: FormDa
   if (closeHour <= openHour && closeMin < openMin) {
     throw new Error("Closing time is earlier than opening time.");
   }
-  return {openingTime: "25 February 2025 "+String(open)+" UTC", closingTime: "25 February 2025 "+String(close)+" UTC"};
+  return {openingTime: new Date("25 February 2025 "+String(open)+" UTC"), closingTime: new Date("25 February 2025 "+String(close)+" UTC")};
 }
 
 export function validateCoverageRadius(min: FormDataEntryValue | null, max: FormDataEntryValue | null): {minCoverageRadius: number, maxCoverageRadius: number} {

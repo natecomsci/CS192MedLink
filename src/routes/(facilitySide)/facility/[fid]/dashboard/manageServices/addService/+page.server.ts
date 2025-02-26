@@ -73,10 +73,6 @@ export const actions = {
         
         const mileageRate       = Number(mileRate);
         let { openingTime, closingTime }   = validateOpenClose(open, close)
-
-        openingTime = (new Date(openingTime)).toISOString()
-        closingTime = (new Date(closingTime)).toISOString()
-        console.log(openingTime, closingTime)
         
         try {
           validateCoverageRadius(minCover, maxCover)
@@ -257,4 +253,4 @@ export const actions = {
 
     return { success: true };
   }
-};
+} satisfies Actions;
