@@ -1,13 +1,67 @@
 import { promises as dns } from "dns";
 
-export function validateName(name: FormDataEntryValue | null): string {
+export function validateFloat(value: FormDataEntryValue | null, attribute: string): number {
+  if (!value) {
+    throw new Error(`No ${attribute} provided.`);
+  }
+
+  const floatStr = String(value).trim();
+
+  const floatFormat = /^(0|[1-9]\d*)(\.\d{1,2})?$|^0?\.\d{1,2}$/;
+
+  if (!floatFormat.test(floatStr)) {
+    throw new Error(`${attribute} must be a valid number with up to two decimal places.`);
+  }
+
+  return Number(floatStr);
+}
+
+export function validateInteger(value: FormDataEntryValue | null, attribute: string): number {
+  if (!value) {
+    throw new Error(`No ${attribute} provided.`);
+  }
+
+  const integerStr = String(value).trim();
+
+  const integerFormat = /^(0|[1-9]\d*)$/;
+
+  if (!integerFormat.test(integerStr)) {
+    throw new Error(`${attribute} must be a non-negative integer.`);
+  }
+
+  return Number(integerStr);
+}
+
+export function validatePersonName(name: FormDataEntryValue | null): string {
   if (!name) {
     throw new Error("No name provided.");
   }
 
   let nameStr = String(name).trim();
 
-  const validChars = /^[a-zA-Z0-9\s]+$/;
+  const validChars = /^[a-zA-Z0-9\s.'’-]+$/;
+
+  if (!validChars.test(nameStr)) {
+    throw new Error(`(${nameStr}) Name contains invalid characters.`);
+  }
+
+  nameStr = nameStr.replace(/\s+/g, " ");
+
+  if (nameStr.length > 50) {
+    throw new Error(`(${nameStr}) Name must not exceed 50 characters.`);
+  }
+
+  return nameStr;
+}
+
+export function validateFacilityName(name: FormDataEntryValue | null): string {
+  if (!name) {
+    throw new Error("No name provided.");
+  }
+
+  let nameStr = String(name).trim();
+
+  const validChars = /^[a-zA-Z0-9\s.'’&+-]+$/;
 
   if (!validChars.test(nameStr)) {
     throw new Error(`(${nameStr}) Name contains invalid characters.`);
@@ -27,7 +81,7 @@ export function validatePhone(phone: FormDataEntryValue | null): string {
     throw new Error("No phone number provided.");
   }
 
-  const phoneNumberStr = (phone as string).trim();
+  let phoneNumberStr = (phone as string).trim();
 
   const validChars = /^\+?\d[\d\s]*$/;
 
@@ -51,11 +105,7 @@ export function validatePhone(phone: FormDataEntryValue | null): string {
     throw new Error(`(${phoneNumberStr}) Phone number country code is neither in +639 nor the 09 format.`);
   }
 
-  const validSpaces = /^\+639\d{2} \d{3} \d{4}$|^09\d{2} \d{3} \d{4}$/;
-
-  if (phoneNumberStr.includes(" ") && !validSpaces.test(phoneNumberStr)) {
-    throw new Error(`(${phoneNumberStr}) Phone number spacing is incorrect.`);
-  }
+  phoneNumberStr = phoneNumberStr.replace(/\s+/g, " ");
 
   return phoneNumberStr;
 }
@@ -98,7 +148,7 @@ export async function validateEmail(email: string): Promise<string> {
   return emailStr;
 }
 
-export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: Date, closingTime: Date} {
+export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): { openingTime: Date, closingTime: Date } {
   if (!open || !close) {
     throw new Error("No opening and closing time provided.");
   }
@@ -127,22 +177,9 @@ export function validateOpenClose(open: FormDataEntryValue | null, close: FormDa
   return { openingTime, closingTime };  
 }
 
-export function validateCoverageRadius(min: FormDataEntryValue | null, max: FormDataEntryValue | null): {minCoverageRadius: number, maxCoverageRadius: number} {
-  if (!min || !max) {
-    throw new Error("No minimum and maximum coverage radius provided.");
-  }
-
-  const minStr = String(min).trim();
-  const maxStr = String(max).trim();
-  
-  const floatFormat = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
-
-  if (!floatFormat.test(minStr) || !floatFormat.test(maxStr)) {
-    throw new Error("Coverage radius must be a valid number with up to two decimal places.");
-  }
-
-  const minCoverageRadius = parseFloat(minStr);
-  const maxCoverageRadius = parseFloat(maxStr);
+export function validateCoverageRadius(min: FormDataEntryValue | null, max: FormDataEntryValue | null): { minCoverageRadius: number; maxCoverageRadius: number } {
+  const minCoverageRadius = validateFloat(min, "minimum coverage radius");
+  const maxCoverageRadius = validateFloat(max, "maximum coverage radius");
 
   if (maxCoverageRadius < minCoverageRadius) {
     throw new Error("Maximum coverage radius must be greater than or equal to minimum coverage radius.");
@@ -151,22 +188,9 @@ export function validateCoverageRadius(min: FormDataEntryValue | null, max: Form
   return { minCoverageRadius, maxCoverageRadius };
 }
 
-export function validateTurnaroundCompletionTime(days: FormDataEntryValue | null, hours: FormDataEntryValue | null): {days: number, hours: number} {  
-  if (!days || !hours) {
-    throw new Error("No days or hours provided.");
-  }
-
-  const daysStr  = String(days).trim();
-  const hoursStr = String(hours).trim();
-
-  const integerFormat = /^(0|[1-9]\d*)$/;
-
-  if (!integerFormat.test(daysStr) || !integerFormat.test(hoursStr)) {
-    throw new Error("Days and hours must be non-negative integers.");
-  }
-
-  const daysValue  = Number(daysStr);
-  const hoursValue = Number(hoursStr);
+export function validateTurnaroundCompletionTime(days: FormDataEntryValue | null, hours: FormDataEntryValue | null): { days: number; hours: number } {  
+  const daysValue  = validateInteger(days, "Days");
+  const hoursValue = validateInteger(hours, "Hours");
 
   if (daysValue === 0 && hoursValue === 0) {
     throw new Error("Total turnaround time must be greater than zero.");

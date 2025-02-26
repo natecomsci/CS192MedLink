@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 
 import { Provider, ServiceType } from '@prisma/client'
 
@@ -114,30 +114,26 @@ export class BloodTypeMappingDAO {
     }
   }
 
-  async createBloodTypeMapping(facilityID: string): Promise<void> {
-    try {
-      await prisma.bloodTypeMapping.create({
-        data: {
-          A_P  : false,
-          A_N  : false,
-          B_P  : false,
-          B_N  : false,
-          O_P  : false,
-          O_N  : false,
-          AB_P : false,
-          AB_N : false,
-
-          bloodBankService: {
-            connect: {
-              facilityID
-            }
+  async createBloodTypeMapping(facilityID: string, tx: Prisma.TransactionClient): Promise<void> {
+    await tx.bloodTypeMapping.create({
+      data: {
+        A_P  : false,
+        A_N  : false,
+        B_P  : false,
+        B_N  : false,
+        O_P  : false,
+        O_N  : false,
+        AB_P : false,
+        AB_N : false,
+  
+        BloodBankService: {
+          connect: {
+            facilityID
           }
         }
-      });
-    } catch (error) {
-      throw new Error("Could not create BloodTypeAvailability.");
-    }
-  }  
+      }
+    });
+  }
 
   updateBloodTypeMapping(facilityID: string, data: BloodTypeMappingDTO): Promise<BloodTypeMapping> {
     return prisma.bloodTypeMapping.update({
@@ -183,18 +179,19 @@ export class BloodBankServiceDAO {
 
   async create(facilityID: string, data: CreateBloodBankServiceDTO): Promise<void> {
     try {
-      await prisma.bloodBankService.create({
-        data: { ...data, facility: { connect: { facilityID } } }
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        await tx.bloodBankService.create({
+          data: { ...data, facility: { connect: { facilityID } } }
+        });
+  
+        await bloodTypeMappingDAO.createBloodTypeMapping(facilityID, tx);
       });
-
-      await bloodTypeMappingDAO.createBloodTypeMapping(facilityID);
-
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not create BloodBankService.");
     }
   }
-
+  
   async update(facilityID: string, data: UpdateBloodBankServiceDTO): Promise<void> {
     try {
       await prisma.$transaction([
