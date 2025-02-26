@@ -98,7 +98,7 @@ export const load: PageServerLoad = async () => {
 };
 
 export const actions = {
-  default: async ({ cookies, request }) => {
+  update: async ({ cookies, request }) => {
     const data = await request.formData();
     const facilityID = cookies.get('facilityID')
 
@@ -179,6 +179,8 @@ export const actions = {
       bookingSystem      ,
       acceptedProviders
     }
+
+    console.log(genInfo)
 
     const facilityDAO = new FacilityDAO();
 
