@@ -8,7 +8,8 @@ import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, 
 import { FacilityDAO } from '$lib/server/prisma';
 
 export const load: PageServerLoad = async ({ cookies }) => {
-  let serviceTypes: ServiceType[] = [  "CONSULTATION_GENERAL",
+  let serviceTypes: ServiceType[] = [
+                        "CONSULTATION_GENERAL",
                         "BLOOD_CHEMISTRY_BUA",
                         "HEMATOLOGY_CBC",
                         "CLINICAL_FECALYSIS",  
@@ -46,8 +47,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   const services: facilityServices = await facilityDAO.getServicesByFacility(facilityID);
 
-  let availableServices = []
-  let availableOPServices = []
+  let availableServices = ["None"]
+  let availableOPServices = ["None"]
 
   for (var [key, value] of Object.entries(services)) {
     if (value === null) {
@@ -84,7 +85,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (availableOPServices.length !== 0) {
     availableServices.push("Outpatient")
   }
-
+  // console.log(availableServices)
+  // console.log(availableOPServices)
   return {
     availableServices,
     availableOPServices
@@ -292,7 +294,7 @@ export const actions = {
         dao.create(facilityID, service)
         break;
       }
-      case "Out Patient": {
+      case "Outpatient": {
         const OPserviceType     = OPType as ServiceType;
         const price             = Number(rates);
 
