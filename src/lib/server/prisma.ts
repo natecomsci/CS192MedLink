@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client'
 
 import { Provider, ServiceType } from '@prisma/client'
 
-import type { Facility, AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService } from '@prisma/client';
+import type { Address, Facility, AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService } from '@prisma/client';
 
 import type { BloodTypeMappingDTO, RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO } from './dtos';
 
@@ -135,26 +135,22 @@ export class BloodTypeMappingDAO {
     }
   }  
 
-  async updateBloodTypeMapping(facilityID: string, data: BloodTypeMappingDTO): Promise<void> {
-    try {
-      await prisma.bloodTypeMapping.update({
-        where: { 
-          facilityID 
-        },
-        data: {
-          A_P  : data.A_P,
-          A_N  : data.A_N,
-          B_P  : data.B_P,
-          B_N  : data.B_N,
-          O_P  : data.O_P,
-          O_N  : data.O_N,
-          AB_P : data.AB_P,
-          AB_N : data.AB_N,
-        }
-      });
-    } catch (error) {
-      throw new Error("Could not update BloodTypeMapping.");
-    }
+  updateBloodTypeMapping(facilityID: string, data: BloodTypeMappingDTO): Promise<BloodTypeMapping> {
+    return prisma.bloodTypeMapping.update({
+      where: { 
+        facilityID 
+      },
+      data: {
+        A_P  : data.A_P,
+        A_N  : data.A_N,
+        B_P  : data.B_P,
+        B_N  : data.B_N,
+        O_P  : data.O_P,
+        O_N  : data.O_N,
+        AB_P : data.AB_P,
+        AB_N : data.AB_N,
+      }
+    });
   }
 }
 
@@ -443,23 +439,19 @@ export class OutpatientServiceDAO {
 }
 
 export class AddressDAO {
-  async updateAddress(facilityID: string, data: AddressDTO): Promise<void> {
-    try {
-      await prisma.address.update({
-        where: { 
-          facilityID 
-        },
-        data: {
-          regionID : data.regionID,
-          pOrCID   : data.pOrCID,
-          cOrMID   : data.cOrMID,
-          brgyID   : data.brgyID,
-          street   : data.street,
-        }
-      });
-    } catch (error) {
-      throw new Error("Could not update Address.");
-    }
+  updateAddress(facilityID: string, data: AddressDTO): Promise<Address> {
+    return prisma.address.update({
+      where: { 
+        facilityID 
+      },
+      data: {
+        regionID : data.regionID,
+        pOrCID   : data.pOrCID,
+        cOrMID   : data.cOrMID,
+        brgyID   : data.brgyID,
+        street   : data.street,
+      }
+    });
   }
 
   async getRegions(): Promise<RegionDTO[]> {
