@@ -1,12 +1,6 @@
 <script lang='ts'>
     import type { PageProps } from './$types';
     let { data, form }: PageProps = $props();
-
-    let opensAt = $state('');
-    let closesAt = $state('');
-    let phone = $state('');
-    let price1 = $state('');
-    let mileageRate = $state('');
 </script>
 
 <div class="flex-1 p-6 overflow-y-auto border border-green-100">
@@ -60,8 +54,13 @@
                     type="number" 
                     class="border p-2 rounded w-full" 
                     placeholder="Price"
+                    step=0.01
+                    min=0
                     required 
                 />
+                {#if form?.description === "price"}
+                    <p class="error">{form.error}</p>
+                {/if}
             </label>
         </div>
 
@@ -102,13 +101,18 @@
         <!-- Mileage Rate -->
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
             <label class="block text-gray-700">Mileage Rate
-            <input 
-                name="mileageRate" 
-                type="number" 
-                class="border p-2 rounded w-full" 
-                placeholder="Mileage Rate" 
-                required 
-            />
+                <input 
+                    name="mileageRate" 
+                    type="number" 
+                    class="border p-2 rounded w-full" 
+                    placeholder="Mileage Rate" 
+                    step=0.01
+                    min=0
+                    required 
+                />
+                {#if form?.description === "mileRate"}
+                    <p class="error">{form.error}</p>
+                {/if}
             </label>
         </div>
 

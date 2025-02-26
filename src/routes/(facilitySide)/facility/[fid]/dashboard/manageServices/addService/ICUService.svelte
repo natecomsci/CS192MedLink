@@ -28,8 +28,13 @@
                     type="number" 
                     class="border p-2 rounded w-full" 
                     placeholder="Price" 
+                    step=0.01
+                    min=0
                     required 
                 />
+                {#if form?.description === "price"}
+                    <p class="error">{form.error}</p>
+                {/if}
             </label>
         </div>
     </div>
