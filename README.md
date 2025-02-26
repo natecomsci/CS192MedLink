@@ -13,6 +13,7 @@ under the guidance of Prof. Ma. Rowena C. Solamo for the AY 2024-2025.
 - `git clone` the repo
 - `cd` to the repo
 - `npm install` to install the dependencies
+- Create a `.env` file with the supabase and prisma keys
 - `npm run dev` or `npm run dev -- --open` to run the actual web app
 
 > In case of errors, run `npm install` then rerun command
