@@ -146,57 +146,24 @@ upInfo
             placeholder="Name"
             required /> 
         </label>
-            
-        <label>
-            Street
-            <input 
-            name="street"
-            type="text" 
-            bind:value={street}
-            class="border p-2 rounded w-full" 
-            disabled={!enableStreet}
-            placeholder="Name"
-            required /> 
-            {#if form?.description === "street"}
-                <p class="error">{form.error}</p>
-            {/if}
-        </label>
-
-
+          
         <!-- Meow More Address Info -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">        
             <label class="w-full">
-                Barangay
+                Region
                 <select 
-                    name="brgy" 
-                    bind:value={barangay} 
+                    name="region" 
+                    bind:value={region} 
+                    onchange={() => get_("province")}
                     required 
-                    onchange={() => enableStreet ? "" : enableStreet = !enableStreet}
-                    disabled={!enableBarangays}
                     class="border p-2 rounded w-full"
                 >
-                    {#each barangayList as { brgyID, name }}
-                        <option value={brgyID}>{name}</option>
-                    {/each}
+                {#each data.regions as { regionID, name }}
+                    <option value={regionID}>{name}</option>
+                {/each}
                 </select>
             </label>
-            
-            <label class="w-full">
-                City/Municipality
-                <select 
-                    name="city" 
-                    bind:value={city} 
-                    required 
-                    onchange={() => get_("brgy")}
-                    disabled={!enableCities}
-                    class="border p-2 rounded w-full"
-                >
-                    {#each cityList as { cOrMID, name }}
-                        <option value={cOrMID}>{name}</option>
-                    {/each}
-                </select>
-            </label>
-        
+          
             <label class="w-full">
                 Province
                 <select 
@@ -212,22 +179,54 @@ upInfo
                     {/each}
                 </select>
             </label>
-        
-            <label class="w-full">
-                Region
-                <select 
-                    name="region" 
-                    bind:value={region} 
-                    onchange={() => get_("province")}
-                    required 
-                    class="border p-2 rounded w-full"
-                >
-                {#each data.regions as { regionID, name }}
-                    <option value={regionID}>{name}</option>
+          
+          <label class="w-full">
+              City/Municipality
+              <select 
+                  name="city" 
+                  bind:value={city} 
+                  required 
+                  onchange={() => get_("brgy")}
+                  disabled={!enableCities}
+                  class="border p-2 rounded w-full"
+              >
+                  {#each cityList as { cOrMID, name }}
+                      <option value={cOrMID}>{name}</option>
+                  {/each}
+              </select>
+          </label>
+
+          <label class="w-full">
+            Barangay
+            <select 
+                name="brgy" 
+                bind:value={barangay} 
+                required 
+                onchange={() => enableStreet ? "" : enableStreet = !enableStreet}
+                disabled={!enableBarangays}
+                class="border p-2 rounded w-full"
+            >
+                {#each barangayList as { brgyID, name }}
+                    <option value={brgyID}>{name}</option>
                 {/each}
-                </select>
-            </label>
-        </div>        
+            </select>
+        </label>
+        </div>       
+        
+        <label>
+            Street
+            <input 
+            name="street"
+            type="text" 
+            bind:value={street}
+            class="border p-2 rounded w-full" 
+            disabled={!enableStreet}
+            placeholder="Name"
+            required /> 
+            {#if form?.description === "street"}
+                <p class="error">{form.error}</p>
+            {/if}
+        </label>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full items-center">
             <label class="w-full">
