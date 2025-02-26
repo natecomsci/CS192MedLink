@@ -2,15 +2,48 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from '$lib/server/dtos';
-import { ServiceType } from '@prisma/client';
+import { ServiceType, type OutpatientService } from '@prisma/client';
 import { validateCoverageRadius, validateOpenClose, validatePhone, validateTurnaroundCompletionTime } from '$lib/server/formValidators';
 import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO } from '$lib/server/prisma';
 import { FacilityDAO } from '$lib/server/prisma';
-import { type Cookies } from '@sveltejs/kit'; // Import Cookies as a type
 
 export const load: PageServerLoad = async ({ cookies }) => {
+  let serviceTypes: ServiceType[] = [  "CONSULTATION_GENERAL",
+                        "BLOOD_CHEMISTRY_BUA",
+                        "HEMATOLOGY_CBC",
+                        "CLINICAL_FECALYSIS",  
+                        "CLINICAL_URINALYSIS",
+                        "X_RAY_CHEST_PA",
+                        "X_RAY_C_SPINE",
+                        "X_RAY_T_SPINE",
+                        "X_RAY_L_SPINE",
+                        "ULTRASOUND_ABDOMINAL",
+                        "CT_SCAN_HEAD",
+                        "CT_SCAN_C_SPINE",
+                        "CT_SCAN_T_SPINE",
+                        "CT_SCAN_L_SPINE",
+                        "MRI_BRAIN",
+                        "DENTAL_SCALING",
+                        "THERAPY_PHYSICAL",
+                        "ONCOLOGY_CHEMOTHERAPY",
+                        "PROCEDURE_EEG",
+                        "PROCEDURE_ECG",
+                        "PROCEDURE_DIALYSIS",
+                        "PROCEDURE_COLONOSCOPY",
+                        "PROCEDURE_GASTROSCOPY",
+                        "PROCEDURE_LABOR_DELIVERY",
+                        "VACCINATION_COVID19"
+                      ]
+
   const facilityDAO = new FacilityDAO();
-  const facilityID = cookies.get('facilityID') ?? ''; // Provide default empty string
+  const facilityID = cookies.get('facilityID'); 
+
+  if (!facilityID) {
+    return fail(422, {
+      description: "not signed in"
+    });
+  }
+
   const services = await facilityDAO.getServicesByFacility(facilityID);
 
   // Dictionary for service key-to-label mapping
@@ -22,16 +55,37 @@ export const load: PageServerLoad = async ({ cookies }) => {
     outpatientServices: "Outpatient",
   };
 
-  function getNullServices(): string[] {
-    return Object.entries(services)
-      .filter(([_, value]) => value === null) // Keep only null services
-      .map(([key]) => serviceOptions[key] || key); // Map to label, fallback to key
+  let availableServices = []
+  let availableOPServices = []
+
+  // get full list of OPservice types, filter
+
+  for (var [key, value] of Object.entries(services)) {
+    if (value === null) {
+      availableServices.push(serviceOptions[key])
+    }
   }
 
-  const availableServices = getNullServices();
+  let filteredOPService: ServiceType[] = []
+
+
+  for (var service of services.outpatientServices) {
+    filteredOPService.push(service.serviceType)
+  }
+
+  for (let serviceType of serviceTypes) { 
+    if (!filteredOPService.includes(serviceType)) {
+      availableOPServices.push(serviceType)
+    }
+  }
+
+  if (availableOPServices.length !== 0) {
+    availableServices.push("Outpatient")
+  }
 
   return {
     availableServices,
+    availableOPServices
   };
 };
 
