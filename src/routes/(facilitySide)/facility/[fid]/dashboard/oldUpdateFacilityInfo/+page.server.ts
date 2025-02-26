@@ -19,6 +19,7 @@ export const actions = {
     const data = await request.formData();
     const facilityID = cookies.get('facilityID')
 
+    console.log("addressDTO")
     if (!facilityID) {
       return fail(422, { 
         error: "Facility not signed in.",
@@ -26,23 +27,23 @@ export const actions = {
         success: false  
       });
     }
-    // address
+
+    console.log("addressDTO")
+    const facilityImage = data.get('facilityImage') as string
     const regionID      = Number(data.get('region'));
     const pOrCID        = Number(data.get('province'));
     const cOrMID        = Number(data.get('city'));
     const brgyID        = Number(data.get('brgy'));
-    let street        = data.get('street');
 
     try {
-      validateStreet(data.get('street'));
+      const street        = validateStreet(data.get('street'));
     } catch (error) {
       return fail(422, { 
-        error: (error as Error).message,
+        error: error.message,
         description: "street",
         success: false  
       });
     }
-    street = validateStreet(data.get('street'));
     
     const addressDTO: AddressDTO = {
       regionID,
@@ -52,27 +53,12 @@ export const actions = {
       street
     }
 
+
     address.updateAddress(facilityID, addressDTO)
 
-    // // genInfo part
-    // const name  = data.get('facilityName') as string;
-    // const address = data.get('facilityImage') as string
-    // const photo = data.get('facilityImage') as string
-    // const photo = data.get('facilityImage') as string
-    // const photo = data.get('facilityImage') as string
-    // const photo = data.get('facilityImage') as string
-    // const photo = data.get('facilityImage') as string
+    // send data to db
 
-    // const genInfo: M_UpdateGenInfoFacilityDTO = {
-    //   name              ,
-    //   photo             ,
-    //   address           ,
-    //   phoneNumber       ,
-    //   facilityType      ,
-    //   ownership         ,
-    //   bookingSystem?    ,
-    //   acceptedProviders ,
-    // }
+    // console.log(await prisma.ambulanceService.findUnique( {where: { facilityID: "0eea8939-c386-46ad-95a2-12ae60740758" }} ));
 
     return { success: true };
   }

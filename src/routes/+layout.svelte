@@ -7,6 +7,8 @@
   let { data, children } = $props()
   let { session, supabase } = $derived(data)
 
+  const debugMode = true;
+
   onMount(() => {
     const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
       if (newSession?.expires_at !== session?.expires_at) {
@@ -18,6 +20,8 @@
   })
 </script>
 
-<DebugRouting />
+{#if debugMode}
+  <DebugRouting />
+{/if}
 
 {@render children()}
