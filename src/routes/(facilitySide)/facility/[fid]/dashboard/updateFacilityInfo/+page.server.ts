@@ -6,7 +6,7 @@ import { validateEmail, validatePhone, validateStreet } from '$lib/server/formVa
 import { fail } from '@sveltejs/kit';
 import type { FacilityType, Ownership, Provider } from '@prisma/client';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({cookies }) => {
   let address: AddressDAO = new AddressDAO();
   let providers: Provider[] = [
     "INTELLICARE"              ,
@@ -90,10 +90,26 @@ export const load: PageServerLoad = async () => {
     "SURGICAL_CENTER",
     "AMBULANCE_SERVICE",
   ]
+
+  let facilityDAO = new FacilityDAO();
+  let facilityID = cookies.get('facilityID')
+
+  if (!facilityID){
+    return fail(422, {
+      description: "not signed in"
+    })
+  }
+
+  let facilityInfo = facilityDAO.getGeneralInformation(facilityID)
+
+  // insert formatting of facilityINFO
+
   return {
     regions: await address.getRegions(),
     providers,
-    types
+    types,
+    // name
+    // 
   };
 };
 

@@ -106,7 +106,9 @@
                 name="mileageRate" 
                 type="number" 
                 class="border p-2 rounded w-full" 
-                placeholder="Mileage Rate" />
+                placeholder="Mileage Rate" 
+                required 
+            />
             </label>
         </div>
 

@@ -32,7 +32,7 @@
         <label class="mt-4 text-gray-700">
           Select a Service
           <select name="serviceType" bind:value={serviceType} required class="border p-2 rounded w-full">
-            {#each data.availableServices as service}
+            {#each (data.availableServices ?? []) as service}
               <option value={service} onclick={() => serviceType = service}>{service}</option>
             {/each}
           </select>

@@ -14,6 +14,14 @@ import type { M_UpdateGenInfoFacilityDTO } from './dtos';
 
 // Initialization of Prisma
 
+export interface facilityServices {
+  ambulanceService   : AmbulanceService | null;
+  bloodBankService   : BloodBankService | null;
+  erService          : ERService | null;
+  icuService         : ICUService | null;
+  outpatientServices : OutpatientService[];
+}
+
 const prisma = global.prisma || new PrismaClient();
 
 if (process.env.NODE_ENV === "development") {
@@ -690,13 +698,7 @@ export class FacilityDAO {
     }
   }
 
-  async getServicesByFacility(facilityID: string): Promise<{
-    ambulanceService   : AmbulanceService | null;
-    bloodBankService   : BloodBankService | null;
-    erService          : ERService | null;
-    icuService         : ICUService | null;
-    outpatientServices : OutpatientService[];
-  }> {
+  async getServicesByFacility(facilityID: string): Promise<facilityServices> {
     const [
       ambulanceService,
       bloodBankService,
