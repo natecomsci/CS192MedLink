@@ -1,11 +1,40 @@
 import { fail } from '@sveltejs/kit';
-
 import type { PageServerLoad, Actions } from './$types';
 
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from '$lib/server/dtos';
 import { ServiceType } from '@prisma/client';
 import { validateCoverageRadius, validateOpenClose, validatePhone, validateTurnaroundCompletionTime } from '$lib/server/formValidators';
 import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO } from '$lib/server/prisma';
+import { FacilityDAO } from '$lib/server/prisma';
+import { type Cookies } from '@sveltejs/kit'; // Import Cookies as a type
+
+export const load: PageServerLoad = async ({ cookies }) => {
+  const facilityDAO = new FacilityDAO();
+  const facilityID = cookies.get('facilityID') ?? ''; // Provide default empty string
+  const services = await facilityDAO.getServicesByFacility(facilityID);
+
+  // Dictionary for service key-to-label mapping
+  const serviceOptions: Record<string, string> = {
+    ambulanceService: "Ambulance",
+    bloodBankService: "Blood Bank",
+    erService: "Emergency Room",
+    icuService: "ICU",
+    outpatientServices: "Outpatient",
+  };
+
+  function getNullServices(): string[] {
+    return Object.entries(services)
+      .filter(([_, value]) => value === null) // Keep only null services
+      .map(([key]) => serviceOptions[key] || key); // Map to label, fallback to key
+  }
+
+  const availableServices = getNullServices();
+
+  return {
+    availableServices,
+  };
+};
+
 
 export const actions = {
   create: async ({ cookies, request }) => {
@@ -254,3 +283,4 @@ export const actions = {
     return { success: true };
   }
 } satisfies Actions;
+

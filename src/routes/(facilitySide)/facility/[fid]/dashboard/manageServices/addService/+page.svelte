@@ -7,13 +7,12 @@
   import ERService from './ERService.svelte';
   import ICUService from './ICUService.svelte';
   import OutpatientService from './OutpatientService.svelte';
-
   import { enhance } from '$app/forms';
 
   let { data, form }: PageProps = $props();
-
   let serviceType: String = $state('');
   let division: String = $state('');
+
 </script>
  
  <form 
@@ -33,22 +32,20 @@
         <label class="mt-4 text-gray-700">
           Select a Service
           <select name="serviceType" bind:value={serviceType} required class="border p-2 rounded w-full">
-            <option value="Ambulance" onclick={() => serviceType = "Ambulance"}>Ambulance</option>
-            <option value="Blood Bank" onclick={() => serviceType = "Blood Bank"}>Blood Bank</option>
-            <option value="Emergency Room" onclick={() => serviceType = "Emergency Room"}>Emergency Room</option>
-            <option value="ICU" onclick={() => serviceType = "ICU"}>ICU</option>
-            <option value="Outpatient" onclick={() => serviceType = "Outpatient"}>Outpatient</option>
+            {#each data.availableServices as service}
+              <option value={service} onclick={() => serviceType = service}>{service}</option>
+            {/each}
           </select>
         </label>
 
-        <label class="mt-4 text-gray-700">
+        <!-- <label class="mt-4 text-gray-700">
           Division
           <select bind:value={division} class="border p-2 rounded w-full">
               <option>Division</option>
               <option>Division 1</option>
               <option>Division 2</option>
           </select>
-        </label>
+        </label> -->
 
         <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
             Add Service
