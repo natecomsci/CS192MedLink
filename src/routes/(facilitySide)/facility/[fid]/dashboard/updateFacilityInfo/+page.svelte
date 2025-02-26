@@ -265,30 +265,49 @@
                 {/each}
             </select>
         </label>
-    
-        <label class="w-full">
-            Ownership
-            <div class="toggle-container">
-                <label>
-                    <input 
-                        type="radio" 
-                        name="ownership" 
-                        class:is-active={isPublic}
-                        bind:value={selectedType}
-                        checked=true
-                    /> PUBLIC
-                </label>
 
-                <label>
-                    <input 
-                        type="radio" 
-                        name="ownership" 
-                        class:is-active={!isPublic}
-                        bind:value={selectedType}
-                    /> PUBLIC
-                </label>
-            </div>
-        </label>
+
+        <label class="w-full text-sm font-medium">
+          Ownership
+          <div class="flex bg-gray-200 rounded-full w-[200px] h-[50px] p-1">
+              <!-- PUBLIC -->
+              <label class="flex-1 text-center cursor-pointer">
+                  <input 
+                      type="radio" 
+                      name="ownership" 
+                      bind:group={selectedType}
+                      value="PUBLIC"
+                      class="hidden"
+                  />
+                  <div class="py-1 text-sm font-semibold rounded-full transition-all h-full"
+                      class:selected={selectedType === "PUBLIC"}
+                  >
+                      PUBLIC
+                  </div>
+              </label>
+      
+              <!-- PRIVATE -->
+              <label class="flex-1 text-center cursor-pointer">
+                  <input 
+                      type="radio" 
+                      name="ownership" 
+                      bind:group={selectedType}
+                      value="PRIVATE"
+                      class="hidden"
+                  />
+                  <div class="py-1 text-sm font-semibold rounded-full transition-all h-full"
+                      class:selected={selectedType === "PRIVATE"}
+                  >
+                      PRIVATE
+                  </div>
+              </label>
+          </div>
+      </label>
+      
+        
+
+
+
     </div>
     
 
@@ -301,7 +320,7 @@
             type="text" 
             class="border p-2 rounded w-full" 
             placeholder="Name"
-            required /> 
+             /> 
         </label>
 
         <label>
@@ -342,40 +361,9 @@
 
 
 <style>
-    .toggle-container {
-        display: flex;
-        align-items: center;
-    }
-
-    .toggle-button {
-        display: flex;
-        background-color: #ddd;
-        border-radius: 20px;
-        padding: 5px;
-        width: 275px;
-        justify-content: space-between;
-        position: relative;
-        cursor: pointer;
-        transition: background 0.3s;
-        border: none;
-    }
-
-    .toggle-button span {
-        flex: 1;
-        text-align: center;
-        font-weight: bold;
-        padding: 8px 12px;
-        border-radius: 20px;
-        transition: background 0.3s, color 0.3s;
-    }
-
-    .toggle-button span.is-active {
-        background-color: #8e44ad;
+    .selected {
+        background-color: #9044C4;
         color: white;
-    }
-
-    .toggle-button span:not(.is-active) {
-        color: #888;
     }
 </style>
 
