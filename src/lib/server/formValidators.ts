@@ -106,7 +106,7 @@ export function validateOpenClose(open: FormDataEntryValue | null, close: FormDa
   const openStr  = String(open).trim();
   const closeStr = String(close).trim();
 
-  const timeFormat = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  const timeFormat = /^(?:[0-9]|[01]\d|2[0-3]):[0-5]\d$/;
 
   if (!timeFormat.test(openStr) || !timeFormat.test(closeStr)) {
     throw new Error("Invalid time format. Use HH:MM (24-hour).");
