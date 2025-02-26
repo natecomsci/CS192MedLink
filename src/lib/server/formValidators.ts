@@ -81,7 +81,7 @@ export async function validateEmail(email: string): Promise<string> {
   return emailStr;
 }
 
-export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: string, closingTime: string} {
+export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: Date, closingTime: Date} {
   const timeFormat = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
   if (!open || !close) {
@@ -104,12 +104,15 @@ export function validateOpenClose(open: FormDataEntryValue | null, close: FormDa
     throw new Error("Closing time must be later than opening time.");
   }
 
+  return {openingTime: new Date("25 February 2025 "+String(open)+" UTC"), closingTime: new Date("25 February 2025 "+String(close)+" UTC")};
+  /* 
   const today = new Date().toISOString();
-
+  
   return {
     openingTime: `${today} ${openStr} UTC`,
     closingTime: `${today} ${closeStr} UTC`,
   };
+  */
 }
 
 export function validateCoverageRadius(min: FormDataEntryValue | null, max: FormDataEntryValue | null): {minCoverageRadius: number, maxCoverageRadius: number} {

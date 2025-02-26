@@ -40,6 +40,7 @@ export class AmbulanceServiceDAO {
   
       return service;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get AmbulanceService.");
     }
   }
@@ -73,6 +74,7 @@ export class AmbulanceServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not update AmbulanceService.");
     }
   }
@@ -85,6 +87,7 @@ export class AmbulanceServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not delete AmbulanceService.");
     }
   }
@@ -106,6 +109,7 @@ export class BloodTypeMappingDAO {
   
       return bloodTypeMapping;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get BloodTypeMapping.");
     }
   }
@@ -172,6 +176,7 @@ export class BloodBankServiceDAO {
   
       return service;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get BloodBankService.");
     }
   }  
@@ -210,6 +215,7 @@ export class BloodBankServiceDAO {
         bloodTypeMappingDAO.updateBloodTypeMapping(facilityID, data.bloodTypeAvailability)
       ]);
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not update BloodBankService.");
     }
   }
@@ -222,6 +228,7 @@ export class BloodBankServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not delete BloodBankService.");
     }
   }
@@ -243,6 +250,7 @@ export class ERServiceDAO {
   
       return service;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get ERService.");
     }
   }
@@ -277,6 +285,7 @@ export class ERServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not update ERService.");
     }
   }
@@ -289,6 +298,7 @@ export class ERServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not delete ERService.");
     }
   }
@@ -310,6 +320,7 @@ export class ICUServiceDAO {
   
       return service;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get ICUService.");
     }
   }
@@ -343,6 +354,7 @@ export class ICUServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not update ICUService.");
     }
   }
@@ -355,6 +367,7 @@ export class ICUServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not delete ICUService.");
     }
   }
@@ -376,6 +389,7 @@ export class OutpatientServiceDAO {
   
       return service;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get OutpatientService.");
     }
   }
@@ -401,6 +415,7 @@ export class OutpatientServiceDAO {
         data: { ...data, facility: { connect: { facilityID } } }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not create OutpatientService.");
     }
   }
@@ -421,6 +436,7 @@ export class OutpatientServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not update OutpatientService.");
     }
   }
@@ -433,6 +449,7 @@ export class OutpatientServiceDAO {
         }
       });
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not delete OutpatientService.");
     }
   }
@@ -465,6 +482,7 @@ export class AddressDAO {
 
       return regions;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get regions.");
     }
   }
@@ -484,6 +502,7 @@ export class AddressDAO {
 
       return pOrC;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get provinces for the region.");
     }
   }
@@ -503,6 +522,7 @@ export class AddressDAO {
 
       return cOrMs;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get cities or municipalities for the province.");
     }
   }
@@ -522,6 +542,7 @@ export class AddressDAO {
 
       return brgys;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get barangays for the city or municipality.");
     }
   }
@@ -550,6 +571,7 @@ export class FacilityDAO {
   
       return facility;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get Facility.");
     }
   }
@@ -584,6 +606,7 @@ export class FacilityDAO {
         acceptedProviders : facility.acceptedProviders,
       };
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get general information for Facility.");
     }
   }
@@ -627,6 +650,7 @@ export class FacilityDAO {
       });
 
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("<message>");
     }
   }
@@ -649,6 +673,7 @@ export class FacilityDAO {
   
       return address;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get Address.");
     }
   }
@@ -663,6 +688,7 @@ export class FacilityDAO {
 
       return facility.acceptedProviders;
     } catch (error) {
+      console.error("Details: ", error);
       throw new Error("Could not get accepted providers.");
     }
   }
