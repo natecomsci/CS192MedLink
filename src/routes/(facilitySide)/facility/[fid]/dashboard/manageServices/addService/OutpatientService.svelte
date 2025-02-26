@@ -12,7 +12,7 @@
                     class="border p-2 rounded w-full"
                     required 
                   >
-                    {#each data.availableOPServices as t}
+                    {#each (data.availableOPServices ?? []) as t}
                       <option value={t}>{t}</option>
                     {/each}
                 </select>

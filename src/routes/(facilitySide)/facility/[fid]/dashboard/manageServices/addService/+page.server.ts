@@ -2,9 +2,9 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from '$lib/server/dtos';
-import { ServiceType, type OutpatientService } from '@prisma/client';
+import { ServiceType } from '@prisma/client';
 import { validateCoverageRadius, validateOpenClose, validatePhone, validateTurnaroundCompletionTime } from '$lib/server/formValidators';
-import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO } from '$lib/server/prisma';
+import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO, type facilityServices } from '$lib/server/prisma';
 import { FacilityDAO } from '$lib/server/prisma';
 
 export const load: PageServerLoad = async ({ cookies }) => {
@@ -44,25 +44,27 @@ export const load: PageServerLoad = async ({ cookies }) => {
     });
   }
 
-  const services = await facilityDAO.getServicesByFacility(facilityID);
-
-  // Dictionary for service key-to-label mapping
-  const serviceOptions: Record<string, string> = {
-    ambulanceService: "Ambulance",
-    bloodBankService: "Blood Bank",
-    erService: "Emergency Room",
-    icuService: "ICU",
-    outpatientServices: "Outpatient",
-  };
+  const services: facilityServices = await facilityDAO.getServicesByFacility(facilityID);
 
   let availableServices = []
   let availableOPServices = []
 
-  // get full list of OPservice types, filter
-
   for (var [key, value] of Object.entries(services)) {
     if (value === null) {
-      availableServices.push(serviceOptions[key])
+      let name = "";
+      if ("ambulanceService" == key) {
+        name = "Ambulance";
+      }
+      if ("bloodBankService" == key) {
+        name = "Blood Bank";
+      }
+      if ("erService" == key) {
+        name = "Emergency Room";
+      }
+      if ("icuService" == key) {
+        name = "ICU";
+      }
+      availableServices.push(name)
     }
   }
 

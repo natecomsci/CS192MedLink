@@ -92,7 +92,7 @@ export const load: PageServerLoad = async ({cookies }) => {
   ]
 
   let facilityDAO = new FacilityDAO();
-  let facilityID = await cookies.get('facilityID')
+  let facilityID = cookies.get('facilityID')
 
   if (!facilityID){
     return fail(422, {
