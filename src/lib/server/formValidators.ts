@@ -1,5 +1,27 @@
 import { promises as dns } from "dns";
 
+export function validateName(name: FormDataEntryValue | null): string {
+  if (!name) {
+    throw new Error("No name provided.");
+  }
+
+  let nameStr = String(name).trim();
+
+  const validChars = /^[a-zA-Z0-9\s]+$/;
+
+  if (!validChars.test(nameStr)) {
+    throw new Error(`(${nameStr}) Name contains invalid characters.`);
+  }
+
+  nameStr = nameStr.replace(/\s+/g, " ");
+
+  if (nameStr.length > 50) {
+    throw new Error(`(${nameStr}) Name must not exceed 50 characters.`);
+  }
+
+  return nameStr;
+}
+
 export function validatePhone(phone: FormDataEntryValue | null): string {
   if (!phone) {
     throw new Error("No phone number provided.");
@@ -40,26 +62,28 @@ export function validatePhone(phone: FormDataEntryValue | null): string {
 
 async function hasMXRecords(domain: string): Promise<boolean> {
   try {
-      const records = await dns.resolveMx(domain);
-      return records.length > 0;
-  } catch (error) {
-      return false;
+    const records = await dns.resolveMx(domain);
+
+    return records.length > 0;
+  } catch {
+    return false;
   }
 }
 
 export async function validateEmail(email: string): Promise<string> {
-  const emailFormat = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const consecutiveDots = /\.\./;
-
   if (!email) {
     throw new Error("No email provided.");
   }
 
   const emailStr = email.trim();
 
-  if (!emailFormat.test(emailStr)) {
+  const validChars = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  if (!validChars.test(emailStr)) {
     throw new Error(`(${emailStr}) Email contains invalid characters.`);
   }
+
+  const consecutiveDots = /\.\./;
 
   if (consecutiveDots.test(emailStr)) {
     throw new Error(`(${emailStr}) Email contains consecutive dots.`);
@@ -75,8 +99,6 @@ export async function validateEmail(email: string): Promise<string> {
 }
 
 export function validateOpenClose(open: FormDataEntryValue | null, close: FormDataEntryValue | null): {openingTime: Date, closingTime: Date} {
-  const timeFormat = /^([01]\d|2[0-3]):([0-5]\d)$/;
-
   if (!open || !close) {
     throw new Error("No opening and closing time provided.");
   }
@@ -84,33 +106,28 @@ export function validateOpenClose(open: FormDataEntryValue | null, close: FormDa
   const openStr  = String(open).trim();
   const closeStr = String(close).trim();
 
+  const timeFormat = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
   if (!timeFormat.test(openStr) || !timeFormat.test(closeStr)) {
-    throw new Error("Invalid time format. Use HH:MM (24-hour format).");
+    throw new Error("Invalid time format. Use HH:MM (24-hour).");
   }
 
-  const openHour  = Number(openStr.slice(0, 2));
-  const openMin   = Number(openStr.slice(3, 5));
-  const closeHour = Number(closeStr.slice(0, 2));
-  const closeMin  = Number(closeStr.slice(3, 5));
+  const [openHour, openMin]   = openStr.split(":").map(Number);
+  const [closeHour, closeMin] = closeStr.split(":").map(Number);
 
   if (closeHour < openHour || (closeHour === openHour && closeMin <= openMin)) {
     throw new Error("Closing time must be later than opening time.");
   }
 
-  return {openingTime: new Date("25 February 2025 "+String(open)+" UTC"), closingTime: new Date("25 February 2025 "+String(close)+" UTC")};
-  /* 
-  const today = new Date().toISOString();
-  
-  return {
-    openingTime: `${today} ${openStr} UTC`,
-    closingTime: `${today} ${closeStr} UTC`,
-  };
-  */
+  const today = new Date();
+
+  const openingTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(),  openHour,  openMin);
+  const closingTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), closeHour, closeMin);
+
+  return { openingTime, closingTime };  
 }
 
 export function validateCoverageRadius(min: FormDataEntryValue | null, max: FormDataEntryValue | null): {minCoverageRadius: number, maxCoverageRadius: number} {
-  const floatFormat = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
-
   if (!min || !max) {
     throw new Error("No minimum and maximum coverage radius provided.");
   }
@@ -118,28 +135,31 @@ export function validateCoverageRadius(min: FormDataEntryValue | null, max: Form
   const minStr = String(min).trim();
   const maxStr = String(max).trim();
   
+  const floatFormat = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
+
   if (!floatFormat.test(minStr) || !floatFormat.test(maxStr)) {
-    throw new Error("Coverage radius must be a valid float with up to two decimal places.");
+    throw new Error("Coverage radius must be a valid number with up to two decimal places.");
   }
 
   const minCoverageRadius = parseFloat(minStr);
   const maxCoverageRadius = parseFloat(maxStr);
 
-  if (Number(max) < Number(min)) {
-    throw new Error("Max is less than min coverage radius.");
+  if (maxCoverageRadius < minCoverageRadius) {
+    throw new Error("Maximum coverage radius must be greater than or equal to minimum coverage radius.");
   }
+
   return { minCoverageRadius, maxCoverageRadius };
 }
 
-export function validateTurnaroundCompletionTime(days: FormDataEntryValue | null, hours: FormDataEntryValue | null): {days: number, hours: number} {
-  const integerFormat = /^[0-9]+$/;
-  
+export function validateTurnaroundCompletionTime(days: FormDataEntryValue | null, hours: FormDataEntryValue | null): {days: number, hours: number} {  
   if (!days || !hours) {
     throw new Error("No days or hours provided.");
   }
 
   const daysStr  = String(days).trim();
   const hoursStr = String(hours).trim();
+
+  const integerFormat = /^(0|[1-9]\d*)$/;
 
   if (!integerFormat.test(daysStr) || !integerFormat.test(hoursStr)) {
     throw new Error("Days and hours must be non-negative integers.");
@@ -160,23 +180,41 @@ export function validateTurnaroundCompletionTime(days: FormDataEntryValue | null
 }
 
 export function validateStreet(street: FormDataEntryValue | null): string {
-  const streetFormat = /^[a-zA-Z0-9.,\- ]+$/;
-
   if (!street) {
     throw new Error("No street address provided.");
   }
 
   let streetStr = String(street).trim();
 
-  if (!streetFormat.test(streetStr)) {
+  const validChars = /^[a-zA-Z0-9.,\-\s]+$/;
+
+  if (!validChars.test(streetStr)) {
     throw new Error(`(${streetStr}) Street address contains invalid characters.`);
   }
 
   streetStr = streetStr.replace(/\s+/g, " ");
 
   if (streetStr.length > 100) {
-    throw new Error(`(${streetStr}) Street address is too long. Must not exceed 100 characters.`);
+    throw new Error(`(${streetStr}) Street address must not exceed 100 characters.`);
   }
 
   return streetStr;
+}
+
+export function validateLink(link: string): string {
+  if (!link) {
+    throw new Error("No booking system link provided.");
+  }
+
+  const linkStr = String(link).trim();
+
+  const linkFormat = /^https?:\/\//;
+
+  if (!linkFormat.test(linkStr)) {
+    throw new Error(`(${linkStr}) Booking system link must start with http:// or https://.`);
+  }
+
+  // no validation if actual link sya
+
+  return linkStr;
 }
