@@ -24,9 +24,10 @@
     let region: String = $state(data.region || 'Region');
     let province: String = $state(data.province ||'Province');
     let city: String = $state(data.city || 'City');
-    let barangay: String = $state(data.brgy ||'Barangay');
+    let barangay: String = $state(data.barangay ||'Barangay');
     let street: String = $state(data.street || '');
-    let selectedType = $state('PRIVATE');
+    let selectedType = $state(data.ownership);
+    let selectedKind = $state(data.type);
 
     const get_ = async (scope: String) => {
       let body = JSON.stringify({})
@@ -262,11 +263,12 @@
             Type
             <select 
                 name="type" 
+                bind:value={selectedKind} 
                 required 
                 class="border p-2 rounded w-full"
             >
                 {#each data.types as t}
-                    <option value={t}>{t}</option>
+                    <option value={t} selected={t === selectedKind}>{t}</option>
                 {/each}
             </select>
         </label>
