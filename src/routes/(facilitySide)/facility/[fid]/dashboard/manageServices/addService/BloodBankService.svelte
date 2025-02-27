@@ -1,13 +1,6 @@
 <script lang="ts">
     import type { PageProps } from './$types';
     let { data, form }: PageProps = $props();
-
-    let opensAt = $state('');
-    let closesAt = $state('');
-    let phone = $state('');
-    let price1 = $state('');
-    let turnaroundDays = $state('');
-    let turnaroundHours = $state('');
 </script>
 
 <div class="flex-1 p-6 overflow-y-auto border border-green-100">
@@ -59,11 +52,15 @@
                 <input 
                     name="price" 
                     type="number" 
-                    bind:value={price1} 
                     class="border p-2 rounded w-full" 
                     placeholder="Price" 
+                    step=0.01
+                    min=0
                     required
                 />
+                {#if form?.description === "price"}
+                    <p class="error">{form.error}</p>
+                {/if}
             </label>
         </div>
 

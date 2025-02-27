@@ -3,12 +3,13 @@ import type { PageServerLoad, Actions } from './$types';
 
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from '$lib/server/dtos';
 import { ServiceType } from '@prisma/client';
-import { validateCoverageRadius, validateOpenClose, validatePhone, validateTurnaroundCompletionTime } from '$lib/server/formValidators';
+import { validateCoverageRadius, validateFloat, validateOpenClose, validatePhone, validateTurnaroundCompletionTime } from '$lib/server/formValidators';
 import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO, type facilityServices } from '$lib/server/prisma';
 import { FacilityDAO } from '$lib/server/prisma';
 
 export const load: PageServerLoad = async ({ cookies }) => {
-  let serviceTypes: ServiceType[] = [  "CONSULTATION_GENERAL",
+  let serviceTypes: ServiceType[] = [
+                        "CONSULTATION_GENERAL",
                         "BLOOD_CHEMISTRY_BUA",
                         "HEMATOLOGY_CBC",
                         "CLINICAL_FECALYSIS",  
@@ -46,8 +47,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   const services: facilityServices = await facilityDAO.getServicesByFacility(facilityID);
 
-  let availableServices = []
-  let availableOPServices = []
+  let availableServices = ["None"]
+  let availableOPServices = ["None"]
 
   for (var [key, value] of Object.entries(services)) {
     if (value === null) {
@@ -84,7 +85,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (availableOPServices.length !== 0) {
     availableServices.push("Outpatient")
   }
-
+  // console.log(availableServices)
+  // console.log(availableOPServices)
   return {
     availableServices,
     availableOPServices
@@ -152,13 +154,6 @@ export const actions = {
           });
         }
 
-        const phoneNumber       = validatePhone(phone);
-        
-        const baseRate          = Number(rates);
-        
-        const mileageRate       = Number(mileRate);
-        let { openingTime, closingTime }   = validateOpenClose(open, close)
-        
         try {
           validateCoverageRadius(minCover, maxCover)
         } catch (error) {
@@ -169,6 +164,38 @@ export const actions = {
             success: false
           });
         }
+
+        try {
+          validateFloat(rates, "Base Rate");
+        } catch (error) {
+
+          return fail(422, {
+            error: (error as Error).message,
+            description: "price",
+            success: false
+          });
+        }
+
+        try {
+          validateFloat(mileRate, "Mileage Rate");
+        } catch (error) {
+
+          return fail(422, {
+            error: (error as Error).message,
+            description: "mileRate",
+            success: false
+          });
+        }
+
+
+        const phoneNumber       = validatePhone(phone);
+        
+        const baseRate          = validateFloat(rates, "Base Rate");
+        
+        const mileageRate       = validateFloat(mileRate, "Mileage Rate");
+
+        let { openingTime, closingTime }   = validateOpenClose(open, close)
+
         const { minCoverageRadius, maxCoverageRadius } = validateCoverageRadius(minCover, maxCover)
         
         const service: CreateAmbulanceServiceDTO = {
@@ -187,6 +214,7 @@ export const actions = {
         dao.create(facilityID, service)
         break;
       }
+
       case "Blood Bank": {
         try {
           validatePhone(phone);
@@ -221,13 +249,24 @@ export const actions = {
           });
         }
 
+        try {
+          validateFloat(rates, "Price Per Unit");
+        } catch (error) {
+
+          return fail(422, {
+            error: (error as Error).message,
+            description: "price",
+            success: false
+          });
+        }
+
         const phoneNumber       = validatePhone(phone);
         const { openingTime, closingTime }   = validateOpenClose(open, close)
         const TTime              = validateTurnaroundCompletionTime(turnTD, turnTH)
         const turnaroundTimeD   = TTime.days;
         const turnaroundTimeH   = TTime.hours; 
 
-        const pricePerUnit      = Number(rates);
+        const pricePerUnit      = validateFloat(rates, "Price Per Unit");
         
         const service: CreateBloodBankServiceDTO = {
           phoneNumber,
@@ -244,6 +283,7 @@ export const actions = {
         dao.create(facilityID, service)
         break;
       }
+
       case "Emergency Room": {
         try {
           validatePhone(phone);
@@ -255,6 +295,7 @@ export const actions = {
             success: false
           });
         }
+
         const phoneNumber       = validatePhone(phone);
 
         const service: CreateERServiceDTO = {
@@ -267,6 +308,7 @@ export const actions = {
         dao.create(facilityID, service)
         break;
       }
+
       case "ICU": {
         try {
           validatePhone(phone);
@@ -278,8 +320,20 @@ export const actions = {
             success: false
           });
         }
+
+        try {
+          validateFloat(rates, "Base Rate");
+        } catch (error) {
+
+          return fail(422, {
+            error: (error as Error).message,
+            description: "price",
+            success: false
+          });
+        }
+
         const phoneNumber       = validatePhone(phone);
-        const baseRate          = Number(rates);
+        const baseRate          = validateFloat(rates, "Base Rate");
 
         const service: CreateICUServiceDTO = {
           phoneNumber,
@@ -292,9 +346,17 @@ export const actions = {
         dao.create(facilityID, service)
         break;
       }
-      case "Out Patient": {
-        const OPserviceType     = OPType as ServiceType;
-        const price             = Number(rates);
+      case "Outpatient": {
+        try {
+          validateFloat(rates, "Base Rate");
+        } catch (error) {
+
+          return fail(422, {
+            error: (error as Error).message,
+            description: "price",
+            success: false
+          });
+        }
 
         try {
           validateTurnaroundCompletionTime(compTD, compTH)
@@ -306,6 +368,9 @@ export const actions = {
             success: false
           });
         }
+
+        const OPserviceType     = OPType as ServiceType;
+        const price             = validateFloat(rates, "Base Rate");
 
         const CTime             = validateTurnaroundCompletionTime(compTD, compTH)
         const completionTimeD   = CTime.days
