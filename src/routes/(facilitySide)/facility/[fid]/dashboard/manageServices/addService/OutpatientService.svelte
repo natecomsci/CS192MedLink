@@ -95,6 +95,24 @@
                 >
               </label>
         </div>
-    
+
+        <!-- Price Rate -->
+        <div class="mt-4 bg-white p-4 rounded-lg shadow">
+            <label class="block text-gray-700">Base Price
+                <input 
+                    name="price"
+                    type="number" 
+                    class="border p-2 rounded w-full" 
+                    placeholder="Price"
+                    step=0.01
+                    min=0
+                    required 
+                />
+                {#if form?.description === "price"}
+                    <p class="error">{form.error}</p>
+                {/if}
+            </label>
+        </div>
+
     </div>
 
