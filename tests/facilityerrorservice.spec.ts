@@ -212,3 +212,98 @@ test.describe('Add Blood Bank Service Flow', () => {
       await expect(page.locator('p.error')).toBeVisible();
   });
 });
+
+
+
+test.describe('Add ICU', () => {
+  test.beforeEach(async ({ page }) => {
+      // Step 1: Go to the login page
+      await page.goto('/facility');
+
+      // Step 2: Fill in login credentials
+      await page.fill('input[name="fid"]', '20250005');
+      await page.fill('input[name="password"]', 'password');
+
+      // Step 3: Click the "Log in" button
+      await page.click('button:has-text("Log In")');
+
+      // Step 4: Verify redirection to dashboard
+      await expect(page).toHaveURL('/facility/20250005/dashboard');
+
+      // Step 5: Click "Manage Services"
+      await page.click('a[href="./dashboard/manageServices"]');
+
+      // Step 6: Verify navigation to "Manage Services"
+      await expect(page).toHaveURL('/facility/20250005/dashboard/manageServices');
+
+      // Step 7: Click "Add Service"
+      await page.click('a[href="./manageServices/addService"]');
+
+      // Step 8: Verify navigation to "Add Service"
+      await expect(page).toHaveURL('/facility/20250005/dashboard/manageServices/addService');
+
+      // Step 9: Select "Ambulance" from the dropdown
+      await page.selectOption('select[name="serviceType"]', 'ICU');
+      //await page.selectOption('select', { label: 'Division 1' });
+  });
+
+  test('Invalid Phone Number format', async ({ page }) => {
+    await page.fill('input[name="phoneNumber"]', '1234'); // invalid
+       await page.fill('input[name="price"]', '10');
+    await page.click('button:has-text("Add Service")');
+    await expect(page.locator('p.error')).toBeVisible();
+});
+
+test('Invalid Base', async ({ page }) => {
+  await page.fill('input[name="phoneNumber"]', '+63 912 1234 123'); 
+     await page.fill('input[name="price"]', '-1'); // invalid
+  await page.click('button:has-text("Add Service")');
+});
+
+});
+
+test.describe('Add Outpatient', () => {
+  test.beforeEach(async ({ page }) => {
+      // Step 1: Go to the login page
+      await page.goto('/facility');
+
+      // Step 2: Fill in login credentials
+      await page.fill('input[name="fid"]', '20250005');
+      await page.fill('input[name="password"]', 'password');
+
+      // Step 3: Click the "Log in" button
+      await page.click('button:has-text("Log In")');
+
+      // Step 4: Verify redirection to dashboard
+      await expect(page).toHaveURL('/facility/20250005/dashboard');
+
+      // Step 5: Click "Manage Services"
+      await page.click('a[href="./dashboard/manageServices"]');
+
+      // Step 6: Verify navigation to "Manage Services"
+      await expect(page).toHaveURL('/facility/20250005/dashboard/manageServices');
+
+      // Step 7: Click "Add Service"
+      await page.click('a[href="./manageServices/addService"]');
+
+      // Step 8: Verify navigation to "Add Service"
+      await expect(page).toHaveURL('/facility/20250005/dashboard/manageServices/addService');
+
+      // Step 9: Select "Ambulance" from the dropdown
+      await page.selectOption('select[name="serviceType"]', 'Outpatient');
+      //await page.selectOption('select', { label: 'Division 1' });
+  });
+
+  test('Invalid Hour', async ({ page }) => {
+    await page.selectOption('select[name="OPserviceType"]', 'CONSULTATION_GENERAL');
+    
+       await page.fill('input[name="completionDays"]', '1');
+       await page.fill('input[name="completionHours"]', '24');
+       await page.fill('input[name="price"]', '10');
+    await page.click('button:has-text("Add Service")');
+    await expect(page.locator('p.error')).toBeVisible();
+});
+
+
+
+});

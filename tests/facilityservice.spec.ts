@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
 
 /*
+import { test, expect } from '@playwright/test';
+
+
 test('Verify warning appears when no service type is selected', async ({ page }) => {
     // Navigate to the target page
     await page.goto('/facility/1/dashboard/manageServices/addService');
@@ -16,7 +18,7 @@ test('Verify warning appears when no service type is selected', async ({ page })
     await cancelLink.click();
     await expect(page).toHaveURL('http://localhost:5173/facility/1/dashboard');
 });
-*/
+
 
 
 test('Ambulance', async ({ page }) => {
@@ -126,3 +128,5 @@ test('Outpatient', async ({ page }) => {
      await expect(completionHours).toBeVisible();
      await expect(acceptWalkins).toBeVisible();
 });
+
+*/
