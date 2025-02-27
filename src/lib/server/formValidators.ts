@@ -232,10 +232,10 @@ export function validateLink(link: string): string {
 
   const linkStr = String(link).trim();
 
-  const linkFormat = /^https?:\/\//;
+  const linkFormat = /^https?:\/\/([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
   if (!linkFormat.test(linkStr)) {
-    throw new Error(`(${linkStr}) Booking system link must start with http:// or https://.`);
+    throw new Error(`(${linkStr}) Booking system link must be valid.`);
   }
 
   // no validation if actual link sya

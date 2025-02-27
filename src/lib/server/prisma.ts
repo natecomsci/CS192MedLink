@@ -581,7 +581,7 @@ export class FacilityDAO {
     }
   }
 
-  async getGeneralInformation(facilityID: string): Promise<M_UpdateGenInfoFacilityDTO> {
+  async getGeneralInformation(facilityID: string): Promise<M_UpdateGenInfoFacilityDTO> { // to make transaction
     try {
       const facility = await this.getByID(facilityID);
 
