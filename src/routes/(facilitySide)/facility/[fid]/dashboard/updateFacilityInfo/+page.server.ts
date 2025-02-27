@@ -6,37 +6,37 @@ import { validateEmail, validatePhone, validateStreet } from '$lib/server/formVa
 import { fail } from '@sveltejs/kit';
 import type { FacilityType, Ownership, Provider } from '@prisma/client';
 
-export const load: PageServerLoad = async ({cookies }) => {
+export const load: PageServerLoad = async ({ cookies }) => {
   let address: AddressDAO = new AddressDAO();
   let providers: Provider[] = [
-    "INTELLICARE"              ,
-    "ASIACARE"                 ,
-    "AVEGA"                    ,
-    "CAREWELL"                 ,
-    "one_COOPHEALTH"           ,
-    "DYNAMIC_CARE_CORPORATION" ,
-    "EASTWEST_HEALTHCARE"      ,
-    "FORTICARE"                ,
-    "GETWELL"                  ,
-    "HC_and_D"                 ,
-    "HEALTHFIRST"              ,
-    "HMI"                      ,
-    "HPPI"                     ,
-    "IWC"                      ,
-    "ICARE"                    ,
-    "KAISER"                   ,
-    "LIFE_and_HEALTH"          ,
-    "MAXICARE"                 ,
-    "MEDICARD"                 ,
-    "MEDICARE"                 ,
-    "MEDOCARE"                 ,
-    "METROCARE"                ,
-    "OMHSI"                    ,
-    "PACIFIC_CROSS"            ,
-    "PHILHEALTH"               ,
-    "VALUCARE"                 ,
-    "WELLCARE"                 ,
-  ]
+    "INTELLICARE",
+    "ASIACARE",
+    "AVEGA",
+    "CAREWELL",
+    "one_COOPHEALTH",
+    "DYNAMIC_CARE_CORPORATION",
+    "EASTWEST_HEALTHCARE",
+    "FORTICARE",
+    "GETWELL",
+    "HC_and_D",
+    "HEALTHFIRST",
+    "HMI",
+    "HPPI",
+    "IWC",
+    "ICARE",
+    "KAISER",
+    "LIFE_and_HEALTH",
+    "MAXICARE",
+    "MEDICARD",
+    "MEDICARE",
+    "MEDOCARE",
+    "METROCARE",
+    "OMHSI",
+    "PACIFIC_CROSS",
+    "PHILHEALTH",
+    "VALUCARE",
+    "WELLCARE",
+  ];
 
   let types: FacilityType[] = [
     "BARANGAY_HEALTH_CENTER",
@@ -89,28 +89,42 @@ export const load: PageServerLoad = async ({cookies }) => {
     "AMBULATORY_CARE_CENTER",
     "SURGICAL_CENTER",
     "AMBULANCE_SERVICE",
-  ]
+  ];
 
   let facilityDAO = new FacilityDAO();
-  let facilityID = cookies.get('facilityID')
+  let facilityID = cookies.get('facilityID');
 
-  if (!facilityID){
+  if (!facilityID) {
     return fail(422, {
       description: "not signed in"
-    })
+    });
   }
 
-  let facilityInfo = facilityDAO.getGeneralInformation(facilityID)
+  try {
+    let facilityInfo = await facilityDAO.getGeneralInformation(facilityID);
 
-  // insert formatting of facilityINFO
-
-  return {
-    regions: await address.getRegions(),
-    providers,
-    types,
-    // name
-    // 
+    return {
+      regions: await address.getRegions(),
+      providers,
+      types,
+      facilityName: facilityInfo.name,
+      email: facilityInfo.email,
+      region: facilityInfo.address.regionID,
+      province: facilityInfo.address.pOrCID,
+      city: facilityInfo.address.cOrMID,
+      brgy: facilityInfo.address.brgyID,
+      street: facilityInfo.address.street, 
+      contactNumber: facilityInfo.phoneNumber, // Assuming phoneNumber is the contact number
+      type: facilityInfo.facilityType,
+      ownership: facilityInfo.ownership,
+      bookingSystem: facilityInfo.bookingSystem || "", // Fallback to empty string if null
   };
+  } catch (error) {
+    console.error("Details: ", error);
+    return fail(500, {
+      description: "Could not get facility information."
+    });
+  }
 };
 
 export const actions = {

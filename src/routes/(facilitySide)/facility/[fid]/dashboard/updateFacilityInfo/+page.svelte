@@ -6,11 +6,8 @@
     import tempImage from "$lib/images/catle.jpg"
     
   
-    let region: String = $state('Region');
-    let province: String = $state('Province');
-    let city: String = $state('City');
-    let barangay: String = $state('Barangay');
-    let street: String = $state('');
+
+   
   
     let provinceList: POrCDTO[] = $state([]);
     let cityList: COrMDTO[] = $state([]);
@@ -21,10 +18,16 @@
     let enableBarangays = $state(false);
     let enableStreet = $state(false);
 
-    let selectedType = $state("PUBLIC")
-  
+
     let { data, form }: PageProps = $props();
-  
+
+    let region: String = $state(data.region || 'Region');
+    let province: String = $state(data.province ||'Province');
+    let city: String = $state(data.city || 'City');
+    let barangay: String = $state(data.brgy ||'Barangay');
+    let street: String = $state(data.street || '');
+    let selectedType = $state('PRIVATE');
+
     const get_ = async (scope: String) => {
       let body = JSON.stringify({})
   
@@ -146,7 +149,8 @@
         type="text" 
         class="border p-2 rounded w-full" 
         placeholder="Name"
-        required /> 
+        required 
+        bind:value={data.facilityName}/> 
     </label>
       
     <!-- Meow More Address Info -->
@@ -239,7 +243,7 @@
                 placeholder="Email"
                 required 
                 class="border p-2 rounded w-full"
-            />
+                bind:value={data.email}/>
         </label>
         
         <label class="w-full">
@@ -250,6 +254,7 @@
                 placeholder="Contact No."
                 required 
                 class="border p-2 rounded w-full"
+                bind:value={data.contactNumber}
             />
         </label>
     
@@ -320,6 +325,7 @@
             type="text" 
             class="border p-2 rounded w-full" 
             placeholder="Name"
+            bind:value={data.bookingSystem}
              /> 
         </label>
 
@@ -366,5 +372,3 @@
         color: white;
     }
 </style>
-
-
