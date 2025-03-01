@@ -20,6 +20,10 @@ import type { CreateAdminDTO, InitialAdminDetailsDTO } from './dtos';
 
 // Initialization of Prisma
 
+declare global {
+  var prisma: PrismaClient;
+}
+
 const prisma = global.prisma || new PrismaClient();
 
 if (process.env.NODE_ENV === "development") {
@@ -31,6 +35,26 @@ export { prisma }
 // DAOs
 
 export class AmbulanceServiceDAO {
+  async getByID(serviceID: string): Promise<AmbulanceService | null> {
+    try {
+      const service = await prisma.ambulanceService.findUnique({
+        where: { 
+          serviceID 
+        }
+      });
+  
+      if (!service) {
+        console.warn("No AmbulanceService found with the specified ID.");
+        return null;
+      }
+  
+      return service;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get AmbulanceService.");
+    }
+  }
+
   async getByFacility(facilityID: string): Promise<AmbulanceService | null> {
     try {
       const service = await prisma.ambulanceService.findUnique({
@@ -59,6 +83,31 @@ export class AmbulanceServiceDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not create AmbulanceService.");
+    }
+  }
+
+  async getInformation(serviceID: string): Promise<AmbulanceServiceDTO> {
+    try {
+      const service = await this.getByID(serviceID);
+
+      if (!service) {
+        throw new Error("Missing needed AmbulanceService data.");
+      }
+
+      return {
+        phoneNumber       : service.phoneNumber,
+        openingTime       : service.openingTime,
+        closingTime       : service.closingTime,
+        baseRate          : service.baseRate,
+        minCoverageRadius : service.minCoverageRadius,
+        mileageRate       : service.mileageRate,
+        maxCoverageRadius : service.maxCoverageRadius,
+        availability      : service.availability,
+      }
+
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get information for AmbulanceService.");
     }
   }
 
@@ -163,6 +212,26 @@ export class BloodTypeMappingDAO {
 let bloodTypeMappingDAO: BloodTypeMappingDAO = new BloodTypeMappingDAO();
 
 export class BloodBankServiceDAO {
+  async getByID(serviceID: string): Promise<BloodBankService | null> {
+    try {
+      const service = await prisma.bloodBankService.findUnique({
+        where: { 
+          serviceID 
+        }
+      });
+  
+      if (!service) {
+        console.warn("No BloodBankService found with the specified ID.");
+        return null;
+      }
+  
+      return service;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get BloodBankService.");
+    }
+  }
+
   async getByFacility(facilityID: string): Promise<BloodBankService | null> {
     try {
       const service = await prisma.bloodBankService.findUnique({
@@ -195,6 +264,36 @@ export class BloodBankServiceDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not create BloodBankService.");
+    }
+  }
+
+  async getInformation(serviceID: string): Promise<BloodBankServiceDTO> {
+    try {
+      const service = await this.getByID(serviceID);
+  
+      if (!service) {
+        throw new Error("Missing needed BloodBankService data.");
+      }
+  
+      const bloodTypeAvailability = await bloodTypeMappingDAO.getBloodTypeMapping(serviceID);
+  
+      if (!bloodTypeAvailability) {
+        throw new Error("Missing needed BloodTypeAvailability data.");
+      }
+  
+      return {
+        phoneNumber           : service.phoneNumber,
+        openingTime           : service.openingTime,
+        closingTime           : service.closingTime,
+        pricePerUnit          : service.pricePerUnit,
+        turnaroundTimeD       : service.turnaroundTimeD,
+        turnaroundTimeH       : service.turnaroundTimeH,
+        bloodTypeAvailability : bloodTypeAvailability,
+      };
+  
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get information for BloodBankService.");
     }
   }
 
@@ -240,6 +339,26 @@ export class BloodBankServiceDAO {
 }
 
 export class ERServiceDAO {
+  async getByID(serviceID: string): Promise<ERService | null> {
+    try {
+      const service = await prisma.eRService.findUnique({
+        where: { 
+          serviceID 
+        }
+      });
+  
+      if (!service) {
+        console.warn("No ERService found with the specified ID.");
+        return null;
+      }
+  
+      return service;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get ERService.");
+    }
+  }
+
   async getByFacility(facilityID: string): Promise<ERService | null> {
     try {
       const service = await prisma.eRService.findUnique({
@@ -270,6 +389,32 @@ export class ERServiceDAO {
       throw new Error("Could not create ERService.");
     }
   }
+
+  async getInformation(serviceID: string): Promise<ERServiceDTO> {
+    try {
+      const service = await this.getByID(serviceID);
+  
+      if (!service) {
+        throw new Error("Missing needed ERService data.");
+      }
+  
+      return {
+        phoneNumber          : service.phoneNumber,
+        load                 : service.load,
+        availableBeds        : service.availableBeds,
+        nonUrgentPatients    : service.nonUrgentPatients,
+        nonUrgentQueueLength : service.nonUrgentQueueLength,
+        urgentPatients       : service.urgentPatients,
+        urgentQueueLength    : service.urgentQueueLength,
+        criticalPatients     : service.criticalPatients,
+        criticalQueueLength  : service.criticalQueueLength,
+      };
+  
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get information for ERService.");
+    }
+  }  
 
   async update(serviceID: string, data: ERServiceDTO): Promise<void> {
     try {
@@ -310,6 +455,26 @@ export class ERServiceDAO {
 }
 
 export class ICUServiceDAO {
+  async getByID(serviceID: string): Promise<ICUService | null> {
+    try {
+      const service = await prisma.iCUService.findUnique({
+        where: { 
+          serviceID 
+        }
+      });
+  
+      if (!service) {
+        console.warn("No ICUService found with the specified ID.");
+        return null;
+      }
+  
+      return service;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get ICUService.");
+    }
+  }
+
   async getByFacility(facilityID: string): Promise<ICUService | null> {
     try {
       const service = await prisma.iCUService.findUnique({
@@ -340,6 +505,31 @@ export class ICUServiceDAO {
       throw new Error("Could not create ICUService.");
     }
   }
+
+  async getInformation(serviceID: string): Promise<ICUServiceDTO> {
+    try {
+      const service = await this.getByID(serviceID);
+  
+      if (!service) {
+        throw new Error("Missing needed ICUService data.");
+      }
+  
+      return {
+        phoneNumber         : service.phoneNumber,
+        baseRate            : service.baseRate,
+        load                : service.load,
+        availableBeds       : service.availableBeds,
+        cardiacSupport      : service.cardiacSupport,
+        neurologicalSupport : service.neurologicalSupport,
+        renalSupport        : service.renalSupport,
+        respiratorySupport  : service.respiratorySupport,
+      };
+  
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get information for ICUService.");
+    }
+  }  
 
   async update(serviceID: string, data: ICUServiceDTO): Promise<void> {
     try {
@@ -424,6 +614,29 @@ export class OutpatientServiceDAO {
       throw new Error("Could not create OutpatientService.");
     }
   }
+
+  async getInformation(serviceID: string): Promise<OutpatientServiceDTO> {
+    try {
+      const service = await this.getByID(serviceID);
+  
+      if (!service) {
+        throw new Error("Missing needed OutpatientService data.");
+      }
+  
+      return {
+        serviceType     : service.serviceType,
+        price           : service.price,
+        completionTimeD : service.completionTimeD,
+        completionTimeH : service.completionTimeH,
+        isAvailable     : service.isAvailable,
+        acceptsWalkIns  : service.acceptsWalkIns,
+      };
+  
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get information for OutpatientService.");
+    }
+  }  
 
   async update(serviceID: string, data: OutpatientServiceDTO): Promise<void> {
     try {

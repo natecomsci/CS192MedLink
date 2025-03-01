@@ -1,7 +1,7 @@
 import { AddressDAO, FacilityDAO } from '$lib/server/prisma';
 import type { PageServerLoad, Actions } from './$types';
 
-import type { AddressDTO, M_UpdateGenInfoFacilityDTO } from '$lib/server/dtos';
+import type { AddressDTO, GeneralInformationFacilityDTO } from '$lib/server/dtos';
 import { validateEmail, validatePhone, validateStreet, validateLink, validateFacilityName } from '$lib/server/formValidators';
 import { fail } from '@sveltejs/kit';
 import type { FacilityType, Ownership, Provider } from '@prisma/client';
@@ -232,7 +232,7 @@ export const actions = {
     const bookingSystem = data.get('bookingSystem') as string
     const acceptedProviders: Provider[] = []
 
-    const genInfo: M_UpdateGenInfoFacilityDTO = {
+    const genInfo: GeneralInformationFacilityDTO = {
       name               ,
       photo              ,
       address            ,
