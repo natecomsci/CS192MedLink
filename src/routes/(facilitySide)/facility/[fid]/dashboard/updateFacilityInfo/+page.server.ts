@@ -107,7 +107,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     const regionName = await addressDAO.getRegions().then(regions => 
         regions.find(r => r.regionID === facilityInfo.address.regionID)?.name || 'Region'
     );
-    const provinceName = await addressDAO.getPOrCOfRegion(facilityInfo.address.regionID).then(provinces => 
+    const provinceName = await addressDAO.getProvinceOfRegion(facilityInfo.address.regionID).then(provinces => 
         provinces.find(p => p.pOrCID === facilityInfo.address.pOrCID)?.name || 'Province'
     );
     const cityName = await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID).then(cities => 
