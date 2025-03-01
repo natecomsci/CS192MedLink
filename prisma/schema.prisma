@@ -140,7 +140,7 @@ model Address {
 
 // The data layer merged Managers and Facilities.
 
-// Should be required but cannot be because Supabase register thingy. Their necessity is handled by business logic.
+// Address, Email, Phone Number, Type, and Ownership should be required but we made them optional for our convenience. Their necessity is handled by business logic.
 
 model Facility {
   facilityID String @id @default(uuid())
@@ -154,8 +154,6 @@ model Facility {
   phoneNumber       String?       @unique
   facilityType      FacilityType?
   ownership         Ownership?
-  LTO               String?               // License to Operate          
-  COA               String?               // Certificate of Accreditation
   bookingSystem     String?
   acceptedProviders Provider[]
 
@@ -214,6 +212,9 @@ model Admin {
 
   password  String
 
+  fname     String
+  mname     String?
+  lname     String
   photo     String   @default("https://placehold.co/1080x1080/png")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -269,6 +270,8 @@ model Folder {
 }
 
 model AmbulanceService {
+  serviceID String @id @default(uuid())
+
   phoneNumber       String
   openingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
   closingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
@@ -284,7 +287,7 @@ model AmbulanceService {
 
   // Service - Facility : Each AmbulanceService must belong to exactly one Facility.
   facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @id
+  facilityID String    @unique
 
   // Service - Division : If a Facility has Divisions, every AmbulanceService must belong to a Division.
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
@@ -306,11 +309,13 @@ model BloodTypeMapping {
 
   // RELATIONS
 
-  BloodBankService BloodBankService @relation(fields: [facilityID], references: [facilityID])
-  facilityID       String           @id
+  BloodBankService BloodBankService @relation(fields: [serviceID], references: [serviceID])
+  serviceID        String           @id
 }
 
 model BloodBankService {
+  serviceID String @id @default(uuid())
+
   phoneNumber           String
   openingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
   closingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
@@ -325,7 +330,7 @@ model BloodBankService {
 
   // Service - Facility : Each BloodBankService must belong to exactly one Facility.
   facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @id
+  facilityID String    @unique
 
   // Service - Division : If a Facility has Divisions, every BloodBankService must belong to a Division.
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
@@ -335,6 +340,8 @@ model BloodBankService {
 }
 
 model ERService {
+  serviceID String @id @default(uuid())
+
   phoneNumber          String
   load                 Load     @default(CLOSED)
   availableBeds        Int      @default(0)
@@ -351,7 +358,7 @@ model ERService {
 
   // Service - Facility : Each ERService must belong to exactly one Facility.
   facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @id
+  facilityID String    @unique
 
   // Service - Division : If a Facility has Divisions, every ERService must belong to a Division.
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
@@ -361,6 +368,8 @@ model ERService {
 }
 
 model ICUService {
+  serviceID String @id @default(uuid())
+
   phoneNumber         String
   baseRate            Float
   load                Load     @default(CLOSED)
@@ -376,7 +385,7 @@ model ICUService {
 
   // Service - Facility : Each ICUService must belong to exactly one Facility.
   facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @id
+  facilityID String    @unique
 
   // Service - Division : If a Facility has Divisions, every ICUService must belong to a Division.
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
@@ -386,6 +395,8 @@ model ICUService {
 }
 
 model OutpatientService {
+  serviceID String @id @default(uuid())
+
   serviceType     ServiceType
   price           Float
   completionTimeD Int                      // Day.
@@ -405,7 +416,7 @@ model OutpatientService {
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
   divisionID String?
 
-  @@id([facilityID, serviceType])
+  @@unique([facilityID, serviceType])
 }
 
 // ENUMS

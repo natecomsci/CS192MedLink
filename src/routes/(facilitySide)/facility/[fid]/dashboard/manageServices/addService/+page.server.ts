@@ -1,11 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from '$lib/server/dtos';
+import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO, FacilityServicesDTO } from '$lib/server/dtos';
 import { ServiceType } from '@prisma/client';
-import { validateCoverageRadius, validateFloat, validateOpenClose, validatePhone, validateTurnaroundCompletionTime } from '$lib/server/formValidators';
-import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO, type facilityServices } from '$lib/server/prisma';
-import { FacilityDAO } from '$lib/server/prisma';
+import { validateCoverageRadius, validateFloat, validateOperatingHours, validatePhone, validateCompletionTime } from '$lib/server/formValidators';
+import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO } from '$lib/server/prisma';
+import { ServicesDAO } from '$lib/server/prisma';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   let serviceTypes: ServiceType[] = [
@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
                         "VACCINATION_COVID19"
                       ]
 
-  const facilityDAO = new FacilityDAO();
+  const serviceDAO = new ServicesDAO();
   const facilityID = cookies.get('facilityID'); 
 
   if (!facilityID) {
@@ -45,7 +45,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     });
   }
 
-  const services: facilityServices = await facilityDAO.getServicesByFacility(facilityID);
+  const services: FacilityServicesDTO = await serviceDAO.getServicesByFacility(facilityID);
 
   let availableServices = ["None"]
   let availableOPServices = ["None"]
@@ -144,7 +144,7 @@ export const actions = {
         }
 
         try {
-          validateOpenClose(open, close)
+          validateOperatingHours(open, close)
         } catch (error) {
 
           return fail(422, {
@@ -194,7 +194,7 @@ export const actions = {
         
         const mileageRate       = validateFloat(mileRate, "Mileage Rate");
 
-        let { openingTime, closingTime }   = validateOpenClose(open, close)
+        let { openingTime, closingTime }   = validateOperatingHours(open, close)
 
         const { minCoverageRadius, maxCoverageRadius } = validateCoverageRadius(minCover, maxCover)
         
@@ -228,7 +228,7 @@ export const actions = {
         }
 
         try {
-          validateOpenClose(open, close)
+          validateOperatingHours(open, close)
         } catch (error) {
 
           return fail(422, {
@@ -239,7 +239,7 @@ export const actions = {
         }
 
         try {
-          validateTurnaroundCompletionTime(turnTD, turnTH)
+          validateCompletionTime(turnTD, turnTH, "Turnarond")
         } catch (error) {
 
           return fail(422, {
@@ -261,8 +261,8 @@ export const actions = {
         }
 
         const phoneNumber       = validatePhone(phone);
-        const { openingTime, closingTime }   = validateOpenClose(open, close)
-        const TTime              = validateTurnaroundCompletionTime(turnTD, turnTH)
+        const { openingTime, closingTime }   = validateOperatingHours(open, close)
+        const TTime              = validateCompletionTime(turnTD, turnTH, "Turnaround")
         const turnaroundTimeD   = TTime.days;
         const turnaroundTimeH   = TTime.hours; 
 
@@ -359,7 +359,7 @@ export const actions = {
         }
 
         try {
-          validateTurnaroundCompletionTime(compTD, compTH)
+          validateCompletionTime(compTD, compTH, "Completion")
         } catch (error) {
 
           return fail(422, {
@@ -372,7 +372,7 @@ export const actions = {
         const OPserviceType     = OPType as ServiceType;
         const price             = validateFloat(rates, "Base Rate");
 
-        const CTime             = validateTurnaroundCompletionTime(compTD, compTH)
+        const CTime             = validateCompletionTime(compTD, compTH, "Completion")
         const completionTimeD   = CTime.days
         const completionTimeH   = CTime.hours
 

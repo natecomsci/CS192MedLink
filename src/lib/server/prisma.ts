@@ -1,26 +1,24 @@
 import { PrismaClient, Prisma } from '@prisma/client'
 
-import { Provider, ServiceType } from '@prisma/client'
+import { FacilityType, Ownership, Provider, ServiceType } from '@prisma/client'
 
-import type { Address, Facility, AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService } from '@prisma/client';
+import type { AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService, Address, Facility, Admin } from '@prisma/client';
 
-import type { BloodTypeMappingDTO, RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO } from './dtos';
+import type { BloodTypeMappingDTO } from './dtos';
 
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from './dtos';
 
-import type { UpdateAmbulanceServiceDTO, UpdateBloodBankServiceDTO, UpdateERServiceDTO, UpdateICUServiceDTO, UpdateOutpatientServiceDTO } from './dtos';
+import type { AmbulanceServiceDTO, BloodBankServiceDTO, ERServiceDTO, ICUServiceDTO, OutpatientServiceDTO } from './dtos';
 
-import type { M_UpdateGenInfoFacilityDTO } from './dtos';
+import type { FacilityServicesDTO, FlatFacilityServicesDTO } from './dtos';
+
+import type { RegionDTO, POrCDTO, COrMDTO, BrgyDTO, AddressDTO } from './dtos';
+
+import type { GeneralInformationFacilityDTO } from './dtos';
+
+import type { CreateAdminDTO, InitialAdminDetailsDTO } from './dtos';
 
 // Initialization of Prisma
-
-export interface facilityServices {
-  ambulanceService   : AmbulanceService | null;
-  bloodBankService   : BloodBankService | null;
-  erService          : ERService | null;
-  icuService         : ICUService | null;
-  outpatientServices : OutpatientService[];
-}
 
 const prisma = global.prisma || new PrismaClient();
 
@@ -33,7 +31,7 @@ export { prisma }
 // DAOs
 
 export class AmbulanceServiceDAO {
-  async getByID(facilityID: string): Promise<AmbulanceService | null> {
+  async getByFacility(facilityID: string): Promise<AmbulanceService | null> {
     try {
       const service = await prisma.ambulanceService.findUnique({
         where: { 
@@ -64,11 +62,11 @@ export class AmbulanceServiceDAO {
     }
   }
 
-  async update(facilityID: string, data: UpdateAmbulanceServiceDTO): Promise<void> {
+  async update(serviceID: string, data: AmbulanceServiceDTO): Promise<void> {
     try {
       await prisma.ambulanceService.update({
         where: { 
-          facilityID 
+          serviceID 
         },
         data: {
           phoneNumber       : data.phoneNumber,
@@ -87,11 +85,11 @@ export class AmbulanceServiceDAO {
     }
   }
 
-  async delete(facilityID: string): Promise<void> {
+  async delete(serviceID: string): Promise<void> {
     try {
       await prisma.ambulanceService.delete({
         where: { 
-          facilityID 
+          serviceID 
         }
       });
     } catch (error) {
@@ -102,11 +100,11 @@ export class AmbulanceServiceDAO {
 }
 
 export class BloodTypeMappingDAO {
-  async getBloodTypeMapping(facilityID: string): Promise<BloodTypeMapping | null> {
+  async getBloodTypeMapping(serviceID: string): Promise<BloodTypeMapping | null> {
     try {
       const bloodTypeMapping = await prisma.bloodTypeMapping.findUnique({
         where: { 
-          facilityID 
+          serviceID 
         }
       });
   
@@ -122,7 +120,7 @@ export class BloodTypeMappingDAO {
     }
   }
 
-  async createBloodTypeMapping(facilityID: string, tx: Prisma.TransactionClient): Promise<void> {
+  async createBloodTypeMapping(serviceID: string, tx: Prisma.TransactionClient): Promise<void> {
     await tx.bloodTypeMapping.create({
       data: {
         A_P  : false,
@@ -136,17 +134,17 @@ export class BloodTypeMappingDAO {
   
         BloodBankService: {
           connect: {
-            facilityID
+            serviceID
           }
         }
       }
     });
   }
 
-  updateBloodTypeMapping(facilityID: string, data: BloodTypeMappingDTO): Promise<BloodTypeMapping> {
-    return prisma.bloodTypeMapping.update({
+  async updateBloodTypeMapping(serviceID: string, data: BloodTypeMappingDTO, tx: Prisma.TransactionClient): Promise<void> {
+    await tx.bloodTypeMapping.update({
       where: { 
-        facilityID 
+        serviceID 
       },
       data: {
         A_P  : data.A_P,
@@ -165,7 +163,7 @@ export class BloodTypeMappingDAO {
 let bloodTypeMappingDAO: BloodTypeMappingDAO = new BloodTypeMappingDAO();
 
 export class BloodBankServiceDAO {
-  async getByID(facilityID: string): Promise<BloodBankService | null> {
+  async getByFacility(facilityID: string): Promise<BloodBankService | null> {
     try {
       const service = await prisma.bloodBankService.findUnique({
         where: { 
@@ -188,24 +186,24 @@ export class BloodBankServiceDAO {
   async create(facilityID: string, data: CreateBloodBankServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        await tx.bloodBankService.create({
+        const bloodBankService = await tx.bloodBankService.create({
           data: { ...data, facility: { connect: { facilityID } } }
         });
   
-        await bloodTypeMappingDAO.createBloodTypeMapping(facilityID, tx);
+        await bloodTypeMappingDAO.createBloodTypeMapping(bloodBankService.serviceID, tx);
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not create BloodBankService.");
     }
   }
-  
-  async update(facilityID: string, data: UpdateBloodBankServiceDTO): Promise<void> {
+
+  async update(serviceID: string, data: BloodBankServiceDTO): Promise<void> {
     try {
-      await prisma.$transaction([
-        prisma.bloodBankService.update({
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        await tx.bloodBankService.update({
           where: { 
-            facilityID 
+            serviceID 
           },
           data: {
             phoneNumber     : data.phoneNumber,
@@ -215,21 +213,23 @@ export class BloodBankServiceDAO {
             turnaroundTimeD : data.turnaroundTimeD,
             turnaroundTimeH : data.turnaroundTimeH,
           }
-        }),
+        });
 
-        bloodTypeMappingDAO.updateBloodTypeMapping(facilityID, data.bloodTypeAvailability)
-      ]);
+        if (data.bloodTypeAvailability) {
+          await bloodTypeMappingDAO.updateBloodTypeMapping(serviceID, data.bloodTypeAvailability, tx)
+        }
+      });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update BloodBankService.");
     }
   }
 
-  async delete(facilityID: string): Promise<void> {
+  async delete(serviceID: string): Promise<void> {
     try {
       await prisma.bloodBankService.delete({
         where: { 
-          facilityID 
+          serviceID 
         }
       });
     } catch (error) {
@@ -240,7 +240,7 @@ export class BloodBankServiceDAO {
 }
 
 export class ERServiceDAO {
-  async getByID(facilityID: string): Promise<ERService | null> {
+  async getByFacility(facilityID: string): Promise<ERService | null> {
     try {
       const service = await prisma.eRService.findUnique({
         where: { 
@@ -271,11 +271,11 @@ export class ERServiceDAO {
     }
   }
 
-  async update(facilityID: string, data: UpdateERServiceDTO): Promise<void> {
+  async update(serviceID: string, data: ERServiceDTO): Promise<void> {
     try {
-      await prisma.erService.update({
+      await prisma.eRService.update({
         where: { 
-          facilityID 
+          serviceID 
         },
         data: {
           phoneNumber          : data.phoneNumber,
@@ -295,11 +295,11 @@ export class ERServiceDAO {
     }
   }
 
-  async delete(facilityID: string): Promise<void> {
+  async delete(serviceID: string): Promise<void> {
     try {
       await prisma.eRService.delete({
         where: { 
-          facilityID 
+          serviceID 
         }
       });
     } catch (error) {
@@ -310,7 +310,7 @@ export class ERServiceDAO {
 }
 
 export class ICUServiceDAO {
-  async getByID(facilityID: string): Promise<ICUService | null> {
+  async getByFacility(facilityID: string): Promise<ICUService | null> {
     try {
       const service = await prisma.iCUService.findUnique({
         where: { 
@@ -341,11 +341,11 @@ export class ICUServiceDAO {
     }
   }
 
-  async update(facilityID: string, data: UpdateICUServiceDTO): Promise<void> {
+  async update(serviceID: string, data: ICUServiceDTO): Promise<void> {
     try {
-      await prisma.icuService.update({
+      await prisma.iCUService.update({
         where: { 
-          facilityID 
+          serviceID 
         },
         data: {
           phoneNumber         : data.phoneNumber,
@@ -364,11 +364,11 @@ export class ICUServiceDAO {
     }
   }
 
-  async delete(facilityID: string): Promise<void> {
+  async delete(serviceID: string): Promise<void> {
     try {
       await prisma.iCUService.delete({
         where: { 
-          facilityID 
+          serviceID 
         }
       });
     } catch (error) {
@@ -379,16 +379,16 @@ export class ICUServiceDAO {
 }
 
 export class OutpatientServiceDAO {
-  async getByID(facilityID: string, serviceType: ServiceType): Promise<OutpatientService | null> {
+  async getByID(serviceID: string): Promise<OutpatientService | null> {
     try {
       const service = await prisma.outpatientService.findUnique({
         where: { 
-          facilityID_serviceType: { facilityID, serviceType } 
+          serviceID
         }
       });
   
       if (!service) {
-        console.warn("No OutpatientService with the specified type found in the facility.");
+        console.warn("No OutpatientService with the specified ID found in the facility.");
         return null;
       }
   
@@ -399,7 +399,7 @@ export class OutpatientServiceDAO {
     }
   }
 
-  async getAll(facilityID: string): Promise<OutpatientService[]> {
+  async getByFacility(facilityID: string): Promise<OutpatientService[]> {
     try {
       const outpatientServices = await prisma.outpatientService.findMany({
          where: { 
@@ -425,11 +425,11 @@ export class OutpatientServiceDAO {
     }
   }
 
-  async update(facilityID: string, data: UpdateOutpatientServiceDTO): Promise<void> {
+  async update(serviceID: string, data: OutpatientServiceDTO): Promise<void> {
     try {
       await prisma.outpatientService.update({
         where: { 
-          facilityID 
+          serviceID  
         },
         data: {
           serviceType     : data.serviceType,
@@ -446,11 +446,11 @@ export class OutpatientServiceDAO {
     }
   }
 
-  async delete(facilityID: string, serviceType: ServiceType): Promise<void> {
+  async delete(serviceID: string, serviceType: ServiceType): Promise<void> {
     try {
       await prisma.outpatientService.delete({
         where: { 
-          facilityID_serviceType: { facilityID, serviceType } 
+          serviceID 
         }
       });
     } catch (error) {
@@ -460,9 +460,205 @@ export class OutpatientServiceDAO {
   }
 }
 
+let ambulanceServiceDAO : AmbulanceServiceDAO = new AmbulanceServiceDAO();
+let bloodBankServiceDAO : BloodBankServiceDAO = new BloodBankServiceDAO();
+let eRServiceDAO : ERServiceDAO = new ERServiceDAO();
+let iCUServiceDAO : ICUServiceDAO = new ICUServiceDAO();
+let outpatientServiceDAO : OutpatientServiceDAO = new OutpatientServiceDAO();
+
+/* 
+
+FOR TESTING
+
+let OutpatientServiceTypes: ServiceType[] = [
+  "CONSULTATION_GENERAL",
+  "BLOOD_CHEMISTRY_BUA",
+  "HEMATOLOGY_CBC",
+  "CLINICAL_FECALYSIS",  
+  "CLINICAL_URINALYSIS",
+  "X_RAY_CHEST_PA",
+  "X_RAY_C_SPINE",
+  "X_RAY_T_SPINE",
+  "X_RAY_L_SPINE",
+  "ULTRASOUND_ABDOMINAL",
+  "CT_SCAN_HEAD",
+  "CT_SCAN_C_SPINE",
+  "CT_SCAN_T_SPINE",
+  "CT_SCAN_L_SPINE",
+  "MRI_BRAIN",
+  "DENTAL_SCALING",
+  "THERAPY_PHYSICAL",
+  "ONCOLOGY_CHEMOTHERAPY",
+  "PROCEDURE_EEG",
+  "PROCEDURE_ECG",
+  "PROCEDURE_DIALYSIS",
+  "PROCEDURE_COLONOSCOPY",
+  "PROCEDURE_GASTROSCOPY",
+  "PROCEDURE_LABOR_DELIVERY",
+  "VACCINATION_COVID19"
+]
+
+*/
+
+// Because of the heterogenous nature of the services, pagination must be done in the business logic instead of natively on Prisma.
+
+export class ServicesDAO {
+  serviceMapping: Record<string, string> = {
+    ambulanceService : "Ambulance", 
+    bloodBankService : "Blood Bank", 
+    eRService : "Emergency Room", 
+    iCUService : "Intensive Care Unit",
+  };
+
+  async getServicesByFacility(facilityID: string): Promise<FacilityServicesDTO> {
+    try {
+      const [
+        ambulanceService,
+        bloodBankService,
+        eRService,
+        iCUService,
+        outpatientServices,
+      ] = await Promise.all([
+        ambulanceServiceDAO.getByFacility(facilityID).catch(() => null),
+        bloodBankServiceDAO.getByFacility(facilityID).catch(() => null),
+        eRServiceDAO.getByFacility(facilityID).catch(() => null),
+        iCUServiceDAO.getByFacility(facilityID).catch(() => null),
+        outpatientServiceDAO.getByFacility(facilityID),
+      ]);
+
+      return {
+        ambulanceService,
+        bloodBankService,
+        eRService,
+        iCUService,
+        outpatientServices,
+      };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get services of the facility.");
+    }
+  }
+
+  /*
+  Sample Outputs:
+
+  1 OutpatientService:
+
+  {
+    "ambulanceService"   : null,
+    "bloodBankService"   : null,
+    "erService"          : null,
+    "icuService"         : null,
+    "outpatientServices" : [
+      { *info on outpatientservice1*, }
+    ]
+  }
+
+  No Services:
+
+  {
+    "ambulanceService"   : null,
+    "bloodBankService"   : null,
+    "erService"          : null,
+    "icuService"         : null,
+    "outpatientServices" : []
+  }
+  */
+
+  async getFlatServicesByFacility(facilityID: string): Promise<FlatFacilityServicesDTO[]> {
+    const services = await this.getServicesByFacility(facilityID);
+  
+    const flatServices: FlatFacilityServicesDTO[] = [];
+  
+    for (const [key, value] of Object.entries(services)) {
+      if ((value !== null) && (key in this.serviceMapping)) {
+        flatServices.push({
+          serviceID : value.serviceID,
+          type      : this.serviceMapping[key],
+          createdAt : value.createdAt,
+          updatedAt : value.updatedAt,
+        });
+      }
+    }
+  
+    for (const outpatientService of services.outpatientServices) {
+      flatServices.push({
+        serviceID : outpatientService.serviceID,
+        type      : outpatientService.serviceType,
+        createdAt : outpatientService.createdAt,
+        updatedAt : outpatientService.updatedAt,
+      });
+    }
+  
+    return flatServices;
+  }
+
+  /*
+  async getCreatableServicesByFacility(facilityID: string): 
+  Promise<{ creatableServiceTypes: string[], creatableOutpatientServices: ServiceType[]}> {
+    try {
+      const services = await this.getServicesByFacility(facilityID);
+
+      let creatableServiceTypes:       string[]      = []; // removed "None" kasi cop-out solution lang sya ryt,,,
+      let creatableOutpatientServices: ServiceType[] = []; // removed "None" kasi cop-out solution lang sya ryt,,,
+
+      for (const [key, value] of Object.entries(services)) {
+        if ((value === null) && (key in this.serviceMapping)) {
+          creatableServiceTypes.push(this.serviceMapping[key]);
+        }
+      }
+
+      let existingOutpatientServiceTypes: ServiceType[] = services.outpatientServices.map(service => service.serviceType);
+
+      for (let serviceType of OutpatientServiceTypes) {              // serviceTypes to be imported
+        if (!existingOutpatientServiceTypes.includes(serviceType)) {
+          creatableOutpatientServices.push(serviceType);
+        }
+      }
+
+      if (creatableOutpatientServices.length > 0) {
+        creatableServiceTypes.push("Outpatient");
+      }
+
+      return { creatableServiceTypes, creatableOutpatientServices };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get creatable services.");
+    }
+  }
+
+  async getCreatableServicesByFacility(facilityID: string): Promise<string[]> {
+    try {
+      const services = await this.getServicesByFacility(facilityID);
+
+      let creatableServiceTypes: string[] = [];
+
+      for (const [key, value] of Object.entries(services)) {
+        if ((value === null) && (key in this.serviceMapping)) {
+          creatableServiceTypes.push(this.serviceMapping[key]);
+        }
+      }
+
+      let existingOutpatientServiceTypes: ServiceType[] = services.outpatientServices.map(service => service.serviceType);
+
+      for (let serviceType of OutpatientServiceTypes) {              // serviceTypes to be imported
+        if (!existingOutpatientServiceTypes.includes(serviceType)) {
+          creatableServiceTypes.push(serviceType);
+        }
+      }
+
+      return creatableServiceTypes;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get creatable services.");
+    }
+  }
+  */
+}
+
 export class AddressDAO {
-  updateAddress(facilityID: string, data: AddressDTO): Promise<Address> {
-    return prisma.address.update({
+  async updateAddress(facilityID: string, data: AddressDTO, tx: Prisma.TransactionClient): Promise<void> {
+    await tx.address.update({
       where: { 
         facilityID 
       },
@@ -492,7 +688,30 @@ export class AddressDAO {
     }
   }
 
-  async getPOrCOfRegion(regionID: number): Promise<POrCDTO[]> {
+  async getNameOfRegion(regionID: number): Promise<string | null> {
+    try {
+      const object = await prisma.region.findUnique({
+        where: {
+          regionID
+        },
+        select: {
+          name : true
+        }
+      });
+
+      if (!object) {
+        console.warn("No Region found.");
+        return null;
+      }
+
+      return object.name;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get name of the region.");
+    }
+  }
+
+  async getProvinceOfRegion(regionID: number): Promise<POrCDTO[]> {
     try {
       const pOrC = await prisma.pOrC.findMany({
         where: {
@@ -509,6 +728,29 @@ export class AddressDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not get provinces for the region.");
+    }
+  }
+
+  async getNameOfProvince(pOrCID: number): Promise<string | null> {
+    try {
+      const object = await prisma.pOrC.findUnique({
+        where: {
+          pOrCID
+        },
+        select: {
+          name : true
+        }
+      });
+
+      if (!object) {
+        console.warn("No Province found.");
+        return null;
+      }
+
+      return object.name;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get name of the province.");
     }
   }
 
@@ -532,6 +774,29 @@ export class AddressDAO {
     }
   }
 
+  async getNameOfCOrM(cOrMID: number): Promise<string | null> {
+    try {
+      const object = await prisma.cOrM.findUnique({
+        where: {
+          cOrMID
+        },
+        select: {
+          name : true
+        }
+      });
+
+      if (!object) {
+        console.warn("No COrM found.");
+        return null;
+      }
+
+      return object.name;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get name of the city or municipality.");
+    }
+  }
+
   async getBrgyOfCOrM(cOrMID: number): Promise<BrgyDTO[]> {
     try {
       const brgys = await prisma.brgy.findMany({
@@ -551,29 +816,47 @@ export class AddressDAO {
       throw new Error("Could not get barangays for the city or municipality.");
     }
   }
+
+  async getNameOfBrgy(brgyID: number): Promise<string | null> {
+    try {
+      const object = await prisma.brgy.findUnique({
+        where: {
+          brgyID
+        },
+        select: {
+          name : true
+        }
+      });
+
+      if (!object) {
+        console.warn("No Barangay found.");
+        return null;
+      }
+
+      return object.name;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get name of the barangay.");
+    }
+  }
 }
 
 let addressDAO: AddressDAO = new AddressDAO();
-let ambulanceServiceDAO : AmbulanceServiceDAO = new AmbulanceServiceDAO();
-let bloodBankServiceDAO : BloodBankServiceDAO = new BloodBankServiceDAO();
-let eRServiceDAO : ERServiceDAO = new ERServiceDAO();
-let iCUServiceDAO : ICUServiceDAO = new ICUServiceDAO();
-let outpatientServiceDAO : OutpatientServiceDAO = new OutpatientServiceDAO();
 
 export class FacilityDAO {
   async getByID(facilityID: string): Promise<Facility | null> {
     try {
       const facility = await prisma.facility.findUnique({
-        where: { 
-          facilityID 
+        where: {
+          facilityID
         }
       });
-  
+
       if (!facility) {
         console.warn("No Facility found.");
         return null;
       }
-  
+
       return facility;
     } catch (error) {
       console.error("Details: ", error);
@@ -581,7 +864,7 @@ export class FacilityDAO {
     }
   }
 
-  async getGeneralInformation(facilityID: string): Promise<M_UpdateGenInfoFacilityDTO> { // to make transaction
+  async getGeneralInformation(facilityID: string): Promise<GeneralInformationFacilityDTO> {
     try {
       const facility = await this.getByID(facilityID);
 
@@ -595,20 +878,21 @@ export class FacilityDAO {
         throw new Error("Missing needed Address data.");
       }
 
-      if (!facility.phoneNumber || !facility.facilityType || !facility.ownership) {
+      if (!facility.email || !facility.phoneNumber || !facility.facilityType || !facility.ownership) {
         throw new Error("Facility information is incomplete.");
       }
 
       return {
         name              : facility.name,
         photo             : facility.photo,
-        email             : facility.email,
         address           : address,
+        email             : facility.email,
         phoneNumber       : facility.phoneNumber,
         facilityType      : facility.facilityType,
         ownership         : facility.ownership,
-        bookingSystem     : facility.bookingSystem ?? "",
         acceptedProviders : facility.acceptedProviders,
+
+        ...(facility.bookingSystem ? { bookingSystem: facility.bookingSystem } : {}),
       };
     } catch (error) {
       console.error("Details: ", error);
@@ -616,52 +900,36 @@ export class FacilityDAO {
     }
   }
 
-  async updateGeneralInformation(facilityID: string, data: M_UpdateGenInfoFacilityDTO): Promise<void> {
+  async updateGeneralInformation(facilityID: string, data: GeneralInformationFacilityDTO): Promise<void> {
     try {
-      await prisma.$transaction([
-        prisma.facility.update({
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        tx.facility.update({
           where: { 
             facilityID 
           },
           data: {
             name              : data.name,
-            photo             : data.photo ?? "https://placehold.co/1920x1440/png",
+            photo             : data.photo,
             email             : data.email,
             phoneNumber       : data.phoneNumber,
             facilityType      : data.facilityType,
             ownership         : data.ownership,
-            bookingSystem     : data.bookingSystem ?? "",
+            bookingSystem     : data.bookingSystem,
             acceptedProviders : data.acceptedProviders,
           }
-        }),
+        });
 
-        addressDAO.updateAddress(facilityID, data.address)
-      ]);
+        if (data.address) {
+          await addressDAO.updateAddress(facilityID, data.address, tx)
+        }
+      });
     } catch (error) {
       console.log("Details: ", error)
       throw new Error("Could not update general information for Facility.");
     }
-  }  
-
-  /*
-  async updatePassword(facility: string, data: <insert>): {
-    try {
-      await prisma.facility.update({
-        where: { 
-          facilityID 
-        },
-        data: {
-        }
-      });
-
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("<message>");
-    }
   }
-  */
 
-  async getAddressByFacility(facilityID: string): Promise<AddressDTO> {
+  async getAddressByFacility(facilityID: string): Promise<AddressDTO | null> {
     try {
       const address = await prisma.address.findUnique({
         where: { 
@@ -676,6 +944,11 @@ export class FacilityDAO {
         }
       });
   
+      if (!address) {
+        console.warn("No Address found.");
+        return null;
+      }
+
       return address;
     } catch (error) {
       console.error("Details: ", error);
@@ -698,71 +971,115 @@ export class FacilityDAO {
     }
   }
 
-  async getServicesByFacility(facilityID: string): Promise<facilityServices> {
-    const [
-      ambulanceService,
-      bloodBankService,
-      erService,
-      icuService,
-      outpatientServices,
-    ] = await Promise.all([
-      ambulanceServiceDAO.getByID(facilityID).catch(() => null),
-      bloodBankServiceDAO.getByID(facilityID).catch(() => null),
-      eRServiceDAO.getByID(facilityID).catch(() => null),
-      iCUServiceDAO.getByID(facilityID).catch(() => null),
-      outpatientServiceDAO.getAll(facilityID).catch(() => []),
-    ]);
-  
-    return {
-      ambulanceService,
-      bloodBankService,
-      erService,
-      icuService,
-      outpatientServices,
-    };
-  } 
-
-  /*
-  Sample Outputs:
-
-  1 OutpatientService:
-
-  {
-    "ambulanceService"   : null,
-    "bloodBankService"   : null,
-    "erService"          : null,
-    "icuService"         : null,
-    "outpatientServices" : [
-      { *info on outpatientservice1*, }
-    ]
-  }
-
-  No Services:
-
-  {
-    "ambulanceService"   : null,
-    "bloodBankService"   : null,
-    "erService"          : null,
-    "icuService"         : null,
-    "outpatientServices" : []
-  }
-  */
-
-  /*
-  async getAdminsByFacility(facilityID: string) Promise< // to insert // > {
-    
-  }
-
-  async getDivisionsByFacility(facilityID: string): Promise< // to insert // > {
-    
-  }
-
   async facilityHasAdmins(facilityID: string): Promise<boolean> {
-    
+    try {
+      const count = await prisma.admin.count({
+        where: {
+          facilityID
+        }
+      });
+
+      return count > 0;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not check if Facility has Admins.");
+    }
   }
 
   async facilityHasDivisions(facilityID: string): Promise<boolean> {
-    
+    try {
+      const count = await prisma.division.count({
+        where: {
+          facilityID
+        }
+      });
+
+      return count > 0;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not check if Facility has Divisions.");
+    }
   }
+}
+
+/*
+export class DivisionDAO {
+
+}
+*/
+
+export class AdminDAO {
+  async getByID(adminID: string): Promise<Admin | null> {
+    try {
+      const admin = await prisma.admin.findUnique({
+        where: { 
+          adminID 
+        }
+      });
+  
+      if (!admin) {
+        console.warn("No Admin with the specified ID found in the facility.");
+        return null;
+      }
+  
+      return admin;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Admin.");
+    }
+  }
+
+  async create(facilityID: string, data: CreateAdminDTO): Promise<InitialAdminDetailsDTO> {
+    try {
+      const admin = await prisma.admin.create({
+        data: { ...data, facility: { connect: { facilityID } } }
+      });
+  
+      return {
+        adminID  : admin.adminID,
+        fname    : admin.fname,
+        lname    : admin.lname,
+        password : admin.password,
+
+        ...(admin.mname ? { mname: admin.mname } : {}),
+      };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not create Admin.");
+    }
+  }
+
+  /*
+  async update(adminID: string, data: AdminDTO): Promise<void> {
+    try {
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not update Admin.");
+    }
+  }
+  */
+
+  async delete(adminID: string): Promise<void> {
+    try {
+      await prisma.admin.delete({
+        where: { 
+          adminID 
+        }
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not delete Admin.");
+    }
+  }
+
+  /*
+  async getAdminsByFacility(facilityID: string): Promise<[insert]> {
+  
+  }
+
+  async getPaginatedAdminsByFacility(facilityID: string): Promise<[insert]> {
+  
+  }
+
   */
 }
