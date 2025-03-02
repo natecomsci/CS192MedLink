@@ -248,7 +248,7 @@ export async function validateLink(link: string): Promise<string> {
   const linkFormat = /^https?:\/\/([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
 
   if (!linkFormat.test(linkStr)) {
-    throw new Error(`(${linkStr}) Booking system link must be valid.`);
+    throw new Error("Booking system link must be valid.");
   }
 
   try {

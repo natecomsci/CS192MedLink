@@ -103,6 +103,8 @@ export class AmbulanceServiceDAO {
         mileageRate       : service.mileageRate,
         maxCoverageRadius : service.maxCoverageRadius,
         availability      : service.availability,
+        createdAt         : service.createdAt,
+        updatedAt         : service.updatedAt,
       }
 
     } catch (error) {
@@ -149,11 +151,21 @@ export class AmbulanceServiceDAO {
 }
 
 export class BloodTypeMappingDAO {
-  async getBloodTypeMapping(serviceID: string): Promise<BloodTypeMapping | null> {
+  async getBloodTypeMapping(serviceID: string): Promise<BloodTypeMappingDTO | null> {
     try {
       const bloodTypeMapping = await prisma.bloodTypeMapping.findUnique({
         where: { 
           serviceID 
+        },
+        select: {
+          A_P  : true,
+          A_N  : true,
+          B_P  : true,
+          B_N  : true,
+          O_P  : true,
+          O_N  : true,
+          AB_P : true,
+          AB_N : true,
         }
       });
   
@@ -289,6 +301,8 @@ export class BloodBankServiceDAO {
         turnaroundTimeD       : service.turnaroundTimeD,
         turnaroundTimeH       : service.turnaroundTimeH,
         bloodTypeAvailability : bloodTypeAvailability,
+        createdAt             : service.createdAt,
+        updatedAt             : service.updatedAt,
       };
   
     } catch (error) {
@@ -408,6 +422,8 @@ export class ERServiceDAO {
         urgentQueueLength    : service.urgentQueueLength,
         criticalPatients     : service.criticalPatients,
         criticalQueueLength  : service.criticalQueueLength,
+        createdAt            : service.createdAt,
+        updatedAt            : service.updatedAt,
       };
   
     } catch (error) {
@@ -523,6 +539,8 @@ export class ICUServiceDAO {
         neurologicalSupport : service.neurologicalSupport,
         renalSupport        : service.renalSupport,
         respiratorySupport  : service.respiratorySupport,
+        createdAt           : service.createdAt,
+        updatedAt           : service.updatedAt,
       };
   
     } catch (error) {
@@ -630,6 +648,8 @@ export class OutpatientServiceDAO {
         completionTimeH : service.completionTimeH,
         isAvailable     : service.isAvailable,
         acceptsWalkIns  : service.acceptsWalkIns,
+        createdAt       : service.createdAt,
+        updatedAt       : service.updatedAt,
       };
   
     } catch (error) {

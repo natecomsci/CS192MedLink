@@ -37,25 +37,27 @@ export interface CreateAmbulanceServiceDTO {
 }
 
 export interface AmbulanceServiceDTO {
-  phoneNumber       : string,
-  openingTime       : Date,
-  closingTime       : Date,
-  baseRate          : number,
-  minCoverageRadius : number,
-  mileageRate       : number,
-  maxCoverageRadius : number,
-  availability      : Availability,
+  phoneNumber?       : string,
+  openingTime?       : Date,
+  closingTime?       : Date,
+  baseRate?          : number,
+  minCoverageRadius? : number,
+  mileageRate?       : number,
+  maxCoverageRadius? : number,
+  availability?      : Availability,
+  createdAt?         : Date,
+  updatedAt?         : Date,
 }
 
 export interface BloodTypeMappingDTO {
-  A_P  : boolean,
-  A_N  : boolean,
-  B_P  : boolean,
-  B_N  : boolean,
-  O_P  : boolean,
-  O_N  : boolean,
-  AB_P : boolean,
-  AB_N : boolean,
+  A_P?  : boolean,
+  A_N?  : boolean,
+  B_P?  : boolean,
+  B_N?  : boolean,
+  O_P?  : boolean,
+  O_N?  : boolean,
+  AB_P? : boolean,
+  AB_N? : boolean,
 }
 
 export interface CreateBloodBankServiceDTO {
@@ -75,6 +77,8 @@ export interface BloodBankServiceDTO {
   turnaroundTimeD?       : number,
   turnaroundTimeH?       : number,
   bloodTypeAvailability? : BloodTypeMappingDTO,
+  createdAt?             : Date,
+  updatedAt?             : Date,
 }
 
 export interface CreateERServiceDTO {
@@ -91,6 +95,8 @@ export interface ERServiceDTO {
   urgentQueueLength?    : number,
   criticalPatients?     : number,
   criticalQueueLength?  : number,
+  createdAt?            : Date,
+  updatedAt?            : Date,
 }
 
 export interface CreateICUServiceDTO {
@@ -107,6 +113,8 @@ export interface ICUServiceDTO {
   neurologicalSupport? : boolean,
   renalSupport?        : boolean,
   respiratorySupport?  : boolean,
+  createdAt?           : Date,
+  updatedAt?           : Date,
 }
 
 export interface CreateOutpatientServiceDTO {
@@ -124,6 +132,8 @@ export interface OutpatientServiceDTO {
   completionTimeH? : number,
   isAvailable?     : boolean,
   acceptsWalkIns?  : boolean,
+  createdAt?       : Date,
+  updatedAt?       : Date,
 }
 
 export interface RegionDTO {
