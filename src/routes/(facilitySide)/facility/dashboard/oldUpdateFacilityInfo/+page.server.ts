@@ -1,4 +1,4 @@
-import { AddressDAO } from '$lib/server/prisma';
+import { AddressDAO } from '$lib/server/daos';
 import type { PageServerLoad, Actions } from './$types';
 
 import type { AddressDTO } from '$lib/server/dtos';
@@ -39,7 +39,7 @@ export const actions = {
       const street        = validateStreet(data.get('street'));
     } catch (error) {
       return fail(422, { 
-        error: error.message,
+        error: (error as Error).message,
         description: "street",
         success: false  
       });

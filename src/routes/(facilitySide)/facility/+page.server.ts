@@ -1,8 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
 import type { Actions } from './$types';
-import {FacilityDAO} from '$lib/server/prisma';
-
+import { FacilityDAO } from '$lib/server/daos';
 
 export const actions = {
   default: async ({ request, cookies }) => {
@@ -41,6 +40,6 @@ export const actions = {
     cookies.set('facilityID', fid, {path: '/'});
 
     // Redirect to dashboard on success
-    throw redirect(303, '/facility/'+fid+'/dashboard');
+    throw redirect(303, '/facility/dashboard');
   }
 } satisfies Actions;

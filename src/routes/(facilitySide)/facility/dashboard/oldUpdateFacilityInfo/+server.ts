@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
-import { AddressDAO } from '$lib/server/prisma';
+import { AddressDAO } from '$lib/server/daos';
 
 let address: AddressDAO = new AddressDAO();
 
@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({ request }) => {
   const location = await request.json();
 
   if (location.regionID) {
-    const rv = await address.getPOrCOfRegion(location.regionID);
+    const rv = await address.getProvinceOfRegion(location.regionID);
     return json(rv);
   }
   else if (location.pOrCID) {

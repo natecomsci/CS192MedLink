@@ -1,11 +1,10 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO, FacilityServicesDTO } from '$lib/server/dtos';
 import { ServiceType } from '@prisma/client';
+import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO, FacilityServicesDTO } from '$lib/server/dtos';
 import { validateCoverageRadius, validateFloat, validateOperatingHours, validatePhone, validateCompletionTime } from '$lib/server/formValidators';
-import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO } from '$lib/server/prisma';
-import { ServicesDAO } from '$lib/server/prisma';
+import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO, ServicesDAO } from '$lib/server/daos';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   let serviceTypes: ServiceType[] = [

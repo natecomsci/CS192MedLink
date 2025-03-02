@@ -4,7 +4,7 @@
   import { enhance } from '$app/forms';
 
   import type { PageProps } from './$types';
-  let { data, form }: PageProps = $props();
+  let { form }: PageProps = $props();
 
   let fid = $state('');
   let password = $state('');

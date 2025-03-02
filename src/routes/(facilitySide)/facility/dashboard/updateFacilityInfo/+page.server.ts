@@ -1,4 +1,4 @@
-import { AddressDAO, FacilityDAO } from '$lib/server/prisma';
+import { AddressDAO, FacilityDAO } from '$lib/server/daos';
 import type { PageServerLoad, Actions } from './$types';
 
 import type { AddressDTO, GeneralInformationFacilityDTO } from '$lib/server/dtos';
