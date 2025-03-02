@@ -16,7 +16,7 @@
 
 </script>
 
-<header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] top-0 duration-200 px-6 flex items-center justify-between border border-transparent bg-white ">
+<header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
   <div class="flex items-center">
       <img src={Logo} alt="MedLink logo" class="w-10 h-13" />
       <h1 class="px-3 font-['DM_Sans'] text-[30px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">Med<span class="text-[#9044C4]">Link</span></h1>

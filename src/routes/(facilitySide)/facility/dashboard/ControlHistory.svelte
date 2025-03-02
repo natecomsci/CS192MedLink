@@ -1,47 +1,47 @@
 <div class="h-full flex flex-col">
-    <!-- Sticky Header -->
-    <div class="flex items-center justify-between text-[30px] pl-4 pr-4 text-[#9044C4] font-bold text-lg border-b border-[#DBD8DF] sticky bg-white z-10">
-      Control History
-      <div class=text-[20px]>
-        Searchbar 
-        View
-      </div>
-    </div>
-  
-    <!-- Scrollable List -->
-    <div class="flex-1 overflow-y-auto p-4">
-      {#each Array(20) as _, i}
-        <!-- history item -->
-      <div class="py-2 border-b border-transparent">
-          <div class="history-item justify-between">
-            <div class ='flex space-x-5 items-center'>
-              <!-- Profile Placeholder -->
-              <div class="profile-circle"></div>
-          
-              <!-- Left Content: Admin & Message -->
-              <div class="info">
-                <span class="admin">{admin}</span>
-                <span class="message">{message}</span>
-              </div>
-            </div>
-          
-            <!-- Right Content: Timestamp & Department -->
-            <div class="details">
-              <span class="timestamp">{timestamp}</span>
-              <span class="department">{department}</span>
-            </div>
-        </div>
-      </div>
-      {/each}
-    </div>
-  
-    <!-- Pagination -->
-    <div class="p-4 border-t border-[#DBD8DF] flex justify-between items-center">
-      <button class="p-2 bg-purple-300 rounded">« Prev</button>
-      <span class="text-purple-700 font-semibold">1 of 22</span>
-      <button class="p-2 bg-purple-300 rounded">Next »</button>
+  <!-- Sticky Header -->
+  <div class="flex items-center justify-between text-[30px] pl-4 pr-4 text-[#9044C4] font-bold text-lg border-b border-[#DBD8DF] sticky bg-white z-10">
+    Control History
+    <div class=text-[20px]>
+      Searchbar 
+      View
     </div>
   </div>
+
+  <!-- Scrollable List -->
+  <div class="flex-1 overflow-y-auto p-4">
+    {#each Array(20) as _, i}
+      <!-- history item -->
+    <div class="py-2 border-b border-transparent">
+        <div class="history-item justify-between">
+          <div class ='flex space-x-5 items-center'>
+            <!-- Profile Placeholder -->
+            <div class="profile-circle"></div>
+        
+            <!-- Left Content: Admin & Message -->
+            <div class="info">
+              <span class="admin">{admin}</span>
+              <span class="message">{message}</span>
+            </div>
+          </div>
+        
+          <!-- Right Content: Timestamp & Department -->
+          <div class="details">
+            <span class="timestamp">{timestamp}</span>
+            <span class="department">{department}</span>
+          </div>
+      </div>
+    </div>
+    {/each}
+  </div>
+
+  <!-- Pagination -->
+  <div class="p-4 border-t border-[#DBD8DF] flex justify-between items-center">
+    <button class="p-2 bg-purple-300 rounded">« Prev</button>
+    <span class="text-purple-700 font-semibold">1 of 22</span>
+    <button class="p-2 bg-purple-300 rounded">Next »</button>
+  </div>
+</div>
   
 
 <script>

@@ -5,7 +5,7 @@
   let Search = "mdi-light:magnify"
   let Filter = "mingcute:settings-6-line"
 
-  let { guest } = $props();
+  let { guest = false } = $props();
 
 	let search = $state("");
 

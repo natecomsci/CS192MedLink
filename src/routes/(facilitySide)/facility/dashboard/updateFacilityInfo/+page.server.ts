@@ -6,99 +6,20 @@ import { validateEmail, validatePhone, validateStreet, validateLink, validateFac
 import { fail } from '@sveltejs/kit';
 import type { FacilityType, Ownership, Provider } from '@prisma/client';
 
+import { providers, OPServiceTypes } from '$lib/projectTypes';
+
 export const load: PageServerLoad = async ({ cookies }) => {
-  let address: AddressDAO = new AddressDAO();
-  let providers: Provider[] = [
-    "INTELLICARE",
-    "ASIACARE",
-    "AVEGA",
-    "CAREWELL",
-    "one_COOPHEALTH",
-    "DYNAMIC_CARE_CORPORATION",
-    "EASTWEST_HEALTHCARE",
-    "FORTICARE",
-    "GETWELL",
-    "HC_and_D",
-    "HEALTHFIRST",
-    "HMI",
-    "HPPI",
-    "IWC",
-    "ICARE",
-    "KAISER",
-    "LIFE_and_HEALTH",
-    "MAXICARE",
-    "MEDICARD",
-    "MEDICARE",
-    "MEDOCARE",
-    "METROCARE",
-    "OMHSI",
-    "PACIFIC_CROSS",
-    "PHILHEALTH",
-    "VALUCARE",
-    "WELLCARE",
-  ];
-
-  let types: FacilityType[] = [
-    "BARANGAY_HEALTH_CENTER",
-    "CLINIC",
-    "HEALTH_CENTER",
-    "HOSPITAL",
-    "INFIRMARY",
-    "POLYCLINIC",
-    "PRIMARY_CARE_CLINIC",
-    "CARDIOLOGY_CLINIC",
-    "DENTAL_CLINIC",
-    "DERMATOLOGY_CLINIC",
-    "ENDOCRINOLOGY_CLINIC",
-    "ENT_CLINIC",
-    "FERTILITY_CLINIC",
-    "GASTROENTEROLOGY_CLINIC",
-    "IMMUNOLOGY_CENTER",
-    "INFECTIOUS_DISEASE_CENTER",
-    "MATERNITY_CENTER",
-    "NEPHROLOGY_CLINIC",
-    "NEUROLOGY_CLINIC",
-    "ONCOLOGY_CENTER",
-    "OPHTHALMOLOGY_CLINIC",
-    "ORTHOPEDIC_CLINIC",
-    "PEDIATRIC_CLINIC",
-    "PULMONOLOGY_CLINIC",
-    "RHEUMATOLOGY_CLINIC",
-    "UROLOGY_CLINIC",
-    "DIAGNOSTIC_LAB",
-    "GENETIC_TESTING_LAB",
-    "PATHOLOGY_LAB",
-    "RADIOLOGY_CENTER",
-    "BURN_CENTER",
-    "CRITICAL_CARE_CENTER",
-    "EMERGENCY_CENTER",
-    "POISON_CONTROL_CENTER",
-    "TRAUMA_CENTER",
-    "URGENT_CARE_CENTER",
-    "BLOOD_BANK",
-    "DIALYSIS_CENTER",
-    "MENTAL_HEALTH_FACILITY",
-    "PAIN_MANAGEMENT_CLINIC",
-    "REHABILITATION_CENTER",
-    "SLEEP_CENTER",
-    "SUBSTANCE_ABUSE_CENTER",
-    "TRANSPLANT_CENTER",
-    "ALTERNATIVE_MEDICINE_CENTER",
-    "HERBAL_MEDICINE_CENTER",
-    "PHYSICAL_THERAPY_CENTER",
-    "AMBULATORY_CARE_CENTER",
-    "SURGICAL_CENTER",
-    "AMBULANCE_SERVICE",
-  ];
-
   let facilityDAO = new FacilityDAO();
   let facilityID = cookies.get('facilityID');
-  const addressDAO = new AddressDAO();
+  
   if (!facilityID) {
     return fail(422, {
+      error: "Facility is not signed in.",
       description: "not signed in"
     });
   }
+
+  const addressDAO = new AddressDAO();
 
   try {
     let facilityInfo = await facilityDAO.getGeneralInformation(facilityID);
@@ -120,7 +41,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     return {
         regions: await addressDAO.getRegions(),
         providers,
-        types,
+        OPServiceTypes,
         facilityName: facilityInfo.name,
         email: facilityInfo.email,
         address: facilityInfo.address,

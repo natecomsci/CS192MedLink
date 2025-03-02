@@ -4,10 +4,6 @@
     import { enhance } from '$app/forms';
 
     import tempImage from "$lib/images/catle.jpg"
-    
-  
-
-   
   
     let provinceList: POrCDTO[] = $state([]);
     let cityList: COrMDTO[] = $state([]);

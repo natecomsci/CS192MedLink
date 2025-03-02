@@ -1,6 +1,6 @@
 <script>
-  import PatientSearch from '$lib/PatientSearch.svelte'
-  import PatientHeader from '$lib/PatientHeader.svelte'
+  import PatientSearch from '../PatientSearch.svelte'
+  import PatientHeader from '../PatientHeader.svelte'
 </script>
 
 <PatientHeader />
