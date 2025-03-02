@@ -46,7 +46,7 @@ export function validatePersonName(name: FormDataEntryValue | null): string {
     throw new Error("Name must not exceed 50 characters.");
   }
 
-  const validChars = /^[a-zA-Z0-9\s.'’-]+$/;
+  const validChars = /^[a-zA-Z\s.'’\-]+$/;
 
   if (!validChars.test(nameStr)) {
     throw new Error("Name contains invalid characters.");
@@ -68,7 +68,7 @@ export function validateFacilityName(name: FormDataEntryValue | null): string {
     throw new Error("Name must not exceed 50 characters.");
   }
 
-  const validChars = /^[a-zA-Z0-9\s.'’&+-]+$/;
+  const validChars = /^[a-zA-Z\d\s.'’&-+/]+$/;
 
   if (!validChars.test(nameStr)) {
     throw new Error("Name contains invalid characters.");
@@ -76,6 +76,8 @@ export function validateFacilityName(name: FormDataEntryValue | null): string {
 
   return nameStr;
 }
+
+// should we allow hyphens? /^\+?\d[\d\s-]*$/
 
 export function validatePhone(phone: FormDataEntryValue | null): string {
   if (!phone) {
@@ -128,7 +130,7 @@ export async function validateEmail(email: string): Promise<string> {
 
   const emailStr = email.trim();
 
-  const validChars = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const validChars = /^[a-zA-Z\d](?:[a-zA-Z\d._-]*[a-zA-Z\d])*@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
 
   if (!validChars.test(emailStr)) {
     throw new Error("Email contains invalid characters.");
@@ -157,7 +159,7 @@ export function validateOperatingHours(open: FormDataEntryValue | null, close: F
   const openStr  = String(open).trim();
   const closeStr = String(close).trim();
 
-  const timeFormat = /^(?:[0-9]|[01]\d|2[0-3]):[0-5]\d$/;
+  const timeFormat = /^(?:0?\d|1\d|2[0-3]):[0-5]\d$/;
 
   if (!timeFormat.test(openStr)) {
     throw new Error("Invalid opening time format. Use HH:MM (24-hour).");
@@ -221,7 +223,7 @@ export function validateStreet(street: FormDataEntryValue | null): string {
     throw new Error("Street address must not exceed 100 characters.");
   }
 
-  const validChars = /^[a-zA-Z0-9.,\-\s]+$/;
+  const validChars = /^[a-zA-Z\d.,\-\s&]+$/;
 
   if (!validChars.test(streetStr)) {
     throw new Error("Street address contains invalid characters.");
@@ -245,7 +247,7 @@ export async function validateLink(link: string): Promise<string> {
 
   console.log(linkStr)
 
-  const linkFormat = /^https?:\/\/([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
+  const linkFormat = /^https?:\/\/([a-zA-Z\d-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
 
   if (!linkFormat.test(linkStr)) {
     throw new Error("Booking system link must be valid.");
