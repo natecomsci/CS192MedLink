@@ -45,7 +45,6 @@ export interface AmbulanceServiceDTO {
   mileageRate?       : number,
   maxCoverageRadius? : number,
   availability?      : Availability,
-  createdAt?         : Date,
   updatedAt?         : Date,
 }
 
@@ -77,7 +76,6 @@ export interface BloodBankServiceDTO {
   turnaroundTimeD?       : number,
   turnaroundTimeH?       : number,
   bloodTypeAvailability? : BloodTypeMappingDTO,
-  createdAt?             : Date,
   updatedAt?             : Date,
 }
 
@@ -95,7 +93,6 @@ export interface ERServiceDTO {
   urgentQueueLength?    : number,
   criticalPatients?     : number,
   criticalQueueLength?  : number,
-  createdAt?            : Date,
   updatedAt?            : Date,
 }
 
@@ -113,7 +110,6 @@ export interface ICUServiceDTO {
   neurologicalSupport? : boolean,
   renalSupport?        : boolean,
   respiratorySupport?  : boolean,
-  createdAt?           : Date,
   updatedAt?           : Date,
 }
 
@@ -132,7 +128,6 @@ export interface OutpatientServiceDTO {
   completionTimeH? : number,
   isAvailable?     : boolean,
   acceptsWalkIns?  : boolean,
-  createdAt?       : Date,
   updatedAt?       : Date,
 }
 

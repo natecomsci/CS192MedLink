@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // MODELS
@@ -149,13 +148,14 @@ model Facility {
 
   name              String
   photo             String        @default("https://placehold.co/1920x1440/png")
-  address           Address?              // "?" because Prisma cannot enforce "at least one ..." constraints.
+  address           Address?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
   email             String?       @unique
   phoneNumber       String?       @unique
   facilityType      FacilityType?
   ownership         Ownership?
   bookingSystem     String?
   acceptedProviders Provider[]
+  updatedAt         DateTime      @updatedAt
 
   // RELATIONS
 

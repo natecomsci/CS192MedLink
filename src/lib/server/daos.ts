@@ -1,6 +1,6 @@
-import { prisma } from "./prisma";
+import { PrismaClient, Prisma } from '@prisma/client'
 
-import { Prisma, FacilityType, Ownership, Provider, ServiceType } from '@prisma/client'
+import { FacilityType, Ownership, Provider, ServiceType } from '@prisma/client'
 
 import type { AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService, Address, Facility, Admin } from '@prisma/client';
 
@@ -18,7 +18,22 @@ import type { GeneralInformationFacilityDTO } from './dtos';
 
 import type { CreateAdminDTO, InitialAdminDetailsDTO } from './dtos';
 
+// Initialization of Prisma
+
+declare global {
+  var prisma: PrismaClient;
+}
+
+const prisma = global.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV === "development") {
+  global.prisma = prisma;
+}
+
+export { prisma }
+
 // DAOs
+
 export class AmbulanceServiceDAO {
   async getByID(serviceID: string): Promise<AmbulanceService | null> {
     try {
@@ -88,7 +103,6 @@ export class AmbulanceServiceDAO {
         mileageRate       : service.mileageRate,
         maxCoverageRadius : service.maxCoverageRadius,
         availability      : service.availability,
-        createdAt         : service.createdAt,
         updatedAt         : service.updatedAt,
       }
 
@@ -100,26 +114,32 @@ export class AmbulanceServiceDAO {
 
   async update(serviceID: string, data: AmbulanceServiceDTO): Promise<void> {
     try {
-      await prisma.ambulanceService.update({
-        where: { 
-          serviceID 
-        },
-        data: {
-          phoneNumber       : data.phoneNumber,
-          openingTime       : data.openingTime,
-          closingTime       : data.closingTime,
-          baseRate          : data.baseRate,
-          minCoverageRadius : data.minCoverageRadius,
-          mileageRate       : data.mileageRate,
-          maxCoverageRadius : data.maxCoverageRadius,
-          availability      : data.availability,
-        }
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const service = await tx.ambulanceService.update({
+          where: { 
+            serviceID 
+          },
+          data: { ...data },
+          select: {
+            facilityID : true,
+            updatedAt  : true,
+          }
+        });
+  
+        await prisma.facility.update({
+          where: { 
+            facilityID : service.facilityID 
+          },
+          data: { 
+            updatedAt : service.updatedAt
+          }
+        });
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update AmbulanceService.");
     }
-  }
+  }  
 
   async delete(serviceID: string): Promise<void> {
     try {
@@ -286,7 +306,6 @@ export class BloodBankServiceDAO {
         turnaroundTimeD       : service.turnaroundTimeD,
         turnaroundTimeH       : service.turnaroundTimeH,
         bloodTypeAvailability : bloodTypeAvailability,
-        createdAt             : service.createdAt,
         updatedAt             : service.updatedAt,
       };
   
@@ -299,7 +318,7 @@ export class BloodBankServiceDAO {
   async update(serviceID: string, data: BloodBankServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        await tx.bloodBankService.update({
+        const service = await tx.bloodBankService.update({
           where: { 
             serviceID 
           },
@@ -310,13 +329,27 @@ export class BloodBankServiceDAO {
             pricePerUnit    : data.pricePerUnit,
             turnaroundTimeD : data.turnaroundTimeD,
             turnaroundTimeH : data.turnaroundTimeH,
+          },
+          select: {
+            facilityID : true,
+            updatedAt  : true,
           }
         });
 
         if (data.bloodTypeAvailability) {
           await bloodTypeMappingDAO.updateBloodTypeMapping(serviceID, data.bloodTypeAvailability, tx)
         }
+
+        await prisma.facility.update({
+          where: { 
+            facilityID : service.facilityID 
+          },
+          data: { 
+            updatedAt : service.updatedAt
+          }
+        });
       });
+      
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update BloodBankService.");
@@ -407,7 +440,6 @@ export class ERServiceDAO {
         urgentQueueLength    : service.urgentQueueLength,
         criticalPatients     : service.criticalPatients,
         criticalQueueLength  : service.criticalQueueLength,
-        createdAt            : service.createdAt,
         updatedAt            : service.updatedAt,
       };
   
@@ -419,27 +451,32 @@ export class ERServiceDAO {
 
   async update(serviceID: string, data: ERServiceDTO): Promise<void> {
     try {
-      await prisma.eRService.update({
-        where: { 
-          serviceID 
-        },
-        data: {
-          phoneNumber          : data.phoneNumber,
-          load                 : data.load,
-          availableBeds        : data.availableBeds,
-          nonUrgentPatients    : data.nonUrgentPatients,
-          nonUrgentQueueLength : data.nonUrgentQueueLength,
-          urgentPatients       : data.urgentPatients,
-          urgentQueueLength    : data.urgentQueueLength,
-          criticalPatients     : data.criticalPatients,
-          criticalQueueLength  : data.criticalQueueLength,
-        }
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const service = await tx.eRService.update({
+          where: { 
+            serviceID 
+          },
+          data: { ...data },
+          select: {
+            facilityID : true,
+            updatedAt  : true,
+          }
+        });
+  
+        await prisma.facility.update({
+          where: { 
+            facilityID : service.facilityID 
+          },
+          data: { 
+            updatedAt : service.updatedAt
+          }
+        });
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update ERService.");
     }
-  }
+  }  
 
   async delete(serviceID: string): Promise<void> {
     try {
@@ -524,7 +561,6 @@ export class ICUServiceDAO {
         neurologicalSupport : service.neurologicalSupport,
         renalSupport        : service.renalSupport,
         respiratorySupport  : service.respiratorySupport,
-        createdAt           : service.createdAt,
         updatedAt           : service.updatedAt,
       };
   
@@ -536,26 +572,32 @@ export class ICUServiceDAO {
 
   async update(serviceID: string, data: ICUServiceDTO): Promise<void> {
     try {
-      await prisma.iCUService.update({
-        where: { 
-          serviceID 
-        },
-        data: {
-          phoneNumber         : data.phoneNumber,
-          baseRate            : data.baseRate,
-          load                : data.load,
-          availableBeds       : data.availableBeds,
-          cardiacSupport      : data.cardiacSupport,
-          neurologicalSupport : data.neurologicalSupport,
-          renalSupport        : data.renalSupport,
-          respiratorySupport  : data.respiratorySupport,
-        }
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const service = await tx.iCUService.update({
+          where: { 
+            serviceID 
+          },
+          data: { ...data },
+          select: {
+            facilityID : true,
+            updatedAt  : true,
+          }
+        });
+  
+        await prisma.facility.update({
+          where: { 
+            facilityID : service.facilityID 
+          },
+          data: { 
+            updatedAt : service.updatedAt
+          }
+        });
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update ICUService.");
     }
-  }
+  }  
 
   async delete(serviceID: string): Promise<void> {
     try {
@@ -633,7 +675,6 @@ export class OutpatientServiceDAO {
         completionTimeH : service.completionTimeH,
         isAvailable     : service.isAvailable,
         acceptsWalkIns  : service.acceptsWalkIns,
-        createdAt       : service.createdAt,
         updatedAt       : service.updatedAt,
       };
   
@@ -645,24 +686,32 @@ export class OutpatientServiceDAO {
 
   async update(serviceID: string, data: OutpatientServiceDTO): Promise<void> {
     try {
-      await prisma.outpatientService.update({
-        where: { 
-          serviceID  
-        },
-        data: {
-          serviceType     : data.serviceType,
-          price           : data.price,
-          completionTimeD : data.completionTimeD,
-          completionTimeH : data.completionTimeH,
-          isAvailable     : data.isAvailable,
-          acceptsWalkIns  : data.acceptsWalkIns,
-        }
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const service = await tx.outpatientService.update({
+          where: { 
+            serviceID  
+          },
+          data: { ...data },
+          select: {
+            facilityID : true,
+            updatedAt  : true,
+          }
+        });
+  
+        await prisma.facility.update({
+          where: { 
+            facilityID : service.facilityID 
+          },
+          data: { 
+            updatedAt : service.updatedAt
+          }
+        });
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update OutpatientService.");
     }
-  }
+  }  
 
   async delete(serviceID: string, serviceType: ServiceType): Promise<void> {
     try {

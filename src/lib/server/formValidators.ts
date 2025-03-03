@@ -68,7 +68,7 @@ export function validateFacilityName(name: FormDataEntryValue | null): string {
     throw new Error("Name must not exceed 50 characters.");
   }
 
-  const validChars = /^[a-zA-Z\d\s.'’&-+/]+$/;
+  const validChars = /^[a-zA-Z\d\s.'’\-&+/]+$/;
 
   if (!validChars.test(nameStr)) {
     throw new Error("Name contains invalid characters.");
@@ -130,7 +130,7 @@ export async function validateEmail(email: string): Promise<string> {
 
   const emailStr = email.trim();
 
-  const validChars = /^[a-zA-Z\d](?:[a-zA-Z\d._-]*[a-zA-Z\d])*@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/;
+  const validChars = /^[a-zA-Z\d](?:[a-zA-Z\d._\-]*[a-zA-Z\d])*@[a-zA-Z\d.\-]+\.[a-zA-Z]{2,}$/;
 
   if (!validChars.test(emailStr)) {
     throw new Error("Email contains invalid characters.");
@@ -223,7 +223,7 @@ export function validateStreet(street: FormDataEntryValue | null): string {
     throw new Error("Street address must not exceed 100 characters.");
   }
 
-  const validChars = /^[a-zA-Z\d.,\-\s&]+$/;
+  const validChars = /^[a-zA-Z\d\s\-.,&]+$/;
 
   if (!validChars.test(streetStr)) {
     throw new Error("Street address contains invalid characters.");
@@ -247,7 +247,7 @@ export async function validateLink(link: string): Promise<string> {
 
   console.log(linkStr)
 
-  const linkFormat = /^https?:\/\/([a-zA-Z\d-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
+  const linkFormat = /^https?:\/\/([a-zA-Z\d\-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
 
   if (!linkFormat.test(linkStr)) {
     throw new Error("Booking system link must be valid.");
