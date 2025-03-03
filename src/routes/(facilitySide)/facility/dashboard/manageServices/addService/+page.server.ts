@@ -18,7 +18,7 @@ import { validateCoverageRadius,
          validateCompletionTime 
        } from '$lib/server/formValidators';
 
-import { AmbulanceServiceDAO } from "$lib/server/AmbulanceServiceDAO";
+import { AmbulanceServiceDAO } from "$lib/server/AmbulanceDAO";
 import { BloodBankServiceDAO } from "$lib/server/BloodBankDAO";
 import { ERServiceDAO } from "$lib/server/ERDAO";
 import { ICUServiceDAO } from "$lib/server/ICUDAO";
@@ -59,10 +59,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
       if ("bloodBankService" == key) {
         name = "Blood Bank";
       }
-      if ("erService" == key) {
+      if ("eRService" == key) {
         name = "Emergency Room";
       }
-      if ("icuService" == key) {
+      if ("iCUService" == key) {
         name = "ICU";
       }
       availableServices.push(name)

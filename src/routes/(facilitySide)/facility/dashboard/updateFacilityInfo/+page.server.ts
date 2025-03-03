@@ -41,22 +41,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
   try {
     let facilityInfo = await facilityDAO.getGeneralInformation(facilityID);
 
-    // Fetch names for region, province, city, and barangay using their IDs
-    const regionName = await addressDAO.getRegions().then(regions => 
-        regions.find(r => r.regionID === facilityInfo.address.regionID)?.name
-    );
-    const provinceName = await addressDAO.getProvinceOfRegion(facilityInfo.address.regionID).then(provinces => 
-        provinces.find(p => p.pOrCID === facilityInfo.address.pOrCID)?.name
-    );
-    const cityName = await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID).then(cities => 
-        cities.find(c => c.cOrMID === facilityInfo.address.cOrMID)?.name
-    );
-    const barangayName = await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID).then(barangays => 
-        barangays.find(b => b.brgyID === facilityInfo.address.brgyID)?.name 
-    );
-
     return {
         regions: await addressDAO.getRegions(),
+        provinces: await addressDAO.getProvinceOfRegion(facilityInfo.address.regionID),
+        corms: await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
+        brgys: await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
+
 
         facilityName: facilityInfo.name,
         providers,
@@ -66,16 +56,16 @@ export const load: PageServerLoad = async ({ cookies }) => {
         contactNumber: facilityInfo.phoneNumber,
         type: facilityInfo.facilityType,
         ownership: facilityInfo.ownership,
-        bookingSystem: facilityInfo.bookingSystem || "",
+        bookingSystem: facilityInfo.bookingSystem ?? "",
+        
+        regionID: facilityInfo.address.regionID,
+        provinceID: facilityInfo.address.pOrCID, 
+        cityID: facilityInfo.address.cOrMID, 
+        barangayID: facilityInfo.address.brgyID, 
 
-        region: {regionName, regionID: facilityInfo.address.regionID},
-        province: {provinceName, provinceID: facilityInfo.address.pOrCID}, 
-        city: {cityName, cityID: facilityInfo.address.cOrMID}, 
-        barangay: {barangayName, barangayID: facilityInfo.address.brgyID}, 
         street: facilityInfo.address.street,
     };
 } catch (error) {
-    console.error("Details: ", error);
     return fail(500, {
         description: "Could not get facility information."
     });
@@ -100,7 +90,7 @@ export const actions = {
     const pOrCID        = Number(data.get('province'));
     const cOrMID        = Number(data.get('city'));
     const brgyID        = Number(data.get('brgy'));
-    let street        = data.get('street');
+    let street          = data.get('street');
 
     try {
       street = validateStreet(data.get('street'));
@@ -111,7 +101,6 @@ export const actions = {
         success: false  
       });
     }
-    // street = validateStreet(data.get('street'));
     
     const address: AddressDTO = {
       regionID,
@@ -123,9 +112,16 @@ export const actions = {
 
     // genInfo part
     const photo = data.get('facilityImage') as string;
+    let name: string
+    let phoneNumber: string
+    let email: string
+    let bookingSystem: string
+    const facilityType = data.get('type') as FacilityType
+    const ownership = data.get('ownership') as Ownership
+    const acceptedProviders: Provider[] = []
 
     try {
-      await validateFacilityName(data.get('facilityName'));
+      name = validateFacilityName(data.get('facilityName'));
     } catch (error) {
       return fail(422, { 
         error: (error as Error).message,
@@ -135,7 +131,17 @@ export const actions = {
     }
 
     try {
-      await validateEmail(data.get('email'));
+      phoneNumber = validatePhone(data.get('phoneNumber'));
+    } catch (error) {
+      return fail(422, { 
+        error: (error as Error).message,
+        description: "phoneNumber",
+        success: false  
+      });
+    }
+
+    try {
+      email = await validateEmail(data.get('email'));
     } catch (error) {
       return fail(422, { 
         error: (error as Error).message,
@@ -144,19 +150,8 @@ export const actions = {
       });
     }
 
-    const email = await validateEmail(data.get('email'));
-
     try {
-      validatePhone(data.get('phoneNumber'));
-    } catch (error) {
-      return fail(422, { 
-        error: (error as Error).message,
-        description: "phoneNumber",
-        success: false  
-      });
-    }
-    try {
-      validateLink(data.get('bookingSystem'));
+      bookingSystem = await validateLink(data.get('bookingSystem'));
     } catch (error) {
       return fail(422, { 
         error: (error as Error).message,
@@ -164,13 +159,6 @@ export const actions = {
         success: false  
       });
     }
-
-    const name  = data.get('facilityName') as string;
-    const phoneNumber = validatePhone(data.get('phoneNumber'));
-    const facilityType = data.get('type') as FacilityType
-    const ownership = data.get('ownership') as Ownership
-    const bookingSystem = data.get('bookingSystem') as string
-    const acceptedProviders: Provider[] = []
 
     const genInfo: GeneralInformationFacilityDTO = {
       name               ,
@@ -183,8 +171,6 @@ export const actions = {
       bookingSystem      ,
       acceptedProviders
     }
-
-    console.log(genInfo)
 
     const facilityDAO = new FacilityDAO();
 

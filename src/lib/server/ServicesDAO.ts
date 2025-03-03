@@ -4,7 +4,7 @@ import type { FacilityServicesDTO,
               FlatFacilityServicesDTO 
             } from './DTOs';
 
-import { AmbulanceServiceDAO } from "./AmbulanceServiceDAO";
+import { AmbulanceServiceDAO } from "./AmbulanceDAO";
 import { BloodBankServiceDAO } from "./BloodBankDAO";
 import { ERServiceDAO } from "./ERDAO";
 import { ICUServiceDAO } from "./ICUDAO";
