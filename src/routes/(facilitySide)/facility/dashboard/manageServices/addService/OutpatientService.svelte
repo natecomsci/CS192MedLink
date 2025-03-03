@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { PageProps } from './$types';
     let { data, form }: PageProps = $props();
+    const OPServices: string[] = data.availableOPServices ?? [];
 </script>
 
 <div class="flex-1 p-6 overflow-y-auto border border-green-100">
@@ -12,7 +13,7 @@
                 class="border p-2 rounded w-full"
                 required 
               >
-                {#each (data.availableOPServices ?? []) as t}
+                {#each OPServices as t}
                   <option value={t}>{t}</option>
                 {/each}
             </select>

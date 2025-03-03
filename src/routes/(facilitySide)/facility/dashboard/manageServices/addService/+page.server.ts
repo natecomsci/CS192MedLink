@@ -1,53 +1,54 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-import { ServiceType } from '@prisma/client';
-import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO, FacilityServicesDTO } from '$lib/server/dtos';
-import { validateCoverageRadius, validateFloat, validateOperatingHours, validatePhone, validateCompletionTime } from '$lib/server/formValidators';
-import { AmbulanceServiceDAO, BloodBankServiceDAO, ERServiceDAO, ICUServiceDAO, OutpatientServiceDAO, ServicesDAO } from '$lib/server/daos';
+import { ServiceType, type OutpatientService } from '@prisma/client';
+
+import type { CreateAmbulanceServiceDTO, 
+              CreateBloodBankServiceDTO, 
+              CreateERServiceDTO, 
+              CreateICUServiceDTO, 
+              CreateOutpatientServiceDTO, 
+              FacilityServicesDTO 
+            } from '$lib/server/DTOs';
+
+import { validateCoverageRadius, 
+         validateFloat, 
+         validateOperatingHours, 
+         validatePhone, 
+         validateCompletionTime 
+       } from '$lib/server/formValidators';
+
+import { AmbulanceServiceDAO } from "$lib/server/AmbulanceServiceDAO";
+import { BloodBankServiceDAO } from "$lib/server/BloodBankDAO";
+import { ERServiceDAO } from "$lib/server/ERDAO";
+import { ICUServiceDAO } from "$lib/server/ICUDAO";
+import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
+
+import { OPServiceTypes as serviceTypes } from '$lib/projectTypes';
+import { ServicesDAO } from '$lib/server/ServicesDAO';
 
 export const load: PageServerLoad = async ({ cookies }) => {
-  let serviceTypes: ServiceType[] = [
-                        "CONSULTATION_GENERAL",
-                        "BLOOD_CHEMISTRY_BUA",
-                        "HEMATOLOGY_CBC",
-                        "CLINICAL_FECALYSIS",  
-                        "CLINICAL_URINALYSIS",
-                        "X_RAY_CHEST_PA",
-                        "X_RAY_C_SPINE",
-                        "X_RAY_T_SPINE",
-                        "X_RAY_L_SPINE",
-                        "ULTRASOUND_ABDOMINAL",
-                        "CT_SCAN_HEAD",
-                        "CT_SCAN_C_SPINE",
-                        "CT_SCAN_T_SPINE",
-                        "CT_SCAN_L_SPINE",
-                        "MRI_BRAIN",
-                        "DENTAL_SCALING",
-                        "THERAPY_PHYSICAL",
-                        "ONCOLOGY_CHEMOTHERAPY",
-                        "PROCEDURE_EEG",
-                        "PROCEDURE_ECG",
-                        "PROCEDURE_DIALYSIS",
-                        "PROCEDURE_COLONOSCOPY",
-                        "PROCEDURE_GASTROSCOPY",
-                        "PROCEDURE_LABOR_DELIVERY",
-                        "VACCINATION_COVID19"
-                      ]
-
   const serviceDAO = new ServicesDAO();
   const facilityID = cookies.get('facilityID'); 
 
   if (!facilityID) {
     return fail(422, {
-      description: "not signed in"
+      error: "Account not signed in.",
+      description: "signIn"
     });
   }
 
   const services: FacilityServicesDTO = await serviceDAO.getServicesByFacility(facilityID);
 
-  let availableServices = ["None"]
-  let availableOPServices = ["None"]
+  if (!services) {
+    return fail(422, {
+      error: "No Services Found.",
+      description: "noServices"
+    });
+  }
+
+  let availableServices: string[] = ["None"]
+  let availableOPServices: string[] = getAvailableOPServices(services.outpatientServices)
 
   for (var [key, value] of Object.entries(services)) {
     if (value === null) {
@@ -67,34 +68,20 @@ export const load: PageServerLoad = async ({ cookies }) => {
       availableServices.push(name)
     }
   }
-
-  let filteredOPService: ServiceType[] = []
-
-
-  for (var service of services.outpatientServices) {
-    filteredOPService.push(service.serviceType)
-  }
-
-  for (let serviceType of serviceTypes) { 
-    if (!filteredOPService.includes(serviceType)) {
-      availableOPServices.push(serviceType)
-    }
-  }
+  
 
   if (availableOPServices.length !== 0) {
     availableServices.push("Outpatient")
   }
-  // console.log(availableServices)
-  // console.log(availableOPServices)
+
   return {
     availableServices,
     availableOPServices
   };
 };
 
-
 export const actions = {
-  create: async ({ cookies, request }) => {
+  addService: async ({ cookies, request }) => {
     const data = await request.formData();
 
     const serviceType = data.get('serviceType');
@@ -116,7 +103,7 @@ export const actions = {
     const compTD  = data.get('completionDays');
     const compTH  = data.get('completionHours');
     const walkins = data.get('acceptWalkins');
-
+    
 
     const facilityID = cookies.get('facilityID');
 
@@ -127,14 +114,20 @@ export const actions = {
         success: false  
       });
     }
-
     
     switch (serviceType){
       case "Ambulance": {
-        try {
-          validatePhone(phone);
-        } catch (error) {
+        let phoneNumber: string
+        let openingTime: Date
+        let closingTime: Date
+        let baseRate: number
+        let minCoverageRadius: number
+        let mileageRate: number
+        let maxCoverageRadius: number
 
+        try {
+          phoneNumber = validatePhone(phone);
+        } catch (error) {
           return fail(422, {
             error: (error as Error).message,
             description: "phoneNumber",
@@ -143,9 +136,10 @@ export const actions = {
         }
 
         try {
-          validateOperatingHours(open, close)
+          let OCTime = validateOperatingHours(open, close)
+          openingTime = OCTime.openingTime
+          closingTime = OCTime.closingTime
         } catch (error) {
-
           return fail(422, {
             error: (error as Error).message,
             description: "openClose",
@@ -155,8 +149,10 @@ export const actions = {
 
         try {
           validateCoverageRadius(minCover, maxCover)
+          let radius = validateCoverageRadius(minCover, maxCover)
+          minCoverageRadius = radius.minCoverageRadius
+          maxCoverageRadius = radius.maxCoverageRadius
         } catch (error) {
-
           return fail(422, {
             error: (error as Error).message,
             description: "coverage",
@@ -165,9 +161,8 @@ export const actions = {
         }
 
         try {
-          validateFloat(rates, "Base Rate");
+          baseRate = validateFloat(rates, "Base Rate");
         } catch (error) {
-
           return fail(422, {
             error: (error as Error).message,
             description: "price",
@@ -176,9 +171,8 @@ export const actions = {
         }
 
         try {
-          validateFloat(mileRate, "Mileage Rate");
+          mileageRate = validateFloat(mileRate, "Mileage Rate");
         } catch (error) {
-
           return fail(422, {
             error: (error as Error).message,
             description: "mileRate",
@@ -186,17 +180,6 @@ export const actions = {
           });
         }
 
-
-        const phoneNumber       = validatePhone(phone);
-        
-        const baseRate          = validateFloat(rates, "Base Rate");
-        
-        const mileageRate       = validateFloat(mileRate, "Mileage Rate");
-
-        let { openingTime, closingTime }   = validateOperatingHours(open, close)
-
-        const { minCoverageRadius, maxCoverageRadius } = validateCoverageRadius(minCover, maxCover)
-        
         const service: CreateAmbulanceServiceDTO = {
           phoneNumber,
           openingTime,
@@ -206,7 +189,6 @@ export const actions = {
           mileageRate,
           maxCoverageRadius
         }
-        console.log(service);
 
         const dao = new AmbulanceServiceDAO();
 
@@ -215,10 +197,16 @@ export const actions = {
       }
 
       case "Blood Bank": {
-        try {
-          validatePhone(phone);
-        } catch (error) {
+        let phoneNumber: string
+        let openingTime: Date
+        let closingTime: Date
+        let pricePerUnit: number
+        let turnaroundTimeD: number
+        let turnaroundTimeH: number
 
+        try {
+          phoneNumber = validatePhone(phone);
+        } catch (error) {
           return fail(422, {
             error: (error as Error).message,
             description: "phoneNumber",
@@ -227,9 +215,10 @@ export const actions = {
         }
 
         try {
-          validateOperatingHours(open, close)
+          let OCTime = validateOperatingHours(open, close)
+          openingTime = OCTime.openingTime
+          closingTime = OCTime.closingTime
         } catch (error) {
-
           return fail(422, {
             error: (error as Error).message,
             description: "openClose",
@@ -238,20 +227,8 @@ export const actions = {
         }
 
         try {
-          validateCompletionTime(turnTD, turnTH, "Turnarond")
+          pricePerUnit = validateFloat(rates, "Price Per Unit");
         } catch (error) {
-
-          return fail(422, {
-            error: (error as Error).message,
-            description: "turnaround",
-            success: false
-          });
-        }
-
-        try {
-          validateFloat(rates, "Price Per Unit");
-        } catch (error) {
-
           return fail(422, {
             error: (error as Error).message,
             description: "price",
@@ -259,14 +236,18 @@ export const actions = {
           });
         }
 
-        const phoneNumber       = validatePhone(phone);
-        const { openingTime, closingTime }   = validateOperatingHours(open, close)
-        const TTime              = validateCompletionTime(turnTD, turnTH, "Turnaround")
-        const turnaroundTimeD   = TTime.days;
-        const turnaroundTimeH   = TTime.hours; 
+        try {
+          let TTime = validateCompletionTime(turnTD, turnTH, "Turnarond")
+          turnaroundTimeD = TTime.days
+          turnaroundTimeH = TTime.hours
+        } catch (error) {
+          return fail(422, {
+            error: (error as Error).message,
+            description: "turnaround",
+            success: false
+          });
+        }
 
-        const pricePerUnit      = validateFloat(rates, "Price Per Unit");
-        
         const service: CreateBloodBankServiceDTO = {
           phoneNumber,
           openingTime,
@@ -275,7 +256,6 @@ export const actions = {
           turnaroundTimeD,
           turnaroundTimeH
         }
-        console.log(service);
 
         const dao = new BloodBankServiceDAO();
 
@@ -284,10 +264,11 @@ export const actions = {
       }
 
       case "Emergency Room": {
-        try {
-          validatePhone(phone);
-        } catch (error) {
+        let phoneNumber: string
 
+        try {
+          phoneNumber = validatePhone(phone);
+        } catch (error) {
           return fail(422, {
             error: (error as Error).message,
             description: "phoneNumber",
@@ -295,12 +276,9 @@ export const actions = {
           });
         }
 
-        const phoneNumber       = validatePhone(phone);
-
         const service: CreateERServiceDTO = {
           phoneNumber
         }
-        console.log(service);
 
         const dao = new ERServiceDAO();
 
@@ -309,10 +287,12 @@ export const actions = {
       }
 
       case "ICU": {
-        try {
-          validatePhone(phone);
-        } catch (error) {
+        let phoneNumber: string
+        let baseRate: number
 
+        try {
+          phoneNumber = validatePhone(phone);
+        } catch (error) {
           return fail(422, {
             error: (error as Error).message,
             description: "phoneNumber",
@@ -321,9 +301,8 @@ export const actions = {
         }
 
         try {
-          validateFloat(rates, "Base Rate");
+          baseRate = validateFloat(rates, "Base Rate");
         } catch (error) {
-
           return fail(422, {
             error: (error as Error).message,
             description: "price",
@@ -331,25 +310,28 @@ export const actions = {
           });
         }
 
-        const phoneNumber       = validatePhone(phone);
-        const baseRate          = validateFloat(rates, "Base Rate");
-
         const service: CreateICUServiceDTO = {
           phoneNumber,
           baseRate
         }
-        console.log(service);
 
         const dao = new ICUServiceDAO();
 
         dao.create(facilityID, service)
         break;
       }
-      case "Outpatient": {
-        try {
-          validateFloat(rates, "Base Rate");
-        } catch (error) {
 
+      case "Outpatient": {
+        let price: number
+        let completionTimeD: number
+        let completionTimeH: number
+
+        const OPserviceType     = OPType as ServiceType;
+        const acceptsWalkIns    = walkins === 'on';
+
+        try {
+          price = validateFloat(rates, "Price");
+        } catch (error) {
           return fail(422, {
             error: (error as Error).message,
             description: "price",
@@ -358,24 +340,16 @@ export const actions = {
         }
 
         try {
-          validateCompletionTime(compTD, compTH, "Completion")
+          let CTime = validateCompletionTime(compTD, compTH, "Completion")
+          completionTimeD = CTime.days
+          completionTimeH = CTime.hours
         } catch (error) {
-
           return fail(422, {
             error: (error as Error).message,
             description: "completion",
             success: false
           });
         }
-
-        const OPserviceType     = OPType as ServiceType;
-        const price             = validateFloat(rates, "Base Rate");
-
-        const CTime             = validateCompletionTime(compTD, compTH, "Completion")
-        const completionTimeD   = CTime.days
-        const completionTimeH   = CTime.hours
-
-        const acceptsWalkIns    = walkins === 'on';
 
         const service: CreateOutpatientServiceDTO = {
           serviceType: OPserviceType,
@@ -384,13 +358,13 @@ export const actions = {
           completionTimeH,
           acceptsWalkIns
         }
-        console.log(service);
 
         const dao = new OutpatientServiceDAO();
 
         dao.create(facilityID, service)
         break;
       }
+
       default: {
         return fail(422, { 
           error: "No service type selected", 
@@ -404,3 +378,17 @@ export const actions = {
   }
 } satisfies Actions;
 
+function getAvailableOPServices(services: OutpatientService[]): string[] {
+  let availableOPServices: string[] = ["None"]
+  let filteredOPService = []
+  for (var service of services) {
+    filteredOPService.push(service.serviceType)
+  }
+
+  for (let serviceType of serviceTypes) { 
+    if (!filteredOPService.includes(serviceType)) {
+      availableOPServices.push(serviceType)
+    }
+  }
+  return availableOPServices
+}

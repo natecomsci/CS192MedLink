@@ -1,12 +1,29 @@
-import { AddressDAO, FacilityDAO } from '$lib/server/daos';
-import type { PageServerLoad, Actions } from './$types';
+import type { FacilityType, 
+              Ownership, 
+              Provider 
+            } from '@prisma/client';
+import type { PageServerLoad, 
+              Actions 
+            } from './$types';
+import type { AddressDTO, 
+              GeneralInformationFacilityDTO 
+            } from '$lib/server/DTOs';
 
-import type { AddressDTO, GeneralInformationFacilityDTO } from '$lib/server/dtos';
-import { validateEmail, validatePhone, validateStreet, validateLink, validateFacilityName } from '$lib/server/formValidators';
 import { fail } from '@sveltejs/kit';
-import type { FacilityType, Ownership, Provider } from '@prisma/client';
 
-import { providers, OPServiceTypes } from '$lib/projectTypes';
+import { AddressDAO } from '$lib/server/AddressDAO';
+import { FacilityDAO } from '$lib/server/FacilityDAO';
+
+import { validateEmail, 
+         validatePhone, 
+         validateStreet, 
+         validateLink, 
+         validateFacilityName 
+       } from '$lib/server/formValidators';
+
+import { providers, 
+         OPServiceTypes 
+       } from '$lib/projectTypes';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   let facilityDAO = new FacilityDAO();
@@ -26,34 +43,36 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
     // Fetch names for region, province, city, and barangay using their IDs
     const regionName = await addressDAO.getRegions().then(regions => 
-        regions.find(r => r.regionID === facilityInfo.address.regionID)?.name || 'Region'
+        regions.find(r => r.regionID === facilityInfo.address.regionID)?.name
     );
     const provinceName = await addressDAO.getProvinceOfRegion(facilityInfo.address.regionID).then(provinces => 
-        provinces.find(p => p.pOrCID === facilityInfo.address.pOrCID)?.name || 'Province'
+        provinces.find(p => p.pOrCID === facilityInfo.address.pOrCID)?.name
     );
     const cityName = await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID).then(cities => 
-        cities.find(c => c.cOrMID === facilityInfo.address.cOrMID)?.name || 'City'
+        cities.find(c => c.cOrMID === facilityInfo.address.cOrMID)?.name
     );
     const barangayName = await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID).then(barangays => 
-        barangays.find(b => b.brgyID === facilityInfo.address.brgyID)?.name || 'Barangay'
+        barangays.find(b => b.brgyID === facilityInfo.address.brgyID)?.name 
     );
 
     return {
         regions: await addressDAO.getRegions(),
+
+        facilityName: facilityInfo.name,
         providers,
         OPServiceTypes,
-        facilityName: facilityInfo.name,
+
         email: facilityInfo.email,
-        address: facilityInfo.address,
-        street: facilityInfo.address.street,
         contactNumber: facilityInfo.phoneNumber,
         type: facilityInfo.facilityType,
         ownership: facilityInfo.ownership,
         bookingSystem: facilityInfo.bookingSystem || "",
-        region: regionName, // Use the fetched name
-        province: provinceName, // Use the fetched name
-        city: cityName, // Use the fetched name
-        barangay: barangayName, // Use the fetched name
+
+        region: {regionName, regionID: facilityInfo.address.regionID},
+        province: {provinceName, provinceID: facilityInfo.address.pOrCID}, 
+        city: {cityName, cityID: facilityInfo.address.cOrMID}, 
+        barangay: {barangayName, barangayID: facilityInfo.address.brgyID}, 
+        street: facilityInfo.address.street,
     };
 } catch (error) {
     console.error("Details: ", error);
@@ -84,7 +103,7 @@ export const actions = {
     let street        = data.get('street');
 
     try {
-      validateStreet(data.get('street'));
+      street = validateStreet(data.get('street'));
     } catch (error) {
       return fail(422, { 
         error: (error as Error).message,
@@ -92,7 +111,7 @@ export const actions = {
         success: false  
       });
     }
-    street = validateStreet(data.get('street'));
+    // street = validateStreet(data.get('street'));
     
     const address: AddressDTO = {
       regionID,

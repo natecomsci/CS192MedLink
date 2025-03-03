@@ -15,7 +15,7 @@
                 required 
             />
             {#if form?.description === "phoneNumber"}
-                <p class="error">{form.error}</p>
+                <p class="error">{form?.error}</p>
             {/if}
         </label>
     </div>
@@ -33,7 +33,7 @@
                 required 
             />
             {#if form?.description === "price"}
-                <p class="error">{form.error}</p>
+                <p class="error">{form?.error}</p>
             {/if}
         </label>
     </div>

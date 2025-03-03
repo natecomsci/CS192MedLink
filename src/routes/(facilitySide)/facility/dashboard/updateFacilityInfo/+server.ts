@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { json } from '@sveltejs/kit';
-import { AddressDAO } from '$lib/server/daos';
+import { AddressDAO } from '$lib/server/AddressDAO';
 
 let address: AddressDAO = new AddressDAO();
 

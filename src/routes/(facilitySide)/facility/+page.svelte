@@ -1,15 +1,11 @@
 <script lang="ts">
-  import type { PageData } from './$types';
   import Logo from '$lib/images/Logo.png';
   import { enhance } from '$app/forms';
 
   import type { PageProps } from './$types';
   let { form }: PageProps = $props();
 
-  let fid = $state('');
-  let password = $state('');
   let show = $state(false);
-  let errorMessage = $state('');
 
 </script>
 
@@ -23,33 +19,33 @@
 
   <form 
     method="POST"
+    action="?/signIn"
     class="w-96 grid grid-cols-1 bg-white m-0 space-y-8 rounded-2xl p-8 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     use:enhance
   >
     <h3 class="text-[25px] font-black font-['DM_Sans'] mb-0">SIGN IN</h3>
 
     <div class="space-y-5 py-2">
-      {#if form?.error}
-          <p class="error">{form.error}</p>
-      {/if}
+      
       <input 
         name="fid"
         type="text"
-        bind:value={fid}
+        value=''
         placeholder="Employee ID" 
         class="w-full px-4 py-3 border-2 border-[#D9D9D9] rounded-md focus:ring-2 focus:ring-purple-400"
-        required
       >
+      {#if form?.description === "ID"}
+          <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
+      {/if}
 
       <div class="relative w-full">
         <input 
           name="password" 
           type={show ? "text" : "password"}
-          bind:value={password}
+          value=''
           placeholder="Password" 
           autocomplete="new-password"
           class="w-full px-4 py-3 border-2 border-[#D9D9D9] rounded-md focus:ring-2 focus:ring-purple-400"
-          required
         >
         <button 
           type="button" 
@@ -61,8 +57,8 @@
       </div>
     </div>
 
-    {#if errorMessage}
-      <p class="text-red-500 text-sm font-semibold">{errorMessage}</p>
+    {#if form?.description === "pass"}
+      <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
 
     <button 

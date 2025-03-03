@@ -1,8 +1,21 @@
-import { PrismaClient } from '@prisma/client'
+import { Provider, 
+         SecurityQuestion,
+         FacilityType,
+         Ownership, 
+         Availability, 
+         Load, 
+         ServiceType 
+       } from '@prisma/client'
 
-import { Provider, SecurityQuestion, FacilityType, Ownership, Availability, Load, ServiceType } from '@prisma/client'
-
-import type { Address, Facility, AmbulanceService, BloodTypeMapping, BloodBankService, ERService, ICUService, OutpatientService } from '@prisma/client';
+import type { Address, 
+              Facility, 
+              AmbulanceService, 
+              BloodTypeMapping, 
+              BloodBankService, 
+              ERService, 
+              ICUService, 
+              OutpatientService 
+            } from '@prisma/client';
 
 // DTOs
 
@@ -163,15 +176,15 @@ export interface AddressDTO {
 }
 
 export interface GeneralInformationFacilityDTO {
-  name?              : string,
-  photo?             : string,
-  address?           : AddressDTO,
-  email?             : string,
-  phoneNumber?       : string,
-  facilityType?      : FacilityType,
-  ownership?         : Ownership,
+  name               : string,
+  photo              : string,
+  address            : AddressDTO,
+  email              : string,
+  phoneNumber        : string,
+  facilityType       : FacilityType,
+  ownership          : Ownership,
   bookingSystem?     : string,
-  acceptedProviders? : Provider[],
+  acceptedProviders  : Provider[],
 }
 
 export interface CreateAdminDTO {

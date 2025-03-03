@@ -3,8 +3,6 @@
   import ControlHistory from './ControlHistory.svelte';
   import Divisions from './Divisions.svelte';
   import Services from './Services.svelte';
-  import FacilityButton from '$lib/FacilityButton.svelte';
-  import SettingsButton from '$lib/SettingsButton.svelte';
   import Logo from '$lib/images/Logo.png';
   let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
 
@@ -24,8 +22,16 @@
 
   <div class="flex gap-3">
       <h2 class="font-bold text-[27px] text-[#3D1853]">{hospitalName}</h2>
-      <FacilityButton />
-      <SettingsButton />
+      <div class="sm:flex items-center gap-4 hidden">
+          <a href="./dashboard/updateFacilityInfo"class="duration-200 hover:text-violet-400">
+              <p>GenInfo</p>
+          </a>
+      </div>
+      <div class="sm:flex items-center gap-4 hidden">
+          <a href="/none"class="duration-200 hover:text-violet-400">
+              <p>Settings</p>
+          </a>
+      </div>
   </div>
 </header>
 

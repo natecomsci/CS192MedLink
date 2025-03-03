@@ -123,12 +123,12 @@ async function hasMXRecords(domain: string): Promise<boolean> {
   }
 }
 
-export async function validateEmail(email: string): Promise<string> {
+export async function validateEmail(email: FormDataEntryValue | null): Promise<string> {
   if (!email) {
     throw new Error("No email provided.");
   }
 
-  const emailStr = email.trim();
+  const emailStr = String(email).trim();
 
   const validChars = /^[a-zA-Z\d](?:[a-zA-Z\d._\-]*[a-zA-Z\d])*@[a-zA-Z\d.\-]+\.[a-zA-Z]{2,}$/;
 
@@ -234,7 +234,7 @@ export function validateStreet(street: FormDataEntryValue | null): string {
 
 // Does not work for websites that block API requests like Twitter.
 
-export async function validateLink(link: string): Promise<string> {
+export async function validateLink(link: FormDataEntryValue | null): Promise<string> {
   if (!link) {
     throw new Error("No booking system link provided.");
   }

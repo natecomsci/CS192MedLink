@@ -17,16 +17,16 @@
  
  <form 
     method="POST" 
-    action="?/create"
+    action="?/addService"
     use:enhance
-    class="grid grid-cols-1 bg-gray-400 bg-white m-6 space-y-2 rounded-2xl p-2 shadow  drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+    class="grid grid-cols-1 bg-gray-400 m-6 space-y-2 rounded-2xl p-2 shadow  drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
   >
-  <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border bg-black border-black">
+  <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
     <!-- Left Panel (Static) -->
     <div class="w-1/3 bg-white p-6 flex flex-col shadow-md border border-purple-700">
         <div class= "flex items-center">
             <button class="text-2xl mb-4"><a href="../manageServices">⬅️</a></button>
-            <h1 class="text-[30px] font-['DM_Sans'] text-[#3D1853] font-bold text-purple-900">Add a Service</h1>
+            <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Add a Service</h1>
         </div>
 
         <label class="mt-4 text-gray-700">
@@ -57,7 +57,7 @@
 
     <!-- Right Panel (Scrollable) -->
     <div class="flex-1 p-6 overflow-y-auto border border-green-100">
-        <h2 class="text-[30px] font-['DM_Sans'] text-[#3D1853] font-bold text-purple-900">{serviceType}</h2>
+        <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{serviceType}</h2>
         <label
         class="grid grid-cols-1"
       >

@@ -1,6 +1,7 @@
 <script lang="ts">
-    import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib/server/dtos';
+    import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib/server/DTOs';
     import type { PageProps } from './$types';
+
     import { enhance } from '$app/forms';
 
     import tempImage from "$lib/images/catle.jpg"
@@ -14,14 +15,13 @@
     let enableBarangays = $state(false);
     let enableStreet = $state(false);
 
-
     let { data, form }: PageProps = $props();
 
-    let region: String = $state(data.region || 'Region');
-    let province: String = $state(data.province ||'Province');
-    let city: String = $state(data.city || 'City');
-    let barangay: String = $state(data.barangay ||'Barangay');
-    let street: String = $state(data.street || '');
+    let region: String = $state(data.region ?? 'Region');
+    let province: String = $state(data.province ?? 'Province');
+    let city: String = $state(data.city ?? 'City');
+    let barangay: String = $state(data.barangay ?? 'Barangay');
+    let street: String = $state(data.street ?? '');
     let selectedType = $state(data.ownership);
     let selectedKind = $state(data.type);
 
