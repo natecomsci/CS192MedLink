@@ -1,6 +1,6 @@
 import { prisma } from "./prisma";
 
-import type { AmbulanceService } from '@prisma/client';
+import type { AmbulanceService, Prisma } from '@prisma/client';
 
 import type { AmbulanceServiceDTO, 
               CreateAmbulanceServiceDTO 
@@ -76,7 +76,6 @@ export class AmbulanceServiceDAO {
         mileageRate       : service.mileageRate,
         maxCoverageRadius : service.maxCoverageRadius,
         availability      : service.availability,
-        createdAt         : service.createdAt,
         updatedAt         : service.updatedAt,
       }
 
@@ -88,20 +87,26 @@ export class AmbulanceServiceDAO {
 
   async update(serviceID: string, data: AmbulanceServiceDTO): Promise<void> {
     try {
-      await prisma.ambulanceService.update({
-        where: { 
-          serviceID 
-        },
-        data: {
-          phoneNumber       : data.phoneNumber,
-          openingTime       : data.openingTime,
-          closingTime       : data.closingTime,
-          baseRate          : data.baseRate,
-          minCoverageRadius : data.minCoverageRadius,
-          mileageRate       : data.mileageRate,
-          maxCoverageRadius : data.maxCoverageRadius,
-          availability      : data.availability,
-        }
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const service = await tx.ambulanceService.update({
+          where: { 
+            serviceID 
+          },
+          data: { ...data },
+          select: {
+            facilityID : true,
+            updatedAt  : true,
+          }
+        });
+  
+        await prisma.facility.update({
+          where: { 
+            facilityID : service.facilityID 
+          },
+          data: { 
+            updatedAt : service.updatedAt
+          }
+        });
       });
     } catch (error) {
       console.error("Details: ", error);

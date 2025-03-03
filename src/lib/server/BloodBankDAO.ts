@@ -160,7 +160,6 @@ export class BloodBankServiceDAO {
         turnaroundTimeD       : service.turnaroundTimeD,
         turnaroundTimeH       : service.turnaroundTimeH,
         bloodTypeAvailability : bloodTypeAvailability,
-        createdAt             : service.createdAt,
         updatedAt             : service.updatedAt,
       };
   
@@ -173,7 +172,7 @@ export class BloodBankServiceDAO {
   async update(serviceID: string, data: BloodBankServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        await tx.bloodBankService.update({
+        const service = await tx.bloodBankService.update({
           where: { 
             serviceID 
           },
@@ -184,12 +183,26 @@ export class BloodBankServiceDAO {
             pricePerUnit    : data.pricePerUnit,
             turnaroundTimeD : data.turnaroundTimeD,
             turnaroundTimeH : data.turnaroundTimeH,
+          },
+          select: {
+            facilityID : true,
+            updatedAt  : true,
           }
         });
 
         if (data.bloodTypeAvailability) {
           await bloodTypeMappingDAO.updateBloodTypeMapping(serviceID, data.bloodTypeAvailability, tx)
         }
+
+        await prisma.facility.update({
+          where: { 
+            facilityID : service.facilityID 
+          },
+          data: { 
+            updatedAt : service.updatedAt
+          }
+        });
+
       });
     } catch (error) {
       console.error("Details: ", error);

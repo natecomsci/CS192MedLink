@@ -1,6 +1,6 @@
 import { prisma } from "./prisma";
 
-import type { ERService } from '@prisma/client';
+import type { ERService, Prisma } from '@prisma/client';
 
 import type { CreateERServiceDTO,
               ERServiceDTO 
@@ -76,7 +76,6 @@ export class ERServiceDAO {
         urgentQueueLength    : service.urgentQueueLength,
         criticalPatients     : service.criticalPatients,
         criticalQueueLength  : service.criticalQueueLength,
-        createdAt            : service.createdAt,
         updatedAt            : service.updatedAt,
       };
   
@@ -88,21 +87,26 @@ export class ERServiceDAO {
 
   async update(serviceID: string, data: ERServiceDTO): Promise<void> {
     try {
-      await prisma.eRService.update({
-        where: { 
-          serviceID 
-        },
-        data: {
-          phoneNumber          : data.phoneNumber,
-          load                 : data.load,
-          availableBeds        : data.availableBeds,
-          nonUrgentPatients    : data.nonUrgentPatients,
-          nonUrgentQueueLength : data.nonUrgentQueueLength,
-          urgentPatients       : data.urgentPatients,
-          urgentQueueLength    : data.urgentQueueLength,
-          criticalPatients     : data.criticalPatients,
-          criticalQueueLength  : data.criticalQueueLength,
-        }
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const service = await tx.eRService.update({
+          where: { 
+            serviceID 
+          },
+          data: { ...data },
+          select: {
+            facilityID : true,
+            updatedAt  : true,
+          }
+        });
+  
+        await prisma.facility.update({
+          where: { 
+            facilityID : service.facilityID 
+          },
+          data: { 
+            updatedAt : service.updatedAt
+          }
+        });
       });
     } catch (error) {
       console.error("Details: ", error);
