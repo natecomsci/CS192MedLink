@@ -1,16 +1,15 @@
-<script>
+<script lang="ts">
+  import type { PageProps } from './$types';
+
   import Admins from './Admins.svelte';
   import ControlHistory from './ControlHistory.svelte';
   import Divisions from './Divisions.svelte';
   import Services from './Services.svelte';
   import Logo from '$lib/images/Logo.png';
+
   let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
 
-  // import type { PageProps } from './$types';
-
-  let { data } = $props();
-
-  console.log(data.facilityID)
+  let { data, form }: PageProps = $props();
 
 </script>
 
@@ -40,7 +39,7 @@
   <!-- Left Side: Control History -->
   <!-- <div class="border w-1/2 py-5"> -->
     <div class="w-1/2 p-5 bg-white shadow-lg rounded-lg">
-      <ControlHistory />
+      <ControlHistory {data} {form}/>
     </div>
   <!-- </div> -->
 
@@ -48,7 +47,7 @@
   <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
     <Admins />
     <div class="grid grid-cols-1 gap-4 h-full">
-      <Services/>
+      <Services {data} {form}/>
       <!-- <Divisions/> -->
     </div>
   </div>

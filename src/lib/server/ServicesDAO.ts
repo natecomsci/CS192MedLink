@@ -9,6 +9,7 @@ import { BloodBankServiceDAO } from "./BloodBankDAO";
 import { ERServiceDAO } from "./ERDAO";
 import { ICUServiceDAO } from "./ICUDAO";
 import { OutpatientServiceDAO } from "./OutpatientDAO";
+import { serviceMapping } from '../Mappings'
 
 const ambulanceServiceDAO : AmbulanceServiceDAO = new AmbulanceServiceDAO();
 const bloodBankServiceDAO : BloodBankServiceDAO = new BloodBankServiceDAO();
@@ -20,13 +21,6 @@ const outpatientServiceDAO : OutpatientServiceDAO = new OutpatientServiceDAO();
 // Because of the heterogenous nature of the services, pagination must be done in the business logic instead of natively on Prisma.
 
 export class ServicesDAO {
-  serviceMapping: Record<string, string> = {
-    ambulanceService : "Ambulance", 
-    bloodBankService : "Blood Bank", 
-    eRService : "Emergency Room", 
-    iCUService : "Intensive Care Unit",
-  };
-
   async getServicesByFacility(facilityID: string): Promise<FacilityServicesDTO> {
     try {
       const [
@@ -88,10 +82,10 @@ export class ServicesDAO {
     const flatServices: FlatFacilityServicesDTO[] = [];
   
     for (const [key, value] of Object.entries(services)) {
-      if ((value !== null) && (key in this.serviceMapping)) {
+      if ((value !== null) && (key in serviceMapping)) {
         flatServices.push({
           serviceID : value.serviceID,
-          type      : this.serviceMapping[key],
+          type      : serviceMapping[key],
           createdAt : value.createdAt,
           updatedAt : value.updatedAt,
         });

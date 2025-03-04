@@ -1,13 +1,11 @@
 <script lang="ts">
-    import type { FlatFacilityServicesDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
-  const services: FlatFacilityServicesDTO[] = data.servicesObj ?? []
 </script>
 
 <h1 class="text-3xl font-bold underline">
-  Manage Services
+  Edit Service
 </h1>
 
 

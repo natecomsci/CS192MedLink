@@ -6,7 +6,6 @@ import type { AmbulanceServiceDTO,
               CreateAmbulanceServiceDTO 
             } from './DTOs';
 
-// DAOs
 export class AmbulanceServiceDAO {
   async getByID(serviceID: string): Promise<AmbulanceService | null> {
     try {

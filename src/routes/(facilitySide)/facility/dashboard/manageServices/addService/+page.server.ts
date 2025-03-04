@@ -23,6 +23,7 @@ import { BloodBankServiceDAO } from "$lib/server/BloodBankDAO";
 import { ERServiceDAO } from "$lib/server/ERDAO";
 import { ICUServiceDAO } from "$lib/server/ICUDAO";
 import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
+import { serviceMapping } from '$lib/Mappings';
 
 import { OPServiceTypes as serviceTypes } from '$lib/projectTypes';
 import { ServicesDAO } from '$lib/server/ServicesDAO';
@@ -51,25 +52,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
   let availableOPServices: string[] = getAvailableOPServices(services.outpatientServices)
 
   for (var [key, value] of Object.entries(services)) {
-    if (value === null) {
-      let name = "";
-      if ("ambulanceService" == key) {
-        name = "Ambulance";
-      }
-      if ("bloodBankService" == key) {
-        name = "Blood Bank";
-      }
-      if ("eRService" == key) {
-        name = "Emergency Room";
-      }
-      if ("iCUService" == key) {
-        name = "ICU";
-      }
-      availableServices.push(name)
+    if (value === null) {      
+      availableServices.push(serviceMapping[key]);
     }
   }
   
-
   if (availableOPServices.length !== 0) {
     availableServices.push("Outpatient")
   }

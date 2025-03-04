@@ -19,7 +19,7 @@ Link Tree: / sveltePageName (Software Design Docu UI name)
   ../services                         (patientFacilityServices)
 
 /facility                             (facilitySignIn)
-  ../[userID]/dashboard               (managerDashboard, adminDashboard) [to discuss as kind of security risk, backend determines layout and whats seen]
+  ../dashboard                        (managerDashboard, adminDashboard) [to discuss as kind of security risk, backend determines layout and whats seen]
     ../updateFacilityInfo             (managerUpdateFacilityInfo)
     ../manageAdmins                   (managerManageAdmins)
       ../addAdmin                     (managerAddAdmin)
