@@ -140,7 +140,7 @@
             Availability
 
           <select name="availability" value={data.availability} required class="border p-2 rounded w-full">
-            {#each (availability ?? []) as a}
+            {#each availability as a}
               <option value={a}>{a}</option>
             {/each}
           </select>
