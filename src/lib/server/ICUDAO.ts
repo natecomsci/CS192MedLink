@@ -82,7 +82,7 @@ export class ICUServiceDAO {
             updatedAt: updatedAt 
           },
           select: { 
-            facilityID
+            facilityID: true
           }
         });
 

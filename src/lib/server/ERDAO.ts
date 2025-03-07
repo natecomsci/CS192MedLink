@@ -83,7 +83,7 @@ export class ERServiceDAO {
             updatedAt: updatedAt 
           },
           select: { 
-            facilityID
+            facilityID: true
           }
         });
 

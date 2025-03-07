@@ -82,7 +82,7 @@ export class OutpatientServiceDAO {
             updatedAt: updatedAt 
           },
           select: { 
-            facilityID
+            facilityID: true
           }
         });
 

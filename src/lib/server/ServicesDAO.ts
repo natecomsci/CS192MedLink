@@ -2,6 +2,7 @@ import { prisma } from "./prisma";
 
 import type { ServiceDTO } from "./dtos";
 
+import type { Service } from '@prisma/client';
 // Because of the heterogenous nature of the services, pagination must be done in the business logic instead of natively on Prisma.
 
 export class ServicesDAO {

@@ -118,7 +118,7 @@ export interface ICUServiceDTO {
 }
 
 export interface CreateOutpatientServiceDTO {
-  serviceType     : String,
+  serviceType     : string,
   price           : number,
   completionTimeD : number,
   completionTimeH : number,

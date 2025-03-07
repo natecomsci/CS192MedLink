@@ -81,7 +81,7 @@ export class AmbulanceServiceDAO {
             updatedAt: updatedAt 
           },
           select: { 
-            facilityID
+            facilityID: true
           }
         });
 

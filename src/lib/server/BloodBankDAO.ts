@@ -171,7 +171,7 @@ export class BloodBankServiceDAO {
             updatedAt: updatedAt 
           },
           select: { 
-            facilityID
+            facilityID: true
           }
         });
 
