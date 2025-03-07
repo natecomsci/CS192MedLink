@@ -26,6 +26,9 @@
             <li>
                 <a class="block p-4" href="/facility/dashboard/updateFacilityInfo">F-Edit</a>
             </li>
+            <li>
+                <a class="block p-4" href="/facility/dashboard/managerSettingsUpdate">F-MngUpdate</a>
+            </li>
         </ul>
     </nav>
 </header>
