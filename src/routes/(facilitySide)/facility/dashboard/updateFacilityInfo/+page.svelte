@@ -6,6 +6,7 @@
 
     import tempImage from "$lib/images/catle.jpg"
     import { facilityType, providers } from '$lib/projectArrays';
+    import type { Provider } from '@prisma/client';
 
     let enableCities = $state(true);
     let enableBarangays = $state(true);
@@ -83,6 +84,11 @@
       } catch (error) {
         throw new Error(`Response status: ${error}`);
       }
+    }
+    console.log(data.providers)
+
+    function isAccepted(p: Provider): boolean {
+        return data.providers?.includes(p) ?? false
     }
 
     // -------------- DAG DAG NI ELLE -------
@@ -324,15 +330,16 @@
 
             <label>
                 Accepted Insurance Providers
-                <select 
-                name="insurance" 
-                required 
-                class="border p-2 rounded w-full"
-                >
-                    {#each providers as t}
-                        <option value={t}>{t}</option>
-                    {/each}
-                </select>
+                {#each providers as t}
+                    <label>
+                      {t}
+                      <input 
+                        name={t}
+                        type="checkbox"
+                        checked={isAccepted(t)}
+                      >
+                    </label>
+                {/each}
             </label>
         </div>
 

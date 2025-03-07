@@ -47,10 +47,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
         corms: await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
         brgys: await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
 
-
         facilityName: facilityInfo.name,
-        providers,
-        OPServiceTypes,
+        providers: facilityInfo.acceptedProviders,
 
         email: facilityInfo.email,
         contactNumber: facilityInfo.phoneNumber,
@@ -159,6 +157,19 @@ export const actions = {
         success: false  
       });
     }
+
+    let provider
+
+    for (var p of providers) {
+      provider = data.get(p)
+
+      if (provider) {
+        acceptedProviders.push(p)
+      }
+    }
+
+    console.log(acceptedProviders)
+
 
     const genInfo: GeneralInformationFacilityDTO = {
       name               ,
