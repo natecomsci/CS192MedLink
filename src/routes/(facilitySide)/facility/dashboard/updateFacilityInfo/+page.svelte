@@ -5,7 +5,7 @@
     import { enhance } from '$app/forms';
 
     import tempImage from "$lib/images/catle.jpg"
-    import { facilityType, providers } from '$lib/projectTypes';
+    import { facilityType, providers } from '$lib/projectArrays';
 
     let enableCities = $state(true);
     let enableBarangays = $state(true);

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { updated } from "$app/state";
+  import { dateToTimeMapping, serviceNameToUIName } from "$lib/Mappings";
   import type { FlatFacilityServicesDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
 
@@ -31,13 +33,13 @@
             <!-- Left Content: Admin & Message -->
             <div class="info">
               <span class="admin">{admin}</span>
-              <span class="message">Updated {type} Information</span>
+              <span class="message">Updated {serviceNameToUIName[type]} Information</span>
             </div>
           </div>
         
           <!-- Right Content: Timestamp & Department -->
           <div class="details">
-            <span class="timestamp">{updatedAt}</span>
+            <span class="timestamp">Updated at {dateToTimeMapping(updatedAt)}</span>
             <!-- <span class="department">{department}</span> -->
           </div>
       </div>

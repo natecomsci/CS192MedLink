@@ -23,7 +23,7 @@ import { validateEmail,
 
 import { providers, 
          OPServiceTypes 
-       } from '$lib/projectTypes';
+       } from '$lib/projectArrays';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   let facilityDAO = new FacilityDAO();

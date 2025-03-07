@@ -6,6 +6,8 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
   const serviceID = params.serviceID;
 
+  console.log(facilityID, serviceID)
+
   if (!facilityID) {
     return fail(422, {
       error: "Account not signed in.",

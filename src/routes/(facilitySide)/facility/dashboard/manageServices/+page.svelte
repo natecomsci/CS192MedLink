@@ -4,6 +4,23 @@
 
   let { data, form }: PageProps = $props();
   const services: FlatFacilityServicesDTO[] = data.servicesObj ?? []
+
+  import { serviceType } from "$lib/projectArrays";
+    import { serviceNameToUIName } from "$lib/Mappings";
+
+  function serviceTypeURL(type: string): String {
+    if (!serviceType.includes(type)) {
+      return "editOPService"
+    } else if (type == "Ambulance") {
+      return "editAmbulanceService"
+    } else if (type == "Blood Bank") {
+      return "editBloodBankService"
+    } else if (type == "Emergency Room") {
+      return "editERService"
+    } else {
+      return "editICUService"
+    }
+  }
 </script>
 
 <h1 class="text-3xl font-bold underline">
@@ -17,8 +34,8 @@
   <div class="mt-4">
     {#each services as { type, serviceID }}
       <div class="py-2 border-b border-transparent">
-        <p class="font-bold">{type} Information</p>
-        <a href={'./manageServices/editService'+serviceID}>
+        <p class="font-bold">{serviceNameToUIName[type]} Information</p>
+        <a href={'./manageServices/' + serviceTypeURL(type) + '/' +serviceID}>
           edit
         </a>
 

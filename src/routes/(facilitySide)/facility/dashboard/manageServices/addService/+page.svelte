@@ -68,7 +68,7 @@
           <BloodBankService {data} {form}/>
         {:else if serviceType == "Emergency Room"}
           <ERService {data} {form}/>
-        {:else if serviceType == "ICU"}
+        {:else if serviceType == "Intensive Care Unit"}
           <ICUService {data} {form}/>
         {:else if serviceType == "Outpatient"}
           <OutpatientService {data} {form}/>

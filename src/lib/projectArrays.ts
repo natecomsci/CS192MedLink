@@ -56,7 +56,6 @@ export const OPServiceTypes: ServiceType[] = [
   "PROCEDURE_GASTROSCOPY",
   "PROCEDURE_LABOR_DELIVERY",
   "VACCINATION_COVID19",
-
 ];
 
 export const securityQuestions: SecurityQuestion[]  = [
@@ -146,3 +145,10 @@ export const load: Load[] = [
   "FULL_CAPACITY",
   "CLOSED",
 ];
+
+export const serviceType: string[] = [
+  "Ambulance",
+  "Blood Bank",
+  "Emergency Room",
+  "Intensive Care Unit",
+]

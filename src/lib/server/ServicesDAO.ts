@@ -9,7 +9,7 @@ import { BloodBankServiceDAO } from "./BloodBankDAO";
 import { ERServiceDAO } from "./ERDAO";
 import { ICUServiceDAO } from "./ICUDAO";
 import { OutpatientServiceDAO } from "./OutpatientDAO";
-import { serviceMapping } from '../Mappings'
+import { serviceNameToNameMapping } from '../Mappings'
 
 const ambulanceServiceDAO : AmbulanceServiceDAO = new AmbulanceServiceDAO();
 const bloodBankServiceDAO : BloodBankServiceDAO = new BloodBankServiceDAO();
@@ -82,10 +82,10 @@ export class ServicesDAO {
     const flatServices: FlatFacilityServicesDTO[] = [];
   
     for (const [key, value] of Object.entries(services)) {
-      if ((value !== null) && (key in serviceMapping)) {
+      if ((value !== null) && (key in serviceNameToNameMapping)) {
         flatServices.push({
           serviceID : value.serviceID,
-          type      : serviceMapping[key],
+          type      : serviceNameToNameMapping[key],
           createdAt : value.createdAt,
           updatedAt : value.updatedAt,
         });
