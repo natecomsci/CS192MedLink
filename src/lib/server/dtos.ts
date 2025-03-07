@@ -3,9 +3,8 @@ import { Provider,
          FacilityType,
          Ownership, 
          Availability, 
-         Load, 
-         ServiceType 
-       } from '@prisma/client'
+         Load 
+       } from '@prisma/client';
 
 import type { Address, 
               Facility, 
@@ -24,15 +23,7 @@ import type { Address,
 
 // Create and Update Service DTOs assume that a Facility has no Divisions.
 
-export interface FacilityServicesDTO {
-  ambulanceService   : AmbulanceService | null;
-  bloodBankService   : BloodBankService | null;
-  eRService          : ERService | null;
-  iCUService         : ICUService | null;
-  outpatientServices : OutpatientService[];
-}
-
-export interface FlatFacilityServicesDTO {
+export interface ServiceDTO {
   serviceID : string;
   type      : string;
   createdAt : Date;
@@ -127,7 +118,7 @@ export interface ICUServiceDTO {
 }
 
 export interface CreateOutpatientServiceDTO {
-  serviceType     : ServiceType,
+  serviceType     : String,
   price           : number,
   completionTimeD : number,
   completionTimeH : number,
@@ -135,7 +126,6 @@ export interface CreateOutpatientServiceDTO {
 }
 
 export interface OutpatientServiceDTO {
-  serviceType?     : ServiceType,
   price?           : number,
   completionTimeD? : number,
   completionTimeH? : number,
@@ -173,6 +163,11 @@ export interface AddressDTO {
   cOrMID   : number,
   brgyID   : number,
   street   : string,
+}
+
+export interface FacilityDTO {
+  facilityID : string;
+  name       : string,
 }
 
 export interface GeneralInformationFacilityDTO {

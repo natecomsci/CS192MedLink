@@ -1,56 +1,26 @@
 import { prisma } from "./prisma";
 
-import type { AmbulanceService, Prisma } from '@prisma/client';
+import type { Prisma } from "@prisma/client";
 
-import type { AmbulanceServiceDTO, 
-              CreateAmbulanceServiceDTO 
-            } from './DTOs';
+import type { AmbulanceServiceDTO, CreateAmbulanceServiceDTO } from "./dtos";
 
 export class AmbulanceServiceDAO {
-  async getByID(serviceID: string): Promise<AmbulanceService | null> {
-    try {
-      const service = await prisma.ambulanceService.findUnique({
-        where: { 
-          serviceID 
-        }
-      });
-  
-      if (!service) {
-        console.warn("No AmbulanceService found with the specified ID.");
-        return null;
-      }
-  
-      return service;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get AmbulanceService.");
-    }
-  }
-
-  async getByFacility(facilityID: string): Promise<AmbulanceService | null> {
-    try {
-      const service = await prisma.ambulanceService.findUnique({
-        where: { 
-          facilityID 
-        }
-      });
-  
-      if (!service) {
-        console.warn("No AmbulanceService found in the facility.");
-        return null;
-      }
-  
-      return service;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get AmbulanceService.");
-    }
-  }
-
   async create(facilityID: string, data: CreateAmbulanceServiceDTO): Promise<void> {
     try {
-      await prisma.ambulanceService.create({
-        data: { ...data, facility: { connect: { facilityID } } }
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const service = await tx.service.create({
+          data: {
+            type     : "Ambulance", 
+            facility : { connect: { facilityID } }
+          }
+        });
+
+        await tx.ambulanceService.create({
+          data: {
+            ...data,
+            service: { connect: { serviceID: service.serviceID } }
+          }
+        });
       });
     } catch (error) {
       console.error("Details: ", error);
@@ -60,7 +30,12 @@ export class AmbulanceServiceDAO {
 
   async getInformation(serviceID: string): Promise<AmbulanceServiceDTO> {
     try {
-      const service = await this.getByID(serviceID);
+      const service = await prisma.ambulanceService.findUnique({
+        where: { 
+          serviceID 
+        },
+        include: { service: { select: { updatedAt: true } } }
+      });
 
       if (!service) {
         throw new Error("Missing needed AmbulanceService data.");
@@ -75,7 +50,7 @@ export class AmbulanceServiceDAO {
         mileageRate       : service.mileageRate,
         maxCoverageRadius : service.maxCoverageRadius,
         availability      : service.availability,
-        updatedAt         : service.updatedAt,
+        updatedAt         : service.service.updatedAt,
       }
 
     } catch (error) {
@@ -87,42 +62,41 @@ export class AmbulanceServiceDAO {
   async update(serviceID: string, data: AmbulanceServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const service = await tx.ambulanceService.update({
+        await tx.ambulanceService.update({
           where: { 
             serviceID 
           },
-          data: { ...data },
-          select: {
-            facilityID : true,
-            updatedAt  : true,
+          data: { 
+            ...data 
           }
         });
-  
-        await prisma.facility.update({
+
+        const updatedAt: Date = new Date();
+
+        const service = await tx.service.update({
+          where: { 
+            serviceID 
+          },
+          data: { 
+            updatedAt: updatedAt 
+          },
+          select: { 
+            facilityID
+          }
+        });
+
+        await tx.facility.update({
           where: { 
             facilityID : service.facilityID 
           },
           data: { 
-            updatedAt : service.updatedAt
+            updatedAt : updatedAt
           }
         });
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update AmbulanceService.");
-    }
-  }
-
-  async delete(serviceID: string): Promise<void> {
-    try {
-      await prisma.ambulanceService.delete({
-        where: { 
-          serviceID 
-        }
-      });
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not delete AmbulanceService.");
     }
   }
 }

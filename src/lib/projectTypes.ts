@@ -56,8 +56,65 @@ export const OPServiceTypes: ServiceType[] = [
   "PROCEDURE_GASTROSCOPY",
   "PROCEDURE_LABOR_DELIVERY",
   "VACCINATION_COVID19",
-
 ];
+
+/*
+
+enum OutpatientServiceType {
+  // Consultation
+  CONSULTATION_GENERAL           // General Consultation
+
+  // Laboratory - Blood Chemistry
+  BLOOD_CHEMISTRY_BUA            // Blood Uric Acid Test (BUA)
+
+  // Laboratory - Hematology
+  HEMATOLOGY_CBC                 // Complete Blood Count (CBC)
+
+  // Laboratory - Clinical Microscopy  
+  CLINICAL_FECALYSIS             // Fecalysis  
+  CLINICAL_URINALYSIS            // Urinalysis  
+
+  // Imaging - X-ray  
+  X_RAY_CHEST_PA                 // Chest PA X-ray
+  X_RAY_C_SPINE                  // Cervical Spine X-ray
+  X_RAY_T_SPINE                  // Thoracic Spine X-ray
+  X_RAY_L_SPINE                  // Lumbar Spine X-ray 
+
+  // Imaging - Ultrasound  
+  ULTRASOUND_ABDOMINAL           // Abdominal Ultrasound  
+
+  // Imaging - CT Scan
+  CT_SCAN_HEAD                   // Head CT Scan (With or Without Contrast)
+  CT_SCAN_C_SPINE                // Cervical Spine CT Scan
+  CT_SCAN_T_SPINE                // Thoracic Spine CT Scan
+  CT_SCAN_L_SPINE                // Lumbar Spine CT Scan
+
+  // Imaging - MRI
+  MRI_BRAIN                      // Brain MRI
+
+  // Dental Procedures  
+  DENTAL_SCALING                 // Oral Prophylaxis (Scaling)  
+
+  // Rehabilitation & Therapy
+  THERAPY_PHYSICAL               // Physical Therapy
+
+  // Cancer Treatment
+  ONCOLOGY_CHEMOTHERAPY          // Chemotherapy
+
+  // Diagnostic Tests  
+  PROCEDURE_EEG                  // Electroencephalogram (EEG)  
+  PROCEDURE_ECG                  // Electrocardiogram (ECG)  
+
+  // Specialized Procedures  
+  PROCEDURE_DIALYSIS             // Acute Peritoneal Dialysis  
+  PROCEDURE_COLONOSCOPY          // Colonoscopy  
+  PROCEDURE_GASTROSCOPY          // Gastroscopy  
+  PROCEDURE_LABOR_DELIVERY       // Labor and Delivery
+
+  // Vaccinations
+  VACCINATION_COVID19            // COVID-19 Vaccination
+}
+*/
 
 export const securityQuestions: SecurityQuestion[]  = [
   "STREETNAME"            ,

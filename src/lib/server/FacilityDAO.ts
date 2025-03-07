@@ -1,14 +1,12 @@
 import { prisma } from "./prisma";
 
-import { Prisma, 
-         Provider 
-       } from '@prisma/client'
+import { Prisma } from "@prisma/client";
 
-import type { Facility } from '@prisma/client';
+import { Provider } from "@prisma/client";
 
-import type { AddressDTO,
-              GeneralInformationFacilityDTO 
-            } from './DTOs';
+import type { Facility } from "@prisma/client";
+
+import type { AddressDTO, FacilityDTO, GeneralInformationFacilityDTO } from "./dtos";
 
 import { AddressDAO } from "./AddressDAO";
 
@@ -169,6 +167,32 @@ export class FacilityDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not check if Facility has Divisions.");
+    }
+  }
+
+  async search(query: string, offset: number): Promise<FacilityDTO[]> { // loads 10 search results from an input offset
+    try {
+      const facilities = await prisma.facilities.findMany({
+        where: {
+          type: {
+            search: query
+          }
+        },
+        orderBy: {
+          updatedAt: "desc"
+        },
+        select: {
+          facilityID : true,
+          name       : true,
+        },
+        skip: offset,
+        take: 10
+      });
+
+      return facilities;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not search for facilities.");
     }
   }
 }
