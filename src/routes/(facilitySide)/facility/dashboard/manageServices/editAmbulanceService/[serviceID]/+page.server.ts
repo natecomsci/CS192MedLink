@@ -1,10 +1,14 @@
 import { fail, type Actions, redirect } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
-import { AmbulanceServiceDAO } from '$lib/server/AmbulanceDAO';
-import { dateToTimeMapping } from '$lib/Mappings';
-import { validateCoverageRadius, validateFloat, validateOperatingHours, validatePhone } from '$lib/server/formValidators';
-import type { AmbulanceServiceDTO } from '$lib/server/DTOs';
 import { Availability } from '@prisma/client';
+
+import type { PageServerLoad } from './$types';
+import { dateToTimeMapping } from '$lib/Mappings';
+
+import { validateCoverageRadius, validateFloat, validateOperatingHours, validatePhone } from '$lib/server/formValidators';
+import { AmbulanceServiceDAO } from '$lib/server/AmbulanceDAO';
+import type { AmbulanceServiceDTO } from '$lib/server/DTOs';
+
+const ambulanceDAO = new AmbulanceServiceDAO()
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
@@ -15,7 +19,6 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
     });
   }
 
-  const ambulanceDAO = new AmbulanceServiceDAO()
   const serviceID = params.serviceID;
 
   const serviceInfo = await ambulanceDAO.getInformation(serviceID);
@@ -64,7 +67,6 @@ export const actions = {
     let mileageRate: number
     let maxCoverageRadius: number
     let availability: Availability = data.get('availability') as Availability
-    const updatedAt: Date = new Date()
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
@@ -129,13 +131,11 @@ export const actions = {
       mileageRate,
       maxCoverageRadius,
       availability, 
-      updatedAt,
+      updatedAt: new Date(),
 
     }
 
-    const dao = new AmbulanceServiceDAO();
-
-    dao.update(serviceID, service)
+    ambulanceDAO.update(serviceID, service)
 
     throw redirect(303, '/facility/dashboard/manageServices');
         
