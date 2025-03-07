@@ -13,7 +13,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
   }
 
   const servicesObj: FlatFacilityServicesDTO[] = JSON.parse(services);
-  console.log(servicesObj)
   
   return {
     servicesObj

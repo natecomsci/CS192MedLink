@@ -203,3 +203,10 @@ export const load: Load[] = [
   "FULL_CAPACITY",
   "CLOSED",
 ];
+
+export const serviceType: string[] = [
+  "Ambulance",
+  "Blood Bank",
+  "Emergency Room",
+  "Intensive Care Unit",
+]

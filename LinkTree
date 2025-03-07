@@ -1,43 +1,44 @@
 Link Tree: / sveltePageName (Software Design Docu UI name)
 
-/                                     (patientInit)
-/signUp                               (patientSignUp)
-/signIn                               (patientSignIn)
-/forgotPassword                       (patientForgotPassword)
+/                                           (patientInit)
+/signUp                                     (patientSignUp)
+/signIn                                     (patientSignIn)
+/forgotPassword                             (patientForgotPassword)
 
-/patient/[patientID]                  (patientSignedInSearch)
-  ../settings                         (patientAccountSettings)
-  ../bookmarks                        (patientBookmarks)
-    ../allFolders                     (patientBookmarksAllFolders)
-    ../[folderName]                   (patientBookmarksOneFolder)
+/patient/[patientID]                        (patientSignedInSearch)
+  ../settings                               (patientAccountSettings)
+  ../bookmarks                              (patientBookmarks)
+    ../allFolders                           (patientBookmarksAllFolders)
+    ../[folderName]                         (patientBookmarksOneFolder)
 
-/searchFilter                         (patientSearchFilter) [to discuss more]
-/searchResults/[searchQuery]          (patientSearchResults)
+/searchFilter                               (patientSearchFilter) [to discuss more]
+/searchResults/[searchQuery]                (patientSearchResults)
 
-/[facilityID]                         (patientFacilityInfo) [to discuss as kind of security risk]
-  ../divisions                        (patientFacilityDivisions)
-  ../services                         (patientFacilityServices)
+/[facilityID]                               (patientFacilityInfo) [to discuss as kind of security risk]
+  ../divisions                              (patientFacilityDivisions)
+  ../services                               (patientFacilityServices)
 
-/facility                             (facilitySignIn)
-  ../dashboard                        (managerDashboard, adminDashboard) [to discuss as kind of security risk, backend determines layout and whats seen]
-    ../updateFacilityInfo             (managerUpdateFacilityInfo)
-    ../manageAdmins                   (managerManageAdmins)
-      ../addAdmin                     (managerAddAdmin)
-      ../editAdmin                    (managerEditAdmin)
+/facility                                   (facilitySignIn)
+  ../dashboard                              (managerDashboard, adminDashboard) [to discuss as kind of security risk, backend determines layout and whats seen]
+    ../updateFacilityInfo                   (managerUpdateFacilityInfo)
+    ../manageAdmins                         (managerManageAdmins)
+      ../addAdmin                           (managerAddAdmin)
+      ../editAdmin                          (managerEditAdmin)
 
-    ../manageServices                 (managerManageServices, adminManageServices) [backend determines layout and whats seen]
-      ../addService                   (managerAddService)
-      ../editService                  (facilityAmbulanceServiceEdit,
-                                         facilityBloodBankServiceEdit,
-                                         facilityERServiceEdit,
-                                         facilityICUServiceEdit,
-                                         facilityOutpatientServiceEdit)
-      ../deleteService                 (managerDeleteServiceRestricted)
+    ../manageServices                       (managerManageServices, adminManageServices) [backend determines layout and whats seen]
+      ../addService                         (managerAddService)
+      ../editAmbulanceService/[serviceID]   facilityAmbulanceServiceEdit
+      ../editBloodBankService/[serviceID]   facilityBloodBankServiceEdit
+      ../editERService/[serviceID]          facilityERServiceEdit
+      ../editICUService/[serviceID]         facilityICUServiceEdit
+      ../editOPService/[serviceID]          facilityOutpatientServiceEdit
+                                         
+      ../deleteService                      (managerDeleteServiceRestricted)
 
-    ../manageDivisions                (managerManageDivisions)
-      ../addDivision                  (managerAddDivision)
-      ../editDivision                 (managerEditDivision)
-      ../deleteDivision               (managerDeleteDivisionRestricted, managerDeleteDivisionDependency) [to discuss on how this is structured]
+    ../manageDivisions                      (managerManageDivisions)
+      ../addDivision                        (managerAddDivision)
+      ../editDivision                       (managerEditDivision)
+      ../deleteDivision                     (managerDeleteDivisionRestricted, managerDeleteDivisionDependency) [to discuss on how this is structured]
 
 
 

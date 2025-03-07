@@ -23,9 +23,9 @@ import { BloodBankServiceDAO } from "$lib/server/BloodBankDAO";
 import { ERServiceDAO } from "$lib/server/ERDAO";
 import { ICUServiceDAO } from "$lib/server/ICUDAO";
 import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
-import { serviceMapping } from '$lib/Mappings';
+import { serviceNameToNameMapping } from '$lib/Mappings';
 
-import { OPServiceTypes as serviceTypes } from '$lib/projectTypes';
+import { OPServiceTypes as serviceTypes } from '$lib/projectArrays';
 import { ServicesDAO } from '$lib/server/ServicesDAO';
 
 export const load: PageServerLoad = async ({ cookies }) => {
@@ -53,7 +53,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   for (var [key, value] of Object.entries(services)) {
     if (value === null) {      
-      availableServices.push(serviceMapping[key]);
+      availableServices.push(serviceNameToNameMapping[key]);
     }
   }
   
@@ -135,7 +135,6 @@ export const actions = {
         }
 
         try {
-          validateCoverageRadius(minCover, maxCover)
           let radius = validateCoverageRadius(minCover, maxCover)
           minCoverageRadius = radius.minCoverageRadius
           maxCoverageRadius = radius.maxCoverageRadius
@@ -273,7 +272,7 @@ export const actions = {
         break;
       }
 
-      case "ICU": {
+      case "Intensive Care Unit": {
         let phoneNumber: string
         let baseRate: number
 
