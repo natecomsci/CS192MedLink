@@ -124,24 +124,19 @@
     <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
     <div class="w-full max-w-3x1 mx-auto bg-white">
         <!-- Image Container -->
-        <div class="relative group w-full h-64 overflow-hidden rounded-xl border cursor-pointer">
-            <img src={tempImage} alt="Hospital" class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-60" />
+        <div class="relative group w-full h-130 overflow-hidden rounded-xl border cursor-pointer">
+            <img src={data.photo} alt="Facility" class="w-full h-full object-cover transition-opacity duration-300" />
             
             <!-- Hover Overlay -->
             <!-- <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white text-lg font-semibold">
                 Change Image
             </div> -->
         </div>
-
-        <!-- Hidden File Input -->
-        <!-- <input 
-            type="file"
+        <input 
+            type="text"
             name="facilityImage" 
-            accept="image/*"
-            bind:this={fileInput} 
-            class="hidden" 
-            onchange={handleFileUpload} 
-        /> -->
+            value={data.photo} 
+        />
 
         {#if form?.error}
             <p class="error">{form.error}</p>

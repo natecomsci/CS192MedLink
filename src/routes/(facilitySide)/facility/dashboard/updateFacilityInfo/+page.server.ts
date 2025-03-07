@@ -48,20 +48,23 @@ export const load: PageServerLoad = async ({ cookies }) => {
         brgys: await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
 
         facilityName: facilityInfo.name,
-        providers: facilityInfo.acceptedProviders,
+
+        photo: facilityInfo.photo,
+
+        regionID: facilityInfo.address.regionID,
+        provinceID: facilityInfo.address.pOrCID, 
+        cityID: facilityInfo.address.cOrMID, 
+        barangayID: facilityInfo.address.brgyID, 
+        street: facilityInfo.address.street,
 
         email: facilityInfo.email,
         contactNumber: facilityInfo.phoneNumber,
         type: facilityInfo.facilityType,
         ownership: facilityInfo.ownership,
+
         bookingSystem: facilityInfo.bookingSystem ?? "",
         
-        regionID: facilityInfo.address.regionID,
-        provinceID: facilityInfo.address.pOrCID, 
-        cityID: facilityInfo.address.cOrMID, 
-        barangayID: facilityInfo.address.brgyID, 
-
-        street: facilityInfo.address.street,
+        providers: facilityInfo.acceptedProviders,
     };
 } catch (error) {
     return fail(500, {
