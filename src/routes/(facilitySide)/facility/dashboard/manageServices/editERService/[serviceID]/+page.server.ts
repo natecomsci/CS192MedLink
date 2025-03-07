@@ -84,7 +84,7 @@ export const actions = {
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "price",
+        description: "availableBeds",
         success: false
       });
     }
@@ -94,7 +94,7 @@ try {
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "price",
+        description: "nonUrgentPatients",
         success: false
       });
     }
@@ -104,7 +104,7 @@ try {
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "price",
+        description: "nonUrgentQueueLength",
         success: false
       });
     }
@@ -114,7 +114,7 @@ try {
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "price",
+        description: "urgentPatients",
         success: false
       });
     }
@@ -124,7 +124,7 @@ try {
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "price",
+        description: "urgentQueueLength",
         success: false
       });
     }
@@ -134,7 +134,7 @@ try {
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "price",
+        description: "criticalPatients",
         success: false
       });
     }
@@ -144,7 +144,7 @@ try {
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "price",
+        description: "criticalQueueLength",
         success: false
       });
     }
