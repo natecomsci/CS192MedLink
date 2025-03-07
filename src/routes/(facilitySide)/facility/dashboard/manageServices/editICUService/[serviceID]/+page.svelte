@@ -18,7 +18,7 @@
                     class="border p-2 rounded w-full" 
                     name="phoneNumber"
                     type="tel"
-                    value="+63 9"
+                    value={data.phoneNumber}
                     required 
                 />
                 {#if form?.description === "phoneNumber"}
@@ -37,6 +37,7 @@
                     placeholder="Price" 
                     step=0.01
                     min=0
+                    value={data.baseRate}
                     required 
                 />
                 {#if form?.description === "price"}
@@ -67,6 +68,7 @@
                     placeholder="Price" 
                     step=0.01
                     min=0
+                    value={data.availableBeds}
                     required 
                 />
                 {#if form?.description === "availableBeds"}
@@ -84,6 +86,7 @@
                 <input 
                   name="cardiacSupport" 
                   type="checkbox"
+                  checked={data.cardiacSupport}
                 >
               </label>
               <label>
@@ -91,6 +94,7 @@
                 <input 
                   name="neurologicalSupport" 
                   type="checkbox"
+                  checked={data.neurologicalSupport}
                 >
               </label>
               <label>
@@ -98,6 +102,7 @@
                 <input 
                   name="renalSupport" 
                   type="checkbox"
+                  checked={data.renalSupport}
                 >
               </label>
               <label>
@@ -105,9 +110,13 @@
                 <input 
                   name="respiratorySupport" 
                   type="checkbox"
+                  checked={data.respiratorySupport}
                 >
               </label>
             </label>
         </div>
+        <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
+          Edit Service
+        </button>
     </div>
 </form>

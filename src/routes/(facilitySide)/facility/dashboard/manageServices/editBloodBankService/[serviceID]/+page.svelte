@@ -16,7 +16,7 @@
                     class="border p-2 rounded w-full" 
                     name="phoneNumber"
                     type="tel"
-                    value="+63 9"
+                    value={data.phoneNumber}
                     required 
                 />  
                 {#if form?.description === "phoneNumber"}
@@ -33,7 +33,7 @@
                         class="border p-2 rounded w-30"
                         name="opening"
                         type="time"
-                        value="08:00" 
+                        value={data.openingTime}
                         required
                     >
                     to
@@ -41,7 +41,7 @@
                         class="border p-2 rounded w-30"
                         name="closing"
                         type="time"
-                        value="16:00" 
+                        value={data.closingTime}
                         required
                     >
                     {#if form?.description === "openClose"}
@@ -61,6 +61,7 @@
                     placeholder="Price" 
                     step=0.01
                     min=0
+                    value={data.pricePerUnit}
                     required
                 />
                 {#if form?.description === "price"}
@@ -79,6 +80,7 @@
                         name="turnaroundDays"
                         class="border p-2 rounded  w-30" 
                         placeholder="Days" 
+                        value={data.turnaroundTimeD} 
                         required 
                     />
                     Days
@@ -88,6 +90,7 @@
                         name="turnaroundHours"
                         class="border p-2 rounded  w-30" 
                         placeholder="Hours" 
+                        value={data.turnaroundTimeH}
                         required
                     />
                     Hours
@@ -106,6 +109,7 @@
                   <input 
                     name="ap" 
                     type="checkbox"
+                    checked={data.bloodTypeAvailability?.A_P}
                   >
                 </label>
                 <label>
@@ -113,6 +117,7 @@
                   <input 
                     name="an" 
                     type="checkbox"
+                    checked={data.bloodTypeAvailability?.A_N}
                   >
                 </label>
                 <label>
@@ -120,6 +125,7 @@
                   <input 
                     name="bp" 
                     type="checkbox"
+                    checked={data.bloodTypeAvailability?.B_P}
                   >
                 </label>
                 <label>
@@ -127,6 +133,7 @@
                   <input 
                     name="bn" 
                     type="checkbox"
+                    checked={data.bloodTypeAvailability?.B_N}
                   >
                 </label>
                 <label>
@@ -134,6 +141,7 @@
                   <input 
                     name="op" 
                     type="checkbox"
+                    checked={data.bloodTypeAvailability?.O_P}
                   >
                 </label>
                 <label>
@@ -141,6 +149,7 @@
                   <input 
                     name="on" 
                     type="checkbox"
+                    checked={data.bloodTypeAvailability?.O_N}
                   >
                 </label>
                 <label>
@@ -148,6 +157,7 @@
                   <input 
                     name="abp" 
                     type="checkbox"
+                    checked={data.bloodTypeAvailability?.AB_P}
                   >
                 </label>
                 <label>
@@ -155,11 +165,14 @@
                   <input 
                     name="abn" 
                     type="checkbox"
+                    checked={data.bloodTypeAvailability?.AB_N}
                   >
                 </label>
                 
               </label>
         </div>
-
+        <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
+          Edit Service
+        </button>
     </div>
 </form>

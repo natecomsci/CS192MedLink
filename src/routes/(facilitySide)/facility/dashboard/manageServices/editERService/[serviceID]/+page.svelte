@@ -17,7 +17,7 @@
                     class="border p-2 rounded w-full" 
                     name="phoneNumber"
                     type="tel"
-                    value="+63 9"
+                    value={data.phoneNumber}
                     required 
                 />
                 {#if form?.description === "phoneNumber"}
@@ -48,6 +48,7 @@
                     placeholder="Price"
                     step=1
                     min=0
+                    value={data.availableBeds}
                     required 
                 />
                 {#if form?.description === "availableBeds"}
@@ -66,6 +67,7 @@
                     placeholder="Price"
                     step=1
                     min=0
+                    value={data.nonUrgentPatients}
                     required 
                 />
                 {#if form?.description === "nonUrgentPatients"}
@@ -84,6 +86,7 @@
                     placeholder="Price"
                     step=1
                     min=0
+                    value={data.nonUrgentQueueLength}
                     required 
                 />
                 {#if form?.description === "nonUrgentQueueLength"}
@@ -102,6 +105,7 @@
                     placeholder="Price"
                     step=1
                     min=0
+                    value={data.urgentPatients}
                     required 
                 />
                 {#if form?.description === "urgentPatients"}
@@ -120,6 +124,7 @@
                     placeholder="Price"
                     step=1
                     min=0
+                    value={data.urgentQueueLength}
                     required 
                 />
                 {#if form?.description === "urgentQueueLength"}
@@ -138,6 +143,7 @@
                     placeholder="Price"
                     step=1
                     min=0
+                    value={data.criticalPatients}
                     required 
                 />
                 {#if form?.description === "criticalPatients"}
@@ -156,6 +162,7 @@
                     placeholder="Price"
                     step=1
                     min=0
+                    value={data.criticalQueueLength}
                     required 
                 />
                 {#if form?.description === "criticalQueueLength"}
@@ -163,6 +170,8 @@
                 {/if}
             </label>
         </div>
-
+        <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
+          Edit Service
+        </button>
     </div>
 </form>

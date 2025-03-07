@@ -3,8 +3,6 @@
   import { load } from '$lib/projectArrays';
   import { enhance } from '$app/forms';
 
-  import { OPServiceTypes } from '$lib/projectArrays';
-
   let { data, form }: PageProps = $props();
 </script>
 
@@ -24,15 +22,17 @@
                         name="completionDays"
                         class="border p-2 rounded  w-30" 
                         placeholder="Days" 
+                        value={data.completionTimeD}
                         required />
                     Days
                 
                     <input 
-                    type="number" 
-                    name="completionHours"
-                    class="border p-2 rounded  w-30" 
-                    placeholder="Hours" 
-                    required
+                        type="number" 
+                        name="completionHours"
+                        class="border p-2 rounded  w-30" 
+                        placeholder="Hours" 
+                        value={data.completionTimeH}
+                        required
                     />
                     Hours
                 </div>
@@ -42,18 +42,6 @@
             </label>
         </div>
 
-
-
-        <!-- Walkins -->
-        <div class="mt-4 bg-white p-4 rounded-lg shadow">
-            <label>
-                Accepts Walk-ins
-                <input 
-                  name="acceptWalkins" 
-                  type="checkbox"
-                >
-              </label>
-        </div>
 
         <!-- Price Rate -->
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
@@ -65,6 +53,7 @@
                     placeholder="Price"
                     step=0.01
                     min=0
+                    value={data.price}
                     required 
                 />
                 {#if form?.description === "price"}
@@ -79,6 +68,7 @@
             <input 
               name="isAvailable" 
               type="checkbox"
+              checked={data.isAvailable}
             >
           </label>
           <label>
@@ -86,8 +76,12 @@
             <input 
               name="acceptsWalkIns" 
               type="checkbox"
+              checked={data.acceptsWalkIns}
             >
           </label>
         </div>
+        <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
+          Edit Service
+        </button>
     </div>
 </form>

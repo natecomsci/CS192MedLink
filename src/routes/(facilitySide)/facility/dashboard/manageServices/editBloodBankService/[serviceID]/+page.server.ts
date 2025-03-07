@@ -24,13 +24,13 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
   const serviceInfo = await bloodBankDAO.getInformation(serviceID);
 
   return {
-    phoneNumber           : serviceInfo.phoneNumber,
+    phoneNumber           : serviceInfo.phoneNumber ?? '',
     openingTime           : dateToTimeMapping(serviceInfo.openingTime),
     closingTime           : dateToTimeMapping(serviceInfo.closingTime),
-    pricePerUnit          : serviceInfo.pricePerUnit,
-    turnaroundTimeD       : serviceInfo.turnaroundTimeD,
-    turnaroundTimeH       : serviceInfo.turnaroundTimeH,
-    bloodTypeAvailability : serviceInfo.bloodTypeAvailability,
+    pricePerUnit          : serviceInfo.pricePerUnit ?? 0,
+    turnaroundTimeD       : serviceInfo.turnaroundTimeD ?? 0,
+    turnaroundTimeH       : serviceInfo.turnaroundTimeH ?? 0,
+    bloodTypeAvailability : serviceInfo.bloodTypeAvailability ?? {},
   }
 };
 
@@ -108,6 +108,14 @@ export const actions = {
         success: false
       });
     }
+    console.log(data.get('ap'))
+    console.log(data.get('an'))
+    console.log(data.get('bp'))
+    console.log(data.get('bn'))
+    console.log(data.get('op'))
+    console.log(data.get('on'))
+    console.log(data.get('abp'))
+    console.log(data.get('abn'))
 
     const A_P  = (data.get('ap') ?? '') === 'on'
     const A_N  = (data.get('an') ?? '') === 'on'
