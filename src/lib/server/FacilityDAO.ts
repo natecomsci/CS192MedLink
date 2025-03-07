@@ -72,7 +72,7 @@ export class FacilityDAO {
   async updateGeneralInformation(facilityID: string, data: GeneralInformationFacilityDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        tx.facility.update({
+        await tx.facility.update({
           where: { 
             facilityID 
           },
