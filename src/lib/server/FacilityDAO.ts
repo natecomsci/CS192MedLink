@@ -195,4 +195,23 @@ export class FacilityDAO {
       throw new Error("Could not search for facilities.");
     }
   }
+
+  async getAllFacilities(): Promise<FacilityDTO[]> {
+    try {
+      const facilities = await prisma.facility.findMany({
+        orderBy: {
+          updatedAt: "desc"
+        },
+        select: {
+          facilityID: true,
+          name: true,
+        }
+      });
+  
+      return facilities;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not retrieve facilities.");
+    }
+  }
 }

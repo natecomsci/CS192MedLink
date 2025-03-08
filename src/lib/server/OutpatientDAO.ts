@@ -104,7 +104,6 @@ export class OutpatientServiceDAO {
   async delete(serviceID: string): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        // Delete the ambulance service details first
         await tx.outpatientService.delete({
           where: { serviceID }
         });
