@@ -49,7 +49,7 @@
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
             <label>
                 Load
-                <select name="availability" value={data.load} required class="border p-2 rounded w-full">
+                <select name="load" value={data.load} required class="border p-2 rounded w-full">
                     {#each load as a}
                         <option value={a}>{a}</option>
                     {/each}
