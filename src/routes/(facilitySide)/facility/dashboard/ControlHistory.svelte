@@ -1,13 +1,13 @@
 <script lang="ts">
     import { updated } from "$app/state";
   import { dateToTimeMapping, serviceNameToUIName } from "$lib/Mappings";
-  import type { FlatFacilityServicesDTO } from "$lib/server/DTOs";
+  import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
 
   let admin = "Admin 1";
 
   let { data, form }: PageProps = $props();
-  const services: FlatFacilityServicesDTO[] = data.services ?? []
+  const services: ServiceDTO[] = data.services ?? []
 </script>
 
 <div class="h-full flex flex-col">
@@ -114,11 +114,11 @@
     letter-spacing: -0.02em;
   }
 
-  .department {
+  /*.department {
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
     font-size: 20px;
     color: #9044C4;
     letter-spacing: -0.02em;
-  }
+  }*/
 </style>

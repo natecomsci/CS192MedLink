@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { FlatFacilityServicesDTO } from "$lib/server/DTOs";
+  import type { ServiceDTO } from "$lib/server/DTOs";
     import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
-  const services: FlatFacilityServicesDTO[] = data.services ?? []
+  const services: ServiceDTO[] = data.services ?? []
 
   import { serviceNameToUIName } from '$lib/Mappings'
 

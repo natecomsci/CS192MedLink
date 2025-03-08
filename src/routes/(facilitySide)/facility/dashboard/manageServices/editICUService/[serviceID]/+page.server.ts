@@ -111,7 +111,6 @@ export const actions = {
       neurologicalSupport ,
       renalSupport        ,
       respiratorySupport  ,
-      updatedAt: new Date(),
 
     }
 

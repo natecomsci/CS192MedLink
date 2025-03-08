@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { PageProps } from './$types';
     let { data, form }: PageProps = $props();
-    const OPServices: string[] = data.availableOPServices ?? [];
+    const OPServices: String[] = data.availableOPServices ?? [];
 </script>
 
 <div class="flex-1 p-6 overflow-y-auto border border-green-100">

@@ -1,15 +1,15 @@
 <script lang="ts">
-    import type { FlatFacilityServicesDTO } from "$lib/server/DTOs";
+    import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
-  const services: FlatFacilityServicesDTO[] = data.servicesObj ?? []
+  const services: ServiceDTO[] = data.servicesObj ?? []
 
-  import { serviceType } from "$lib/projectArrays";
+  import { specializedServiceType } from "$lib/projectArrays";
     import { serviceNameToUIName } from "$lib/Mappings";
 
   function serviceTypeURL(type: string): String {
-    if (!serviceType.includes(type)) {
+    if (!specializedServiceType.includes(type)) {
       return "editOPService"
     } else if (type == "Ambulance") {
       return "editAmbulanceService"

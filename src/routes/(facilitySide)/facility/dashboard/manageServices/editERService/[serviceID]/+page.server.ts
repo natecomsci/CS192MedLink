@@ -160,8 +160,6 @@ try {
       urgentQueueLength    ,
       criticalPatients     ,
       criticalQueueLength  ,
-      updatedAt: new Date(),
-
     }
 
     ERDAO.update(serviceID, service)

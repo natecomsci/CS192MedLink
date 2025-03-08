@@ -2,10 +2,9 @@ import { fail, type Actions, redirect } from '@sveltejs/kit';
 
 import type { PageServerLoad } from './$types';
 
-import { validateInteger, validateFloat, validatePhone, validateCompletionTime } from '$lib/server/formValidators';
+import { validateFloat, validateCompletionTime } from '$lib/server/formValidators';
 import { OutpatientServiceDAO } from '$lib/server/OutpatientDAO';
 import type { OutpatientServiceDTO } from '$lib/server/DTOs';
-import type { ServiceType } from '@prisma/client';
 
 const OPDAO = new OutpatientServiceDAO()
 
@@ -23,12 +22,11 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
   const serviceInfo = await OPDAO.getInformation(serviceID);
 
   return {
-    serviceType     : serviceInfo.serviceType ?? '',
-    price           : serviceInfo.price ?? 0,
-    completionTimeD : serviceInfo.completionTimeD ?? 0,
-    completionTimeH : serviceInfo.completionTimeH ?? 0,
-    isAvailable     : serviceInfo.isAvailable ?? false,
-    acceptsWalkIns  : serviceInfo.acceptsWalkIns ?? false,
+    price           : serviceInfo.price,
+    completionTimeD : serviceInfo.completionTimeD,
+    completionTimeH : serviceInfo.completionTimeH,
+    isAvailable     : serviceInfo.isAvailable,
+    acceptsWalkIns  : serviceInfo.acceptsWalkIns,
   }
 };
 
@@ -56,7 +54,6 @@ export const actions = {
 
     const data = await request.formData();
 
-    const serviceType: ServiceType = data.get('OPserviceType') as ServiceType
     let price: number
     let completionTimeD: number
     let completionTimeH: number
@@ -86,13 +83,11 @@ export const actions = {
     }
 
     const service: OutpatientServiceDTO = {
-      serviceType           ,
       price                 ,
       completionTimeD       ,
       completionTimeH       ,
       isAvailable           ,
       acceptsWalkIns        ,
-      updatedAt: new Date() ,
 
     }
 

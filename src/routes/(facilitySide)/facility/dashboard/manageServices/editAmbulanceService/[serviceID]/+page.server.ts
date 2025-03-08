@@ -24,14 +24,14 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
   const serviceInfo = await ambulanceDAO.getInformation(serviceID);
 
   return {
-    phoneNumber       : serviceInfo.phoneNumber ?? '',
+    phoneNumber       : serviceInfo.phoneNumber,
     openingTime       : dateToTimeMapping(serviceInfo.openingTime),
     closingTime       : dateToTimeMapping(serviceInfo.closingTime),
-    baseRate          : serviceInfo.baseRate ?? 0,
-    minCoverageRadius : serviceInfo.minCoverageRadius ?? 0,
-    mileageRate       : serviceInfo.mileageRate ?? 0,
-    maxCoverageRadius : serviceInfo.maxCoverageRadius ?? 0,
-    availability      : serviceInfo.availability  ?? '',
+    baseRate          : serviceInfo.baseRate,
+    minCoverageRadius : serviceInfo.minCoverageRadius,
+    mileageRate       : serviceInfo.mileageRate,
+    maxCoverageRadius : serviceInfo.maxCoverageRadius,
+    availability      : serviceInfo.availability,
   }
 };
 
@@ -131,8 +131,6 @@ export const actions = {
       mileageRate,
       maxCoverageRadius,
       availability, 
-      updatedAt: new Date(),
-
     }
 
     ambulanceDAO.update(serviceID, service)

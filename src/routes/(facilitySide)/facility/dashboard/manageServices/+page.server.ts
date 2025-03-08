@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import type { FlatFacilityServicesDTO } from '$lib/server/DTOs';
+import type { ServiceDTO } from '$lib/server/DTOs';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   let services = cookies.get("services");
@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     });
   }
 
-  const servicesObj: FlatFacilityServicesDTO[] = JSON.parse(services);
+  const servicesObj: ServiceDTO[] = JSON.parse(services);
   
   return {
     servicesObj

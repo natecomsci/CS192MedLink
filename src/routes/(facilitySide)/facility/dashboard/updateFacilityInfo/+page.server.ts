@@ -21,8 +21,7 @@ import { validateEmail,
          validateFacilityName 
        } from '$lib/server/formValidators';
 
-import { providers, 
-         OPServiceTypes 
+import { providers,  
        } from '$lib/projectArrays';
 
 export const load: PageServerLoad = async ({ cookies }) => {
