@@ -99,4 +99,24 @@ export class AmbulanceServiceDAO {
       throw new Error("Could not update AmbulanceService.");
     }
   }
+
+  async delete(serviceID: string): Promise<void> {
+    try {
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        // Delete the ambulance service details first
+        await tx.ambulanceService.delete({
+          where: { serviceID }
+        });
+  
+        // Delete the associated service record
+        await tx.service.delete({
+          where: { serviceID }
+        });
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not delete AmbulanceService.");
+    }
+  }
+  
 }

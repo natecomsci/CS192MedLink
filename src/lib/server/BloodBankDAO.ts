@@ -189,4 +189,27 @@ export class BloodBankServiceDAO {
       throw new Error("Could not update BloodBankService.");
     }
   }
+
+  async delete(serviceID: string): Promise<void> {
+    try {
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        
+        await tx.bloodTypeMapping.delete({
+          where: { serviceID }
+        });
+        await tx.bloodBankService.delete({
+          where: { serviceID }
+        });
+  
+        // Delete the associated service record
+        await tx.service.delete({
+          where: { serviceID }
+        });
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not delete BloodBankSevice.");
+    }
+  }
+  
 }

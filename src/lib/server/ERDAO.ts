@@ -101,4 +101,23 @@ export class ERServiceDAO {
       throw new Error("Could not update ERService.");
     }
   }
+
+  async delete(serviceID: string): Promise<void> {
+    try {
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        // Delete the ambulance service details first
+        await tx.eRService.delete({
+          where: { serviceID }
+        });
+  
+        // Delete the associated service record
+        await tx.service.delete({
+          where: { serviceID }
+        });
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not delete ERService.");
+    }
+  }
 }

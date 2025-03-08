@@ -1,6 +1,7 @@
 <script lang="ts">
-    import type { ServiceDTO } from "$lib/server/DTOs";
+  import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
+  import { enhance } from '$app/forms';
 
   let { data, form }: PageProps = $props();
   const services: ServiceDTO[] = data.servicesObj ?? []
@@ -39,9 +40,14 @@
           edit
         </a>
 
-        <button>
-          delete
-        </button>
+        <form method="POST" action="?/deleteService" use:enhance={handleEnhance} >
+          <input type="hidden" name="serviceID" value="{serviceID}" />
+          <input type="hidden" name="serviceType" value="{type}" />
+          <button type="submit" class="text-red-500 hover:underline">
+            delete
+          </button>
+        </form>
+        
       </div>
     {/each}
   </div>
