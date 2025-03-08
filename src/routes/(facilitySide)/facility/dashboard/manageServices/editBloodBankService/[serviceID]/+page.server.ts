@@ -108,14 +108,6 @@ export const actions = {
         success: false
       });
     }
-    console.log(data.get('ap'))
-    console.log(data.get('an'))
-    console.log(data.get('bp'))
-    console.log(data.get('bn'))
-    console.log(data.get('op'))
-    console.log(data.get('on'))
-    console.log(data.get('abp'))
-    console.log(data.get('abn'))
 
     const A_P  = (data.get('ap') ?? '') === 'on'
     const A_N  = (data.get('an') ?? '') === 'on'
