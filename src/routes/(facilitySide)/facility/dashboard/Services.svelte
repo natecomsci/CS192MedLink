@@ -5,8 +5,6 @@
   let { data, form }: PageProps = $props();
   const services: ServiceDTO[] = data.services ?? []
 
-  import { serviceNameToUIName } from '$lib/Mappings'
-
 </script>
 
 <div class="bg-white shadow-lg rounded-lg p-8">
@@ -21,7 +19,7 @@
   <div class="mt-4">
     {#each services as { type }}
       <div class="py-2 border-b border-transparent">
-        <p class="font-bold">{serviceNameToUIName[type]} Information</p>
+        <p class="font-bold">{type} Information</p>
         <!-- <p class="text-gray-500 italic">Emergency Division</p> -->
       </div>
     {/each}
