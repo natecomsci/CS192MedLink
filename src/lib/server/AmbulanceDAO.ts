@@ -2,7 +2,7 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import type { AmbulanceServiceDTO, CreateAmbulanceServiceDTO } from "./dtos";
+import type { AmbulanceServiceDTO, CreateAmbulanceServiceDTO } from "./DTOs";
 
 export class AmbulanceServiceDAO {
   async create(facilityID: string, data: CreateAmbulanceServiceDTO): Promise<void> {

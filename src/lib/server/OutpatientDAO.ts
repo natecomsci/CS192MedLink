@@ -2,7 +2,7 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import type { CreateOutpatientServiceDTO, OutpatientServiceDTO } from "./dtos";
+import type { CreateOutpatientServiceDTO, OutpatientServiceDTO } from "./DTOs";
 
 export class OutpatientServiceDAO {
   async create(facilityID: string, data: CreateOutpatientServiceDTO): Promise<void> {

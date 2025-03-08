@@ -2,7 +2,7 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import type { BloodTypeMappingDTO, CreateBloodBankServiceDTO, BloodBankServiceDTO } from "./dtos";
+import type { BloodTypeMappingDTO, CreateBloodBankServiceDTO, BloodBankServiceDTO } from "./DTOs";
 
 export class BloodTypeMappingDAO {
   async getBloodTypeMapping(serviceID: string): Promise<BloodTypeMappingDTO | null> {

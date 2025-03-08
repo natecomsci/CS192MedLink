@@ -6,7 +6,7 @@ import { Provider } from "@prisma/client";
 
 import type { Facility } from "@prisma/client";
 
-import type { AddressDTO, FacilityDTO, GeneralInformationFacilityDTO } from "./dtos";
+import type { AddressDTO, FacilityDTO, GeneralInformationFacilityDTO } from "./DTOs";
 
 import { AddressDAO } from "./AddressDAO";
 

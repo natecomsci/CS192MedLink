@@ -2,7 +2,7 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import type { CreateERServiceDTO, ERServiceDTO } from "./dtos";
+import type { CreateERServiceDTO, ERServiceDTO } from "./DTOs";
 
 export class ERServiceDAO {
   async create(facilityID: string, data: CreateERServiceDTO): Promise<void> {
