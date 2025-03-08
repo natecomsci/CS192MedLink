@@ -7,7 +7,6 @@
   const services: ServiceDTO[] = data.servicesObj ?? []
 
   import { specializedServiceType } from "$lib/projectArrays";
-    import { serviceNameToUIName } from "$lib/Mappings";
 
   function serviceTypeURL(type: string): String {
     if (!specializedServiceType.includes(type)) {
@@ -35,7 +34,7 @@
   <div class="mt-4">
     {#each services as { type, serviceID }}
       <div class="py-2 border-b border-transparent">
-        <p class="font-bold">{serviceNameToUIName[type]} Information</p>
+        <p class="font-bold">{type} Information</p>
         <a href={'./manageServices/' + serviceTypeURL(type) + '/' +serviceID}>
           edit
         </a>

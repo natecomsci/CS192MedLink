@@ -1,6 +1,5 @@
 <script lang="ts">
-    import { updated } from "$app/state";
-  import { dateToTimeMapping, serviceNameToUIName } from "$lib/Mappings";
+  import { dateToTimeMapping } from "$lib/Mappings";
   import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
 
@@ -33,7 +32,7 @@
             <!-- Left Content: Admin & Message -->
             <div class="info">
               <span class="admin">{admin}</span>
-              <span class="message">Updated {serviceNameToUIName[type]} Information</span>
+              <span class="message">Updated {type} Information</span>
             </div>
           </div>
         
