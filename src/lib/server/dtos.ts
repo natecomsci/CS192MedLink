@@ -20,7 +20,7 @@ export interface ServiceDTO {
   serviceID  : string;
   type       : OPServiceType;
   createdAt  : Date;
-  updatedAt? : Date;
+  updatedAt  : Date;
 }
 
 export interface CreateAmbulanceServiceDTO {

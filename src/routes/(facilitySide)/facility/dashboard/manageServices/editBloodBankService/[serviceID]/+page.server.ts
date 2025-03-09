@@ -10,6 +10,21 @@ import type { BloodBankServiceDTO, BloodTypeMappingDTO } from '$lib/server/DTOs'
 
 const bloodBankDAO = new BloodBankServiceDAO()
 
+let def_phoneNumber     : String
+let def_openingTime     : String
+let def_closingTime     : String
+let def_pricePerUnit    : Number
+let def_turnaroundTimeD : Number
+let def_turnaroundTimeH : Number
+let def_A_P  : boolean
+let def_A_N  : boolean
+let def_B_P  : boolean
+let def_B_N  : boolean
+let def_O_P  : boolean
+let def_O_N  : boolean
+let def_AB_P : boolean
+let def_AB_N : boolean
+
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
   if (!facilityID) {
@@ -23,13 +38,29 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
   const serviceInfo = await bloodBankDAO.getInformation(serviceID);
 
+  def_phoneNumber     = serviceInfo.phoneNumber
+  def_openingTime     = dateToTimeMapping(serviceInfo.openingTime)
+  def_closingTime     = dateToTimeMapping(serviceInfo.closingTime)
+  def_pricePerUnit    = serviceInfo.pricePerUnit
+  def_turnaroundTimeD = serviceInfo.turnaroundTimeD
+  def_turnaroundTimeH = serviceInfo.turnaroundTimeH
+
+  def_A_P  = serviceInfo.bloodTypeAvailability.A_P
+  def_A_N  = serviceInfo.bloodTypeAvailability.A_N
+  def_B_P  = serviceInfo.bloodTypeAvailability.B_P
+  def_B_N  = serviceInfo.bloodTypeAvailability.B_N
+  def_O_P  = serviceInfo.bloodTypeAvailability.O_P
+  def_O_N  = serviceInfo.bloodTypeAvailability.O_N
+  def_AB_P = serviceInfo.bloodTypeAvailability.AB_P
+  def_AB_N = serviceInfo.bloodTypeAvailability.AB_N
+
   return {
-    phoneNumber           : serviceInfo.phoneNumber,
-    openingTime           : dateToTimeMapping(serviceInfo.openingTime),
-    closingTime           : dateToTimeMapping(serviceInfo.closingTime),
-    pricePerUnit          : serviceInfo.pricePerUnit,
-    turnaroundTimeD       : serviceInfo.turnaroundTimeD,
-    turnaroundTimeH       : serviceInfo.turnaroundTimeH,
+    phoneNumber           : def_phoneNumber,
+    openingTime           : def_openingTime,
+    closingTime           : def_closingTime,
+    pricePerUnit          : def_pricePerUnit,
+    turnaroundTimeD       : def_turnaroundTimeD,
+    turnaroundTimeH       : def_turnaroundTimeH,
     bloodTypeAvailability : serviceInfo.bloodTypeAvailability,
   }
 };
@@ -108,14 +139,6 @@ export const actions = {
         success: false
       });
     }
-    console.log(data.get('ap'))
-    console.log(data.get('an'))
-    console.log(data.get('bp'))
-    console.log(data.get('bn'))
-    console.log(data.get('op'))
-    console.log(data.get('on'))
-    console.log(data.get('abp'))
-    console.log(data.get('abn'))
 
     const A_P  = (data.get('ap') ?? '') === 'on'
     const A_N  = (data.get('an') ?? '') === 'on'
@@ -146,6 +169,29 @@ export const actions = {
       turnaroundTimeH,
       bloodTypeAvailability,
     }
+
+    if (def_phoneNumber == phoneNumber &&
+        def_openingTime == dateToTimeMapping(openingTime) &&
+        def_closingTime == dateToTimeMapping(closingTime) &&
+        def_pricePerUnit == pricePerUnit &&
+        def_turnaroundTimeD == turnaroundTimeD &&
+        def_turnaroundTimeH == turnaroundTimeH &&
+        def_A_P  == A_P &&
+        def_A_N  == A_N &&
+        def_B_P  == B_P &&
+        def_B_N  == B_N &&
+        def_O_P  == O_P &&
+        def_O_N  == O_N &&
+        def_AB_P == AB_P &&
+        def_AB_N == AB_N
+      ) {
+      return fail(422, { 
+          error: "No changes made",
+          description: "button",
+          success: false  
+        });
+    }
+
 
     bloodBankDAO.update(serviceID, service)
 

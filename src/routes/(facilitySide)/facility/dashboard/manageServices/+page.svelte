@@ -1,12 +1,12 @@
 <script lang="ts">
-    import type { ServiceDTO } from "$lib/server/DTOs";
+  import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
+  import { enhance } from '$app/forms';
 
   let { data, form }: PageProps = $props();
   const services: ServiceDTO[] = data.servicesObj ?? []
 
   import { specializedServiceType } from "$lib/projectArrays";
-    import { serviceNameToUIName } from "$lib/Mappings";
 
   function serviceTypeURL(type: string): String {
     if (!specializedServiceType.includes(type)) {

@@ -100,4 +100,23 @@ export class OutpatientServiceDAO {
       throw new Error("Could not update OutpatientService.");
     }
   }
+
+  async delete(serviceID: string): Promise<void> {
+    try {
+      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        await tx.outpatientService.delete({
+          where: { serviceID }
+        });
+  
+        // Delete the associated service record
+        await tx.service.delete({
+          where: { serviceID }
+        });
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not delete OutPatientService.");
+    }
+  }
+  
 }

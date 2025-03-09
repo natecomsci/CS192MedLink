@@ -29,7 +29,7 @@
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
             <label>
                 Load
-                <select name="availability" value={data.load} required class="border p-2 rounded w-full">
+                <select name="load" value={data.load} required class="border p-2 rounded w-full">
                     {#each load as a}
                         <option value={a}>{a}</option>
                     {/each}
@@ -170,6 +170,9 @@
                 {/if}
             </label>
         </div>
+        {#if form?.description === "button"}
+            <p class="error">{form.error}</p>
+        {/if}
         <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
           Edit Service
         </button>

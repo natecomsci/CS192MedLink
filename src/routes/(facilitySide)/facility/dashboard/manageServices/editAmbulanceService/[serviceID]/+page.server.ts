@@ -10,6 +10,15 @@ import type { AmbulanceServiceDTO } from '$lib/server/DTOs';
 
 const ambulanceDAO = new AmbulanceServiceDAO()
 
+let def_phoneNumber: String
+let def_openingTime: String
+let def_closingTime: String
+let def_baseRate: Number
+let def_minCoverageRadius: Number
+let def_mileageRate: Number
+let def_maxCoverageRadius: Number
+let def_availability: Availability
+
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
   if (!facilityID) {
@@ -23,15 +32,24 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
   const serviceInfo = await ambulanceDAO.getInformation(serviceID);
 
+  def_phoneNumber       = serviceInfo.phoneNumber
+  def_openingTime       = dateToTimeMapping(serviceInfo.openingTime)
+  def_closingTime       = dateToTimeMapping(serviceInfo.closingTime)
+  def_baseRate          = serviceInfo.baseRate
+  def_minCoverageRadius = serviceInfo.minCoverageRadius
+  def_mileageRate       = serviceInfo.mileageRate
+  def_maxCoverageRadius = serviceInfo.maxCoverageRadius
+  def_availability      = serviceInfo.availability
+
   return {
-    phoneNumber       : serviceInfo.phoneNumber,
-    openingTime       : dateToTimeMapping(serviceInfo.openingTime),
-    closingTime       : dateToTimeMapping(serviceInfo.closingTime),
-    baseRate          : serviceInfo.baseRate,
-    minCoverageRadius : serviceInfo.minCoverageRadius,
-    mileageRate       : serviceInfo.mileageRate,
-    maxCoverageRadius : serviceInfo.maxCoverageRadius,
-    availability      : serviceInfo.availability,
+    phoneNumber       : def_phoneNumber,
+    openingTime       : def_openingTime,
+    closingTime       : def_closingTime,
+    baseRate          : def_baseRate,
+    minCoverageRadius : def_minCoverageRadius,
+    mileageRate       : def_mileageRate,
+    maxCoverageRadius : def_maxCoverageRadius,
+    availability      : def_availability,
   }
 };
 
@@ -131,6 +149,22 @@ export const actions = {
       mileageRate,
       maxCoverageRadius,
       availability, 
+    }
+
+    if (def_phoneNumber == phoneNumber &&
+        def_openingTime == dateToTimeMapping(openingTime) &&
+        def_closingTime == dateToTimeMapping(closingTime) &&
+        def_baseRate == baseRate &&
+        def_minCoverageRadius == minCoverageRadius &&
+        def_mileageRate == mileageRate &&
+        def_maxCoverageRadius == maxCoverageRadius &&
+        def_availability == availability
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
     }
 
     ambulanceDAO.update(serviceID, service)

@@ -109,7 +109,7 @@ export class ServicesDAO {
   }
   */
 
-  async search(query: string, offset: number): Promise<ServiceDTO[]> { // loads 10 search results from an input offset
+  async search(query: string, offset: number): Promise<{ results: ServiceDTO[], hasMore: boolean }> { // loads 10 search results from an input offset
     try {
       const services = await prisma.service.findMany({
         where: {
@@ -136,17 +136,43 @@ export class ServicesDAO {
           updatedAt : true,
         },
         skip: offset,
-        take: 10
+        take: 11
       });
 
-      return services;
+      return { 
+        results : services.slice(0, 10), 
+        hasMore : services.length  > 10,
+      };
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not search for services.");
     }
   }
 
-  // to do: getpaginatedservices
+  async getPaginatedServices(page: number, pageSize: number): Promise<{ services: ServiceDTO[]; totalPages: number; currentPage: number }> {
+    try {
+      const [services, totalServices] = await Promise.all([
+        prisma.service.findMany({
+          select: {
+            serviceID : true,
+            type      : true,
+            createdAt : true,
+            updatedAt : true
+          },
+          skip: (page - 1) * pageSize,
+          take: pageSize
+        }),
+        prisma.service.count()
+      ]);
+  
+      const totalPages = Math.max(1, Math.ceil(totalServices / pageSize));
+
+      return { services, totalPages, currentPage: page };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get paginated services.");
+    }
+  }
 
   async delete(serviceID: string): Promise<void> {
     try {

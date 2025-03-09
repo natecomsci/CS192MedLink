@@ -9,6 +9,15 @@ import type { Load } from '@prisma/client';
 
 const ICUDAO = new ICUServiceDAO()
 
+let def_phoneNumber: String
+let def_baseRate: Number
+let def_load: Load
+let def_availableBeds: Number
+let def_cardiacSupport: boolean
+let def_neurologicalSupport: boolean
+let def_renalSupport: boolean
+let def_respiratorySupport: boolean
+
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
   if (!facilityID) {
@@ -22,15 +31,24 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
   const serviceInfo = await ICUDAO.getInformation(serviceID);
 
+  def_phoneNumber         = serviceInfo.phoneNumber
+  def_baseRate            = serviceInfo.baseRate
+  def_load                = serviceInfo.load
+  def_availableBeds       = serviceInfo.availableBeds
+  def_cardiacSupport      = serviceInfo.cardiacSupport
+  def_neurologicalSupport = serviceInfo.neurologicalSupport
+  def_renalSupport        = serviceInfo.renalSupport
+  def_respiratorySupport  = serviceInfo.respiratorySupport
+
   return {
-    phoneNumber         : serviceInfo.phoneNumber,
-    baseRate            : serviceInfo.baseRate,
-    load                : serviceInfo.load,
-    availableBeds       : serviceInfo.availableBeds,
-    cardiacSupport      : serviceInfo.cardiacSupport,
-    neurologicalSupport : serviceInfo.neurologicalSupport,
-    renalSupport        : serviceInfo.renalSupport,
-    respiratorySupport  : serviceInfo.respiratorySupport,
+    phoneNumber         : def_phoneNumber,
+    baseRate            : def_baseRate,
+    load                : def_load,
+    availableBeds       : def_availableBeds,
+    cardiacSupport      : def_cardiacSupport,
+    neurologicalSupport : def_neurologicalSupport,
+    renalSupport        : def_renalSupport,
+    respiratorySupport  : def_respiratorySupport,
   }
 };
 
@@ -111,7 +129,22 @@ export const actions = {
       neurologicalSupport ,
       renalSupport        ,
       respiratorySupport  ,
+    }
 
+    if (def_phoneNumber         == phoneNumber &&
+        def_baseRate            == baseRate &&
+        def_load                == load &&
+        def_availableBeds       == availableBeds &&
+        def_cardiacSupport      == cardiacSupport &&
+        def_neurologicalSupport == neurologicalSupport &&
+        def_renalSupport        == renalSupport &&
+        def_respiratorySupport  == respiratorySupport
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
     }
 
     ICUDAO.update(serviceID, service)

@@ -9,6 +9,16 @@ import type { ERServiceDTO } from '$lib/server/DTOs';
 
 const ERDAO = new ERServiceDAO();
 
+let def_phoneNumber          : String
+let def_load                 : Load
+let def_availableBeds        : Number
+let def_nonUrgentPatients    : Number
+let def_nonUrgentQueueLength : Number
+let def_urgentPatients       : Number
+let def_urgentQueueLength    : Number
+let def_criticalPatients     : Number
+let def_criticalQueueLength  : Number
+
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
   if (!facilityID) {
@@ -22,16 +32,26 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
   const serviceInfo = await ERDAO.getInformation(serviceID);
 
+  def_phoneNumber          = serviceInfo.phoneNumber;
+  def_load                 = serviceInfo.load;
+  def_availableBeds        = serviceInfo.availableBeds;
+  def_nonUrgentPatients    = serviceInfo.nonUrgentPatients;
+  def_nonUrgentQueueLength = serviceInfo.nonUrgentQueueLength;
+  def_urgentPatients       = serviceInfo.urgentPatients;
+  def_urgentQueueLength    = serviceInfo.urgentQueueLength;
+  def_criticalPatients     = serviceInfo.criticalPatients;
+  def_criticalQueueLength  = serviceInfo.criticalQueueLength;
+
   return {
-    phoneNumber          : serviceInfo.phoneNumber,
-    load                 : serviceInfo.load,
-    availableBeds        : serviceInfo.availableBeds,
-    nonUrgentPatients    : serviceInfo.nonUrgentPatients,
-    nonUrgentQueueLength : serviceInfo.nonUrgentQueueLength,
-    urgentPatients       : serviceInfo.urgentPatients,
-    urgentQueueLength    : serviceInfo.urgentQueueLength,
-    criticalPatients     : serviceInfo.criticalPatients,
-    criticalQueueLength  : serviceInfo.criticalQueueLength,
+    phoneNumber          : def_phoneNumber,
+    load                 : def_load,
+    availableBeds        : def_availableBeds,
+    nonUrgentPatients    : def_nonUrgentPatients,
+    nonUrgentQueueLength : def_nonUrgentQueueLength,
+    urgentPatients       : def_urgentPatients,
+    urgentQueueLength    : def_urgentQueueLength,
+    criticalPatients     : def_criticalPatients,
+    criticalQueueLength  : def_criticalQueueLength,
   }
 };
 
@@ -160,6 +180,23 @@ try {
       urgentQueueLength    ,
       criticalPatients     ,
       criticalQueueLength  ,
+    }
+
+    if (def_phoneNumber          == phoneNumber &&
+        def_load                 == load &&
+        def_availableBeds        == availableBeds &&
+        def_nonUrgentPatients    == nonUrgentPatients &&
+        def_nonUrgentQueueLength == nonUrgentQueueLength &&
+        def_urgentPatients       == urgentPatients &&
+        def_urgentQueueLength    == urgentQueueLength &&
+        def_criticalPatients     == criticalPatients &&
+        def_criticalQueueLength  == criticalQueueLength
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
     }
 
     ERDAO.update(serviceID, service)
