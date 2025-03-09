@@ -24,8 +24,11 @@
   <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
     <!-- Left Panel (Static) -->
     <div class="w-1/3 bg-white p-6 flex flex-col shadow-md border border-purple-700">
-        <div class= "flex items-center">
-            <button class="text-2xl mb-4"><a href="../manageServices">⬅️</a></button>
+        <div class= "flex items-center gap-5">
+            <!-- <button class="text-2xl mb-4"><a href="../manageServices">⬅️</a></button> -->
+            <a href="../manageServices">
+              <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
+            </a>
             <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Add a Service</h1>
         </div>
 

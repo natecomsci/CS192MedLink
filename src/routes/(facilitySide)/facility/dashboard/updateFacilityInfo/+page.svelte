@@ -113,10 +113,23 @@
     // function triggerFileInput() {
     //     fileInput?.click();
     // }
+
+
+    let prov = [
+    "INTELLICARE", "ASIACARE", "AVEGA", "CAREWELL", "one_COOPEALTH",
+    "DYNAMIC_CARE_CORPORATION", "EASTWEST_HEALTHCARE", "FORTICARE",
+    "GETWELL", "HC_and_D", "HEALTHFIRST", "HMI", "HPPI", "IWC",
+    "ICARE", "KAISER", "LIFE_and_HEALTH", "MAXICARE", "MEDICARD",
+    "MEDICARE", "MEDOCARE", "METROCARE", "OMHSI", "PACIFIC_CROSS",
+    "PHILHEALTH", "VALUCARE", "WELLCARE"
+  ];
+
+  let selectedProviders: string[] = $state([]);
+  let showDropdown = $state(false);
 </script>
   
 <form
-    class="w-300 h-[calc(100vh-100px)] mx-auto grid grid-cols-1 bg-white  m-6 space-y-2  rounded-2xl p-6 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+    class="w-300 h-[calc(100vh-100px)] mx-auto grid grid-cols-1 bg-white overflow-y-auto  m-6 space-y-2  rounded-2xl p-6 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     method="POST" 
     use:enhance
     action="?/update"
@@ -325,7 +338,7 @@
 
             <label>
                 Accepted Insurance Providers
-                {#each providers as t}
+                <!-- {#each providers as t}
                     <label>
                       {t}
                       <input 
@@ -334,8 +347,43 @@
                         checked={isAccepted(t)}
                       >
                     </label>
-                {/each}
+                {/each} -->
+
+                <div class="relative w-full">
+                    <!-- Dropdown Button -->
+                    <button 
+                        class="w-full border bg-white text-left p-2 rounded relative overflow-hidden pr-8" 
+                        onclick={() => showDropdown = !showDropdown}
+                    >
+                        <span class="fade-mask">
+                            {selectedProviders.length > 0 ? selectedProviders.join(", ") : "Select Providers"}
+                        </span>
+
+                        <!-- Dropdown Icon -->
+                        <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform pointer-events-none" 
+                            style="transform: {showDropdown ? 'rotate(180deg)' : 'rotate(0deg)'}" 
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown Content -->
+                    {#if showDropdown}
+                        <div class="absolute w-full bg-white border mt-1 shadow-lg p-2 max-h-60 overflow-y-auto">
+                            {#each providers as t}
+                                <label class="flex items-center space-x-2">
+                                    <input type="checkbox" bind:group={selectedProviders} value={t} checked={isAccepted(t)} />
+                                    <span>{t}</span>
+                                </label>
+                            {/each}
+                        </div>
+                    {/if}
+                </div>
+                
+                  
             </label>
+
+
         </div>
 
         <div class="justify-between flex  py-10 space-x-3">
@@ -358,9 +406,48 @@
     </div>
 </form>
 
+
+
+
 <style>
+    .truncate-container {
+        max-width: calc(100% - 2rem); /* Ensures space for icon */
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        display: block;
+        position: relative;
+    }
+    
+    .truncate-container::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 3rem;
+        background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
+    }
+
     .selected {
         background-color: #9044C4;
         color: white;
     }
+
+
+    .fade-mask {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: clip;
+        position: relative;
+        max-width: 100%;
+        
+        /* Fading effect using mask */
+        -webkit-mask-image: linear-gradient(to right, black 80%, rgba(0, 0, 0, 0));
+        mask-image: linear-gradient(to right, black 80%, rgba(0, 0, 0, 0));
+    }
+
 </style>
+
+
