@@ -1,9 +1,26 @@
 <script lang="ts">
-    import type { FlatFacilityServicesDTO } from "$lib/server/DTOs";
+  import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
+  import { enhance } from '$app/forms';
 
   let { data, form }: PageProps = $props();
-  const services: FlatFacilityServicesDTO[] = data.servicesObj ?? []
+  const services: ServiceDTO[] = data.servicesObj ?? []
+
+  import { specializedServiceType } from "$lib/projectArrays";
+
+  function serviceTypeURL(type: string): String {
+    if (!specializedServiceType.includes(type)) {
+      return "editOPService"
+    } else if (type == "Ambulance") {
+      return "editAmbulanceService"
+    } else if (type == "Blood Bank") {
+      return "editBloodBankService"
+    } else if (type == "Emergency Room") {
+      return "editERService"
+    } else {
+      return "editICUService"
+    }
+  }
 </script>
 
 <h1 class="text-3xl font-bold underline">
@@ -18,13 +35,18 @@
     {#each services as { type, serviceID }}
       <div class="py-2 border-b border-transparent">
         <p class="font-bold">{type} Information</p>
-        <a href={'./manageServices/editService'+serviceID}>
+        <a href={'./manageServices/' + serviceTypeURL(type) + '/' +serviceID}>
           edit
         </a>
 
-        <button>
-          delete
-        </button>
+        <form method="POST" action="?/deleteService" use:enhance={handleEnhance} >
+          <input type="hidden" name="serviceID" value="{serviceID}" />
+          <input type="hidden" name="serviceType" value="{type}" />
+          <button type="submit" class="text-red-500 hover:underline">
+            delete
+          </button>
+        </form>
+        
       </div>
     {/each}
   </div>

@@ -1,14 +1,12 @@
 import { prisma } from "./prisma";
 
-import { Prisma, 
-         Provider 
-       } from '@prisma/client'
+import { Prisma } from "@prisma/client";
 
-import type { Facility } from '@prisma/client';
+import { Provider } from "@prisma/client";
 
-import type { AddressDTO,
-              GeneralInformationFacilityDTO 
-            } from './DTOs';
+import type { Facility } from "@prisma/client";
+
+import type { AddressDTO, FacilityDTO, GeneralInformationFacilityDTO } from "./DTOs";
 
 import { AddressDAO } from "./AddressDAO";
 
@@ -74,7 +72,7 @@ export class FacilityDAO {
   async updateGeneralInformation(facilityID: string, data: GeneralInformationFacilityDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        tx.facility.update({
+        await tx.facility.update({
           where: { 
             facilityID 
           },
@@ -169,6 +167,54 @@ export class FacilityDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not check if Facility has Divisions.");
+    }
+  }
+
+  async search(query: string, offset: number): Promise<{ results: FacilityDTO[]; hasMore: boolean }> { // loads 10 search results from an input offset
+    try {
+      const facilities = await prisma.facilities.findMany({
+        where: {
+          type: {
+            search: query
+          }
+        },
+        orderBy: {
+          updatedAt: "desc"
+        },
+        select: {
+          facilityID : true,
+          name       : true,
+        },
+        skip: offset,
+        take: 11
+      });
+
+      return { 
+        results : facilities.slice(0, 10), 
+        hasMore : facilities.length  > 10,
+      };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not search for facilities.");
+    }
+  }
+
+  async getAllFacilities(): Promise<FacilityDTO[]> {
+    try {
+      const facilities = await prisma.facility.findMany({
+        orderBy: {
+          updatedAt: "desc"
+        },
+        select: {
+          facilityID: true,
+          name: true,
+        }
+      });
+  
+      return facilities;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not retrieve facilities.");
     }
   }
 }

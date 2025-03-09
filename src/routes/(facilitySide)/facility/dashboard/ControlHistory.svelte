@@ -1,11 +1,12 @@
 <script lang="ts">
-  import type { FlatFacilityServicesDTO } from "$lib/server/DTOs";
+  import { dateToTimeMapping } from "$lib/Mappings";
+  import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
 
   let admin = "Admin 1";
 
   let { data, form }: PageProps = $props();
-  const services: FlatFacilityServicesDTO[] = data.services ?? []
+  const services: ServiceDTO[] = data.services ?? []
 </script>
 
 <div class="h-full flex flex-col">
@@ -37,7 +38,7 @@
         
           <!-- Right Content: Timestamp & Department -->
           <div class="details">
-            <span class="timestamp">{updatedAt}</span>
+            <span class="timestamp">Updated at {dateToTimeMapping(updatedAt)}</span>
             <!-- <span class="department">{department}</span> -->
           </div>
       </div>
@@ -112,11 +113,11 @@
     letter-spacing: -0.02em;
   }
 
-  .department {
+  /*.department {
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
     font-size: 20px;
     color: #9044C4;
     letter-spacing: -0.02em;
-  }
+  }*/
 </style>

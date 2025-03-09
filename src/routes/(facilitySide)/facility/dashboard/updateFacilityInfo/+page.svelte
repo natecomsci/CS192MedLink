@@ -5,7 +5,8 @@
     import { enhance } from '$app/forms';
 
     import tempImage from "$lib/images/catle.jpg"
-    import { facilityType, providers } from '$lib/projectTypes';
+    import { facilityType, providers } from '$lib/projectArrays';
+    import type { Provider } from '@prisma/client';
 
     let enableCities = $state(true);
     let enableBarangays = $state(true);
@@ -84,6 +85,11 @@
         throw new Error(`Response status: ${error}`);
       }
     }
+    console.log(data.providers)
+
+    function isAccepted(p: Provider): boolean {
+        return data.providers?.includes(p) ?? false
+    }
 
     // -------------- DAG DAG NI ELLE -------
     let imageUrl: string = $state('$lib/images/catle.jpg'); // Default image
@@ -118,24 +124,19 @@
     <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
     <div class="w-full max-w-3x1 mx-auto bg-white">
         <!-- Image Container -->
-        <div class="relative group w-full h-64 overflow-hidden rounded-xl border cursor-pointer">
-            <img src={tempImage} alt="Hospital" class="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-60" />
+        <div class="relative group w-full h-130 overflow-hidden rounded-xl border cursor-pointer">
+            <img src={data.photo} alt="Facility" class="w-full h-full object-cover transition-opacity duration-300" />
             
             <!-- Hover Overlay -->
             <!-- <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white text-lg font-semibold">
                 Change Image
             </div> -->
         </div>
-
-        <!-- Hidden File Input -->
-        <!-- <input 
-            type="file"
+        <input 
+            type="text"
             name="facilityImage" 
-            accept="image/*"
-            bind:this={fileInput} 
-            class="hidden" 
-            onchange={handleFileUpload} 
-        /> -->
+            value={data.photo} 
+        />
 
         {#if form?.error}
             <p class="error">{form.error}</p>
@@ -324,15 +325,16 @@
 
             <label>
                 Accepted Insurance Providers
-                <select 
-                name="insurance" 
-                required 
-                class="border p-2 rounded w-full"
-                >
-                    {#each providers as t}
-                        <option value={t}>{t}</option>
-                    {/each}
-                </select>
+                {#each providers as t}
+                    <label>
+                      {t}
+                      <input 
+                        name={t}
+                        type="checkbox"
+                        checked={isAccepted(t)}
+                      >
+                    </label>
+                {/each}
             </label>
         </div>
 

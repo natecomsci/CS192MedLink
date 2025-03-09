@@ -2,7 +2,7 @@ import { fail } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 import { ServicesDAO } from '$lib/server/ServicesDAO';
-import type { FlatFacilityServicesDTO } from '$lib/server/DTOs';
+import type { ServiceDTO } from '$lib/server/DTOs';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const servicesDAO = new ServicesDAO();
@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     });
   }
 
-  let services: FlatFacilityServicesDTO[] = await servicesDAO.getFlatServicesByFacility(facilityID);
+  let services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
 
   cookies.set('services', JSON.stringify(services), {path: '/'});
 
@@ -30,7 +30,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
   });
   
   return {
-    facilityID,
     services
   };
 };

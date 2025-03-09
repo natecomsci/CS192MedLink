@@ -1,21 +1,13 @@
 import { Provider, 
-         SecurityQuestion,
          FacilityType,
          Ownership, 
          Availability, 
-         Load, 
-         ServiceType 
-       } from '@prisma/client'
+         Load 
+       } from '@prisma/client';
 
-import type { Address, 
-              Facility, 
-              AmbulanceService, 
-              BloodTypeMapping, 
-              BloodBankService, 
-              ERService, 
-              ICUService, 
-              OutpatientService 
-            } from '@prisma/client';
+import {
+        type OPServiceType
+} from '../projectArrays'
 
 // DTOs
 
@@ -24,19 +16,11 @@ import type { Address,
 
 // Create and Update Service DTOs assume that a Facility has no Divisions.
 
-export interface FacilityServicesDTO {
-  ambulanceService   : AmbulanceService | null;
-  bloodBankService   : BloodBankService | null;
-  eRService          : ERService | null;
-  iCUService         : ICUService | null;
-  outpatientServices : OutpatientService[];
-}
-
-export interface FlatFacilityServicesDTO {
-  serviceID : string;
-  type      : string;
-  createdAt : Date;
-  updatedAt : Date;
+export interface ServiceDTO {
+  serviceID  : string;
+  type       : OPServiceType;
+  createdAt  : Date;
+  updatedAt  : Date;
 }
 
 export interface CreateAmbulanceServiceDTO {
@@ -50,26 +34,26 @@ export interface CreateAmbulanceServiceDTO {
 }
 
 export interface AmbulanceServiceDTO {
-  phoneNumber?       : string,
-  openingTime?       : Date,
-  closingTime?       : Date,
-  baseRate?          : number,
-  minCoverageRadius? : number,
-  mileageRate?       : number,
-  maxCoverageRadius? : number,
-  availability?      : Availability,
+  phoneNumber        : string,
+  openingTime        : Date,
+  closingTime        : Date,
+  baseRate           : number,
+  minCoverageRadius  : number,
+  mileageRate        : number,
+  maxCoverageRadius  : number,
+  availability       : Availability,
   updatedAt?         : Date,
 }
 
 export interface BloodTypeMappingDTO {
-  A_P?  : boolean,
-  A_N?  : boolean,
-  B_P?  : boolean,
-  B_N?  : boolean,
-  O_P?  : boolean,
-  O_N?  : boolean,
-  AB_P? : boolean,
-  AB_N? : boolean,
+  A_P   : boolean,
+  A_N   : boolean,
+  B_P   : boolean,
+  B_N   : boolean,
+  O_P   : boolean,
+  O_N   : boolean,
+  AB_P  : boolean,
+  AB_N  : boolean,
 }
 
 export interface CreateBloodBankServiceDTO {
@@ -82,13 +66,13 @@ export interface CreateBloodBankServiceDTO {
 }
 
 export interface BloodBankServiceDTO {
-  phoneNumber?           : string,
-  openingTime?           : Date,
-  closingTime?           : Date,
-  pricePerUnit?          : number,
-  turnaroundTimeD?       : number,
-  turnaroundTimeH?       : number,
-  bloodTypeAvailability? : BloodTypeMappingDTO,
+  phoneNumber            : string,
+  openingTime            : Date,
+  closingTime            : Date,
+  pricePerUnit           : number,
+  turnaroundTimeD        : number,
+  turnaroundTimeH        : number,
+  bloodTypeAvailability  : BloodTypeMappingDTO,
   updatedAt?             : Date,
 }
 
@@ -97,15 +81,15 @@ export interface CreateERServiceDTO {
 }
 
 export interface ERServiceDTO {
-  phoneNumber?          : string,
-  load?                 : Load,
-  availableBeds?        : number,
-  nonUrgentPatients?    : number,
-  nonUrgentQueueLength? : number,
-  urgentPatients?       : number,
-  urgentQueueLength?    : number,
-  criticalPatients?     : number,
-  criticalQueueLength?  : number,
+  phoneNumber           : string,
+  load                  : Load,
+  availableBeds         : number,
+  nonUrgentPatients     : number,
+  nonUrgentQueueLength  : number,
+  urgentPatients        : number,
+  urgentQueueLength     : number,
+  criticalPatients      : number,
+  criticalQueueLength   : number,
   updatedAt?            : Date,
 }
 
@@ -115,19 +99,19 @@ export interface CreateICUServiceDTO {
 }
 
 export interface ICUServiceDTO {
-  phoneNumber?         : string,
-  baseRate?            : number,
-  load?                : Load,
-  availableBeds?       : number,
-  cardiacSupport?      : boolean,
-  neurologicalSupport? : boolean,
-  renalSupport?        : boolean,
-  respiratorySupport?  : boolean,
+  phoneNumber          : string,
+  baseRate             : number,
+  load                 : Load,
+  availableBeds        : number,
+  cardiacSupport       : boolean,
+  neurologicalSupport  : boolean,
+  renalSupport         : boolean,
+  respiratorySupport   : boolean,
   updatedAt?           : Date,
 }
 
 export interface CreateOutpatientServiceDTO {
-  serviceType     : ServiceType,
+  serviceType     : string,
   price           : number,
   completionTimeD : number,
   completionTimeH : number,
@@ -135,12 +119,11 @@ export interface CreateOutpatientServiceDTO {
 }
 
 export interface OutpatientServiceDTO {
-  serviceType?     : ServiceType,
-  price?           : number,
-  completionTimeD? : number,
-  completionTimeH? : number,
-  isAvailable?     : boolean,
-  acceptsWalkIns?  : boolean,
+  price            : number,
+  completionTimeD  : number,
+  completionTimeH  : number,
+  isAvailable      : boolean,
+  acceptsWalkIns   : boolean,
   updatedAt?       : Date,
 }
 
@@ -173,6 +156,11 @@ export interface AddressDTO {
   cOrMID   : number,
   brgyID   : number,
   street   : string,
+}
+
+export interface FacilityDTO {
+  facilityID : string;
+  name       : string,
 }
 
 export interface GeneralInformationFacilityDTO {

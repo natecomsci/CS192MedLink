@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { FlatFacilityServicesDTO } from "$lib/server/DTOs";
+  import type { ServiceDTO } from "$lib/server/DTOs";
     import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();
-  const services: FlatFacilityServicesDTO[] = data.services ?? []
+  const services: ServiceDTO[] = data.services ?? []
 
 </script>
 
@@ -20,7 +20,7 @@
     {#each services as { type }}
       <div class="py-2 border-b border-transparent">
         <p class="font-bold">{type} Information</p>
-        <p class="text-gray-500 italic">Emergency Division</p>
+        <!-- <p class="text-gray-500 italic">Emergency Division</p> -->
       </div>
     {/each}
   </div>

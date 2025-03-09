@@ -1,107 +1,50 @@
 import { prisma } from "./prisma";
 
-import type { FacilityServicesDTO, 
-              FlatFacilityServicesDTO 
-            } from './DTOs';
+import type { ServiceDTO } from "./DTOs";
 
-import { AmbulanceServiceDAO } from "./AmbulanceDAO";
-import { BloodBankServiceDAO } from "./BloodBankDAO";
-import { ERServiceDAO } from "./ERDAO";
-import { ICUServiceDAO } from "./ICUDAO";
-import { OutpatientServiceDAO } from "./OutpatientDAO";
-import { serviceMapping } from '../Mappings'
-
-const ambulanceServiceDAO : AmbulanceServiceDAO = new AmbulanceServiceDAO();
-const bloodBankServiceDAO : BloodBankServiceDAO = new BloodBankServiceDAO();
-const eRServiceDAO : ERServiceDAO = new ERServiceDAO();
-const iCUServiceDAO : ICUServiceDAO = new ICUServiceDAO();
-const outpatientServiceDAO : OutpatientServiceDAO = new OutpatientServiceDAO();
-
-
+import type { Service } from '@prisma/client';
 // Because of the heterogenous nature of the services, pagination must be done in the business logic instead of natively on Prisma.
 
 export class ServicesDAO {
-  async getServicesByFacility(facilityID: string): Promise<FacilityServicesDTO> {
+  async getByID(serviceID: string): Promise<Service | null> {
     try {
-      const [
-        ambulanceService,
-        bloodBankService,
-        eRService,
-        iCUService,
-        outpatientServices,
-      ] = await Promise.all([
-        ambulanceServiceDAO.getByFacility(facilityID).catch(() => null),
-        bloodBankServiceDAO.getByFacility(facilityID).catch(() => null),
-        eRServiceDAO.getByFacility(facilityID).catch(() => null),
-        iCUServiceDAO.getByFacility(facilityID).catch(() => null),
-        outpatientServiceDAO.getByFacility(facilityID),
-      ]);
+      const service = await prisma.ambulanceService.findUnique({
+        where: {
+          serviceID
+        }
+      });
 
-      return {
-        ambulanceService,
-        bloodBankService,
-        eRService,
-        iCUService,
-        outpatientServices,
-      };
+      if (!service) {
+        console.warn("No Service found with the specified ID.");
+        return null;
+      }
+
+      return service;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Service.");
+    }
+  }
+
+  async getByFacility(facilityID: string): Promise<ServiceDTO[]> {
+    try {
+      const services = await prisma.service.findMany({
+        where: {
+          facilityID,
+        },
+        select: {
+          serviceID: true,
+          type: true,
+          createdAt: true,
+          updatedAt: true,
+        }
+      });
+
+      return services;
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not get services of the facility.");
     }
-  }
-
-  /*
-  Sample Outputs:
-
-  1 OutpatientService:
-
-  {
-    "ambulanceService"   : null,
-    "bloodBankService"   : null,
-    "erService"          : null,
-    "icuService"         : null,
-    "outpatientServices" : [
-      { *info on outpatientservice1*, }
-    ]
-  }
-
-  No Services:
-
-  {
-    "ambulanceService"   : null,
-    "bloodBankService"   : null,
-    "erService"          : null,
-    "icuService"         : null,
-    "outpatientServices" : []
-  }
-  */
-
-  async getFlatServicesByFacility(facilityID: string): Promise<FlatFacilityServicesDTO[]> {
-    const services = await this.getServicesByFacility(facilityID);
-  
-    const flatServices: FlatFacilityServicesDTO[] = [];
-  
-    for (const [key, value] of Object.entries(services)) {
-      if ((value !== null) && (key in serviceMapping)) {
-        flatServices.push({
-          serviceID : value.serviceID,
-          type      : serviceMapping[key],
-          createdAt : value.createdAt,
-          updatedAt : value.updatedAt,
-        });
-      }
-    }
-  
-    for (const outpatientService of services.outpatientServices) {
-      flatServices.push({
-        serviceID : outpatientService.serviceID,
-        type      : outpatientService.serviceType,
-        createdAt : outpatientService.createdAt,
-        updatedAt : outpatientService.updatedAt,
-      });
-    }
-  
-    return flatServices;
   }
 
   /*
@@ -165,4 +108,82 @@ export class ServicesDAO {
     }
   }
   */
+
+  async search(query: string, offset: number): Promise<{ results: ServiceDTO[], hasMore: boolean }> { // loads 10 search results from an input offset
+    try {
+      const services = await prisma.service.findMany({
+        where: {
+          OR: [
+            { 
+              type: { 
+                search : query 
+              } 
+            },
+            { 
+              keywords: { 
+                has: query 
+              } 
+            }
+          ]
+        },
+        orderBy: {
+          updatedAt: "desc"
+        },
+        select: {
+          serviceID : true,
+          type      : true,
+          createdAt : true,
+          updatedAt : true,
+        },
+        skip: offset,
+        take: 11
+      });
+
+      return { 
+        results : services.slice(0, 10), 
+        hasMore : services.length  > 10,
+      };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not search for services.");
+    }
+  }
+
+  async getPaginatedServices(page: number, pageSize: number): Promise<{ services: ServiceDTO[]; totalPages: number; currentPage: number }> {
+    try {
+      const [services, totalServices] = await Promise.all([
+        prisma.service.findMany({
+          select: {
+            serviceID : true,
+            type      : true,
+            createdAt : true,
+            updatedAt : true
+          },
+          skip: (page - 1) * pageSize,
+          take: pageSize
+        }),
+        prisma.service.count()
+      ]);
+  
+      const totalPages = Math.max(1, Math.ceil(totalServices / pageSize));
+
+      return { services, totalPages, currentPage: page };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get paginated services.");
+    }
+  }
+
+  async delete(serviceID: string): Promise<void> {
+    try {
+      await prisma.service.delete({
+        where: {
+          serviceID
+        }
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not delete Service.");
+    }
+  }
 }

@@ -1,14 +1,13 @@
 import { fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-import { ServiceType, type OutpatientService } from '@prisma/client';
-
 import type { CreateAmbulanceServiceDTO, 
               CreateBloodBankServiceDTO, 
               CreateERServiceDTO, 
               CreateICUServiceDTO, 
-              CreateOutpatientServiceDTO, 
-              FacilityServicesDTO 
+              CreateOutpatientServiceDTO,
+              ServiceDTO, 
+               
             } from '$lib/server/DTOs';
 
 import { validateCoverageRadius, 
@@ -23,9 +22,9 @@ import { BloodBankServiceDAO } from "$lib/server/BloodBankDAO";
 import { ERServiceDAO } from "$lib/server/ERDAO";
 import { ICUServiceDAO } from "$lib/server/ICUDAO";
 import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
-import { serviceMapping } from '$lib/Mappings';
+import { serviceNameToNameMapping } from '$lib/Mappings';
 
-import { OPServiceTypes as serviceTypes } from '$lib/projectTypes';
+import { OPServiceTypes, specializedServiceType, type OPServiceType } from '$lib/projectArrays';
 import { ServicesDAO } from '$lib/server/ServicesDAO';
 
 export const load: PageServerLoad = async ({ cookies }) => {
@@ -39,24 +38,13 @@ export const load: PageServerLoad = async ({ cookies }) => {
     });
   }
 
-  const services: FacilityServicesDTO = await serviceDAO.getServicesByFacility(facilityID);
+  const services: ServiceDTO[] = await serviceDAO.getByFacility(facilityID);
 
-  if (!services) {
-    return fail(422, {
-      error: "No Services Found.",
-      description: "noServices"
-    });
-  }
+  let serviceTypes: OPServiceType[] = services.map(s => s.type);
 
-  let availableServices: string[] = ["None"]
-  let availableOPServices: string[] = getAvailableOPServices(services.outpatientServices)
+  let availableServices: String[] = getAvailableSpecializedServices(serviceTypes)
+  let availableOPServices: String[] = getAvailableOPServices(serviceTypes)
 
-  for (var [key, value] of Object.entries(services)) {
-    if (value === null) {      
-      availableServices.push(serviceMapping[key]);
-    }
-  }
-  
   if (availableOPServices.length !== 0) {
     availableServices.push("Outpatient")
   }
@@ -135,7 +123,6 @@ export const actions = {
         }
 
         try {
-          validateCoverageRadius(minCover, maxCover)
           let radius = validateCoverageRadius(minCover, maxCover)
           minCoverageRadius = radius.minCoverageRadius
           maxCoverageRadius = radius.maxCoverageRadius
@@ -273,7 +260,7 @@ export const actions = {
         break;
       }
 
-      case "ICU": {
+      case "Intensive Care Unit": {
         let phoneNumber: string
         let baseRate: number
 
@@ -313,7 +300,7 @@ export const actions = {
         let completionTimeD: number
         let completionTimeH: number
 
-        const OPserviceType     = OPType as ServiceType;
+        const OPserviceType     = OPType as string;
         const acceptsWalkIns    = walkins === 'on';
 
         try {
@@ -365,17 +352,30 @@ export const actions = {
   }
 } satisfies Actions;
 
-function getAvailableOPServices(services: OutpatientService[]): string[] {
-  let availableOPServices: string[] = ["None"]
-  let filteredOPService = []
-  for (var service of services) {
-    filteredOPService.push(service.serviceType)
+function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[] {
+  let availableServices: String[] = ["None"]
+  
+  for (let serviceType of specializedServiceType) { 
+    if (!serviceTypes.includes(serviceType)) {
+      // availableServices.push(serviceNameToNameMapping[serviceType])
+      availableServices.push(serviceType);
+    }
   }
+  console.log('main', availableServices)
+  return availableServices
+}
 
-  for (let serviceType of serviceTypes) { 
-    if (!filteredOPService.includes(serviceType)) {
+
+function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
+  let availableOPServices: String[] = ["None"]
+  
+  for (let serviceType of OPServiceTypes) { 
+    if (!serviceTypes.includes(serviceType)) {
+      // availableOPServices.push(serviceNameToNameMapping[serviceType])
       availableOPServices.push(serviceType)
     }
   }
-  return availableOPServices
+  console.log('op', availableOPServices)
+
+  return availableOPServices;
 }

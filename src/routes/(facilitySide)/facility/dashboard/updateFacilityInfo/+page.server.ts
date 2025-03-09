@@ -21,9 +21,8 @@ import { validateEmail,
          validateFacilityName 
        } from '$lib/server/formValidators';
 
-import { providers, 
-         OPServiceTypes 
-       } from '$lib/projectTypes';
+import { providers,  
+       } from '$lib/projectArrays';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   let facilityDAO = new FacilityDAO();
@@ -47,23 +46,24 @@ export const load: PageServerLoad = async ({ cookies }) => {
         corms: await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
         brgys: await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
 
-
         facilityName: facilityInfo.name,
-        providers,
-        OPServiceTypes,
+
+        photo: facilityInfo.photo,
+
+        regionID: facilityInfo.address.regionID,
+        provinceID: facilityInfo.address.pOrCID, 
+        cityID: facilityInfo.address.cOrMID, 
+        barangayID: facilityInfo.address.brgyID, 
+        street: facilityInfo.address.street,
 
         email: facilityInfo.email,
         contactNumber: facilityInfo.phoneNumber,
         type: facilityInfo.facilityType,
         ownership: facilityInfo.ownership,
+
         bookingSystem: facilityInfo.bookingSystem ?? "",
         
-        regionID: facilityInfo.address.regionID,
-        provinceID: facilityInfo.address.pOrCID, 
-        cityID: facilityInfo.address.cOrMID, 
-        barangayID: facilityInfo.address.brgyID, 
-
-        street: facilityInfo.address.street,
+        providers: facilityInfo.acceptedProviders,
     };
 } catch (error) {
     return fail(500, {
@@ -159,6 +159,19 @@ export const actions = {
         success: false  
       });
     }
+
+    let provider
+
+    for (var p of providers) {
+      provider = data.get(p)
+
+      if (provider) {
+        acceptedProviders.push(p)
+      }
+    }
+
+    console.log(acceptedProviders)
+
 
     const genInfo: GeneralInformationFacilityDTO = {
       name               ,

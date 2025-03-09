@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -132,7 +133,7 @@ model Address {
   // RELATIONS
 
   // Address - Facility : Each Address is tied to one Facility.
-  facility   Facility @relation(fields: [facilityID], references: [facilityID])
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String   @id
 
   @@unique([regionID, pOrCID, cOrMID, brgyID, street]) // Ensures each Facility has a unique Address.
@@ -163,20 +164,16 @@ model Facility {
   // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
 
   // Every Facility may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
-  ambulanceService  AmbulanceService?
-  bloodBankService  BloodBankService?
-  erService         ERService?
-  icuService        ICUService?
-  outpatientService OutpatientService[]
+  services  Service[]
 
   // Facility - Admin : A Facility may or may not have Admins.
-  admins            Admin[]
+  admins    Admin[]
 
   // Facility - Division : A Facility may or may not have Divisions.
-  divisions         Division[]
+  divisions Division[]
 
   // Facility - Bookmark : A Facility may or may not be bookmarked.
-  bookmarks         Bookmark[]
+  bookmarks Bookmark[]
 }
 
 model Division {
@@ -192,20 +189,16 @@ model Division {
   // RELATIONS
 
   // Facility - Divisions : A Facility may or may not have Divisions.
-  facility          Facility @relation(fields: [facilityID], references: [facilityID])
-  facilityID        String
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID])
+  facilityID String
 
   // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
 
   // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
-  ambulanceService  AmbulanceService?
-  bloodBankService  BloodBankService?
-  erService         ERService?
-  icuService        ICUService?
-  outpatientService OutpatientService[]
+  services   Service[]
 
   // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
-  admins            Admin[]  @relation("AdminToDivision")
+  admins     Admin[]
 }
 
 model Admin {
@@ -227,7 +220,7 @@ model Admin {
   facilityID String
 
   // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
-  divisions  Division[] @relation("AdminToDivision")
+  divisions  Division[]
 }
 
 model Bookmark {
@@ -261,7 +254,7 @@ model Folder {
   // RELATIONS
 
   // Folder - Patient : Every Folder must belong to one Patient.
-  patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
+  patient   Patient    @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
   patientID String
 
   // Folder - Bookmark : A Folder may or may not contain Bookmarks.
@@ -270,9 +263,37 @@ model Folder {
   @@unique([patientID, name]) // Prevents duplicate folder names for a single patient.
 }
 
-model AmbulanceService {
-  serviceID String @id @default(uuid())
+model Service {
+  serviceID String   @id @default(uuid())
 
+  type      String
+  keywords  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // RELATIONS
+
+  // Service - Facility : Each Service must belong to exactly one Facility.
+  facility          Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID        String
+
+  // Service - Division : If a Facility has Divisions, every Service must belong to a Division.
+  division          Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID        String?   @unique                                                                      // "@unique" is needed to enforce one-to-one relationships on Prisma.
+
+  // Links to specific services
+  ambulanceService  AmbulanceService?
+  bloodBankService  BloodBankService?
+  erService         ERService?
+  icuService        ICUService?
+  outpatientService OutpatientService?
+
+  // REMINDER FOR PAUL: DO POSTGRESQL MANUAL ENFORCEMENT OF RELATION THINGIES
+
+  @@unique([facilityID, type]) // Ensures one Service of a specific type exists per Facility.
+}
+
+model AmbulanceService {
   phoneNumber       String
   openingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
   closingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
@@ -281,20 +302,11 @@ model AmbulanceService {
   mileageRate       Float
   maxCoverageRadius Float
   availability      Availability @default(UNAVAILABLE)
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
 
   // RELATIONS
 
-  // Service - Facility : Each AmbulanceService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @unique
-
-  // Service - Division : If a Facility has Divisions, every AmbulanceService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // "@unique" is needed to enforce one-to-one relationships on Prisma.
-
-  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
 }
 
 model BloodTypeMapping {
@@ -310,114 +322,69 @@ model BloodTypeMapping {
 
   // RELATIONS
 
-  BloodBankService BloodBankService @relation(fields: [serviceID], references: [serviceID])
+  BloodBankService BloodBankService @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
   serviceID        String           @id
 }
 
 model BloodBankService {
-  serviceID String @id @default(uuid())
-
   phoneNumber           String
-  openingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  closingTime           DateTime          @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  openingTime           DateTime          @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime           DateTime          @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
   pricePerUnit          Float
-  turnaroundTimeD       Int                               // Day.
-  turnaroundTimeH       Int                               // Hour. The limit to its possible values (0 - 23) is handled by business logic.
-  bloodTypeAvailability BloodTypeMapping?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
+  turnaroundTimeD       Int                           // Day.
+  turnaroundTimeH       Int                           // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  bloodTypeAvailability BloodTypeMapping?             // "?" because Prisma cannot enforce "at least one ..." constraints.
 
   // RELATIONS
 
-  // Service - Facility : Each BloodBankService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @unique
-
-  // Service - Division : If a Facility has Divisions, every BloodBankService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
-
-  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
 }
 
 model ERService {
-  serviceID String @id @default(uuid())
-
   phoneNumber          String
-  load                 Load     @default(CLOSED)
-  availableBeds        Int      @default(0)
-  nonUrgentPatients    Int      @default(0)
-  nonUrgentQueueLength Int      @default(0)
-  urgentPatients       Int      @default(0)
-  urgentQueueLength    Int      @default(0)
-  criticalPatients     Int      @default(0)
-  criticalQueueLength  Int      @default(0)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  load                 Load   @default(CLOSED)
+  availableBeds        Int    @default(0)
+  nonUrgentPatients    Int    @default(0)
+  nonUrgentQueueLength Int    @default(0)
+  urgentPatients       Int    @default(0)
+  urgentQueueLength    Int    @default(0)
+  criticalPatients     Int    @default(0)
+  criticalQueueLength  Int    @default(0)
 
   // RELATIONS
 
-  // Service - Facility : Each ERService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @unique
-
-  // Service - Division : If a Facility has Divisions, every ERService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
-
-  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
 }
 
 model ICUService {
-  serviceID String @id @default(uuid())
-
   phoneNumber         String
   baseRate            Float
-  load                Load     @default(CLOSED)
-  availableBeds       Int      @default(0)
-  cardiacSupport      Boolean  @default(false)
-  neurologicalSupport Boolean  @default(false)
-  renalSupport        Boolean  @default(false)
-  respiratorySupport  Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  load                Load    @default(CLOSED)
+  availableBeds       Int     @default(0)
+  cardiacSupport      Boolean @default(false)
+  neurologicalSupport Boolean @default(false)
+  renalSupport        Boolean @default(false)
+  respiratorySupport  Boolean @default(false)
 
   // RELATIONS
 
-  // Service - Facility : Each ICUService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String    @unique
-
-  // Service - Division : If a Facility has Divisions, every ICUService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?   @unique                                                                      // @@unique indicator needed to enforce one-to-one relationships on Prisma.
-
-  @@unique([facilityID, divisionID]) // Ensures one Service of this type per Facility or per Division within a Facility.
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
 }
 
 model OutpatientService {
-  serviceID String @id @default(uuid())
-
-  serviceType     ServiceType
   price           Float
-  completionTimeD Int                      // Day.
-  completionTimeH Int                      // Hour. The limit to its possible values (0 - 23) is handled by business logic.
-  isAvailable     Boolean  @default(false)
-  acceptsWalkIns  Boolean                  // Made this attribute universally applicable across all OutpatientServices.
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  completionTimeD Int                     // Day.
+  completionTimeH Int                     // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  isAvailable     Boolean @default(false)
+  acceptsWalkIns  Boolean
 
   // RELATIONS
 
-  // Service - Facility : Each OutpatientService must belong to exactly one Facility.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String
-
-  // Service - Division : If a Facility has Divisions, every OutpatientService must belong to a Division.
-  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID String?
-
-  @@unique([facilityID, serviceType])
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
 }
 
 // ENUMS
@@ -553,59 +520,4 @@ enum Load {
   NEAR_CAPACITY
   FULL_CAPACITY
   CLOSED
-}
-
-enum ServiceType {
-  // Consultation
-  CONSULTATION_GENERAL                // General & Family Medicine 
-
-  // Laboratory - Blood Chemistry
-  BLOOD_CHEMISTRY_BUA            // Blood Uric Acid (BUA)
-
-  // Laboratory - Hematology
-  HEMATOLOGY_CBC                 // Complete Blood Count (CBC)
-
-  // Laboratory - Clinical Microscopy  
-  CLINICAL_FECALYSIS             // Fecalysis  
-  CLINICAL_URINALYSIS            // Urinalysis  
-
-  // Imaging - X-ray  
-  X_RAY_CHEST_PA                 // Chest PA   
-  X_RAY_C_SPINE                  // Cervical Spine
-  X_RAY_T_SPINE                  // Thoracic Spine
-  X_RAY_L_SPINE                  // Lumbar Spine  
-
-  // Imaging - Ultrasound  
-  ULTRASOUND_ABDOMINAL           // Abdominal Ultrasound  
-
-  // Imaging - CT Scan
-  CT_SCAN_HEAD                   // Head (With or Without Contrast)  
-  CT_SCAN_C_SPINE                // Cervical Spine  
-  CT_SCAN_T_SPINE                // Thoracic Spine  
-  CT_SCAN_L_SPINE                // Lumbar Spine  
-
-  // Imaging - MRI
-  MRI_BRAIN                      // Brain
-
-  // Dental Procedures  
-  DENTAL_SCALING                 // Oral Prophylaxis / Scaling  
-
-  // Rehabilitation & Therapy
-  THERAPY_PHYSICAL               // Physical Therapy
-
-  // Cancer Treatment
-  ONCOLOGY_CHEMOTHERAPY          // Chemotherapy
-
-  // Diagnostic Tests  
-  PROCEDURE_EEG                  // EEG  
-  PROCEDURE_ECG                  // ECG  
-
-  // Specialized Procedures  
-  PROCEDURE_DIALYSIS             // Acute Peritoneal Dialysis  
-  PROCEDURE_COLONOSCOPY          // Colonoscopy  
-  PROCEDURE_GASTROSCOPY          // Gastroscopy  
-  PROCEDURE_LABOR_DELIVERY       // Labor and Delivery Services
-
-  // Vaccinations
-  VACCINATION_COVID19            // COVID-19  
 }

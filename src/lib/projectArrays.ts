@@ -1,4 +1,4 @@
-import type { FacilityType, Ownership, Provider, SecurityQuestion, Availability, Load, ServiceType } from "@prisma/client";
+import type { FacilityType, Ownership, Provider, SecurityQuestion, Availability, Load } from "@prisma/client";
 
 export const providers: Provider[] = [
   "INTELLICARE",
@@ -30,34 +30,42 @@ export const providers: Provider[] = [
   "WELLCARE",
 ];
 
-export const OPServiceTypes: ServiceType[] = [
-  "CONSULTATION_GENERAL",
-  "BLOOD_CHEMISTRY_BUA",
-  "HEMATOLOGY_CBC",
-  "CLINICAL_FECALYSIS",
-  "CLINICAL_URINALYSIS",
-  "X_RAY_CHEST_PA",
-  "X_RAY_C_SPINE",
-  "X_RAY_T_SPINE",
-  "X_RAY_L_SPINE",
-  "ULTRASOUND_ABDOMINAL",
-  "CT_SCAN_HEAD",
-  "CT_SCAN_C_SPINE",
-  "CT_SCAN_T_SPINE",
-  "CT_SCAN_L_SPINE",
-  "MRI_BRAIN",
-  "DENTAL_SCALING",
-  "THERAPY_PHYSICAL",
-  "ONCOLOGY_CHEMOTHERAPY",
-  "PROCEDURE_EEG",
-  "PROCEDURE_ECG",
-  "PROCEDURE_DIALYSIS",
-  "PROCEDURE_COLONOSCOPY",
-  "PROCEDURE_GASTROSCOPY",
-  "PROCEDURE_LABOR_DELIVERY",
-  "VACCINATION_COVID19",
+export const specializedServiceType: string[] = [
+  "Ambulance",
+  "Blood Bank",
+  "Emergency Room",
+  "Intensive Care Unit",
+]
 
+export const OPServiceTypes: string[] = [
+  "General Consultation",
+  "Blood Chemistry (BUA)",
+  "Complete Blood Count (CBC)",
+  "Clinical Fecalysis",
+  "Clinical Urinalysis",
+  "Chest X-Ray (PA View)",
+  "Cervical Spine X-Ray",
+  "Thoracic Spine X-Ray",
+  "Lumbar Spine X-Ray",
+  "Abdominal Ultrasound",
+  "Head CT Scan",
+  "Cervical Spine CT Scan",
+  "Thoracic Spine CT Scan",
+  "Lumbar Spine CT Scan",
+  "Brain MRI",
+  "Dental Scaling",
+  "Physical Therapy",
+  "Oncology Chemotherapy",
+  "EEG",
+  "ECG",
+  "Dialysis",
+  "Colonoscopy",
+  "Gastroscopy",
+  "Labor & Delivery",
+  "COVID-19 Vaccination",
 ];
+
+export type OPServiceType = typeof OPServiceTypes[number];
 
 export const securityQuestions: SecurityQuestion[]  = [
   "STREETNAME"            ,
