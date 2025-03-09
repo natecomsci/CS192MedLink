@@ -146,6 +146,9 @@
           </select>
         </label>
       </div>
+      {#if form?.description === "button"}
+            <p class="error">{form.error}</p>
+        {/if}
       <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
           Edit Service
       </button>

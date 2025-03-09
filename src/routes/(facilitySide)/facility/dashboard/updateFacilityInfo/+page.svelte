@@ -346,6 +346,10 @@
         >
             Cancel    
         </a>
+
+        {#if form?.description === "button"}
+            <p class="error">{form.error}</p>
+        {/if}
         
         <button 
             class="flex justify-center items-center font-['Inter'] w-[200px] bg-[#9044C4] text-white py-2 rounded-2xl text-[15px] font-bold transition 

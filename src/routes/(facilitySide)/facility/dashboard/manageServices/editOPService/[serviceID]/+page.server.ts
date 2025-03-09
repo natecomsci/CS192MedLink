@@ -8,6 +8,12 @@ import type { OutpatientServiceDTO } from '$lib/server/DTOs';
 
 const OPDAO = new OutpatientServiceDAO()
 
+let def_price: Number
+let def_completionTimeD: Number
+let def_completionTimeH: Number
+let def_isAvailable: boolean
+let def_acceptsWalkIns: boolean
+
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
   if (!facilityID) {
@@ -21,12 +27,18 @@ export const load: PageServerLoad = async ({ cookies, params }) => {
 
   const serviceInfo = await OPDAO.getInformation(serviceID);
 
+  def_price = serviceInfo.price
+  def_completionTimeD = serviceInfo.completionTimeD
+  def_completionTimeH = serviceInfo.completionTimeH
+  def_isAvailable = serviceInfo.isAvailable
+  def_acceptsWalkIns = serviceInfo.acceptsWalkIns
+
   return {
-    price           : serviceInfo.price,
-    completionTimeD : serviceInfo.completionTimeD,
-    completionTimeH : serviceInfo.completionTimeH,
-    isAvailable     : serviceInfo.isAvailable,
-    acceptsWalkIns  : serviceInfo.acceptsWalkIns,
+    price           : def_price,
+    completionTimeD : def_completionTimeD,
+    completionTimeH : def_completionTimeH,
+    isAvailable     : def_isAvailable,
+    acceptsWalkIns  : def_acceptsWalkIns,
   }
 };
 
@@ -89,6 +101,19 @@ export const actions = {
       isAvailable           ,
       acceptsWalkIns        ,
 
+    }
+
+    if (def_price == price &&
+        def_completionTimeD == completionTimeD &&
+        def_completionTimeH == completionTimeH &&
+        def_isAvailable == isAvailable &&
+        def_acceptsWalkIns == acceptsWalkIns
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
     }
 
     OPDAO.update(serviceID, service)
