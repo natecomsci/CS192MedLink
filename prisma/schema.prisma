@@ -133,7 +133,7 @@ model Address {
   // RELATIONS
 
   // Address - Facility : Each Address is tied to one Facility.
-  facility   Facility @relation(fields: [facilityID], references: [facilityID])
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String   @id
 
   @@unique([regionID, pOrCID, cOrMID, brgyID, street]) // Ensures each Facility has a unique Address.
@@ -322,7 +322,7 @@ model BloodTypeMapping {
 
   // RELATIONS
 
-  BloodBankService BloodBankService @relation(fields: [serviceID], references: [serviceID])
+  BloodBankService BloodBankService @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
   serviceID        String           @id
 }
 
