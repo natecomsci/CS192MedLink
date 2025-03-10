@@ -1,19 +1,20 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import type { ServiceDTO } from '$lib/server/DTOs';
-
+import bcrypt from 'bcryptjs';
 import { AmbulanceServiceDAO } from "$lib/server/AmbulanceDAO";
 import { BloodBankServiceDAO } from "$lib/server/BloodBankDAO";
 import { ERServiceDAO } from "$lib/server/ERDAO";
 import { ICUServiceDAO } from "$lib/server/ICUDAO";
 import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
+import { FacilityDAO } from "$lib/server/FacilityDAO"; // Assuming this exists to get facility info
 
-
-const ambulanceDAO = new AmbulanceServiceDAO()
-const bloodBankDAO = new BloodBankServiceDAO()
-const ERDAO = new ERServiceDAO()
-const ICUDAO = new ICUServiceDAO()
-const OutpatientDAO = new OutpatientServiceDAO()
+const ambulanceDAO = new AmbulanceServiceDAO();
+const bloodBankDAO = new BloodBankServiceDAO();
+const ERDAO = new ERServiceDAO();
+const ICUDAO = new ICUServiceDAO();
+const OutpatientDAO = new OutpatientServiceDAO();
+const facilityDAO = new FacilityDAO(); // DAO for retrieving facility data
 
 export const load: PageServerLoad = async ({ cookies }) => {
   let services = cookies.get("services");
@@ -37,10 +38,11 @@ export const actions: Actions = {
     const formData = await request.formData();
     const serviceID = formData.get("serviceID") as string;
     const serviceType = formData.get("serviceType") as string;
+    const password = formData.get("password") as string; // Get password from form
 
-    if (!serviceID || !serviceType) {
+    if (!serviceID || !serviceType || !password) {
       return fail(422, { 
-        error: "Service ID and type are required",
+        error: "Service ID, type, and password are required",
         description: "missing_params",
         success: false  
       });
@@ -56,6 +58,29 @@ export const actions: Actions = {
     }
 
     try {
+      // Fetch facility data from DB
+      const facility = await facilityDAO.getByID(facilityID);
+      if (!facility) {
+        console.error(`Facility with ID ${facilityID} not found.`);
+        return fail(404, { 
+          error: "Facility not found",
+          description: "not_found",
+          success: false  
+        });
+      }
+
+      // Verify password
+      const passwordMatch = await bcrypt.compare(password, facility.password);
+      if (!passwordMatch) {
+        console.error(`Incorrect password attempt for Facility ID: ${facilityID}`);
+        return fail(400, { 
+          error: 'Incorrect ID-password pair',
+          description: 'ID',
+          success: false
+        });
+      }
+
+      // Delete service based on type
       switch (serviceType) {
         case "Ambulance":
           await ambulanceDAO.delete(serviceID);
@@ -72,12 +97,8 @@ export const actions: Actions = {
         default:
           await OutpatientDAO.delete(serviceID);
           break;
-          return fail(400, { 
-            error: "Unknown service type",
-            description: "invalid_service_type",
-            success: false  
-          });
       }
+
     } catch (error) {
       console.error("Deletion failed:", error);
       return fail(500, { 
