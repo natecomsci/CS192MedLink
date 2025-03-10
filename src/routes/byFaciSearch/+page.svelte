@@ -1,27 +1,19 @@
 <script lang="ts">
-    import type { PageProps } from './$types';
-    import { enhance } from '$app/forms';
-
-    let { data }: PageProps = $props();
-    let query = $state('');
-    let searchResults = $state(data.facilities); // Initially, show all facilities
-
-
+    export let data;
 </script>
 
-<h1>Facilities</h1>
-
-<form method="POST" action="/byFaciSearch" use:enhance>
-    <input type="text" bind:value={query} name="query" placeholder="Search facilities..." />
+<form method="get">
+    <input type="text" name="query" placeholder="Search facilities..." required>
     <button type="submit">Search</button>
-
-    {#if searchResults.length > 0}
-        <ul>
-            {#each searchResults as facility}
-                <li>{facility.name}</li>
-            {/each}
-        </ul>
-    {:else}
-        <p>No facilities found.</p>
-    {/if}
 </form>
+
+{#if data.facilities.length > 0}
+    <h2>Search Results:</h2>
+    <ul>
+        {#each data.facilities as facility}
+            <li>{facility.name}</li>
+        {/each}
+    </ul>
+{:else}
+    <p>No facilities found.</p>
+{/if}
