@@ -5,6 +5,10 @@
 </script>
 
 
+<form method="POST" 
+action="?/updateService"
+use:enhance
+>
 <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
   <!-- Left Panel (Static) -->
   <div class="w-1/3 bg-white p-6 flex flex-col shadow-md border border-purple-700">
@@ -33,10 +37,6 @@
 
      
 
-    <form method="POST" 
-    action="?/updateService"
-    use:enhance
-    >
     <div class="flex-1 p-6 overflow-y-auto border border-green-100">
         <!-- Phone Number -->
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
@@ -205,9 +205,9 @@
         {/if}
 
     </div>
-    </form>
 
 
     </label>
   </div>
 </div>
+</form>
