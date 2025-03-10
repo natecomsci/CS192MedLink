@@ -452,6 +452,24 @@
         mask-image: linear-gradient(to right, black 80%, rgba(0, 0, 0, 0));
     }
 
+    ::-webkit-scrollbar {
+    width: 10px !important;
+    }
+
+    ::-webkit-scrollbar-thumb {
+    background: #9044C4 !important;
+    border-radius: 10px !important;
+    }
+
+    ::-webkit-scrollbar-track {
+    background: #DCDCDC !important;
+    border-radius: 10px !important;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+    background: #6a3191 !important;
+    }
+
 </style>
 
 

@@ -27,7 +27,29 @@
   let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
   let search = "";
 </script>
+<!-- 
 
+<div class="bg-gray-600 shadow-lg rounded-lg p-8">
+  <div class="mt-4">
+    {#each services as { type, serviceID }}
+      <div class="py-2 border-b border-transparent">
+        <p class="font-bold">{type} Information</p>
+        <a href={'./manageServices/' + serviceTypeURL(type) + '/' +serviceID}>
+          edit
+        </a>
+
+        <form method="POST" action="?/deleteService" use:enhance={handleEnhance} >
+          <input type="hidden" name="serviceID" value="{serviceID}" />
+          <input type="hidden" name="serviceType" value="{type}" />
+          <button type="submit" class="text-red-500 hover:underline">
+            delete
+          </button>
+        </form>
+        
+      </div>
+    {/each}
+  </div>
+</div> -->
 
 
 <!-- Header -->
@@ -72,19 +94,32 @@
 
     <!-- Scrollable List Container -->
     <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
-      {#each servicess as service}
+      {#each services as  { type, serviceID }}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <!-- Left Side: Text Content -->
           <div>
-            <h3 class="text-lg font-bold text-gray-900 px-4">{service.title}</h3>
-            <p class="text-purple-600 px-4">{service.division}</p>
+            <h3 class="text-lg font-bold text-gray-900 px-4">{type}</h3>
+            <p class="text-purple-600 px-4">Insert Division Here</p>
           </div>
         
           <!-- Right Side: Icons -->
-          <div class="flex items-center space-x-4 pr-4">
-            <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
-            <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
+          <!-- Right Side: Icons -->
+          <div class="flex items-center space-x-3 pr-4">
+            <!-- edit -->
+            <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center">
+              <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
+            </a>
+
+            <form method="POST" action="?/deleteService" use:enhance={handleEnhance} class="inline-flex items-center">
+              <input type="hidden" name="serviceID" value="{serviceID}" />
+              <input type="hidden" name="serviceType" value="{type}" />
+              <button type="submit" class="inline-flex items-center">
+                <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
+              </button>
+            </form>
           </div>
+
+          
         </div>
       {/each}
     </div>
@@ -102,22 +137,22 @@
 </div>
 
 <style>
-::-webkit-scrollbar {
-  width: 8px !important;
-}
+  ::-webkit-scrollbar {
+  width: 10px !important;
+  }
 
-::-webkit-scrollbar-thumb {
-  background: #a855f7 !important;
+  ::-webkit-scrollbar-thumb {
+  background: #9044C4 !important;
   border-radius: 10px !important;
-}
+  }
 
-::-webkit-scrollbar-track {
-  background: #f3f4f6 !important;
+  ::-webkit-scrollbar-track {
+  background: #DCDCDC !important;
   border-radius: 10px !important;
-}
+  }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #9333ea !important;
-}
+  ::-webkit-scrollbar-thumb:hover {
+  background: #6a3191 !important;
+  }
 
 </style>
