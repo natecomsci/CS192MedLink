@@ -4,7 +4,6 @@
 
     import { enhance } from '$app/forms';
 
-    import tempImage from "$lib/images/catle.jpg"
     import { facilityType, providers } from '$lib/projectArrays';
     import type { Provider } from '@prisma/client';
 
@@ -85,7 +84,6 @@
         throw new Error(`Response status: ${error}`);
       }
     }
-    console.log(data.providers)
 
     function isAccepted(p: Provider): boolean {
         return data.providers?.includes(p) ?? false
@@ -114,17 +112,7 @@
     //     fileInput?.click();
     // }
 
-
-    let prov = [
-    "INTELLICARE", "ASIACARE", "AVEGA", "CAREWELL", "one_COOPEALTH",
-    "DYNAMIC_CARE_CORPORATION", "EASTWEST_HEALTHCARE", "FORTICARE",
-    "GETWELL", "HC_and_D", "HEALTHFIRST", "HMI", "HPPI", "IWC",
-    "ICARE", "KAISER", "LIFE_and_HEALTH", "MAXICARE", "MEDICARD",
-    "MEDICARE", "MEDOCARE", "METROCARE", "OMHSI", "PACIFIC_CROSS",
-    "PHILHEALTH", "VALUCARE", "WELLCARE"
-  ];
-
-  let selectedProviders: string[] = $state([]);
+  let selectedProviders: string[] = $state(data.providers ?? []);
   let showDropdown = $state(false);
 </script>
   
@@ -354,6 +342,7 @@
                     <button 
                         class="w-full border bg-white text-left p-2 rounded relative overflow-hidden pr-8" 
                         onclick={() => showDropdown = !showDropdown}
+                        type="button" 
                     >
                         <span class="fade-mask">
                             {selectedProviders.length > 0 ? selectedProviders.join(", ") : "Select Providers"}
@@ -368,16 +357,21 @@
                     </button>
 
                     <!-- Dropdown Content -->
-                    {#if showDropdown}
-                        <div class="absolute w-full bg-white border mt-1 shadow-lg p-2 max-h-60 overflow-y-auto">
-                            {#each providers as t}
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" bind:group={selectedProviders} value={t} checked={isAccepted(t)} />
-                                    <span>{t}</span>
-                                </label>
-                            {/each}
-                        </div>
-                    {/if}
+                    <div class="absolute w-full bg-white border mt-1 shadow-lg p-2 max-h-60 overflow-y-auto" hidden={!showDropdown}>
+                        {#each providers as t}
+                            <label class="flex items-center space-x-2"
+                            hidden={!showDropdown}>
+                                <input 
+                                    name={t} 
+                                    type="checkbox" 
+                                    checked={isAccepted(t)}
+                                    onclick={() => selectedProviders.includes(t) ? selectedProviders.splice(selectedProviders.indexOf(t), 1) : selectedProviders.push(t)} 
+                                    hidden={!showDropdown}
+                                />
+                                <span>{t}</span>
+                            </label>
+                        {/each}
+                    </div>
                 </div>
                 
                   
