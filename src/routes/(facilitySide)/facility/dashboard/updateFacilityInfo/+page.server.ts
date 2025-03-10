@@ -191,12 +191,8 @@ export const actions = {
       });
     }
 
-    let provider
-
     for (var p of providers) {
-      provider = data.get(p)
-
-      if (provider) {
+      if (data.get(p)) {
         acceptedProviders.push(p)
       }
     }
