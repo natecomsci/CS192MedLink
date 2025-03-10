@@ -4,10 +4,39 @@
     let { data, form }: PageProps = $props();
 </script>
 
-<form method="POST" 
+
+<div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
+  <!-- Left Panel (Static) -->
+  <div class="w-1/3 bg-white p-6 flex flex-col shadow-md border border-purple-700">
+      <!-- Back Button & Edit Ambulance Service-->
+      <div class= "flex items-center gap-5">
+          <a href="/facility/dashboard/manageServices">
+            <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
+          </a>
+
+          <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Edit Blood Bank Service</h1>
+      </div>
+
+      <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
+          Edit Service
+      </button>
+  </div>
+
+  <!-- Vertical Divider -->
+  <div class="w-[2px] bg-gray-300"></div>
+
+  <!-- Right Panel (Scrollable) -->
+  <div class="flex-1 p-6 overflow-y-auto border border-green-100">
+      <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Attributes</h2>
+      <label class="grid grid-cols-1" >
+
+
+     
+
+    <form method="POST" 
     action="?/updateService"
     use:enhance
-  >
+    >
     <div class="flex-1 p-6 overflow-y-auto border border-green-100">
         <!-- Phone Number -->
         <div class="mt-4 bg-white p-4 rounded-lg shadow">
@@ -174,8 +203,11 @@
         {#if form?.description === "button"}
             <p class="error">{form.error}</p>
         {/if}
-        <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
-          Edit Service
-        </button>
+
     </div>
-</form>
+    </form>
+
+
+    </label>
+  </div>
+</div>

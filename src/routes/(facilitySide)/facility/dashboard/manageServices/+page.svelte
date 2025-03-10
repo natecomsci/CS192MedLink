@@ -21,40 +21,67 @@
       return "editICUService"
     }
   }
-
-  let servicess = Array(10).fill({ title: "ICU Information", division: "Emergency Division" });
+  // let servicess = Array(10).fill({ title: "ICU Information", division: "Emergency Division" });
   import Logo from '$lib/images/Logo.png';
-  let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
   let search = "";
-</script>
-<!-- 
 
-<div class="bg-gray-600 shadow-lg rounded-lg p-8">
-  <div class="mt-4">
-    {#each services as { type, serviceID }}
-      <div class="py-2 border-b border-transparent">
-        <p class="font-bold">{type} Information</p>
-        <a href={'./manageServices/' + serviceTypeURL(type) + '/' +serviceID}>
-          edit
-        </a>
 
-        <form method="POST" action="?/deleteService" use:enhance={handleEnhance} >
-          <input type="hidden" name="serviceID" value="{serviceID}" />
-          <input type="hidden" name="serviceType" value="{type}" />
-          <button type="submit" class="text-red-500 hover:underline">
-            delete
-          </button>
-        </form>
+  // FOR MODAL
+  import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
+  import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
+
+  let showModal = $state(false);
+  let showModal2 = $state(false);
+  let selectedServiceID = null;
+  let selectedServiceType = null;
+  let numOfServices = services.length;
+
+  function openDeleteModal(serviceID, type) {
+    console.log("OpenDeleteModal Function Called");
+    
+    selectedServiceID = serviceID;
+    selectedServiceType = type;
+
+    if (numOfServices > 1) {  // ✅ Use curly braces `{}` for block statements
+        showModal = true;
+        showModal2 = false;
         
-      </div>
-    {/each}
-  </div>
-</div> -->
+    } else {
+        showModal = false;
+        showModal2 = true;
+    }
 
+    console.log(serviceID, type, selectedServiceID, selectedServiceType, showModal);
+}
+
+
+</script>
+
+{#if showModal}
+  <DeleteServiceConfirm
+    serviceID={selectedServiceID}
+    serviceType={selectedServiceType}
+    on:close={() => { 
+      console.log("Close event received"); 
+      showModal = false; 
+    }}
+  />
+{/if}
+
+{#if showModal2}
+  <DeleteServiceRestricted
+    serviceID={selectedServiceID}
+    serviceType={selectedServiceType}
+    on:close={() => { 
+      console.log("Close event for modal 2 received"); 
+      console.log("Number of services:", numOfServices);
+      showModal2 = false; 
+    }}
+  />
+{/if}
 
 <!-- Header -->
-<!-- <header class="flex items-center justify-between sticky p-5 bg-gray-50  "> -->
-  <header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
+<header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
     <a href="../dashboard">
@@ -76,9 +103,8 @@
   </div>
 </header>
 
-
 <div class="p-6 bg-gray-50 max-h-screen border">
-        <!-- View and Search -->
+    <!-- View and Search -->
     <div class="w-2/3 flex items-center gap-10">
       <input
         type="text"
@@ -103,23 +129,28 @@
           </div>
         
           <!-- Right Side: Icons -->
-          <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
-            <!-- edit -->
+
+
+            <!-- edit button -->
             <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center">
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </a>
 
-            <form method="POST" action="?/deleteService" use:enhance={handleEnhance} class="inline-flex items-center">
+            <!-- <form method="POST" action="?/deleteService" use:enhance={handleEnhance} class="inline-flex items-center">
               <input type="hidden" name="serviceID" value="{serviceID}" />
               <input type="hidden" name="serviceType" value="{type}" />
               <button type="submit" class="inline-flex items-center">
                 <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
               </button>
-            </form>
-          </div>
+            </form> -->
 
-          
+            <!-- Delete Button (Opens Modal) -->
+            <button class="inline-flex items-center" onclick={() => openDeleteModal(serviceID, type)}>
+              <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
+            </button>
+
+          </div>
         </div>
       {/each}
     </div>
@@ -135,6 +166,8 @@
     <a href="./manageServices/addService">Add service</a>
   </button>
 </div>
+
+
 
 <style>
   ::-webkit-scrollbar {

@@ -337,6 +337,7 @@
                     </label>
                 {/each} -->
 
+
                 <div class="relative w-full">
                     <!-- Dropdown Button -->
                     <button 
@@ -347,7 +348,7 @@
                         <span class="fade-mask">
                             {selectedProviders.length > 0 ? selectedProviders.join(", ") : "Select Providers"}
                         </span>
-
+                
                         <!-- Dropdown Icon -->
                         <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform pointer-events-none" 
                             style="transform: {showDropdown ? 'rotate(180deg)' : 'rotate(0deg)'}" 
@@ -355,24 +356,25 @@
                             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
                     </button>
-
+                
                     <!-- Dropdown Content -->
-                    <div class="absolute w-full bg-white border mt-1 shadow-lg p-2 max-h-60 overflow-y-auto" hidden={!showDropdown}>
-                        {#each providers as t}
-                            <label class="flex items-center space-x-2"
-                            hidden={!showDropdown}>
-                                <input 
-                                    name={t} 
-                                    type="checkbox" 
-                                    checked={isAccepted(t)}
-                                    onclick={() => selectedProviders.includes(t) ? selectedProviders.splice(selectedProviders.indexOf(t), 1) : selectedProviders.push(t)} 
-                                    hidden={!showDropdown}
-                                />
-                                <span>{t}</span>
-                            </label>
-                        {/each}
-                    </div>
+                    {#if showDropdown}
+                        <div class="absolute w-full bg-white border shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
+                            {#each providers as t}
+                                <label class="flex items-center space-x-2">
+                                    <input 
+                                        name={t} 
+                                        type="checkbox" 
+                                        checked={isAccepted(t)}
+                                        onclick={() => selectedProviders.includes(t) ? selectedProviders.splice(selectedProviders.indexOf(t), 1) : selectedProviders.push(t)} 
+                                    />
+                                    <span>{t}</span>
+                                </label>
+                            {/each}
+                        </div>
+                    {/if}
                 </div>
+                
                 
                   
             </label>
