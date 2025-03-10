@@ -170,32 +170,32 @@ export class FacilityDAO {
     }
   }
 
-  async search(query: string, offset: number): Promise<{ results: FacilityDTO[]; hasMore: boolean }> { // loads 10 search results from an input offset
+  async search(query: string): Promise<FacilityDTO[]> {
     try {
-      const facilities = await prisma.facilities.findMany({
+      if (!query.trim()) {
+        return [];
+      }
+
+      const facilities = await prisma.facility.findMany({
         where: {
-          type: {
-            search: query
-          }
+          name: {
+            contains: query,
+            mode: "insensitive", // Case-insensitive search
+          },
         },
         orderBy: {
-          updatedAt: "desc"
+          updatedAt: "desc",
         },
         select: {
-          facilityID : true,
-          name       : true,
+          facilityID: true,
+          name: true,
         },
-        skip: offset,
-        take: 11
       });
 
-      return { 
-        results : facilities.slice(0, 10), 
-        hasMore : facilities.length  > 10,
-      };
+      return facilities;
     } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not search for facilities.");
+      console.error("Search Error: ", error);
+      throw new Error("Could not search facilities.");
     }
   }
 
