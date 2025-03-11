@@ -1,8 +1,5 @@
 <script>
     import { createEventDispatcher } from "svelte";
-  
-    export let serviceID;
-    export let serviceType;
     const dispatch = createEventDispatcher();
   
     function closeModal() {
@@ -10,10 +7,6 @@
       dispatch("close");
     }
   
-    function confirmDelete() {
-      document.getElementById("deleteForm").submit();
-      closeModal();
-    }
 </script>
   
 <!-- Modal Overlay -->

@@ -21,9 +21,10 @@
       return "editICUService"
     }
   }
+
   // let servicess = Array(10).fill({ title: "ICU Information", division: "Emergency Division" });
   import Logo from '$lib/images/Logo.png';
-  let search = "";
+  let search: String = $state("");
 
 
   // FOR MODAL
@@ -32,11 +33,11 @@
 
   let showModal = $state(false);
   let showModal2 = $state(false);
-  let selectedServiceID = null;
-  let selectedServiceType = null;
+  let selectedServiceID: String = $state('');
+  let selectedServiceType: String = $state('');
   let numOfServices = services.length;
 
-  function openDeleteModal(serviceID, type) {
+  function openDeleteModal(serviceID: String, type: String) {
     console.log("OpenDeleteModal Function Called");
     
     selectedServiceID = serviceID;
@@ -109,7 +110,7 @@
       <input
         type="text"
         placeholder="Search"
-        class="px-4 py-0 border-2 w-3/4 border-gray-500 rounded-2xl h-10 w-2/3"
+        class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10 w-2/3"
       />
       <h1>View By:</h1>
 
