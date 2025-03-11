@@ -1,7 +1,7 @@
 import { prisma } from "./prisma";
 
 import type { ServiceDTO } from "./DTOs";
-
+import type { FacilityDTO } from "./DTOs";
 import type { Service } from '@prisma/client';
 // Because of the heterogenous nature of the services, pagination must be done in the business logic instead of natively on Prisma.
 
@@ -109,46 +109,53 @@ export class ServicesDAO {
   }
   */
 
-  async search(query: string, offset: number): Promise<{ results: ServiceDTO[], hasMore: boolean }> { // loads 10 search results from an input offset
+  async search(query: string, offset: number): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
     try {
-      const services = await prisma.service.findMany({
+      const facilities = await prisma.facility.findMany({
         where: {
-          OR: [
-            { 
-              type: { 
-                search : query 
-              } 
-            },
-            { 
-              keywords: { 
-                has: query 
-              } 
+          services: {
+            some: {
+              OR: [
+                { type: { search: query } },
+                { keywords: { has: query } }
+              ]
             }
-          ]
+          }
         },
         orderBy: {
           updatedAt: "desc"
         },
         select: {
-          serviceID : true,
-          type      : true,
-          createdAt : true,
-          updatedAt : true,
+          facilityID: true,
+          name: true,
+          updatedAt: true,
+          services: {
+            where: {
+              OR: [
+                { type: { search: query } },
+                { keywords: { has: query } }
+              ]
+            },
+            select: {
+              serviceID: true,
+              type: true
+            }
+          }
         },
         skip: offset,
         take: 11
       });
-
-      return { 
-        results : services.slice(0, 10), 
-        hasMore : services.length  > 10,
+  
+      return {
+        results: facilities.slice(0, 10),
+        hasMore: facilities.length > 10,
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not search for services.");
+      throw new Error("Could not search for facilities.");
     }
   }
-
+  
   async getPaginatedServices(page: number, pageSize: number): Promise<{ services: ServiceDTO[]; totalPages: number; currentPage: number }> {
     try {
       const [services, totalServices] = await Promise.all([

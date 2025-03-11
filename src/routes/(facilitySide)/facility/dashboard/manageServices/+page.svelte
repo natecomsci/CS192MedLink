@@ -2,6 +2,7 @@
   import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
   import { enhance } from '$app/forms';
+  import { writable } from 'svelte/store';
 
   let { data, form }: PageProps = $props();
   const services: ServiceDTO[] = data.servicesObj ?? []
@@ -37,13 +38,26 @@
   let selectedServiceType: String = $state('');
   let numOfServices = services.length;
 
+
+
+  let errorMessage = writable('');
+
+function handleEnhance({ update }) {
+  update(({ status, data }) => {
+    if (status === 401) { // Unauthorized: Wrong password
+      errorMessage.set("Wrong password. Please try again.");
+    } else {
+      errorMessage.set("");
+    }
+  });
+}
   function openDeleteModal(serviceID: String, type: String) {
     console.log("OpenDeleteModal Function Called");
     
     selectedServiceID = serviceID;
     selectedServiceType = type;
 
-    if (numOfServices > 1) {  // ✅ Use curly braces `{}` for block statements
+    if (numOfServices > 0) {  // ✅ Use curly braces `{}` for block statements
         showModal = true;
         showModal2 = false;
         

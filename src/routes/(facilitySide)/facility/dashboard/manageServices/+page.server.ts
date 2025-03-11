@@ -70,16 +70,17 @@ export const actions: Actions = {
       }
 
       // Verify password
-      const passwordMatch = await bcrypt.compare(password, facility.password);
-      if (!passwordMatch) {
-        console.error(`Incorrect password attempt for Facility ID: ${facilityID}`);
-        return fail(400, { 
+    const passwordMatch = await bcrypt.compare(password, facility.password);
+    if (!passwordMatch) {
+      return fail(400, 
+        { 
           error: 'Incorrect ID-password pair',
           description: 'ID',
           success: false
-        });
-      }
-
+        }
+      );
+    }
+    
       // Delete service based on type
       switch (serviceType) {
         case "Ambulance":
