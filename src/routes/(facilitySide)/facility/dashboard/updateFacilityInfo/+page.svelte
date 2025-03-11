@@ -121,6 +121,7 @@
     method="POST" 
     use:enhance
     action="?/update"
+    enctype="multipart/form-data"
 >
     <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
     <div class="w-full max-w-3x1 mx-auto bg-white">
@@ -134,9 +135,9 @@
             </div> -->
         </div>
         <input 
-            type="text"
+            type="file"
             name="facilityImage" 
-            value={data.photo} 
+            accept="image/*"
         />
 
         {#if form?.error}

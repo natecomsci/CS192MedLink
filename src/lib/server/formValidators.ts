@@ -264,3 +264,15 @@ export async function validateLink(link: FormDataEntryValue | null): Promise<str
 
   return linkStr;
 }
+
+export function validateImage(file: File): File {
+  if (file.type.split('/')[0] !== "image") {
+    throw new Error("File must be an image with extentions <insert extentions accepted>");
+  }
+
+  if (file.size > 5242880) {
+    throw new Error("File must be less than 5MB");
+  }
+
+  return file;
+}

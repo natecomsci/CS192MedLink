@@ -18,7 +18,8 @@ import { validateEmail,
          validatePhone, 
          validateStreet, 
          validateLink, 
-         validateFacilityName 
+         validateFacilityName, 
+         validateImage
        } from '$lib/server/formValidators';
 
 import { providers,  
@@ -142,7 +143,7 @@ export const actions = {
     }
 
     // genInfo part
-    const photo = data.get('facilityImage') as string;
+    let photo:string = def_photo;
     let name: string
     let phoneNumber: string
     let email: string
@@ -150,6 +151,8 @@ export const actions = {
     const facilityType = data.get('type') as FacilityType
     const ownership = data.get('ownership') as Ownership
     const acceptedProviders: Provider[] = []
+
+
 
     try {
       name = validateFacilityName(data.get('facilityName'));
@@ -197,6 +200,20 @@ export const actions = {
       }
     }
 
+    try {
+      const photoFile: File = data.get('facilityImage') as File
+      if (photoFile.name !== '') {
+        validateImage(photoFile)
+        
+      }
+    } catch (error) {
+      return fail(422, { 
+        error: (error as Error).message,
+        description: "image",
+        success: false  
+      });
+    }
+
     const genInfo: GeneralInformationFacilityDTO = {
       name               ,
       photo              ,
@@ -231,7 +248,7 @@ export const actions = {
       });
     }
 
-    facilityDAO.updateGeneralInformation(facilityID, genInfo)
+    // facilityDAO.updateGeneralInformation(facilityID, genInfo)
 
     return { success: true };
   }
