@@ -8,11 +8,12 @@ import type { PageServerLoad,
 import type { AddressDTO, 
               GeneralInformationFacilityDTO 
             } from '$lib/server/DTOs';
-
+import { v4 as uuidv4 } from 'uuid';
 import { fail } from '@sveltejs/kit';
 
 import { AddressDAO } from '$lib/server/AddressDAO';
 import { FacilityDAO } from '$lib/server/FacilityDAO';
+import { createClient } from '@supabase/supabase-js';
 
 import { validateEmail, 
          validatePhone, 
@@ -24,7 +25,7 @@ import { validateEmail,
 
 import { providers,  
        } from '$lib/projectArrays';
-
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 
 let def_photo: string
 let def_name: string
@@ -41,6 +42,7 @@ let def_cOrMID: Number
 let def_brgyID: Number
 let def_street: string
 
+const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 
 export const load: PageServerLoad = async ({ cookies }) => {
   let facilityDAO = new FacilityDAO();
@@ -107,7 +109,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 export const actions = {
   update: async ({ cookies, request }) => {
     const data = await request.formData();
-    const facilityID = cookies.get('facilityID')
+    const facilityID = cookies.get('facilityID');
 
     if (!facilityID) {
       return fail(422, { 
@@ -117,15 +119,17 @@ export const actions = {
       });
     }
 
-    // address
-    const regionID      = Number(data.get('region'));
-    const pOrCID        = Number(data.get('province'));
-    const cOrMID        = Number(data.get('city'));
-    const brgyID        = Number(data.get('brgy'));
-    let street          = data.get('street');
+    // Address handling
+    const address = {
+      regionID: Number(data.get('region')),
+      pOrCID: Number(data.get('province')),
+      cOrMID: Number(data.get('city')),
+      brgyID: Number(data.get('brgy')),
+      street: ''
+    };
 
     try {
-      street = validateStreet(data.get('street'));
+      address.street = validateStreet(data.get('street'));
     } catch (error) {
       return fail(422, { 
         error: (error as Error).message,
@@ -133,113 +137,93 @@ export const actions = {
         success: false  
       });
     }
-    
-    const address: AddressDTO = {
-      regionID,
-      pOrCID,
-      cOrMID,
-      brgyID,
-      street
-    }
 
-    // genInfo part
-    let photo:string = def_photo;
-    let name: string
-    let phoneNumber: string
-    let email: string
-    let bookingSystem: string
-    const facilityType = data.get('type') as FacilityType
-    const ownership = data.get('ownership') as Ownership
-    const acceptedProviders: Provider[] = []
-
-
+    // General Information
+    let photo = def_photo;
+    let name, phoneNumber, email, bookingSystem;
+    const facilityType = data.get('type') as FacilityType;
+    const ownership = data.get('ownership') as Ownership;
+    const acceptedProviders: Provider[] = [];
 
     try {
       name = validateFacilityName(data.get('facilityName'));
-    } catch (error) {
-      return fail(422, { 
-        error: (error as Error).message,
-        description: "name",
-        success: false  
-      });
-    }
-
-    try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
-    } catch (error) {
-      return fail(422, { 
-        error: (error as Error).message,
-        description: "phoneNumber",
-        success: false  
-      });
-    }
-
-    try {
       email = await validateEmail(data.get('email'));
-    } catch (error) {
-      return fail(422, { 
-        error: (error as Error).message,
-        description: "email",
-        success: false  
-      });
-    }
-
-    try {
       bookingSystem = await validateLink(data.get('bookingSystem'));
     } catch (error) {
       return fail(422, { 
         error: (error as Error).message,
-        description: "bookingSystem",
+        description: "validation",
         success: false  
       });
     }
 
-    for (var p of providers) {
+    for (const p of providers) {
       if (data.get(p)) {
-        acceptedProviders.push(p)
+        acceptedProviders.push(p);
       }
     }
 
-    try {
-      const photoFile: File = data.get('facilityImage') as File
-      if (photoFile.name !== '') {
-        validateImage(photoFile)
-        
+    // **Image Handling & Upload**
+    const photoFile = data.get('facilityImage') as File;
+    if (photoFile && photoFile.size > 0) {
+      try {
+        validateImage(photoFile);
+
+        // Upload image to Supabase
+        const filePath = `facilities/${facilityID}/${uuidv4()}`;
+        const { data: uploadData, error: uploadError } = await supabase
+          .storage
+          .from('pictures')
+          .upload(filePath, photoFile, { upsert: true });
+
+        if (uploadError) {
+          throw new Error("Image upload failed: " + uploadError.message);
+        }
+
+        // Get public URL for the uploaded image
+        const { data: publicURLData } = supabase.storage.from('pictures').getPublicUrl(filePath);
+        if (publicURLData.publicUrl) {
+          photo = publicURLData.publicUrl;
+        }
+
+      } catch (error) {
+        return fail(422, { 
+          error: (error as Error).message,
+          description: "image",
+          success: false  
+        });
       }
-    } catch (error) {
-      return fail(422, { 
-        error: (error as Error).message,
-        description: "image",
-        success: false  
-      });
     }
 
+    // Create General Information DTO
     const genInfo: GeneralInformationFacilityDTO = {
-      name               ,
-      photo              ,
-      address            ,
-      email              ,
-      phoneNumber        ,
-      facilityType       ,
-      ownership          ,
-      bookingSystem      ,
+      name,
+      photo,
+      address,
+      email,
+      phoneNumber,
+      facilityType,
+      ownership,
+      bookingSystem,
       acceptedProviders
-    }
+    };
 
     const facilityDAO = new FacilityDAO();
 
-    if (def_photo         == photo &&
-        def_name          == name &&
-        def_phoneNumber   == phoneNumber &&
-        def_email         == email &&
+    // Check if any changes were made
+    if (def_photo == photo &&
+        def_name == name &&
+        def_phoneNumber == phoneNumber &&
+        def_email == email &&
         def_bookingSystem == bookingSystem &&
-        def_facilityType  == facilityType &&
-        def_ownership     == ownership &&
-        def_regionID      == address.regionID &&
-        def_pOrCID        == address.pOrCID &&
-        def_cOrMID        == address.cOrMID &&
-        def_brgyID        == address.brgyID &&
-        def_street        == address.street &&
+        def_facilityType == facilityType &&
+        def_ownership == ownership &&
+        def_regionID == address.regionID &&
+        def_pOrCID == address.pOrCID &&
+        def_cOrMID == address.cOrMID &&
+        def_brgyID == address.brgyID &&
+        def_street == address.street &&
         def_acceptedProviders.toString() == acceptedProviders.toString()) {
       return fail(422, { 
         error: "No changes made",
@@ -248,7 +232,8 @@ export const actions = {
       });
     }
 
-    // facilityDAO.updateGeneralInformation(facilityID, genInfo)
+    // Update facility information
+    await facilityDAO.updateGeneralInformation(facilityID, genInfo);
 
     return { success: true };
   }

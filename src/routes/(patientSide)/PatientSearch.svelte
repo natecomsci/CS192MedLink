@@ -1,68 +1,75 @@
 <script lang="ts">
 	import Logo from '$lib/images/Logo.png';
 	import Icon from '@iconify/svelte';
-
-  let Search = "mdi-light:magnify"
-  let Filter = "mingcute:settings-6-line"
-
-  let { guest = false } = $props();
-
-	let search = $state("");
-
-	let showFilter = $state(false);
-</script>
-
-<!-- @elle, @paul: padesign -->
-<form
-	class="grid grid-cols-1 justify-items-center p-8"
->
+  
+	let Search = "mdi-light:magnify";
+	let Filter = "mingcute:settings-6-line";
+  
+	let search = "";
+	let showFilter = false;
+	let selectedType = "byFacility"; // Default selection
+	let warningMessage = ""; // Store warning message
+  
+	function handleSearch(event: Event) {
+	  event.preventDefault(); // Prevent form submission behavior
+	  
+	  if (search.trim() === "") {
+		warningMessage = "Please enter a search query.";
+		return;
+	  }
+	  
+	  warningMessage = ""; // Clear warning if valid
+	  window.location.href = `/byFaciSearch?query=${encodeURIComponent(search)}&type=${selectedType}`;
+	}
+  </script>
+  
+  <form class="grid grid-cols-1 justify-items-center p-8" on:submit={handleSearch}>
 	<div class="grid grid-cols-1 justify-items-center">
-    <img 
-      src={Logo} 
-      alt="MedLink logo" 
-      width="100" 
-      height="100"/>
-
-    <h1 class="">
-      Connecting you to healthcare, one search at a time.
-    </h1>
-  </div>
-
+	  <img src={Logo} alt="MedLink logo" width="100" height="100"/>
+	  <h1>Connecting you to healthcare, one search at a time.</h1>
+	</div>
+  
+	<!-- Facility/Service Toggle Buttons -->
 	<div class="inline-flex rounded-md shadow-xs" role="group">
-	  <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-s-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-	    Facility
+	  <button 
+		type="button"
+		class={`px-4 py-2 text-sm font-medium ${selectedType === 'byFacility' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} border border-gray-200 rounded-s-lg`}
+		on:click={() => selectedType = "byFacility"}
+	  >
+		Facility
 	  </button>
-
-	  <button type="button" class="px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-e-lg hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-700 focus:text-blue-700 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-blue-500 dark:focus:text-white">
-	    Service
+  
+	  <button 
+		type="button"
+		class={`px-4 py-2 text-sm font-medium ${selectedType === 'byService' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} border border-gray-200 rounded-e-lg`}
+		on:click={() => selectedType = "byService"}
+	  >
+		Service
 	  </button>
 	</div>
-	<div class="flex">
-		<div>
-			<Icon icon={Search} width="20" height="20" />
-		</div>
-
-		<!-- insert vertical line -->
-		
-		<div>
-			<input placeholder="Search" bind:value={search} />
-		</div>
-
-		<div>
-
-			<button 
-				class="text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-800"
-				onclick={() => showFilter = !showFilter} 
-			>
-				<Icon icon={Filter} width="20" height="20" />
-			</button>
-		</div>		
+  
+	<!-- Search Input -->
+	<div class="flex items-center mt-4">
+	  <Icon icon={Search} width="20" height="20" class="mr-2"/>
+	  <input type="text" placeholder="Search" bind:value={search} class="border p-2 rounded"/>
+	  <button type="submit" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded">
+		Search
+	  </button>
+	  <button 
+		type="button"
+		class="ml-2 text-white bg-purple-700 hover:bg-purple-800 p-2.5 rounded-full"
+		on:click={() => showFilter = !showFilter}
+	  >
+		<Icon icon={Filter} width="20" height="20"/>
+	  </button>
 	</div>
-
-	{#if showFilter}
-		<p>
-			filters here
-		</p>
+  
+	{#if warningMessage}
+	  <p class="text-red-600 mt-2">{warningMessage}</p>
 	{/if}
-	
-</form>
+  
+	{#if showFilter}
+	  <p>filters here</p>
+	{/if}
+  </form>
+  

@@ -128,7 +128,7 @@ model Address {
   brgy      Brgy   @relation(fields: [brgyID], references: [brgyID])
   brgyID    Int
 
-  street    String
+  street    String?
 
   // RELATIONS
 
@@ -149,7 +149,7 @@ model Facility {
   password          String
 
   name              String
-  photo             String        @default("https://placehold.co/1920x1440/png")
+  photo             String?        
   address           Address?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
   email             String?       @unique
   phoneNumber       String?       @unique

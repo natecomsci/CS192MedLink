@@ -225,7 +225,7 @@
             <input 
             name="street"
             type="text" 
-            bind:value={street}
+            bind:value={data.street}
             class="border p-2 rounded w-full" 
             disabled={!enableStreet}
             placeholder="Name"
@@ -275,42 +275,44 @@
 
 
             <label class="w-full text-sm font-medium">
-              Ownership
-              <div class="flex bg-gray-200 rounded-full w-[200px] h-[50px] p-1">
-                  <!-- PUBLIC -->
-                  <label class="flex-1 text-center cursor-pointer">
-                      <input 
-                          type="radio" 
-                          name="ownership" 
-                          bind:group={selectedOwnership}
-                          value="PUBLIC"
-                          class="hidden"
-                      />
-                      <div class="py-1 text-sm font-semibold rounded-full transition-all h-full"
-                          class:selected={selectedOwnership === "PUBLIC"}
-                      >
-                          PUBLIC
-                      </div>
-                  </label>
-          
-                  <!-- PRIVATE -->
-                  <label class="flex-1 text-center cursor-pointer">
-                      <input 
-                          type="radio" 
-                          name="ownership" 
-                          bind:group={selectedOwnership}
-                          value="PRIVATE"
-                          class="hidden"
-                      />
-                      <div class="py-1 text-sm font-semibold rounded-full transition-all h-full"
-                          class:selected={selectedOwnership === "PRIVATE"}
-                      >
-                          PRIVATE
-                      </div>
-                  </label>
-              </div>
-          </label>
-
+                Ownership
+                <div class="flex bg-gray-200 rounded-full w-[200px] h-[50px] p-1">
+                    <!-- PUBLIC -->
+                    <label class="flex-1 text-center cursor-pointer">
+                        <input 
+                            type="radio" 
+                            name="ownership" 
+                            bind:group={selectedOwnership}
+                            value="PUBLIC"
+                            class="hidden"
+                        />
+                        <div class="py-1 text-sm font-semibold rounded-full transition-all h-full"
+                            class:selected={selectedOwnership === "PUBLIC"}
+                        >
+                            PUBLIC
+                        </div>
+                    </label>
+            
+                    <!-- PRIVATE -->
+                    <label class="flex-1 text-center cursor-pointer">
+                        <input 
+                            type="radio" 
+                            name="ownership" 
+                            bind:group={selectedOwnership}
+                            value="PRIVATE"
+                            class="hidden"
+                        />
+                        <div class="py-1 text-sm font-semibold rounded-full transition-all h-full"
+                            class:selected={selectedOwnership === "PRIVATE"}
+                        >
+                            PRIVATE
+                        </div>
+                    </label>
+                </div>
+            </label>
+            
+              
+      
         </div>
         <!-- Booker -->
         <div class="grid grid-cols-2 space-x-3">
@@ -321,7 +323,7 @@
                 type="text" 
                 class="border p-2 rounded w-full" 
                 placeholder="Name"
-                value={data.bookingSystem}
+                bind:value={data.bookingSystem}
                  /> 
             </label>
 
