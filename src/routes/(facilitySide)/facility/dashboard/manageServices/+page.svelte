@@ -35,7 +35,6 @@
   let selectedServiceType: String = $state('');
   let numOfServices = services.length;
 
-
   function openDeleteModal(serviceID: String, type: String) {    
     selectedServiceID = serviceID;
     selectedServiceType = type;
