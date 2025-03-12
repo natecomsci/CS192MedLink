@@ -3,7 +3,7 @@
 
   export let serviceID;
   export let serviceType;
-  export let form; // Accept form errors as a prop
+  export let form = { error: "" }; // Default form error
   const dispatch = createEventDispatcher();
 
   function closeModal() {
@@ -11,9 +11,28 @@
       dispatch("close");
   }
 
-  function confirmDelete() {
-      document.getElementById("deleteForm").submit();
-      closeModal();
+  async function confirmDelete(event) {
+      event.preventDefault(); // Prevent default form submission (hot reload prevention)
+
+      const formData = new FormData(document.getElementById("deleteForm"));
+
+      try {
+          const response = await fetch("?/deleteService", {
+              method: "POST",
+              body: formData
+          });
+
+          const data = await response.json(); // Assume the backend returns JSON
+
+          if (data.description === "pass") {
+              form.error = data.error || "Incorrect password"; // Update error message
+          } else {
+              closeModal(); // Close modal if deletion succeeds
+          }
+      } catch (error) {
+          console.error("Error:", error);
+          form.error = "Something went wrong. Please try again.";
+      }
   }
 </script>
 
@@ -38,16 +57,20 @@
                   class="mt-1 block w-full p-2 border rounded border-gray-300 focus:outline-none focus:ring focus:border-blue-500" 
                   required 
               />
-              {#if form?.description === "pass"}
-                  <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
+              <!-- Render error if password is incorrect -->
+              {#if form.error}
+                  <p class="text-red-500 text-sm font-semibold">{form.error}</p>
               {/if}
+              {#if form?.description === "pass"}
+              <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
+            {/if}
           </div>
       </form>
 
       <!-- Buttons -->
       <div class="flex justify-end space-x-2 mt-4">
-          <button class="px-4 py-2 bg-gray-300 rounded" onclick={closeModal}>Cancel</button>
-          <button class="px-4 py-2 bg-red-600 text-white rounded" onclick={confirmDelete}>Confirm</button>
+          <button class="px-4 py-2 bg-gray-300 rounded" on:click={closeModal}>Cancel</button>
+          <button class="px-4 py-2 bg-red-600 text-white rounded" on:click={confirmDelete}>Confirm</button>
       </div>
   </div>
 </div>

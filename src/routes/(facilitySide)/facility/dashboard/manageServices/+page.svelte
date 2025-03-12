@@ -169,7 +169,9 @@ function handleEnhance({ update }) {
         </div>
       {/each}
     </div>
-
+    {#if form?.description === "pass"}
+    <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
+    {/if}
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
       <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">⟨ Previous</button>
       <span class="font-medium">Page 1 of 22</span>
