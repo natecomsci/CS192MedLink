@@ -113,14 +113,10 @@ export class ServicesDAO {
     try {
       const facilities = await prisma.facility.findMany({
         where: {
-          services: {
-            some: {
-              OR: [
-                { type: { search: query } },
-                { keywords: { has: query } }
-              ]
-            }
-          }
+          OR: [
+            { name: { contains: query, mode: "insensitive" } },
+            { services: { some: { type: { contains: query, mode: "insensitive" } } } }
+          ]
         },
         orderBy: {
           updatedAt: "desc"
@@ -131,10 +127,7 @@ export class ServicesDAO {
           updatedAt: true,
           services: {
             where: {
-              OR: [
-                { type: { search: query } },
-                { keywords: { has: query } }
-              ]
+              type: { contains: query, mode: "insensitive" }
             },
             select: {
               serviceID: true,
