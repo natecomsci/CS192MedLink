@@ -1,11 +1,14 @@
 <script>
-    import { createEventDispatcher } from "svelte";
-    const dispatch = createEventDispatcher();
+    // import { createEventDispatcher } from "svelte";
+
+    let { showModal2 = $bindable() } = $props();
+
+    // const dispatch = createEventDispatcher();
   
-    function closeModal() {
-      console.log("trying to close")
-      dispatch("close");
-    }
+    // function closeModal() {
+    //   console.log("trying to close")
+    //   dispatch("close");
+    // }
   
 </script>
   
@@ -17,7 +20,7 @@
 
     <!-- Buttons -->
     <div class="flex justify-end space-x-2 mt-4">
-    <button class="px-4 py-2 bg-gray-300 rounded" onclick={closeModal}>Back</button>
+    <button class="px-4 py-2 bg-gray-300 rounded" onclick={() => showModal2 = !showModal2}>Back</button>
     </div>
 </div>
 </div> 

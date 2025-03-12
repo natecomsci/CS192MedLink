@@ -1,39 +1,7 @@
-<script>
-  import { createEventDispatcher } from "svelte";
+<script lang="ts">
 
-  export let serviceID;
-  export let serviceType;
-  export let form = { error: "" }; // Default form error
-  const dispatch = createEventDispatcher();
-
-  function closeModal() {
-      console.log("trying to close");
-      dispatch("close");
-  }
-
-  async function confirmDelete(event) {
-      event.preventDefault(); // Prevent default form submission (hot reload prevention)
-
-      const formData = new FormData(document.getElementById("deleteForm"));
-
-      try {
-          const response = await fetch("?/deleteService", {
-              method: "POST",
-              body: formData
-          });
-
-          const data = await response.json(); // Assume the backend returns JSON
-
-          if (data.description === "pass") {
-              form.error = data.error || "Incorrect password"; // Update error message
-          } else {
-              closeModal(); // Close modal if deletion succeeds
-          }
-      } catch (error) {
-          console.error("Error:", error);
-          form.error = "Something went wrong. Please try again.";
-      }
-  }
+    let { serviceID, serviceType, form, showModal = $bindable() } = $props();
+  
 </script>
 
 <!-- Modal Overlay -->
@@ -58,7 +26,7 @@
                   required 
               />
               <!-- Render error if password is incorrect -->
-              {#if form.error}
+              {#if form?.error}
                   <p class="text-red-500 text-sm font-semibold">{form.error}</p>
               {/if}
               {#if form?.description === "pass"}
@@ -69,8 +37,8 @@
 
       <!-- Buttons -->
       <div class="flex justify-end space-x-2 mt-4">
-          <button class="px-4 py-2 bg-gray-300 rounded" on:click={closeModal}>Cancel</button>
-          <button class="px-4 py-2 bg-red-600 text-white rounded" on:click={confirmDelete}>Confirm</button>
+          <button class="px-4 py-2 bg-gray-300 rounded" onclick={() => showModal = !showModal}>Cancel</button>
+          <button class="px-4 py-2 bg-red-600 text-white rounded" type="submit">Confirm</button>
       </div>
   </div>
 </div>

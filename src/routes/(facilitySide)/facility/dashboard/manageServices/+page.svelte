@@ -2,7 +2,6 @@
   import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
   import { enhance } from '$app/forms';
-  import { writable } from 'svelte/store';
 
   let { data, form }: PageProps = $props();
   const services: ServiceDTO[] = data.servicesObj ?? []
@@ -23,10 +22,8 @@
     }
   }
 
-  // let servicess = Array(10).fill({ title: "ICU Information", division: "Emergency Division" });
   import Logo from '$lib/images/Logo.png';
   let search: String = $state("");
-
 
   // FOR MODAL
   import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
@@ -39,21 +36,7 @@
   let numOfServices = services.length;
 
 
-
-  let errorMessage = writable('');
-
-function handleEnhance({ update }) {
-  update(({ status, data }) => {
-    if (status === 401) { // Unauthorized: Wrong password
-      errorMessage.set("Wrong password. Please try again.");
-    } else {
-      errorMessage.set("");
-    }
-  });
-}
-  function openDeleteModal(serviceID: String, type: String) {
-    console.log("OpenDeleteModal Function Called");
-    
+  function openDeleteModal(serviceID: String, type: String) {    
     selectedServiceID = serviceID;
     selectedServiceType = type;
 
@@ -65,33 +48,21 @@ function handleEnhance({ update }) {
         showModal = false;
         showModal2 = true;
     }
-
-    console.log(serviceID, type, selectedServiceID, selectedServiceType, showModal);
-}
-
-
+  }
 </script>
 
 {#if showModal}
   <DeleteServiceConfirm
     serviceID={selectedServiceID}
     serviceType={selectedServiceType}
-    on:close={() => { 
-      console.log("Close event received"); 
-      showModal = false; 
-    }}
+    {form}
+    bind:showModal={showModal}
   />
 {/if}
 
 {#if showModal2}
   <DeleteServiceRestricted
-    serviceID={selectedServiceID}
-    serviceType={selectedServiceType}
-    on:close={() => { 
-      console.log("Close event for modal 2 received"); 
-      console.log("Number of services:", numOfServices);
-      showModal2 = false; 
-    }}
+    bind:showModal2={showModal2}
   />
 {/if}
 
@@ -146,19 +117,10 @@ function handleEnhance({ update }) {
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
 
-
             <!-- edit button -->
             <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center">
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </a>
-
-            <!-- <form method="POST" action="?/deleteService" use:enhance={handleEnhance} class="inline-flex items-center">
-              <input type="hidden" name="serviceID" value="{serviceID}" />
-              <input type="hidden" name="serviceType" value="{type}" />
-              <button type="submit" class="inline-flex items-center">
-                <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
-              </button>
-            </form> -->
 
             <!-- Delete Button (Opens Modal) -->
             <button class="inline-flex items-center" onclick={() => openDeleteModal(serviceID, type)}>
@@ -170,7 +132,7 @@ function handleEnhance({ update }) {
       {/each}
     </div>
     {#if form?.description === "pass"}
-    <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
+      <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
       <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">⟨ Previous</button>
