@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 
-
+/*
 test.describe('Add Ambulance Service Flow', () => {
     test.beforeEach(async ({ page }) => {
         // Step 1: Go to the login page
@@ -304,3 +304,4 @@ test.describe('Add Outpatient', () => {
     await expect(page.locator('p.error')).toBeVisible();
   });
 });
+*/

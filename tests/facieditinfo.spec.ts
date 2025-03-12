@@ -59,6 +59,6 @@ test.describe('Facility Update Information Test', () => {
         await page.click('button[type="submit"]');
 
         // Check for error message
-        await expect(page.locator('p.error.s-BsXuYGk0Xggs')).toBeVisible();
+        await expect(page.locator('p.error.s-25fNU1rMC7m9')).toBeVisible();
     });
 });

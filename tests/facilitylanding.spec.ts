@@ -44,11 +44,19 @@ test.describe('Facility Page UI Tests', () => {
 });
 */
 
-test('Invalid login credentials', async ({ page }) => {
+test('Invalid Faci ID', async ({ page }) => {
   await page.goto('/facility');
   await page.fill('input[name="fid"]', 'wrongID');
   await page.fill('input[name="password"]', 'wrongpassword');
   await page.click('button:has-text("Log in")');
-  await expect(page.locator('p.error')).toHaveText('Invalid Employee ID or Password.');
+  await expect(page.locator('p')).toHaveText('Facility ID not found');
+});
+
+test('Wrong Password', async ({ page }) => {
+  await page.goto('/facility');
+  await page.fill('input[name="fid"]', 'testing');
+  await page.fill('input[name="password"]', 'wrongpassword');
+  await page.click('button:has-text("Log in")');
+  await expect(page.locator('p')).toHaveText('Incorrect ID-password pair');
 });
 

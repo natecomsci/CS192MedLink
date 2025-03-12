@@ -142,6 +142,9 @@ test('Manage Services - Edit ER Service Successful and check no changes', async 
   await page.click('button.mt-auto.bg-purple-600.text-white.p-3.rounded-lg.hover\\:bg-purple-700');
   await expect(page.locator('p.error')).toHaveText('No changes made');
 
+  // edit again so test can re run next time
+  await criticalQueueLength.fill('10');
+  await page.click('button.mt-auto.bg-purple-600.text-white.p-3.rounded-lg.hover\\:bg-purple-700');
 
 });
 
@@ -282,6 +285,9 @@ test('Manage Services - Edit Bloodbank Success and check no changes', async ({ p
   await page.click('button.mt-auto.bg-purple-600.text-white.p-3.rounded-lg.hover\\:bg-purple-700');
   await expect(page.locator('p.error')).toHaveText('No changes made');
 
+  await nonUrgentPatients.fill('10');
+  await page.click('button.mt-auto.bg-purple-600.text-white.p-3.rounded-lg.hover\\:bg-purple-700');
+
 });
 
 test('Manage Services - Edit Ambulance Service Validation', async ({ page }) => {
@@ -343,6 +349,9 @@ test('Manage Services - Edit Ambulance and check no changes', async ({ page }) =
   // no changes
   await page.click('button.mt-auto.bg-purple-600.text-white.p-3.rounded-lg.hover\\:bg-purple-700');
   await expect(page.locator('p.error')).toHaveText('No changes made');
+
+  await nonUrgentPatients.fill('10');
+  await page.click('button.mt-auto.bg-purple-600.text-white.p-3.rounded-lg.hover\\:bg-purple-700');
 
 });
 
