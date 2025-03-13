@@ -1,8 +1,10 @@
-import type { FacilityDTO } from "$lib/server/DTOs";
-import { FacilityDAO } from "$lib/server/FacilityDAO";
-import { ServicesDAO } from "$lib/server/ServicesDAO"; // Import ServiceDAO
 import { fail } from "@sveltejs/kit";
+
 import type { Actions, PageServerLoad } from "./$types";
+import type { FacilityDTO } from "$lib/server/DTOs";
+
+import { FacilityDAO } from "$lib/server/FacilityDAO";
+import { ServicesDAO } from "$lib/server/ServicesDAO"; 
 
 const facilityDAO = new FacilityDAO();
 const serviceDAO = new ServicesDAO(); 
@@ -27,42 +29,11 @@ export const load: PageServerLoad = async ({ url }) => {
       );
     }
 
-    return { byFacilities, byService, query }; // ✅ Only returning facilities
+    return { byFacilities, byService, query };
 };
 
-export const actions: Actions = {
+export const actions = {
     default: async ({ request }) => {
-        // try {
-        //     const formData = await request.formData();
-        //     const query = (formData.get("query") as string)?.trim() || "";
-        //     const searchType = (formData.get("type") as string) || "byFacility"; // Capture search type
-        //     let facilities: FacilityDTO[];
-
-        //     console.log("🔍 Received search query:", query, "Search Type:", searchType);
-
-        //     if (searchType === "byFacility") {
-        //         facilities = await facilityDAO.search(query);
-        //         console.log("✅ Search results (facilities):", facilities.map(f => f.name));
-        //     } else if (searchType === "byService") {
-        //         const { results } = await serviceDAO.search(query, 0);
-        //         facilities = results; // ✅ Ensure facilities are returned
-        //         console.log("✅ Facilities offering searched service:", facilities.map(f => f.name));
-        //     } else {
-        //         return fail(400, 
-        //         { 
-        //           error: 'Missing Password',
-        //           description: 'pass',
-        //           success: false
-        //         }
-        //       );
-        //     }
-
-        //     return { facilities };
-        // } catch (error) {
-        //     console.error('❌ Error in search action:', error);
-        //     return { error: 'Internal Server Error', facilities: [] };
-        // }
-
         const formData = await request.formData();
         const query = (formData.get("query") as string)?.trim() || "";  
 
@@ -83,7 +54,6 @@ export const actions: Actions = {
             }
           );
         }
-
-        return { byFacilities, byService, query }; // ✅ Only returning facilities
+        return { byFacilities, byService, query }; 
     },
-};
+} satisfies Actions;

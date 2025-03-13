@@ -1,10 +1,10 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
 
-  let { data } = $props();
+  let { data, form } = $props();
   let activeTab = $state("service"); // Default view
   let query = $state(""); // Store search input
-  // let facilities = data.facilities || [];
+  let facilities = data.facilities || [];
 
 </script>
 
@@ -51,9 +51,9 @@
         <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
           <div>
             <span class="font-semibold">{facility.name}</span>
-            <!-- {#if activeTab === "service" && facility.service}
+            {#if activeTab === "service" && facility.service}
               <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p>
-            {/if} -->
+            {/if}
           </div>
           <button class="text-xl font-bold">+</button>
         </div>
@@ -63,14 +63,14 @@
     {/if}
 
   {:else if activeTab === "service"}
-    {#if data.byService.length > 0}
+    {#if form ? data.byService.length > 0 : form?.byService.length}
       {#each data.byService as facility}
         <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
           <div>
             <span class="font-semibold">{facility.name}</span>
-            <!-- {#if activeTab === "service" && facility.service}
+            {#if activeTab === "service" && facility.service}
               <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p>
-            {/if} -->
+            {/if}
           </div>
           <button class="text-xl font-bold">+</button>
         </div>
