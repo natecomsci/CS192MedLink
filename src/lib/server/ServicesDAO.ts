@@ -3,6 +3,7 @@ import { prisma } from "./prisma";
 import type { ServiceDTO } from "./DTOs";
 import type { FacilityDTO } from "./DTOs";
 import type { Service } from '@prisma/client';
+import { updated } from "$app/state";
 // Because of the heterogenous nature of the services, pagination must be done in the business logic instead of natively on Prisma.
 
 export class ServicesDAO {
@@ -112,31 +113,16 @@ export class ServicesDAO {
   async search(query: string, offset: number): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
     try {
       const facilities = await prisma.facility.findMany({
-        where: {
-          OR: [
-            { name: { contains: query, mode: "insensitive" } },
-            { services: { some: { type: { contains: query, mode: "insensitive" } } } }
-          ]
-        },
+        where: { services: { some: { type: { contains: query, mode: "insensitive" }}}},
         orderBy: {
           updatedAt: "desc"
         },
         select: {
           facilityID: true,
           name: true,
-          updatedAt: true,
-          services: {
-            where: {
-              type: { contains: query, mode: "insensitive" }
-            },
-            select: {
-              serviceID: true,
-              type: true
-            }
-          }
-        },
+          },
         skip: offset,
-        take: 11
+        take: 11,
       });
   
       return {

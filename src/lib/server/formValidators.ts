@@ -245,8 +245,6 @@ export async function validateLink(link: FormDataEntryValue | null): Promise<str
     linkStr = `https://${linkStr}`;
   }
 
-  console.log(linkStr)
-
   const linkFormat = /^https?:\/\/([a-zA-Z\d\-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
 
   if (!linkFormat.test(linkStr)) {

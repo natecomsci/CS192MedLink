@@ -7,7 +7,6 @@
   
 	let search = "";
 	let showFilter = false;
-	let selectedType = "byFacility"; // Default selection
 	let warningMessage = ""; // Store warning message
   
 	function handleSearch(event: Event) {
@@ -19,7 +18,7 @@
 	  }
 	  
 	  warningMessage = ""; // Clear warning if valid
-	  window.location.href = `/byFaciSearch?query=${encodeURIComponent(search)}&type=${selectedType}`;
+	  window.location.href = `/byFaciSearch?query=${encodeURIComponent(search)}`;
 	}
   </script>
   
@@ -27,25 +26,6 @@
 	<div class="grid grid-cols-1 justify-items-center">
 	  <img src={Logo} alt="MedLink logo" width="100" height="100"/>
 	  <h1>Connecting you to healthcare, one search at a time.</h1>
-	</div>
-  
-	<!-- Facility/Service Toggle Buttons -->
-	<div class="inline-flex rounded-md shadow-xs" role="group">
-	  <button 
-		type="button"
-		class={`px-4 py-2 text-sm font-medium ${selectedType === 'byFacility' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} border border-gray-200 rounded-s-lg`}
-		on:click={() => selectedType = "byFacility"}
-	  >
-		Facility
-	  </button>
-  
-	  <button 
-		type="button"
-		class={`px-4 py-2 text-sm font-medium ${selectedType === 'byService' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} border border-gray-200 rounded-e-lg`}
-		on:click={() => selectedType = "byService"}
-	  >
-		Service
-	  </button>
 	</div>
   
 	<!-- Search Input -->
