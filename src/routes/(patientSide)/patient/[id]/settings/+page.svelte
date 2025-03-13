@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PatientHeader from '$lib/PatientHeader.svelte'
+  import PatientHeader from '../../../PatientHeader.svelte'
 </script>
 
 <PatientHeader />

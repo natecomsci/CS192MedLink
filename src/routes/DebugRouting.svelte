@@ -18,13 +18,16 @@
                 <a class="block p-4" href="/facility/">F-Land</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/1/dashboard">F-Dash</a>
+                <a class="block p-4" href="/facility/dashboard">F-Dash</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/1/dashboard/manageServices/addService">F-Add</a>
+                <a class="block p-4" href="/facility/dashboard/manageServices/addService">F-Add</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/1/dashboard/updateFacilityInfo">F-Edit</a>
+                <a class="block p-4" href="/facility/dashboard/updateFacilityInfo">F-Edit</a>
+            </li>
+            <li>
+                <a class="block p-4" href="/facility/dashboard/managerSettingsUpdate">F-MngUpdate</a>
             </li>
         </ul>
     </nav>
