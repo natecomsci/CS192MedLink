@@ -39,7 +39,7 @@
     selectedServiceID = serviceID;
     selectedServiceType = type;
 
-    if (numOfServices > 0) {  // ✅ Use curly braces `{}` for block statements
+    if (numOfServices > 1) { 
         showModal = true;
         showModal2 = false;
         
