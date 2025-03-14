@@ -3,8 +3,6 @@
 
   let { data, form } = $props();
   let activeTab = $state("service"); // Default view
-  let query = $state(""); // Store search input
-  let facilities = data.facilities || [];
 
 </script>
 
@@ -12,16 +10,19 @@
   <!-- Search Bar -->
   <form 
     use:enhance 
+    action="?/search"
     class="flex items-center space-x-2"
   >
     <input
       type="text"
       name="query"
-      value={query}
+      value={data.query}
       placeholder={activeTab === "facility" ? "Search facilities..." : "Search services..."}
       class="flex-1 p-2 rounded-lg border border-gray-300"
     />
-    <input type="hidden" name="type" value={activeTab === "facility" ? "byFacility" : "byService"} />
+    {#if form?.error}
+      <p class="text-red-600 mt-2">{form.error}</p>
+    {/if}
     <button type="submit" class="p-2 rounded-full bg-gray-200">Search</button>
 
   <!-- Tabs -->
@@ -46,14 +47,12 @@
   </form>
 
   {#if activeTab === "facility"}
-    {#if data.byFacilities.length > 0}
-      {#each data.byFacilities as facility}
+    {#if (data.byFacilities ?? []).length > 0}
+      {#each (data.byFacilities ?? []) as facility}
         <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
           <div>
             <span class="font-semibold">{facility.name}</span>
-            {#if activeTab === "service" && facility.service}
-              <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p>
-            {/if}
+              <!-- <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p> -->
           </div>
           <button class="text-xl font-bold">+</button>
         </div>
@@ -63,14 +62,12 @@
     {/if}
 
   {:else if activeTab === "service"}
-    {#if form ? data.byService.length > 0 : form?.byService.length}
-      {#each data.byService as facility}
+    {#if (data.byService ?? []).length > 0}
+      {#each (data.byService ?? []) as facility}
         <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
           <div>
             <span class="font-semibold">{facility.name}</span>
-            {#if activeTab === "service" && facility.service}
-              <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p>
-            {/if}
+              <!-- <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p> -->
           </div>
           <button class="text-xl font-bold">+</button>
         </div>
@@ -79,22 +76,4 @@
       <p>No facilities found.</p>
     {/if}
   {/if}
-
-  <!-- <div class="mt-4 space-y-3">
-    {#if facilities.length > 0}
-      {#each facilities as facility}
-        <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <span class="font-semibold">{facility.name}</span>
-            {#if activeTab === "service" && facility.service}
-              <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p>
-            {/if}
-          </div>
-          <button class="text-xl font-bold">+</button>
-        </div>
-      {/each}
-    {:else}
-      <p>No facilities found.</p>
-    {/if}
-  </div> -->
 </div>

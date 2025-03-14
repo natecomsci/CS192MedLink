@@ -4,7 +4,7 @@
             <li>
                 <a class="block p-4" href="/" data-sveltekit-reload>P-Guest</a>
             </li>
-            <li>
+            <!-- <li>
                 <a class="block p-4" href="/patient/1" data-sveltekit-reload>P-Reg</a>
             </li>
             <li>
@@ -12,7 +12,7 @@
             </li>
             <li>
                 <a class="block p-4" href="/patient/1/bookmarks" data-sveltekit-reload>P-Book</a>
-            </li>
+            </li> -->
 
             <li>
                 <a class="block p-4" href="/facility/" data-sveltekit-reload>F-Land</a>

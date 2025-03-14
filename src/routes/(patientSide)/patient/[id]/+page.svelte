@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import PatientSearch from '../../PatientSearch.svelte'
   import PatientHeader from '../../PatientHeader.svelte'
 
@@ -9,4 +9,4 @@
 
 <PatientHeader guest={false} id={Number(data.id)} />
 
-<PatientSearch guest={false} />
+<PatientSearch guest={false} /> -->

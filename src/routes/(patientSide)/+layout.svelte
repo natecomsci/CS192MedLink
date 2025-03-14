@@ -1,6 +1,6 @@
 <script>
   let { children } = $props();
-  import "../../app.css";
+  import "../app.css";
 </script>
 
 <main class="space-y-8 bg-teal-100">

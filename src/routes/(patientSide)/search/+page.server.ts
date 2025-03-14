@@ -33,9 +33,21 @@ export const load: PageServerLoad = async ({ url }) => {
 };
 
 export const actions = {
-    default: async ({ request }) => {
+    search: async ({ request }) => {
         const formData = await request.formData();
-        const query = (formData.get("query") as string)?.trim() || "";  
+        let query = formData.get("query") as string;
+
+        if (query === "") {
+            return fail(400, 
+            { 
+              error: 'Please enter a search query.',
+              description: 'search',
+              success: false
+            }
+          );
+        }
+
+        query = query.trim()
 
         let byFacilities: FacilityDTO[];
         let byService: FacilityDTO[];
