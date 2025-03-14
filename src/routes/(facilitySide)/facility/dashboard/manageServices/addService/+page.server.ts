@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 import type { CreateAmbulanceServiceDTO, 
@@ -22,20 +22,16 @@ import { BloodBankServiceDAO } from "$lib/server/BloodBankDAO";
 import { ERServiceDAO } from "$lib/server/ERDAO";
 import { ICUServiceDAO } from "$lib/server/ICUDAO";
 import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
-import { serviceNameToNameMapping } from '$lib/Mappings';
 
 import { OPServiceTypes, specializedServiceType, type OPServiceType } from '$lib/projectArrays';
 import { ServicesDAO } from '$lib/server/ServicesDAO';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const serviceDAO = new ServicesDAO();
-  const facilityID = cookies.get('facilityID'); 
+  const facilityID = cookies.get('facilityID');
 
   if (!facilityID) {
-    return fail(422, {
-      error: "Account not signed in.",
-      description: "signIn"
-    });
+    throw redirect(303, '/facility');
   }
 
   const services: ServiceDTO[] = await serviceDAO.getByFacility(facilityID);
@@ -83,11 +79,7 @@ export const actions = {
     const facilityID = cookies.get('facilityID');
 
     if (!facilityID) {
-      return fail(422, { 
-        error: "Facility not signed in.",
-        description: "facility",
-        success: false  
-      });
+      throw redirect(303, '/facility');
     }
     
     switch (serviceType){
@@ -102,54 +94,21 @@ export const actions = {
 
         try {
           phoneNumber = validatePhone(phone);
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "phoneNumber",
-            success: false
-          });
-        }
+          baseRate = validateFloat(rates, "Base Rate");
+          mileageRate = validateFloat(mileRate, "Mileage Rate");
 
-        try {
           let OCTime = validateOperatingHours(open, close)
           openingTime = OCTime.openingTime
           closingTime = OCTime.closingTime
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "openClose",
-            success: false
-          });
-        }
 
-        try {
           let radius = validateCoverageRadius(minCover, maxCover)
           minCoverageRadius = radius.minCoverageRadius
           maxCoverageRadius = radius.maxCoverageRadius
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "coverage",
-            success: false
-          });
-        }
 
-        try {
-          baseRate = validateFloat(rates, "Base Rate");
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
-            description: "price",
-            success: false
-          });
-        }
-
-        try {
-          mileageRate = validateFloat(mileRate, "Mileage Rate");
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "mileRate",
+            description: "validation",
             success: false
           });
         }
@@ -180,44 +139,19 @@ export const actions = {
 
         try {
           phoneNumber = validatePhone(phone);
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "phoneNumber",
-            success: false
-          });
-        }
+          pricePerUnit = validateFloat(rates, "Price Per Unit");
 
-        try {
           let OCTime = validateOperatingHours(open, close)
           openingTime = OCTime.openingTime
           closingTime = OCTime.closingTime
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "openClose",
-            success: false
-          });
-        }
 
-        try {
-          pricePerUnit = validateFloat(rates, "Price Per Unit");
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "price",
-            success: false
-          });
-        }
-
-        try {
           let TTime = validateCompletionTime(turnTD, turnTH, "Turnarond")
           turnaroundTimeD = TTime.days
           turnaroundTimeH = TTime.hours
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
-            description: "turnaround",
+            description: "validation",
             success: false
           });
         }
@@ -245,7 +179,7 @@ export const actions = {
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
-            description: "phoneNumber",
+            description: "validation",
             success: false
           });
         }
@@ -266,20 +200,11 @@ export const actions = {
 
         try {
           phoneNumber = validatePhone(phone);
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "phoneNumber",
-            success: false
-          });
-        }
-
-        try {
           baseRate = validateFloat(rates, "Base Rate");
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
-            description: "price",
+            description: "validation",
             success: false
           });
         }
@@ -305,22 +230,14 @@ export const actions = {
 
         try {
           price = validateFloat(rates, "Price");
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "price",
-            success: false
-          });
-        }
-
-        try {
+        
           let CTime = validateCompletionTime(compTD, compTH, "Completion")
           completionTimeD = CTime.days
           completionTimeH = CTime.hours
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
-            description: "completion",
+            description: "validation",
             success: false
           });
         }
@@ -348,7 +265,8 @@ export const actions = {
       }
     }
 
-    return { success: true };
+    throw redirect(303, '/facility/dashboard/manageServices');
+
   }
 } satisfies Actions;
 
@@ -357,25 +275,19 @@ function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[
   
   for (let serviceType of specializedServiceType) { 
     if (!serviceTypes.includes(serviceType)) {
-      // availableServices.push(serviceNameToNameMapping[serviceType])
       availableServices.push(serviceType);
     }
   }
-  console.log('main', availableServices)
   return availableServices
 }
-
 
 function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
   let availableOPServices: String[] = ["None"]
   
   for (let serviceType of OPServiceTypes) { 
     if (!serviceTypes.includes(serviceType)) {
-      // availableOPServices.push(serviceNameToNameMapping[serviceType])
       availableOPServices.push(serviceType)
     }
   }
-  console.log('op', availableOPServices)
-
   return availableOPServices;
 }

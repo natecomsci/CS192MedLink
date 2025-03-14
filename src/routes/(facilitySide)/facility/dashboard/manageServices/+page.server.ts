@@ -8,6 +8,7 @@ import { ERServiceDAO } from "$lib/server/ERDAO";
 import { ICUServiceDAO } from "$lib/server/ICUDAO";
 import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
 import { FacilityDAO } from "$lib/server/FacilityDAO"; // Assuming this exists to get facility info
+import { ServicesDAO } from '$lib/server/ServicesDAO';
 
 const ambulanceDAO = new AmbulanceServiceDAO();
 const bloodBankDAO = new BloodBankServiceDAO();
@@ -17,16 +18,26 @@ const OutpatientDAO = new OutpatientServiceDAO();
 const facilityDAO = new FacilityDAO(); // DAO for retrieving facility data
 
 export const load: PageServerLoad = async ({ cookies }) => {
-  let services = cookies.get("services");
+  const servicesDAO = new ServicesDAO();
+  const facilityID = cookies.get('facilityID');
 
-  if (!services) {
-    return fail(422, {
-      error: "Account has no services",
-      description: "service"
-    });
+  if (!facilityID) {
+    throw redirect(303, '/facility');
   }
 
-  const servicesObj: ServiceDTO[] = JSON.parse(services);
+  let services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
+
+  services.sort((a, b) => {
+    if (a.updatedAt < b.updatedAt) {
+      return -1;
+    }
+    if (a.updatedAt > b.updatedAt) {
+      return 1;
+    }
+    return 0;
+  });
+
+  const servicesObj: ServiceDTO[] = services;
   
   return {
     servicesObj
@@ -40,6 +51,11 @@ export const actions: Actions = {
     const serviceType = formData.get("serviceType") as string;
     const password = formData.get("password") as string; // Get password from form
 
+    const facilityID = cookies.get('facilityID');
+    if (!facilityID) {
+      throw redirect(303, '/facility');
+    }
+    
     if (!serviceID || !serviceType || !password) {
       return fail(422, { 
         error: "Service ID, type, and password are required",
@@ -48,14 +64,6 @@ export const actions: Actions = {
       });
     }
 
-    const facilityID = cookies.get('facilityID');
-    if (!facilityID) {
-      return fail(422, { 
-        error: "Facility not signed in.",
-        description: "facility",
-        success: false  
-      });
-    }
 
     try {
       // Fetch facility data from DB
@@ -72,7 +80,6 @@ export const actions: Actions = {
       // Verify password
       const passwordMatch = await bcrypt.compare(password, facility.password);
       if (!passwordMatch) {
-        console.error(`Incorrect password attempt for Facility ID: ${facilityID}`);
         return fail(400, { 
           error: 'Incorrect ID-password pair',
           description: 'pass',
@@ -100,7 +107,6 @@ export const actions: Actions = {
       }
 
     } catch (error) {
-      console.error("Deletion failed:", error);
       return fail(500, { 
         error: "Failed to delete service",
         description: "database",
@@ -108,6 +114,8 @@ export const actions: Actions = {
       });
     }
 
-    throw redirect(303, '/facility/dashboard/manageServices');
+    return {
+      success: true
+    }
   }
 };

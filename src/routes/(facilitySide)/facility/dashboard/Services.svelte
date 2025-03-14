@@ -13,6 +13,7 @@
     <a 
       href="./dashboard/manageServices" 
       class="text-purple-500 text-sm hover:text-purple-400 transition-colors duration-200"
+      data-sveltekit-reload
     >✏️ Manage Services</a>
   </div>
 

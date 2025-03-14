@@ -22,12 +22,12 @@
   <div class="flex gap-3">
       <h2 class="font-bold text-[27px] text-[#3D1853]">{hospitalName}</h2>
       <div class="sm:flex items-center gap-4 hidden">
-          <a href="./dashboard/updateFacilityInfo"class="duration-200 hover:text-violet-400">
+          <a href="./dashboard/updateFacilityInfo" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
               <p>GenInfo</p>
           </a>
       </div>
       <div class="sm:flex items-center gap-4 hidden">
-          <a href="/none"class="duration-200 hover:text-violet-400">
+          <a href="/dashboard/managerSettingsUpdate" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
               <p>Settings</p>
           </a>
       </div>

@@ -69,7 +69,7 @@
 <header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
-    <a href="../dashboard">
+    <a href="/facility/dashboard" data-sveltekit-reload>
       <img
         src="/back_icon.svg"
         alt="Back"
@@ -117,12 +117,12 @@
           <div class="flex items-center space-x-3 pr-4">
 
             <!-- edit button -->
-            <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center">
+            <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </a>
 
             <!-- Delete Button (Opens Modal) -->
-            <button class="inline-flex items-center" onclick={() => openDeleteModal(serviceID, type)}>
+            <button class="inline-flex items-center" onclick={() => openDeleteModal(serviceID, type)} data-sveltekit-reload>
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
@@ -141,7 +141,7 @@
 
   <button class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg">
     <span class="text-xl">+</span>
-    <a href="./manageServices/addService">Add service</a>
+    <a href="./manageServices/addService" data-sveltekit-reload>Add service</a>
   </button>
 </div>
 

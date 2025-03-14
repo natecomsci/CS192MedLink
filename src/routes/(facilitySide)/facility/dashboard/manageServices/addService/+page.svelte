@@ -26,7 +26,7 @@
     <div class="w-1/3 bg-white p-6 flex flex-col shadow-md border border-purple-700">
         <div class= "flex items-center gap-5">
             <!-- <button class="text-2xl mb-4"><a href="../manageServices">⬅️</a></button> -->
-            <a href="../manageServices">
+            <a href="../manageServices" data-sveltekit-reload>
               <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
             </a>
             <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Add a Service</h1>
@@ -50,7 +50,7 @@
           </select>
         </label> -->
 
-        <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
+        <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" data-sveltekit-reload>
             Add Service
         </button>
     </div>
@@ -64,15 +64,18 @@
         <label
         class="grid grid-cols-1"
       >
+        {#if form?.error}
+            <p class="error">{form.error}</p>
+        {/if}
         {#if serviceType == "Ambulance"}
-          <AmbulanceService {data} {form}/>
+          <AmbulanceService />
         {:else if serviceType == "Blood Bank"}
           <!-- <AmbulanceService/> -->
-          <BloodBankService {data} {form}/>
+          <BloodBankService/>
         {:else if serviceType == "Emergency Room"}
-          <ERService {data} {form}/>
+          <ERService />
         {:else if serviceType == "Intensive Care Unit"}
-          <ICUService {data} {form}/>
+          <ICUService />
         {:else if serviceType == "Outpatient"}
           <OutpatientService {data} {form}/>
         {/if}

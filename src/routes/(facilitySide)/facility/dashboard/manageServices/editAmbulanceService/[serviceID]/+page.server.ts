@@ -21,11 +21,9 @@ let def_availability: Availability
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
+
   if (!facilityID) {
-    return fail(422, {
-      error: "Account not signed in.",
-      description: "signIn"
-    });
+    throw redirect(303, '/facility');
   }
 
   const serviceID = params.serviceID;
@@ -88,54 +86,21 @@ export const actions = {
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "phoneNumber",
-        success: false
-      });
-    }
+      baseRate = validateFloat(data.get('price'), "Base Rate");
 
-    try {
       let OCTime = validateOperatingHours(data.get('opening'), data.get('closing'))
       openingTime = OCTime.openingTime
       closingTime = OCTime.closingTime
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "openClose",
-        success: false
-      });
-    }
-
-    try {
-      baseRate = validateFloat(data.get('price'), "Base Rate");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "price",
-        success: false
-      });
-    }
-
-    try {
+    
       let radius = validateCoverageRadius(data.get('minCoverageRadius'), data.get('maxCoverageRadius'))
       minCoverageRadius = radius.minCoverageRadius
       maxCoverageRadius = radius.maxCoverageRadius
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "coverage",
-        success: false
-      });
-    }
 
-    try {
       mileageRate = validateFloat(data.get('mileageRate'), "Mileage Rate");
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "mileRate",
+        description: "validation",
         success: false
       });
     }
@@ -170,6 +135,5 @@ export const actions = {
     ambulanceDAO.update(serviceID, service)
 
     throw redirect(303, '/facility/dashboard/manageServices');
-        
   }
 } satisfies Actions;

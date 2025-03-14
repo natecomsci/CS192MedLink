@@ -9,7 +9,7 @@ import type { AddressDTO,
               GeneralInformationFacilityDTO 
             } from '$lib/server/DTOs';
 import { v4 as uuidv4 } from 'uuid';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 
 import { AddressDAO } from '$lib/server/AddressDAO';
 import { FacilityDAO } from '$lib/server/FacilityDAO';
@@ -49,10 +49,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   let facilityID = cookies.get('facilityID');
   
   if (!facilityID) {
-    return fail(422, {
-      error: "Facility is not signed in.",
-      description: "not signed in"
-    });
+    throw redirect(303, '/facility');
   }
 
   const addressDAO = new AddressDAO();
@@ -149,7 +146,8 @@ export const actions = {
       name = validateFacilityName(data.get('facilityName'));
       phoneNumber = validatePhone(data.get('phoneNumber'));
       email = await validateEmail(data.get('email'));
-      bookingSystem = await validateLink(data.get('bookingSystem'));
+      bookingSystem = String(data.get('bookingSystem')) === "" ? '' : await validateLink(data.get('bookingSystem'))
+
     } catch (error) {
       return fail(422, { 
         error: (error as Error).message,
@@ -211,7 +209,8 @@ export const actions = {
 
     const facilityDAO = new FacilityDAO();
 
-    if (def_name == name &&
+    if (def_photo == photo && 
+        def_name == name &&
         def_phoneNumber == phoneNumber &&
         def_email == email &&
         def_bookingSystem == bookingSystem &&

@@ -130,7 +130,6 @@
             type="text" 
             class="border p-2 rounded w-full" 
             placeholder="Name"
-            required 
             bind:value={data.facilityName}/> 
         </label>
           
@@ -142,7 +141,6 @@
                     name="region" 
                     bind:value={regionID} 
                     onchange={() => get_("province")}
-                    required 
                     class="border p-2 rounded w-full"
                 >
                 {#each data.regions ?? [] as r}
@@ -156,7 +154,6 @@
                 <select 
                     name="province" 
                     bind:value={provinceID} 
-                    required 
                     onchange={() => get_("city")}
                     class="border p-2 rounded w-full"
                 >
@@ -171,7 +168,6 @@
               <select 
                   name="city" 
                   bind:value={cityID} 
-                  required 
                   onchange={() => get_("brgy")}
                   disabled={!enableCities}
                   class="border p-2 rounded w-full"
@@ -187,7 +183,6 @@
             <select 
                 name="brgy" 
                 bind:value={barangayID} 
-                required 
                 onchange={() => enableStreet ? "" : enableStreet = !enableStreet}
                 disabled={!enableBarangays}
                 class="border p-2 rounded w-full"
@@ -208,10 +203,7 @@
             class="border p-2 rounded w-full" 
             disabled={!enableStreet}
             placeholder="Name"
-            required /> 
-            {#if form?.description === "street"}
-                <p class="error">{form.error}</p>
-            {/if}
+            />
         </label>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full items-center">
@@ -221,7 +213,6 @@
                     name="email" 
                     type="text"
                     placeholder="Email"
-                    required 
                     class="border p-2 rounded w-full"
                     bind:value={data.email}/>
             </label>
@@ -232,7 +223,6 @@
                     name="phoneNumber" 
                     type="tel"
                     placeholder="Contact No."
-                    required 
                     class="border p-2 rounded w-full"
                     bind:value={data.contactNumber}
                 />
@@ -243,7 +233,6 @@
                 <select 
                     name="type" 
                     bind:value={selectedType} 
-                    required 
                     class="border p-2 rounded w-full"
                 >
                     {#each facilityType as t}
@@ -308,17 +297,6 @@
 
             <label>
                 Accepted Insurance Providers
-                <!-- {#each providers as t}
-                    <label>
-                      {t}
-                      <input 
-                        name={t}
-                        type="checkbox"
-                        checked={isAccepted(t)}
-                      >
-                    </label>
-                {/each} -->
-
 
                 <div class="relative w-full">
                     <!-- Dropdown Button -->
@@ -367,15 +345,11 @@
         <div class="justify-between flex  py-10 space-x-3">
             <a 
             href="../dashboard"
-            class="flex justify-center items-center font-['Inter'] w-[200px] bg-[#9044C4] text-white py-2 rounded-2xl text-[15px] font-bold transition 
-                  hover:bg-purple-700 active:scale-95 active:bg-purple-800"
+            class="flex justify-center items-center font-['Inter'] w-[200px] bg-[#9044C4] text-white py-2 rounded-2xl text-[15px] font-bold transition hover:bg-purple-700 active:scale-95 active:bg-purple-800"
+            data-sveltekit-reload
         >
             Cancel    
         </a>
-
-        {#if form?.description === "button"}
-            <p class="error">{form.error}</p>
-        {/if}
         
         <button 
             class="flex justify-center items-center font-['Inter'] w-[200px] bg-[#9044C4] text-white py-2 rounded-2xl text-[15px] font-bold transition 

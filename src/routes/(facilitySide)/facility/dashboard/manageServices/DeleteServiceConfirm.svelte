@@ -10,8 +10,12 @@
       <h2 class="text-lg font-bold">Confirm Deletion</h2>
       <p>Are you sure you want to delete this service?</p>
 
+
       <!-- Hidden Form for Deletion -->
       <form id="deleteForm" method="POST" action="?/deleteService">
+            {#if form?.error}
+              <p class="text-red-500 text-sm font-semibold">{form.error}</p>
+            {/if}
           <input type="hidden" name="serviceID" value="{serviceID}" />
           <input type="hidden" name="serviceType" value="{serviceType}" />
 
@@ -25,13 +29,6 @@
                   class="mt-1 block w-full p-2 border rounded border-gray-300 focus:outline-none focus:ring focus:border-blue-500" 
                   required 
               />
-              <!-- Render error if password is incorrect -->
-              {#if form?.error}
-                  <p class="text-red-500 text-sm font-semibold">{form.error}</p>
-              {/if}
-              {#if form?.description === "pass"}
-              <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
-            {/if}
           </div>
       </form>
 

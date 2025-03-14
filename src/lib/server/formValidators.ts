@@ -235,7 +235,7 @@ export function validateStreet(street: FormDataEntryValue | null): string {
 // Does not work for websites that block API requests like Twitter.
 
 export async function validateLink(link: FormDataEntryValue | null): Promise<string> {
-  if (!link) {
+  if (link == null) {
     throw new Error("No booking system link provided.");
   }
 

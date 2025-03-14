@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { PageProps } from './$types';
-    let { data, form }: PageProps = $props();
+    let { data }: PageProps = $props();
     const OPServices: String[] = data.availableOPServices ?? [];
 </script>
 
@@ -11,7 +11,7 @@
             <select 
                 name="OPserviceType" 
                 class="border p-2 rounded w-full"
-                required 
+                 
               >
                 {#each OPServices as t}
                   <option value={t}>{t}</option>
@@ -31,7 +31,7 @@
                     name="completionDays"
                     class="border p-2 rounded  w-30" 
                     placeholder="Days" 
-                    required />
+                     />
                 Days
             
                 <input 
@@ -39,13 +39,10 @@
                 name="completionHours"
                 class="border p-2 rounded  w-30" 
                 placeholder="Hours" 
-                required
+                
                 />
                 Hours
             </div>
-            {#if form?.description === "completion"}
-                <p class="error">{form.error}</p>
-            {/if}
         </label>
     </div>
 
@@ -72,11 +69,8 @@
                 placeholder="Price"
                 step=0.01
                 min=0
-                required 
+                 
             />
-            {#if form?.description === "price"}
-                <p class="error">{form.error}</p>
-            {/if}
         </label>
     </div>
 

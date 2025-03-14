@@ -15,7 +15,7 @@ use:enhance
 <div class="w-1/3 bg-white p-6 flex flex-col shadow-md border border-purple-700">
     <!-- Back Button & Edit Ambulance Service-->
     <div class= "flex items-center gap-5">
-        <a href="/facility/dashboard/manageServices">
+        <a href="/facility/dashboard/manageServices" data-sveltekit-reload>
           <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
         </a>
 
@@ -34,6 +34,9 @@ use:enhance
 <div class="flex-1 p-6 overflow-y-auto border border-green-100">
     <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Attributes</h2>
     <label class="grid grid-cols-1" >
+      {#if form?.error}
+          <p class="error">{form.error}</p>
+      {/if}
 
 
       <div class="flex-1 p-6 overflow-y-auto border border-green-100">
@@ -49,7 +52,7 @@ use:enhance
                           class="border p-2 rounded  w-30" 
                           placeholder="Days" 
                           value={data.completionTimeD}
-                          required />
+                           />
                       Days
                   
                       <input 
@@ -58,13 +61,10 @@ use:enhance
                           class="border p-2 rounded  w-30" 
                           placeholder="Hours" 
                           value={data.completionTimeH}
-                          required
+                          
                       />
                       Hours
                   </div>
-                  {#if form?.description === "completion"}
-                      <p class="error">{form.error}</p>
-                  {/if}
               </label>
           </div>
   
@@ -80,11 +80,9 @@ use:enhance
                       step=0.01
                       min=0
                       value={data.price}
-                      required 
+                       
                   />
-                  {#if form?.description === "price"}
-                      <p class="error">{form.error}</p>
-                  {/if}
+                  
               </label>
           </div>
   
@@ -106,14 +104,8 @@ use:enhance
               >
             </label>
           </div>
-          {#if form?.description === "button"}
-              <p class="error">{form.error}</p>
-          {/if}
-      </div>  
-
-
-  </label>
-</div>
-</div>
-
+        </div>  
+      </label>
+    </div>
+  </div>
 </form>

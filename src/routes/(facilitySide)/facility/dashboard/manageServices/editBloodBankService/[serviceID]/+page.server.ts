@@ -27,11 +27,9 @@ let def_AB_N : boolean
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
+
   if (!facilityID) {
-    return fail(422, {
-      error: "Account not signed in.",
-      description: "signIn"
-    });
+    throw redirect(303, '/facility');
   }
 
   const serviceID = params.serviceID;
@@ -98,44 +96,19 @@ export const actions = {
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "phoneNumber",
-        success: false
-      });
-    }
+      pricePerUnit = validateFloat(data.get('price'), "Price Per Unit");
 
-    try {
       let OCTime = validateOperatingHours(data.get('opening'), data.get('closing'))
       openingTime = OCTime.openingTime
       closingTime = OCTime.closingTime
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "openClose",
-        success: false
-      });
-    }
 
-    try {
-      pricePerUnit = validateFloat(data.get('price'), "Price Per Unit");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "price",
-        success: false
-      });
-    }
-
-    try {
       let TTime = validateCompletionTime(data.get('turnaroundDays'), data.get('turnaroundHours'), "Turnarond")
       turnaroundTimeD = TTime.days
       turnaroundTimeH = TTime.hours
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "turnaround",
+        description: "validation",
         success: false
       });
     }

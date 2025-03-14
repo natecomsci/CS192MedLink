@@ -1,8 +1,3 @@
-<script lang="ts">
-    import type { PageProps } from './$types';
-    let { data, form }: PageProps = $props();
-</script>
-
 <div class="flex-1 p-6 overflow-y-auto border border-green-100">
     <!-- Phone Number -->
     <div class="mt-4 bg-white p-4 rounded-lg shadow">
@@ -12,11 +7,8 @@
                 name="phoneNumber"
                 type="tel"
                 value="+63 9"
-                required 
+                 
             />
-            {#if form?.description === "phoneNumber"}
-                <p class="error">{form.error}</p>
-            {/if}
         </label>
     </div>
 </div>

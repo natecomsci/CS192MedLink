@@ -4,6 +4,7 @@
       <a 
         href="./dashboard/manageAdmins" 
         class="text-purple-500 text-sm hover:text-purple-400 transition-colors duration-200"
+        data-sveltekit-reload
       >✏️ Manage Admins</a>
   </div>
   

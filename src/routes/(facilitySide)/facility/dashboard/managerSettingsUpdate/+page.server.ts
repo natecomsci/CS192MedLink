@@ -6,6 +6,8 @@ export const actions = {
         // Delete cookies for facility ID and services
         cookies.delete('facilityID', { path: '/' });
         cookies.delete('services', { path: '/' });
+        cookies.delete('hasAdmins', { path: '/' });
+        cookies.delete('hasDivisions', { path: '/' });
 
         // Redirect to home or login page
         throw redirect(303, '/facility');

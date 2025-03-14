@@ -16,11 +16,9 @@ let def_acceptsWalkIns: boolean
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
+
   if (!facilityID) {
-    return fail(422, {
-      error: "Account not signed in.",
-      description: "signIn"
-    });
+    throw redirect(303, '/facility');
   }
 
   const serviceID = params.serviceID;
@@ -74,22 +72,12 @@ export const actions = {
 
     try {
       price = validateFloat(data.get('price'), "Base Rate");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "price",
-        success: false
-      });
-    }
-
-    try {
       let TTime = validateCompletionTime(data.get('completionDays'), data.get('completionHours'), "Completion")
       completionTimeD = TTime.days
       completionTimeH = TTime.hours
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "turnaround",
         success: false
       });
     }
@@ -100,7 +88,6 @@ export const actions = {
       completionTimeH       ,
       isAvailable           ,
       acceptsWalkIns        ,
-
     }
 
     if (def_price == price &&

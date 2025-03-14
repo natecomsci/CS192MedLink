@@ -20,11 +20,9 @@ let def_respiratorySupport: boolean
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
+
   if (!facilityID) {
-    return fail(422, {
-      error: "Account not signed in.",
-      description: "signIn"
-    });
+    throw redirect(303, '/facility');
   }
 
   const serviceID = params.serviceID;
@@ -106,7 +104,7 @@ export const actions = {
     }
 
     try {
-      availableBeds = validateInteger(data.get('availableBeds'), "Base Rate");
+      availableBeds = validateInteger(data.get('availableBeds'), "Available Beds");
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,

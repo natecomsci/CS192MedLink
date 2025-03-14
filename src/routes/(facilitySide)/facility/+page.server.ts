@@ -5,6 +5,12 @@ import { FacilityDAO } from '$lib/server/FacilityDAO';
 
 export const actions = {
   signIn: async ({ request, cookies }) => {
+    const facilityID = cookies.get('facilityID');
+
+    if (facilityID) {
+      throw redirect(303, '/facility/dashboard');
+    }
+
     const data = await request.formData();
     const fid = data.get('fid') as string;
     const password = data.get('password') as string;

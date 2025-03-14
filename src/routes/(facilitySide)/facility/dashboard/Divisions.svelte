@@ -4,6 +4,7 @@
     <a 
       href="./dashboard/manageDivisions" 
       class="text-purple-500 text-sm hover:text-purple-400 transition-colors duration-200"
+      data-sveltekit-reload
     >✏️ Manage Divisions</a>
   </div>
 

@@ -21,11 +21,9 @@ let def_criticalQueueLength  : Number
 
 export const load: PageServerLoad = async ({ cookies, params }) => {
   const facilityID = cookies.get('facilityID');
+
   if (!facilityID) {
-    return fail(422, {
-      error: "Account not signed in.",
-      description: "signIn"
-    });
+    throw redirect(303, '/facility');
   }
 
   const serviceID = params.serviceID;
@@ -89,82 +87,20 @@ export const actions = {
     let criticalPatients: number
     let criticalQueueLength: number
 
+
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
+      availableBeds = validateInteger(data.get('availableBeds'), "Available Beds");
+      nonUrgentPatients = validateInteger(data.get('nonUrgentPatients'), "Non Urgent Patients");
+      nonUrgentQueueLength = validateInteger(data.get('nonUrgentQueueLength'), "Non Urgent Queue Length");
+      urgentPatients = validateInteger(data.get('urgentPatients'), "Urgent Patients");
+      urgentQueueLength = validateInteger(data.get('urgentQueueLength'), "Urgent Queue Length");
+      criticalPatients = validateInteger(data.get('criticalPatients'), "Critical Patients");
+      criticalQueueLength = validateInteger(data.get('criticalQueueLength'), "Critical Queue Length");
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "phoneNumber",
-        success: false
-      });
-    }
-
-    try {
-      availableBeds = validateInteger(data.get('availableBeds'), "Price Per Unit");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "availableBeds",
-        success: false
-      });
-    }
-
-try {
-      nonUrgentPatients = validateInteger(data.get('nonUrgentPatients'), "Price Per Unit");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "nonUrgentPatients",
-        success: false
-      });
-    }
-
-try {
-      nonUrgentQueueLength = validateInteger(data.get('nonUrgentQueueLength'), "Price Per Unit");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "nonUrgentQueueLength",
-        success: false
-      });
-    }
-
-try {
-      urgentPatients = validateInteger(data.get('urgentPatients'), "Price Per Unit");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "urgentPatients",
-        success: false
-      });
-    }
-
-try {
-      urgentQueueLength = validateInteger(data.get('urgentQueueLength'), "Price Per Unit");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "urgentQueueLength",
-        success: false
-      });
-    }
-
-try {
-      criticalPatients = validateInteger(data.get('criticalPatients'), "Price Per Unit");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "criticalPatients",
-        success: false
-      });
-    }
-
-try {
-      criticalQueueLength = validateInteger(data.get('criticalQueueLength'), "Price Per Unit");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "criticalQueueLength",
+        description: "validation",
         success: false
       });
     }

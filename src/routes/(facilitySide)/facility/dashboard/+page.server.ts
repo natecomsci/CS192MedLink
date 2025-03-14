@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 import { ServicesDAO } from '$lib/server/ServicesDAO';
@@ -9,10 +9,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
 
   if (!facilityID) {
-    return fail(422, {
-      error: "Account not signed in.",
-      description: "signIn"
-    });
+    throw redirect(303, '/facility');
   }
 
   let services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
