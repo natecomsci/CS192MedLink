@@ -139,10 +139,10 @@ export const actions = {
     }
 
     // General Information
-    let photo = def_photo;
-    let name, phoneNumber, email, bookingSystem;
-    const facilityType = data.get('type') as FacilityType;
-    const ownership = data.get('ownership') as Ownership;
+    let photo: string = def_photo;
+    let name: string, phoneNumber: string, email: string, bookingSystem: string;
+    const facilityType: FacilityType = data.get('type') as FacilityType;
+    const ownership: Ownership = data.get('ownership') as Ownership;
     const acceptedProviders: Provider[] = [];
 
     try {
@@ -172,7 +172,7 @@ export const actions = {
 
         // Upload image to Supabase
         const filePath = `facilities/${facilityID}/${uuidv4()}`;
-        const { data: uploadData, error: uploadError } = await supabase
+        const { error: uploadError } = await supabase
           .storage
           .from('pictures')
           .upload(filePath, photoFile, { upsert: true });
@@ -211,9 +211,7 @@ export const actions = {
 
     const facilityDAO = new FacilityDAO();
 
-    // Check if any changes were made
-    if (def_photo == photo &&
-        def_name == name &&
+    if (def_name == name &&
         def_phoneNumber == phoneNumber &&
         def_email == email &&
         def_bookingSystem == bookingSystem &&
@@ -232,7 +230,6 @@ export const actions = {
       });
     }
 
-    // Update facility information
     await facilityDAO.updateGeneralInformation(facilityID, genInfo);
 
     return { success: true };

@@ -189,3 +189,9 @@ export interface InitialAdminDetailsDTO {
   lname    : string,
   password : string,
 }
+
+export interface PaginatedServiceDTO {
+  services: ServiceDTO[],
+  totalPages: number,
+  currentPage: number,
+}

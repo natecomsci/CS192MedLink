@@ -29,7 +29,6 @@ export const actions = {
       );
     }
 
-    // Fetch facility by facilityID
     const facilityDAO = new FacilityDAO()
     const facility = await facilityDAO.getByID(fid);
     const hasAdmins = await facilityDAO.facilityHasAdmins(fid)
@@ -46,7 +45,6 @@ export const actions = {
       );
     }
 
-    // Compare entered password with hashed password
     const passwordMatch = await bcrypt.compare(password, facility.password);
     if (!passwordMatch) {
       return fail(400, 
@@ -58,12 +56,10 @@ export const actions = {
       );
     }
 
-    // Set cookie on successful login
     cookies.set('facilityID', fid, {path: '/'});
     cookies.set('hasAdmins', String(hasAdmins), {path: '/'});
     cookies.set('hasDivisions', String(hasDivisions), {path: '/'});
 
-    // Redirect to dashboard on success
     throw redirect(303, '/facility/dashboard');
   }
 } satisfies Actions;

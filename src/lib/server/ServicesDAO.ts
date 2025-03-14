@@ -1,9 +1,8 @@
 import { prisma } from "./prisma";
 
-import type { ServiceDTO } from "./DTOs";
+import type { PaginatedServiceDTO, ServiceDTO } from "./DTOs";
 import type { FacilityDTO } from "./DTOs";
 import type { Service } from '@prisma/client';
-// Because of the heterogenous nature of the services, pagination must be done in the business logic instead of natively on Prisma.
 
 export class ServicesDAO {
   async getByID(serviceID: string): Promise<Service | null> {

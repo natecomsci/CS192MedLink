@@ -89,29 +89,6 @@
         return data.providers?.includes(p) ?? false
     }
 
-    // -------------- DAG DAG NI ELLE -------
-    let imageUrl: string = $state('$lib/images/catle.jpg'); // Default image
-    // let fileInput: HTMLInputElement | null = null;
-    let isPublic = $state(true);
-
-    // function handleFileUpload(event: Event) {
-    //     const input = event.target as HTMLInputElement;
-    //     const file = input.files?.[0];
-    //     if (file) {
-    //         const reader = new FileReader();
-    //         reader.onload = (e) => {
-    //             if (typeof e.target?.result === 'string') {
-    //                 imageUrl = e.target.result;
-    //             }
-    //         };
-    //         reader.readAsDataURL(file);
-    //     }
-    // }
-
-    // function triggerFileInput() {
-    //     fileInput?.click();
-    // }
-
   let selectedProviders: string[] = $state(data.providers ?? []);
   let showDropdown = $state(false);
 </script>
@@ -139,6 +116,8 @@
             name="facilityImage" 
             accept="image/*"
         />
+
+
 
         {#if form?.error}
             <p class="error">{form.error}</p>
@@ -225,7 +204,7 @@
             <input 
             name="street"
             type="text" 
-            bind:value={data.street}
+            bind:value={street}
             class="border p-2 rounded w-full" 
             disabled={!enableStreet}
             placeholder="Name"
@@ -413,25 +392,6 @@
 
 
 <style>
-    .truncate-container {
-        max-width: calc(100% - 2rem); /* Ensures space for icon */
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        display: block;
-        position: relative;
-    }
-    
-    .truncate-container::after {
-        content: "";
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 3rem;
-        background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
-    }
-
     .selected {
         background-color: #9044C4;
         color: white;
