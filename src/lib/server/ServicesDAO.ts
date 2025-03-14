@@ -3,7 +3,6 @@ import { prisma } from "./prisma";
 import type { ServiceDTO } from "./DTOs";
 import type { FacilityDTO } from "./DTOs";
 import type { Service } from '@prisma/client';
-import { updated } from "$app/state";
 // Because of the heterogenous nature of the services, pagination must be done in the business logic instead of natively on Prisma.
 
 export class ServicesDAO {
@@ -113,16 +112,16 @@ export class ServicesDAO {
   async search(query: string, offset: number): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
     try {
       const facilities = await prisma.facility.findMany({
-        where: { services: { some: { type: { contains: query, mode: "insensitive" }}}},
+        where: { services: { some: { type: { contains: query, mode: "insensitive" } } } },
         orderBy: {
           updatedAt: "desc"
         },
         select: {
-          facilityID: true,
-          name: true,
-          },
+          facilityID : true,
+          name       : true,
+        },
         skip: offset,
-        take: 11,
+        take: 11
       });
   
       return {
@@ -135,10 +134,13 @@ export class ServicesDAO {
     }
   }
   
-  async getPaginatedServices(page: number, pageSize: number): Promise<{ services: ServiceDTO[]; totalPages: number; currentPage: number }> {
+  async getPaginatedServices(facilityID: string, page: number, pageSize: number): Promise<{ services: ServiceDTO[]; totalPages: number; currentPage: number }> {
     try {
       const [services, totalServices] = await Promise.all([
         prisma.service.findMany({
+          where: {
+            facilityID
+          },
           select: {
             serviceID : true,
             type      : true,
@@ -148,7 +150,11 @@ export class ServicesDAO {
           skip: (page - 1) * pageSize,
           take: pageSize
         }),
-        prisma.service.count()
+        prisma.service.count({ 
+          where: { 
+            facilityID 
+          }
+        })
       ]);
   
       const totalPages = Math.max(1, Math.ceil(totalServices / pageSize));
