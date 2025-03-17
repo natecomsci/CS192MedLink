@@ -13,6 +13,7 @@
   // PopUps
   import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
   import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
+    import AddService from './AddService.svelte';
 
   function serviceTypeURL(type: string): String {
     if (!specializedServiceType.includes(type)) {
@@ -58,12 +59,8 @@
         throw new Error(`Response status: ${response.status}`);
       }
 
-      const data = await response.json();
-
-      if (data.toString() != services.toString()) {
-        services = data
-        currentPage = (currentPage + change)
-      }
+      services = await response.json();
+      currentPage = (currentPage + change)
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
@@ -79,12 +76,17 @@
     {form}
     bind:currPopUp={currPopUp}
   />
+
 {:else if currPopUp === "deleteRestricted"}
   <DeleteServiceRestricted
     bind:currPopUp={currPopUp}
   />
+
 {:else if currPopUp === "addService"}
-<!-- insert AddService PopUP -->
+  <AddService { data } { form }
+    bind:currPopUp={currPopUp}
+  />
+
 {:else if currPopUp === "editAmbulance"}
 <!-- insert editAmbulance PopUP -->
 {:else if currPopUp === "editBloodBank"}
@@ -158,7 +160,7 @@
             </button> -->
 
             <!-- Delete Button (Opens Modal) -->
-            <button class="inline-flex items-center" onclick={() => openDeletePopUp(serviceID, type)} data-sveltekit-reload>
+            <button type="button" class="inline-flex items-center" onclick={() => openDeletePopUp(serviceID, type)} data-sveltekit-reload>
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
@@ -170,14 +172,14 @@
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(currentPage, -1, totalPages)}>⟨ Previous</button>
+      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>⟨ Previous</button>
       <span class="font-medium">Page {currentPage} of {totalPages}</span>
-      <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(currentPage, 1, totalPages)}>Next ⟩</button>
+      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next ⟩</button>
     </div>
 
-  <button class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg">
+  <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addService'}}>
     <span class="text-xl">+</span>
-    <a href="./manageServices/addService" data-sveltekit-reload>Add service</a>
+    Add service
   </button>
 </div>
 

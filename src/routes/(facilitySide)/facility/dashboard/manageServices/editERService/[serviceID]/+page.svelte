@@ -81,7 +81,7 @@ use:enhance
     
             <div class="mt-4 bg-white p-4 rounded-lg shadow">
                 <label class="block text-gray-700">
-                    nonUrgentPatients
+                    Non Urgent Patients
                     <input 
                         name="nonUrgentPatients"
                         type="number" 
@@ -97,7 +97,7 @@ use:enhance
     
             <div class="mt-4 bg-white p-4 rounded-lg shadow">
                 <label class="block text-gray-700">
-                    nonUrgentQueueLength
+                    Non Urgent Patients Queue Length
                     <input 
                         name="nonUrgentQueueLength"
                         type="number" 
@@ -113,7 +113,7 @@ use:enhance
     
             <div class="mt-4 bg-white p-4 rounded-lg shadow">
                 <label class="block text-gray-700">
-                    urgentPatients
+                    Urgent Patients
                     <input 
                         name="urgentPatients"
                         type="number" 
@@ -129,7 +129,7 @@ use:enhance
     
             <div class="mt-4 bg-white p-4 rounded-lg shadow">
                 <label class="block text-gray-700">
-                    urgentQueueLength
+                    Urgent Patients Queue Length
                     <input 
                         name="urgentQueueLength"
                         type="number" 
@@ -145,7 +145,7 @@ use:enhance
     
             <div class="mt-4 bg-white p-4 rounded-lg shadow">
                 <label class="block text-gray-700">
-                    criticalPatients
+                    Critical Patients
                     <input 
                         name="criticalPatients"
                         type="number" 
@@ -161,7 +161,7 @@ use:enhance
     
             <div class="mt-4 bg-white p-4 rounded-lg shadow">
                 <label class="block text-gray-700">
-                    criticalQueueLength
+                    Critical Patients Queue Length
                     <input 
                         name="criticalQueueLength"
                         type="number" 

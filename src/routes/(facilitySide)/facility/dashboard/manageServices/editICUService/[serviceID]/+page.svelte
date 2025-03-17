@@ -100,7 +100,7 @@ use:enhance
               <label>
                 Support
                 <label>
-                  cardiacSupport
+                  Cardiac Support
                   <input 
                     name="cardiacSupport" 
                     type="checkbox"
@@ -108,7 +108,7 @@ use:enhance
                   >
                 </label>
                 <label>
-                  neurologicalSupport
+                  Neurological Support
                   <input 
                     name="neurologicalSupport" 
                     type="checkbox"
@@ -116,7 +116,7 @@ use:enhance
                   >
                 </label>
                 <label>
-                  renalSupport
+                  Renal Support
                   <input 
                     name="renalSupport" 
                     type="checkbox"
@@ -124,7 +124,7 @@ use:enhance
                   >
                 </label>
                 <label>
-                  respiratorySupport
+                  Respiratory Support
                   <input 
                     name="respiratorySupport" 
                     type="checkbox"

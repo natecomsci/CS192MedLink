@@ -11,6 +11,7 @@
   let totalPages = data.totalPages
 
   async function getPage(currPage: number, change: number, maxPages: number) {
+    console.log(currPage, change, maxPages)
     const body = JSON.stringify({currPage, change, maxPages});
 
     try {
@@ -26,12 +27,8 @@
         throw new Error(`Response status: ${response.status}`);
       }
 
-      const data = await response.json();
-
-      if (data.toString() != services.toString()) {
-        services = data
-        currentPage = (currentPage + change)
-      }
+      services = await response.json();
+      currentPage = (currentPage + change)
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
@@ -79,9 +76,9 @@
     <!-- Pagination -->
 
     <div class="p-4 border-t border-[#DBD8DF] flex justify-between items-center">
-      <button class="p-2 bg-purple-300 rounded" onclick={() => getPage(currentPage, -1, totalPages)}>« Prev</button>
+      <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>« Prev</button>
       <span class="text-purple-700 font-semibold">{currentPage} of {totalPages}</span>
-      <button class="p-2 bg-purple-300 rounded" onclick={() => getPage(currentPage, 1, totalPages)}>Next »</button>
+      <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next »</button>
     </div>
   </div>
 

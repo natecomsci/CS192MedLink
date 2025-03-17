@@ -88,7 +88,7 @@ use:enhance
   
           <div class="mt-4 bg-white p-4 rounded-lg shadow">
             <label>
-              isAvailable
+              Is Available
               <input 
                 name="isAvailable" 
                 type="checkbox"
@@ -96,7 +96,7 @@ use:enhance
               >
             </label>
             <label>
-              acceptsWalkIns
+              Accepts WalkIns
               <input 
                 name="acceptsWalkIns" 
                 type="checkbox"

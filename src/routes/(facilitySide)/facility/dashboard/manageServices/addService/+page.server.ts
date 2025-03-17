@@ -27,15 +27,15 @@ import { OPServiceTypes, specializedServiceType, type OPServiceType } from '$lib
 import { ServicesDAO } from '$lib/server/ServicesDAO';
 
 export const load: PageServerLoad = async ({ cookies }) => {
-  const serviceDAO = new ServicesDAO();
   const facilityID = cookies.get('facilityID');
 
   if (!facilityID) {
     throw redirect(303, '/facility');
   }
 
-  const services: ServiceDTO[] = await serviceDAO.getByFacility(facilityID);
+  const serviceDAO = new ServicesDAO();
 
+  const services: ServiceDTO[] = await serviceDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
 
   let availableServices: String[] = getAvailableSpecializedServices(serviceTypes)

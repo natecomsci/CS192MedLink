@@ -21,9 +21,6 @@
                 <a class="block p-4" href="/facility/dashboard" data-sveltekit-reload>F-Dash</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/dashboard/manageServices/addService" data-sveltekit-reload>F-Add</a>
-            </li>
-            <li>
                 <a class="block p-4" href="/facility/dashboard/updateFacilityInfo" data-sveltekit-reload>F-Edit</a>
             </li>
             <li>
