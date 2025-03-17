@@ -1,58 +1,89 @@
 <script lang="ts">
-  import { dateToTimeMapping } from "$lib/Mappings";
-  import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
+  import { dateToTimeMapping } from "$lib/Mappings";
 
   let admin = "Admin 1";
 
-  let { data, form }: PageProps = $props();
-  const services: ServiceDTO[] = data.services ?? []
+  let { data }: PageProps = $props();
+
+  let services = $state(data.services)
+  let currentPage = $state(data.currentPage)
+  let totalPages = data.totalPages
+
+  async function getPage(currPage: number, change: number, maxPages: number) {
+    const body = JSON.stringify({currPage, change, maxPages});
+
+    try {
+      const response = await fetch("./dashboard", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.toString() != services.toString()) {
+        services = data
+        currentPage = (currentPage + change)
+      }
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+
 </script>
-
-<div class="h-full flex flex-col">
-  <!-- Sticky Header -->
-  <div class="flex items-center justify-between text-[30px] pl-4 pr-4 text-[#9044C4] font-bold text-lg border-b border-[#DBD8DF] sticky bg-white z-10">
-    Control History
-    <div class=text-[20px]>
-      Searchbar 
-      View
-    </div>
-  </div>
-
-  <!-- Scrollable List -->
-  <div class="flex-1 overflow-y-auto p-4">
-    {#each services as { type, updatedAt }}
-      <!-- history item -->
-    <div class="py-2 border-b border-transparent">
-        <div class="history-item justify-between">
-          <div class ='flex space-x-5 items-center'>
-            <!-- Profile Placeholder -->
-            <div class="profile-circle"></div>
-        
-            <!-- Left Content: Admin & Message -->
-            <div class="info">
-              <span class="admin">{admin}</span>
-              <span class="message">Updated {type} Information</span>
-            </div>
-          </div>
-        
-          <!-- Right Content: Timestamp & Department -->
-          <div class="details">
-            <span class="timestamp">Updated at {dateToTimeMapping(updatedAt)}</span>
-            <!-- <span class="department">{department}</span> -->
-          </div>
+  <div class="h-full flex flex-col">
+    <!-- Sticky Header -->
+    <div class="flex items-center justify-between text-[30px] pl-4 pr-4 text-[#9044C4] font-bold text-lg border-b border-[#DBD8DF] sticky bg-white z-10">
+      Control History
+      <div class=text-[20px]>
+        Searchbar 
+        View
       </div>
     </div>
-    {/each}
-  </div>
 
-  <!-- Pagination -->
-  <div class="p-4 border-t border-[#DBD8DF] flex justify-between items-center">
-    <button class="p-2 bg-purple-300 rounded">« Prev</button>
-    <span class="text-purple-700 font-semibold">1 of 22</span>
-    <button class="p-2 bg-purple-300 rounded">Next »</button>
+    <!-- Scrollable List -->
+    <div class="flex-1 overflow-y-auto p-4">
+      {#each services as { type, updatedAt }}
+        <!-- history item -->
+      <div class="py-2 border-b border-transparent">
+          <div class="history-item justify-between">
+            <div class ='flex space-x-5 items-center'>
+              <!-- Profile Placeholder -->
+              <div class="profile-circle"></div>
+          
+              <!-- Left Content: Admin & Message -->
+              <div class="info">
+                <span class="admin">{admin}</span>
+                <span class="message">Updated {type} Information</span>
+              </div>
+            </div>
+          
+            <!-- Right Content: Timestamp & Department -->
+            <div class="details">
+              <span class="timestamp">Updated at {dateToTimeMapping(new Date(updatedAt))}</span>
+              <!-- <span class="department">{department}</span> -->
+            </div>
+        </div>
+      </div>
+      {/each}
+    </div>
+
+    <!-- Pagination -->
+
+    <div class="p-4 border-t border-[#DBD8DF] flex justify-between items-center">
+      <button class="p-2 bg-purple-300 rounded" onclick={() => getPage(currentPage, -1, totalPages)}>« Prev</button>
+      <span class="text-purple-700 font-semibold">{currentPage} of {totalPages}</span>
+      <button class="p-2 bg-purple-300 rounded" onclick={() => getPage(currentPage, 1, totalPages)}>Next »</button>
+    </div>
   </div>
-</div>
 
 <style>
   .history-item {

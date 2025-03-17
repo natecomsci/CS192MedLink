@@ -1,15 +1,19 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+  
+  import Logo from '$lib/images/Logo.png';
 
   import Admins from './Admins.svelte';
   import ControlHistory from './ControlHistory.svelte';
   import Divisions from './Divisions.svelte';
+  import type { ServiceDTO } from '$lib/server/DTOs';
   import Services from './Services.svelte';
-  import Logo from '$lib/images/Logo.png';
 
   let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
 
   let { data, form }: PageProps = $props();
+
+  const services: ServiceDTO[] = data.services 
 
 </script>
 
@@ -47,7 +51,7 @@
   <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
     <Admins />
     <div class="grid grid-cols-1 gap-4 h-full">
-      <Services {data} {form}/>
+      <Services {services}/>
       <!-- <Divisions/> -->
     </div>
   </div>

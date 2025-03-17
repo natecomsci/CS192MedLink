@@ -9,6 +9,7 @@ import { ICUServiceDAO } from "$lib/server/ICUDAO";
 import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
 import { FacilityDAO } from "$lib/server/FacilityDAO"; // Assuming this exists to get facility info
 import { ServicesDAO } from '$lib/server/ServicesDAO';
+import { facilityServicePageSize } from '$lib/globalVariables';
 
 const ambulanceDAO = new AmbulanceServiceDAO();
 const bloodBankDAO = new BloodBankServiceDAO();
@@ -25,22 +26,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  let services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
-
-  services.sort((a, b) => {
-    if (a.updatedAt < b.updatedAt) {
-      return -1;
-    }
-    if (a.updatedAt > b.updatedAt) {
-      return 1;
-    }
-    return 0;
-  });
-
-  const servicesObj: ServiceDTO[] = services;
+  let paginatedServices = await servicesDAO.getPaginatedServices(facilityID, 1, facilityServicePageSize)
   
   return {
-    servicesObj
+    services: paginatedServices.services,
+    totalPages: paginatedServices.totalPages,
+    currentPage: paginatedServices.currentPage
   };
 };
 

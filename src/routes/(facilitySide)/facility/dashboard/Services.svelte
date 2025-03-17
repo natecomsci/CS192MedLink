@@ -1,9 +1,7 @@
 <script lang="ts">
   import type { ServiceDTO } from "$lib/server/DTOs";
-    import type { PageProps } from "./$types";
 
-  let { data, form }: PageProps = $props();
-  const services: ServiceDTO[] = data.services ?? []
+  let { services } : {services: ServiceDTO[]} = $props();
 
 </script>
 

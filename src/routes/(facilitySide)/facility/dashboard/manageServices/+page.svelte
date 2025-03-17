@@ -1,12 +1,18 @@
 <script lang="ts">
+  import Logo from '$lib/images/Logo.png';
   import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
-  import { enhance } from '$app/forms';
-
-  let { data, form }: PageProps = $props();
-  const services: ServiceDTO[] = data.servicesObj ?? []
 
   import { specializedServiceType } from "$lib/projectArrays";
+  let { data, form }: PageProps = $props();
+
+  let services: ServiceDTO[] = $state(data.services ?? [])
+  let currentPage: number = $state(data.currentPage)
+  let totalPages = data.totalPages
+
+  // PopUps
+  import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
+  import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
 
   function serviceTypeURL(type: string): String {
     if (!specializedServiceType.includes(type)) {
@@ -22,47 +28,73 @@
     }
   }
 
-  import Logo from '$lib/images/Logo.png';
-  let search: String = $state("");
-
-  // FOR MODAL
-  import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
-  import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
-
-  let showModal = $state(false);
-  let showModal2 = $state(false);
   let selectedServiceID: String = $state('');
   let selectedServiceType: String = $state('');
-  let numOfServices = services.length;
 
-  function openDeleteModal(serviceID: String, type: String) {    
+  let currPopUp: String = $state("")
+
+  let search: String = $state("");
+
+  function openDeletePopUp(serviceID: String, type: String) {    
     selectedServiceID = serviceID;
     selectedServiceType = type;
 
-    if (numOfServices > 1) { 
-        showModal = true;
-        showModal2 = false;
-        
-    } else {
-        showModal = false;
-        showModal2 = true;
+    currPopUp = services.length > 1 ? 'delete' : 'deleteRestricted'
+  }
+
+  async function getPage(currPage: number, change: number, maxPages: number) {
+    const body = JSON.stringify({currPage, change, maxPages});
+
+    try {
+      const response = await fetch("./manageServices", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.toString() != services.toString()) {
+        services = data
+        currentPage = (currentPage + change)
+      }
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
     }
   }
+
 </script>
 
-{#if showModal}
+{#if currPopUp === "delete"}
   <DeleteServiceConfirm
     serviceID={selectedServiceID}
     serviceType={selectedServiceType}
     {form}
-    bind:showModal={showModal}
+    bind:currPopUp={currPopUp}
   />
-{/if}
-
-{#if showModal2}
+{:else if currPopUp === "deleteRestricted"}
   <DeleteServiceRestricted
-    bind:showModal2={showModal2}
+    bind:currPopUp={currPopUp}
   />
+{:else if currPopUp === "addService"}
+<!-- insert AddService PopUP -->
+{:else if currPopUp === "editAmbulance"}
+<!-- insert editAmbulance PopUP -->
+{:else if currPopUp === "editBloodBank"}
+<!-- insert editBloodBank PopUP -->
+{:else if currPopUp === "editER"}
+<!-- insert editER PopUP -->
+{:else if currPopUp === "editICU"}
+<!-- insert editICU PopUP -->
+{:else if currPopUp === "editOP"}
+<!-- insert editOP PopUP -->
 {/if}
 
 <!-- Header -->
@@ -121,8 +153,12 @@
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </a>
 
+            <!-- <button class="inline-flex items-center" onclick={() => openAddServicePopUp(serviceID, type)}  data-sveltekit-reload>
+              <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
+            </button> -->
+
             <!-- Delete Button (Opens Modal) -->
-            <button class="inline-flex items-center" onclick={() => openDeleteModal(serviceID, type)} data-sveltekit-reload>
+            <button class="inline-flex items-center" onclick={() => openDeletePopUp(serviceID, type)} data-sveltekit-reload>
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
@@ -134,9 +170,9 @@
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">⟨ Previous</button>
-      <span class="font-medium">Page 1 of 22</span>
-      <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Next ⟩</button>
+      <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(currentPage, -1, totalPages)}>⟨ Previous</button>
+      <span class="font-medium">Page {currentPage} of {totalPages}</span>
+      <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(currentPage, 1, totalPages)}>Next ⟩</button>
     </div>
 
   <button class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg">

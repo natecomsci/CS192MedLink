@@ -1,7 +1,5 @@
 <script lang="ts">
-
-    let { serviceID, serviceType, form, showModal = $bindable() } = $props();
-  
+    let { serviceID, serviceType, form, currPopUp = $bindable() } = $props();
 </script>
 
 <!-- Modal Overlay -->
@@ -34,7 +32,7 @@
 
       <!-- Buttons -->
       <div class="flex justify-end space-x-2 mt-4">
-          <button class="px-4 py-2 bg-gray-300 rounded" onclick={() => showModal = !showModal}>Cancel</button>
+          <button class="px-4 py-2 bg-gray-300 rounded" onclick={() => {currPopUp = ''}}>Cancel</button>
           <button class="px-4 py-2 bg-red-600 text-white rounded" type="submit">Confirm</button>
       </div>
   </div>
