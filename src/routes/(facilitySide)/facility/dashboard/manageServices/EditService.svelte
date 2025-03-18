@@ -52,20 +52,20 @@
 
         <!-- Right Panel -->
         <div class="flex-1 p-6 overflow-y-auto  "> 
-            <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{serviceType}</h2>
+            <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{currService}</h2>
             <label class="grid grid-cols-1">
                 {#if form?.error}
                     <p class="error">{form.error}</p>
                 {/if}
-                {#if serviceType == "Ambulance"}
+                {#if currService == "Ambulance"}
                   <EditAmbulanceService />
-                {:else if serviceType == "Blood Bank"}
+                {:else if currService == "Blood Bank"}
                   <EditBloodBankService/>
-                {:else if serviceType == "Emergency Room"}
+                {:else if currService == "Emergency Room"}
                   <EditERService />
-                {:else if serviceType == "Intensive Care Unit"}
+                {:else if currService == "Intensive Care Unit"}
                   <EditICUService />
-                {:else if serviceType == "Outpatient"}
+                {:else if currService == "Outpatient"}
                   <EditOPService/>
                 {/if}
             </label>
