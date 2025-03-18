@@ -2,16 +2,20 @@
 
   import type { PageProps } from './$types';
 
-  import AmbulanceService from './AmbulanceService.svelte';
-  import BloodBankService from './BloodBankService.svelte';
-  import ERService from './ERService.svelte';
-  import ICUService from './ICUService.svelte';
-  import OutpatientService from './OutpatientService.svelte';
+  import EditAmbulanceService from './EditAmbulanceService.svelte';
+  import EditBloodBankService from './EditBloodBankService.svelte';
+  import EditERService from './EditERService.svelte';
+  import EditICUService from './EditICUService.svelte';
+  import EditOPService from './EditOPService.svelte';
   import { enhance } from '$app/forms';
 
-  let { data, form, currPopUp = $bindable() } = $props();
+  let { data, form, currPopUp = $bindable(), currService = $bindable()} = $props();
   let serviceType: String = $state('');
   let division: String = $state('');
+
+//   let serviceType: "Hello";
+
+  import { load } from '$lib/projectArrays';
 
 </script>
  
@@ -30,22 +34,16 @@
                 <button onclick={() => currPopUp = ''} data-sveltekit-reload>
                   <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
                 </button>
-                <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Add a Service</h1>
+                <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Edit Service</h1>
             </div>
 
-            <label>
-              <span class="text-label">Select a Service</span>
-              <select name="serviceType" bind:value={serviceType} required class="border-2 border-[#D9D9D9] p-2 rounded w-full">
-                {#each (data.availableServices ?? []) as service}
-                  <option value={service} onclick={() => serviceType = service}>{service}</option>
-                {/each}
-              </select>
-            </label>
-
-            
+            <div class=" py-10">
+                <h1 class=" text-[25px] font-['DM_Sans'] font-bold text-black">{currService}</h1>
+                <h3 class="text-[20px] font-['DM_Sans'] font-bold text-purple-500">Division Name</h3>
+            </div>
 
             <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" data-sveltekit-reload>
-                Add Service
+                Edit Service
             </button>
         </div>
 
@@ -60,15 +58,15 @@
                     <p class="error">{form.error}</p>
                 {/if}
                 {#if serviceType == "Ambulance"}
-                  <AmbulanceService />
+                  <EditAmbulanceService />
                 {:else if serviceType == "Blood Bank"}
-                  <BloodBankService/>
+                  <EditBloodBankService/>
                 {:else if serviceType == "Emergency Room"}
-                  <ERService />
+                  <EditERService />
                 {:else if serviceType == "Intensive Care Unit"}
-                  <ICUService />
+                  <EditICUService />
                 {:else if serviceType == "Outpatient"}
-                  <OutpatientService {data} {form}/>
+                  <EditOPService/>
                 {/if}
             </label>
         </div>

@@ -4,14 +4,13 @@
     const OPServices: String[] = data.availableOPServices ?? [];
 </script>
 
-<div class="container">
+<div class="flex-1 p-6 overflow-y-auto border border-green-100">
     <!-- OPServicetype -->
-    <div class="card">
-        <label>
-            <span class="text-label">OP Service Type</span>
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">OP Service Type
             <select 
                 name="OPserviceType" 
-                class="input-box"
+                class="border p-2 rounded w-full"
                  
               >
                 {#each OPServices as t}
@@ -23,15 +22,14 @@
 
 
     <!-- Turnaround Time -->
-    <div class="card">
-        <label >
-            <span class="text-label">Completion Time</span>
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700 ">Completion Time
             <div class="flex items-center gap-2">
 
                 <input 
                     type="number" 
                     name="completionDays"
-                    class="input-box w-30"
+                    class="border p-2 rounded  w-30" 
                     placeholder="Days" 
                      />
                 Days
@@ -39,7 +37,7 @@
                 <input 
                 type="number" 
                 name="completionHours"
-                class="input-box w-30"
+                class="border p-2 rounded  w-30" 
                 placeholder="Hours" 
                 
                 />
@@ -51,28 +49,23 @@
 
 
     <!-- Walkins -->
-    <div class="card">
-        <label class="flex items-center gap-2">
-            <span class="text-label">Accepts Walk-ins</span>
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label>
+            Accepts Walk-ins
             <input 
-                name="acceptWalkins" 
-                type="checkbox"
-                class="w-5 h-5 rounded border-2 border-gray-400 
-                    accent-purple-500 cursor-pointer"
+              name="acceptWalkins" 
+              type="checkbox"
             >
-        </label>
+          </label>
     </div>
 
-
-
     <!-- Price Rate -->
-    <div class="card">
-        <label >
-            <span class="text-label">Base Price</span>
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">Base Price
             <input 
                 name="price"
                 type="number" 
-                class="input-box"
+                class="border p-2 rounded w-full" 
                 placeholder="Price"
                 step=0.01
                 min=0

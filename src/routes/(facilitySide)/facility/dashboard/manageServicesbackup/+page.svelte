@@ -13,8 +13,7 @@
   // PopUps
   import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
   import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
-  import AddService from './AddService.svelte';
-  import EditService from './EditService.svelte';
+    import AddService from './AddService.svelte';
 
   function serviceTypeURL(type: string): String {
     if (!specializedServiceType.includes(type)) {
@@ -34,7 +33,6 @@
   let selectedServiceType: String = $state('');
 
   let currPopUp: String = $state("")
-  let currService: String = $state("")
 
   let search: String = $state("");
 
@@ -88,12 +86,6 @@
   <AddService { data } { form }
     bind:currPopUp={currPopUp}
   />
-{:else if currPopUp === "editService"}
-  <EditService { data } { form }
-    bind:currPopUp={currPopUp}
-    bind:currService={currService}
-  />
-<!-- insert editAmbulance PopUP -->
 
 {:else if currPopUp === "editAmbulance"}
 <!-- insert editAmbulance PopUP -->
@@ -162,11 +154,6 @@
             <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </a>
-
-            <!-- edit button -->
-            <button onclick={() => {currPopUp='editService', currService=type}} class="inline-flex items-center" data-sveltekit-reload>
-              <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
-            </button>
 
             <!-- <button class="inline-flex items-center" onclick={() => openAddServicePopUp(serviceID, type)}  data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />

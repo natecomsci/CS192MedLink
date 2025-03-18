@@ -1,74 +1,80 @@
-<div class="container">
+<div class="flex-1 p-6 overflow-y-auto border border-green-100">
     <!-- Phone Number -->
-    <div class="card">
-        <label>
-            <span class="text-label">Phone No.</span>
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">Phone No.
             <input 
-                class="input-box" 
+                class="border p-2 rounded w-full" 
                 name="phoneNumber"
                 type="tel"
                 value="+63 9"
+                 
             />  
         </label>
     </div>
 
     <!-- Hours of Operation -->
-    <div class="card">
-        <label>
-            <span class="text-label">Hours of Operation</span>
-            <div class="flex-container">
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">Hours of Operation
+            <div class="flex items-center gap-2">
                 <input 
-                    class="input-box w-30"
+                    class="border p-2 rounded w-30"
                     name="opening"
                     type="time"
                     value="08:00" 
+                    
                 >
-                <h1 class="text-label">to</h1>
+                to
                 <input 
-                    class="input-box w-30"
+                    class="border p-2 rounded w-30"
                     name="closing"
                     type="time"
                     value="16:00" 
+                    
                 >
             </div>
         </label>
     </div>
 
     <!-- Price Rate -->
-    <div class="card">
-        <label>
-            <span class="text-label">Base Price</span>
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">Base Price
             <input 
                 name="price" 
                 type="number" 
-                class="input-box" 
+                class="border p-2 rounded w-full" 
                 placeholder="Price" 
-                step="0.01"
-                min="0"
+                step=0.01
+                min=0
+                
             />
         </label>
     </div>
 
     <!-- Turnaround Time -->
-    <div class="card">
-        <label>
-            <span class="text-label">Turnaround Time</span>
-            <div class="flex-container">
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700 ">Turnaround Time
+            <div class="flex items-center gap-2">
+
                 <input 
                     type="number" 
                     name="turnaroundDays"
-                    class="input-box w-30" 
+                    class="border p-2 rounded  w-30" 
                     placeholder="Days" 
+                     
                 />
                 Days
+            
                 <input 
                     type="number" 
                     name="turnaroundHours"
-                    class="input-box w-30" 
+                    class="border p-2 rounded  w-30" 
                     placeholder="Hours" 
+                    
                 />
                 Hours
             </div>
         </label>
     </div>
+
 </div>
+

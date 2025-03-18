@@ -1,10 +1,9 @@
-<div class="container">
+<div class="flex-1 p-6 overflow-y-auto border border-green-100">
     <!-- Phone Number -->
-    <div class="card">
-        <label>
-            <span class="text-label">Phone No.</span>
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">Phone No.
             <input 
-                class="input-box" 
+                class="border p-2 rounded w-full" 
                 name="phoneNumber"
                 type="tel"
                 value="+63 9"
@@ -14,13 +13,12 @@
     </div>
 
     <!-- Price Rate -->
-    <div class="card">
-        <label>
-            <span class="text-label">Base Price</span>
+    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+        <label class="block text-gray-700">Base Price
             <input 
                 name="price" 
                 type="number" 
-                class="input-box" 
+                class="border p-2 rounded w-full" 
                 placeholder="Price" 
                 step=0.01
                 min=0

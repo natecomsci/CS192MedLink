@@ -1,9 +1,10 @@
-<div class="flex-1 p-6 overflow-y-auto border border-green-100">
+<div class="container">
     <!-- Phone Number -->
-    <div class="mt-4 bg-white p-4 rounded-lg shadow">
-        <label class="block text-gray-700">Phone No.
+    <div class="card">
+        <label>
+            <span class="text-label">Phone No.</span>
             <input 
-                class="border p-2 rounded w-full" 
+                class="input-box" 
                 name="phoneNumber"
                 type="tel"
                 value="+63 9"
@@ -12,4 +13,3 @@
         </label>
     </div>
 </div>
-

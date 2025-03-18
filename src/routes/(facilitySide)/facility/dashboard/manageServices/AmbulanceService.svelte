@@ -1,83 +1,82 @@
-<div class="flex-1 p-6 overflow-y-auto border border-green-100">
+<div class="container">
     <!-- Phone Number -->
-    <div class="mt-4 bg-white p-4 rounded-lg shadow">
-        <label class="block text-gray-700">Phone No.
+    <div class="card">
+        <label>
+            <span class="text-label">Phone No.</span>
             <input 
-                class="border p-2 rounded w-full" 
+                class="input-box" 
                 name="phoneNumber"
                 type="tel"
                 value="+63 9"
-                 
             />
         </label>
     </div>
 
     <!-- Hours of Operation -->
-    <div class="mt-4 bg-white p-4 rounded-lg shadow">
-        <label class="block text-gray-700">Hours of Operation
-            <div class="flex items-center gap-2">
+    <div class="card">
+        <label>
+            <span class="text-label">Hours of Operation</span>
+            <div class="flex-container">
                 <input 
-                class="border p-2 rounded w-30"
-                name="opening"
-                type="time"
-                value="08:00" 
-                
+                    class="input-box w-30"
+                    name="opening"
+                    type="time"
+                    value="08:00"
                 >
-                to
+                <h1 class="text-label">to</h1>
                 <input 
-                class="border p-2 rounded w-30"
-                name="closing"
-                type="time"
-                value="16:00" 
-                
+                    class="input-box w-30"
+                    name="closing"
+                    type="time"
+                    value="16:00"
                 >
             </div>
         </label>
     </div>
 
     <!-- Price Rate -->
-    <div class="mt-4 bg-white p-4 rounded-lg shadow">
-        <label class="block text-gray-700">Base Price
+    <div class="card">
+        <label>
+            <span class="text-label">Base Price</span>
             <input 
                 name="price"
                 type="number" 
-                class="border p-2 rounded w-full" 
+                class="input-box" 
                 placeholder="Price"
-                step=0.01
-                min=0
-                 
+                step="0.01"
+                min="0"
             />
         </label>
     </div>
 
     <!-- Coverage Radius -->
-    <div class="mt-4 bg-white p-4 rounded-lg shadow">
-        <label class="block text-gray-700">Coverage Radius
-            <div class="flex gap-2">
+    <div class="card">
+        <label>
+            <span class="text-label">Coverage Radius</span>
+            <div class="flex-container items-center">
                 <label>
-                    Minimum coverage radius
+                    <span>Minimum</span>
                     <input 
-                    name="minCoverageRadius" 
-                    type="number"
-                    placeholder=1
-                    class = "border p-2 rounded w-20"
-                    step=0.01
-                    min=0
-                    
+                        name="minCoverageRadius" 
+                        type="number"
+                        placeholder="1"
+                        class="input-box w-30"
+                        step="0.01"
+                        min="0"
                     >
                     km
                 </label>
-                
+
+                <h1 class="text-label">to</h1>
                 <label>
-                    Maximum coverage radius
+                    <span>Maximum</span>
                     <input 
-                    name="maxCoverageRadius" 
-                    type="number"
-                    placeholder=1
-                    class = "border p-2 rounded w-20"
-                    step=0.01
-                    min=0
-                    
+                        name="maxCoverageRadius" 
+                        type="number"
+                        placeholder="1"
+                        class="input-box w-30"
+                        step="0.01"
+                        min="0"
                     >
                     km
                 </label>
@@ -86,19 +85,17 @@
     </div>
 
     <!-- Mileage Rate -->
-    <div class="mt-4 bg-white p-4 rounded-lg shadow">
-        <label class="block text-gray-700">Mileage Rate
+    <div class="card">
+        <label>
+            <span class="text-label">Mileage Rate</span>
             <input 
                 name="mileageRate" 
                 type="number" 
-                class="border p-2 rounded w-full" 
+                class="input-box" 
                 placeholder="Mileage Rate" 
-                step=0.01
-                min=0
-                 
+                step="0.01"
+                min="0"
             />
         </label>
     </div>
-
 </div>
-
