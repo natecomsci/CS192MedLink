@@ -170,34 +170,51 @@ export class FacilityDAO {
     }
   }
 
-  async search(query: string): Promise<FacilityDTO[]> {
+  async search(query: string, offset: number = 0, limit: number = 10): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
     try {
-      if (!query.trim()) {
-        return [];
-      }
+        if (!query.trim()) {
+            return { results: [], hasMore: false };
+        }
 
-      const facilities = await prisma.facility.findMany({
-        where: {
-          name: {
-            contains: query,
-            mode: "insensitive", // Case-insensitive search
-          },
-        },
-        orderBy: {
-          updatedAt: "desc",
-        },
-        select: {
-          facilityID: true,
-          name: true,
-        },
-      });
+        const facilities = await prisma.facility.findMany({
+            where: {
+                name: {
+                    contains: query,
+                    mode: "insensitive", // Case-insensitive search
+                },
+            },
+            orderBy: {
+                updatedAt: "desc",
+            },
+            select: {
+                facilityID: true,
+                name: true,
+            },
+            skip: offset, // Skip previous results
+            take: limit,  // Limit number of results
+        });
 
-      return facilities;
+        // Check if there are more results
+        const nextFacility = await prisma.facility.findFirst({
+            where: {
+                name: {
+                    contains: query,
+                    mode: "insensitive",
+                },
+            },
+            skip: offset + limit, // Look ahead to see if more results exist
+        });
+
+        return { 
+            results: facilities, 
+            hasMore: !!nextFacility // If there’s a next result, set hasMore to true
+        };
+
     } catch (error) {
-      console.error("Search Error: ", error);
-      throw new Error("Could not search facilities.");
+        console.error("Search Error: ", error);
+        throw new Error("Could not search facilities.");
     }
-  }
+}
 
   async getAllFacilities(): Promise<FacilityDTO[]> {
     try {
