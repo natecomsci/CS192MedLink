@@ -56,13 +56,8 @@
         };
     }}
 >
-  <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
-
-<!-- Vertical Divider -->
-    <div class="w-[2px] bg-gray-300"></div>
 
 <!-- Right Panel (Scrollable) -->
-      <div class="flex-1 p-6 overflow-y-auto border border-green-100">
         <label class="grid grid-cols-1" >
           {#if form?.error}
               <p class="error">{form.error}</p>
@@ -117,27 +112,28 @@
               </label>
           </div>
   
-          <div class="card">
-            <label>
+        <div class="card grid gap-2 p-4 bg-white rounded-lg shadow">
+            <label class="flex items-center space-x-2">
                 <span class="text-label">Is Available</span>
-              
-              <input 
-                name="isAvailable" 
-                type="checkbox"
-                checked={isAvailable}
-              >
+                <input 
+                    name="isAvailable" 
+                    type="checkbox"
+                    class="accent-purple-600" 
+                    checked={isAvailable}
+                >
             </label>
-            <label>
-              
-              <span class="text-label">Accepts WalkIns</span>
-              <input 
-                name="acceptsWalkIns" 
-                type="checkbox"
-                checked={acceptsWalkIns}
-              >
+
+            <label class="flex items-center space-x-2">
+                <span class="text-label">Accepts WalkIns</span>
+                <input 
+                    name="acceptsWalkIns" 
+                    type="checkbox"
+                    class="accent-purple-600" 
+                    checked={acceptsWalkIns}
+                >
             </label>
-          </div>
+        </div>
+
         </div>  
       </label>
-
 </form>
