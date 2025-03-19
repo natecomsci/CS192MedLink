@@ -22,7 +22,7 @@
       action="?/addService"
       use:enhance={() => {
         return async ({ update }) => {
-          await update();
+          await update({invalidateAll:true});
           if (form?.success) {
               currPopUp = ''
           }

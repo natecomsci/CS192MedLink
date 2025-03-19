@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 import { ServicesDAO } from '$lib/server/ServicesDAO';
-import { facilityServicePageSize } from '$lib/globalVariables';
+import { facilityServicePageSize } from '$lib/index';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const servicesDAO = new ServicesDAO();

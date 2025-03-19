@@ -1,7 +1,7 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { json, redirect } from '@sveltejs/kit';
 import { ServicesDAO } from '$lib/server/ServicesDAO';
-import { facilityServicePageSize } from '$lib/globalVariables';
+import { facilityServicePageSize } from '$lib/index';
 
 let servicesDAO: ServicesDAO = new ServicesDAO();
 
