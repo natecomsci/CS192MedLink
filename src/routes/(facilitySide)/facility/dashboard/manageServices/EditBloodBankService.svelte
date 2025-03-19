@@ -66,14 +66,14 @@
   action="?/editBloodBankService"
   use:enhance={() => {
         return async ({ update }) => {
-            await update();
+            await update({invalidateAll:true});
             if (form?.success) {
                 currPopUp = ''
             }
         };
     }}
 >
-  <label class="grid grid-cols-1" >
+  <div class="grid grid-cols-1" >
       {#if form?.error}
       <p class="error">{form.error}</p>
       {/if}
@@ -197,5 +197,5 @@
               </label>
           </div>
       </div>
-  </label>
+  </div>
 </form>

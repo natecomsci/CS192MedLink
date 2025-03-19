@@ -15,7 +15,7 @@ import type { AmbulanceServiceDTO,
               OutpatientServiceDTO, 
               ServiceDTO } from '$lib/server/DTOs';
 
-import { facilityServicePageSize } from '$lib/globalVariables';
+import { facilityServicePageSize } from '$lib/index';
 import { OPServiceTypes, specializedServiceType, type OPServiceType } from '$lib/projectArrays';
 
 import { AmbulanceServiceDAO } from "$lib/server/AmbulanceDAO";

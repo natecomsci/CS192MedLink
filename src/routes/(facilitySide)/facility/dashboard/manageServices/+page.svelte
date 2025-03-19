@@ -3,7 +3,6 @@
   import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
 
-  import { specializedServiceType } from "$lib/projectArrays";
   let { data, form }: PageProps = $props();
 
   let services: ServiceDTO[] = $state(data.services ?? [])
@@ -132,8 +131,6 @@
         
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
-
-
             <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID}} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
