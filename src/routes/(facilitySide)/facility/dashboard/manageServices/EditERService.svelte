@@ -58,7 +58,14 @@
 <form method="POST" 
     id="editService"
     action="?/editERService"
-    use:enhance
+    use:enhance={() => {
+        return async ({ update }) => {
+            await update();
+            if (form?.success) {
+                currPopUp = ''
+            }
+        };
+    }}
 >
     <label class="grid grid-cols-1" >
         {#if form?.error}

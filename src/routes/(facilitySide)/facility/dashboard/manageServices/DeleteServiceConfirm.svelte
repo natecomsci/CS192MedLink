@@ -12,7 +12,16 @@
       <p>Are you sure you want to delete this service?</p>
 
       <!-- Hidden Form for Deletion -->
-      <form id="deleteForm" method="POST" action="?/deleteService" use:enhance>
+      <form id="deleteForm" method="POST" action="?/deleteService" 
+        use:enhance={() => {
+          return async ({ update }) => {
+            await update();
+            if (form?.success) {
+                currPopUp = ''
+            }
+          };
+        }}
+      >
             {#if form?.error}
               <p class="text-red-500 text-sm font-semibold">{form.error}</p>
             {/if}

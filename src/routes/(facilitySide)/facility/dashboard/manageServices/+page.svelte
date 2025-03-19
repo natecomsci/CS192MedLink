@@ -53,10 +53,6 @@
 
 </script>
 
-{#if data.success}
-    {currPopUp = ""}
-  {/if}
-
 {#if currPopUp === "delete"}
   <DeleteServiceConfirm
     serviceID={selectedServiceID}

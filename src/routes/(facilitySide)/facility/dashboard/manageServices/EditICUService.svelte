@@ -54,11 +54,15 @@
 <form method="POST" 
     id="editService"
     action="?/editICUService"
-    use:enhance
+    use:enhance={() => {
+        return async ({ update }) => {
+            await update();
+            if (form?.success) {
+                currPopUp = ''
+            }
+        };
+    }}
 >
-  {#if form?.success}
-    {currPopUp = ""}
-  {/if}
     <label class="grid grid-cols-1" >
       {#if form?.error}
           <p class="error">{form.error}</p>

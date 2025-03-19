@@ -47,11 +47,15 @@
 <form method="POST" 
     id="editService"
     action="?/editOPService"
-    use:enhance
+    use:enhance={() => {
+        return async ({ update }) => {
+            await update();
+            if (form?.success) {
+                currPopUp = ''
+            }
+        };
+    }}
 >
-  {#if form?.success}
-    {currPopUp = ""}
-  {/if}
   <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
 
 <!-- Vertical Divider -->
