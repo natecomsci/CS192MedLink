@@ -2,11 +2,17 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import bcrypt from 'bcryptjs';
 
-import type { CreateAmbulanceServiceDTO, 
+import type { AmbulanceServiceDTO, 
+              BloodBankServiceDTO, 
+              BloodTypeMappingDTO, 
+              CreateAmbulanceServiceDTO, 
               CreateBloodBankServiceDTO, 
               CreateERServiceDTO, 
               CreateICUServiceDTO, 
               CreateOutpatientServiceDTO, 
+              ERServiceDTO, 
+              ICUServiceDTO, 
+              OutpatientServiceDTO, 
               ServiceDTO } from '$lib/server/DTOs';
 
 import { facilityServicePageSize } from '$lib/globalVariables';
@@ -20,7 +26,10 @@ import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
 import { FacilityDAO } from "$lib/server/FacilityDAO";
 import { ServicesDAO } from '$lib/server/ServicesDAO';
 
-import { validateCompletionTime, validateCoverageRadius, validateFloat, validateOperatingHours, validatePhone } from '$lib/server/formValidators';
+import { validateCompletionTime, validateCoverageRadius, validateFloat, validateInteger, validateOperatingHours, validatePhone } from '$lib/server/formValidators';
+import type { Availability, Load } from '@prisma/client';
+import { dateToTimeMapping } from '$lib/Mappings';
+
 
 const ambulanceDAO = new AmbulanceServiceDAO();
 const bloodBankDAO = new BloodBankServiceDAO();
@@ -28,8 +37,6 @@ const eRDAO = new ERServiceDAO();
 const iCUDAO = new ICUServiceDAO();
 const outpatientDAO = new OutpatientServiceDAO();
 const facilityDAO = new FacilityDAO();
-
-let selectedService: ServiceDTO
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -357,6 +364,493 @@ export const actions: Actions = {
       success: true
     }
   },
+
+  editAmbulanceService: async ({ cookies, request }) => {
+    const facilityID = cookies.get('facilityID');
+    if (!facilityID) {
+      throw redirect(303, '/facility');
+    }
+
+    const data = await request.formData();
+    let serviceID = data.get('serviceID');
+
+    if (!serviceID) {
+      return fail(422, { 
+        error: "Service not found",
+        description: "serviceID",
+        success: false  
+      });
+    }
+
+    serviceID = String(serviceID)
+
+    const serviceInfo = await ambulanceDAO.getInformation(serviceID);
+
+    // Original Info
+    const defPhoneNumber: String = serviceInfo.phoneNumber
+    const defOpeningTime: String = dateToTimeMapping(serviceInfo.openingTime)
+    const defClosingTime: String = dateToTimeMapping(serviceInfo.closingTime)
+    const defBaseRate: Number = serviceInfo.baseRate
+    const defMinCoverageRadius: Number = serviceInfo.minCoverageRadius
+    const defMileageRate: Number = serviceInfo.mileageRate
+    const defMaxCoverageRadius: Number = serviceInfo.maxCoverageRadius
+    const defAvailability: Availability = serviceInfo.availability
+
+    // New Info
+    let phoneNumber: string
+    let openingTime: Date
+    let closingTime: Date
+    let baseRate: number
+    let minCoverageRadius: number
+    let mileageRate: number
+    let maxCoverageRadius: number
+    let availability: Availability = data.get('availability') as Availability
+
+    try {
+      phoneNumber = validatePhone(data.get('phoneNumber'));
+      baseRate = validateFloat(data.get('price'), "Base Rate");
+
+      let OCTime = validateOperatingHours(data.get('opening'), data.get('closing'))
+      openingTime = OCTime.openingTime
+      closingTime = OCTime.closingTime
+    
+      let radius = validateCoverageRadius(data.get('minCoverageRadius'), data.get('maxCoverageRadius'))
+      minCoverageRadius = radius.minCoverageRadius
+      maxCoverageRadius = radius.maxCoverageRadius
+
+      mileageRate = validateFloat(data.get('mileageRate'), "Mileage Rate");
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "validation",
+        success: false
+      });
+    }
+
+    const service: AmbulanceServiceDTO = {
+      phoneNumber,
+      openingTime,
+      closingTime,
+      baseRate,
+      minCoverageRadius,
+      mileageRate,
+      maxCoverageRadius,
+      availability, 
+    }
+
+    if (defPhoneNumber == phoneNumber &&
+        defOpeningTime == dateToTimeMapping(openingTime) &&
+        defClosingTime == dateToTimeMapping(closingTime) &&
+        defBaseRate == baseRate &&
+        defMinCoverageRadius == minCoverageRadius &&
+        defMileageRate == mileageRate &&
+        defMaxCoverageRadius == maxCoverageRadius &&
+        defAvailability == availability
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
+    }
+
+    ambulanceDAO.update(serviceID, service)
+
+    throw redirect(303, '/facility/dashboard/manageServices');
+  },
+
+  editBloodBankService: async ({ cookies, request }) => {
+    const facilityID = cookies.get('facilityID');
+    if (!facilityID) {
+      throw redirect(303, '/facility');
+    }
+
+    const data = await request.formData();
+    let serviceID = data.get('serviceID');
+
+    if (!serviceID) {
+      return fail(422, { 
+        error: "Service not found",
+        description: "serviceID",
+        success: false  
+      });
+    }
+
+    serviceID = String(serviceID)
+
+    const serviceInfo = await bloodBankDAO.getInformation(serviceID);
+
+    const defPhoneNumber     : String = serviceInfo.phoneNumber
+    const defOpeningTime     : String = dateToTimeMapping(serviceInfo.openingTime)
+    const defClosingTime     : String = dateToTimeMapping(serviceInfo.closingTime)
+    const defPricePerUnit    : Number = serviceInfo.pricePerUnit
+    const defTurnaroundTimeD : Number = serviceInfo.turnaroundTimeD
+    const defTurnaroundTimeH : Number = serviceInfo.turnaroundTimeH
+    const defA_P  : boolean = serviceInfo.bloodTypeAvailability.A_P
+    const defA_N  : boolean = serviceInfo.bloodTypeAvailability.A_N
+    const defB_P  : boolean = serviceInfo.bloodTypeAvailability.B_P
+    const defB_N  : boolean = serviceInfo.bloodTypeAvailability.B_N
+    const defO_P  : boolean = serviceInfo.bloodTypeAvailability.O_P
+    const defO_N  : boolean = serviceInfo.bloodTypeAvailability.O_N
+    const defAB_P : boolean = serviceInfo.bloodTypeAvailability.AB_P
+    const defAB_N : boolean = serviceInfo.bloodTypeAvailability.AB_N
+
+    let phoneNumber: string
+    let openingTime: Date
+    let closingTime: Date
+    let pricePerUnit: number
+    let turnaroundTimeD: number
+    let turnaroundTimeH: number
+
+    try {
+      phoneNumber = validatePhone(data.get('phoneNumber'));
+      pricePerUnit = validateFloat(data.get('price'), "Price Per Unit");
+
+      let OCTime = validateOperatingHours(data.get('opening'), data.get('closing'))
+      openingTime = OCTime.openingTime
+      closingTime = OCTime.closingTime
+
+      let TTime = validateCompletionTime(data.get('turnaroundDays'), data.get('turnaroundHours'), "Turnarond")
+      turnaroundTimeD = TTime.days
+      turnaroundTimeH = TTime.hours
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "validation",
+        success: false
+      });
+    }
+
+    const A_P  = (data.get('ap') ?? '') === 'on'
+    const A_N  = (data.get('an') ?? '') === 'on'
+    const B_P  = (data.get('bp') ?? '') === 'on'
+    const B_N  = (data.get('bn') ?? '') === 'on'
+    const O_P  = (data.get('op') ?? '') === 'on'
+    const O_N  = (data.get('on') ?? '') === 'on'
+    const AB_P = (data.get('abp') ?? '') === 'on'
+    const AB_N = (data.get('abn') ?? '') === 'on'
+
+    let bloodTypeAvailability: BloodTypeMappingDTO = {
+      A_P ,
+      A_N ,
+      B_P ,
+      B_N ,
+      O_P ,
+      O_N ,
+      AB_P,
+      AB_N,
+    }
+
+    const service: BloodBankServiceDTO = {
+      phoneNumber,
+      openingTime,
+      closingTime,
+      pricePerUnit,
+      turnaroundTimeD,
+      turnaroundTimeH,
+      bloodTypeAvailability,
+    }
+
+    if (defPhoneNumber == phoneNumber &&
+        defOpeningTime == dateToTimeMapping(openingTime) &&
+        defClosingTime == dateToTimeMapping(closingTime) &&
+        defPricePerUnit == pricePerUnit &&
+        defTurnaroundTimeD == turnaroundTimeD &&
+        defTurnaroundTimeH == turnaroundTimeH &&
+        defA_P  == A_P &&
+        defA_N  == A_N &&
+        defB_P  == B_P &&
+        defB_N  == B_N &&
+        defO_P  == O_P &&
+        defO_N  == O_N &&
+        defAB_P == AB_P &&
+        defAB_N == AB_N
+      ) {
+      return fail(422, { 
+          error: "No changes made",
+          description: "button",
+          success: false  
+        });
+    }
+
+
+    bloodBankDAO.update(serviceID, service)
+
+    throw redirect(303, '/facility/dashboard/manageServices');
+  },
+
+  editERService: async ({ cookies, request, params }) => {
+    const facilityID = cookies.get('facilityID');
+    if (!facilityID) {
+      throw redirect(303, '/facility');
+    }
+
+    const data = await request.formData();
+    let serviceID = data.get('serviceID');
+
+    if (!serviceID) {
+      return fail(422, { 
+        error: "Service not found",
+        description: "serviceID",
+        success: false  
+      });
+    }
+
+    serviceID = String(serviceID)
+
+    const serviceInfo = await eRDAO.getInformation(serviceID);
+
+    const defPhoneNumber          : String = serviceInfo.phoneNumber;
+    const defLoad                 : Load   = serviceInfo.load;
+    const defAvailableBeds        : Number = serviceInfo.availableBeds;
+    const defNonUrgentPatients    : Number = serviceInfo.nonUrgentPatients;
+    const defNonUrgentQueueLength : Number = serviceInfo.nonUrgentQueueLength;
+    const defUrgentPatients       : Number = serviceInfo.urgentPatients;
+    const defUrgentQueueLength    : Number = serviceInfo.urgentQueueLength;
+    const defCriticalPatients     : Number = serviceInfo.criticalPatients;
+    const defCriticalQueueLength  : Number = serviceInfo.criticalQueueLength;
+
+    let phoneNumber: string
+    const load: Load = data.get('load') as Load
+    let availableBeds: number
+    let nonUrgentPatients: number
+    let nonUrgentQueueLength: number
+    let urgentPatients: number
+    let urgentQueueLength: number
+    let criticalPatients: number
+    let criticalQueueLength: number
+
+
+    try {
+      phoneNumber = validatePhone(data.get('phoneNumber'));
+      availableBeds = validateInteger(data.get('availableBeds'), "Available Beds");
+      nonUrgentPatients = validateInteger(data.get('nonUrgentPatients'), "Non Urgent Patients");
+      nonUrgentQueueLength = validateInteger(data.get('nonUrgentQueueLength'), "Non Urgent Queue Length");
+      urgentPatients = validateInteger(data.get('urgentPatients'), "Urgent Patients");
+      urgentQueueLength = validateInteger(data.get('urgentQueueLength'), "Urgent Queue Length");
+      criticalPatients = validateInteger(data.get('criticalPatients'), "Critical Patients");
+      criticalQueueLength = validateInteger(data.get('criticalQueueLength'), "Critical Queue Length");
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "validation",
+        success: false
+      });
+    }
+
+
+    const service: ERServiceDTO = {
+      phoneNumber          ,
+      load                 ,
+      availableBeds        ,
+      nonUrgentPatients    ,
+      nonUrgentQueueLength ,
+      urgentPatients       ,
+      urgentQueueLength    ,
+      criticalPatients     ,
+      criticalQueueLength  ,
+    }
+
+    if (defPhoneNumber          == phoneNumber &&
+        defLoad                 == load &&
+        defAvailableBeds        == availableBeds &&
+        defNonUrgentPatients    == nonUrgentPatients &&
+        defNonUrgentQueueLength == nonUrgentQueueLength &&
+        defUrgentPatients       == urgentPatients &&
+        defUrgentQueueLength    == urgentQueueLength &&
+        defCriticalPatients     == criticalPatients &&
+        defCriticalQueueLength  == criticalQueueLength
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
+    }
+
+    eRDAO.update(serviceID, service)
+
+    throw redirect(303, '/facility/dashboard/manageServices');
+  },
+
+  editICUService: async ({ cookies, request, params }) => {
+    const facilityID = cookies.get('facilityID');
+    if (!facilityID) {
+      throw redirect(303, '/facility');
+    }
+
+    const data = await request.formData();
+    let serviceID = data.get('serviceID');
+
+    if (!serviceID) {
+      return fail(422, { 
+        error: "Service not found",
+        description: "serviceID",
+        success: false  
+      });
+    }
+
+    serviceID = String(serviceID)
+
+    const serviceInfo = await iCUDAO.getInformation(serviceID);
+
+    const defPhoneNumber: String = serviceInfo.phoneNumber
+    const defBaseRate: Number = serviceInfo.baseRate
+    const defLoad: Load = serviceInfo.load
+    const defAvailableBeds: Number = serviceInfo.availableBeds
+    const defCardiacSupport: boolean = serviceInfo.cardiacSupport
+    const defNeurologicalSupport: boolean = serviceInfo.neurologicalSupport
+    const defRenalSupport: boolean = serviceInfo.renalSupport
+    const defRespiratorySupport: boolean = serviceInfo.respiratorySupport
+
+
+    let phoneNumber: string
+    let baseRate: number
+    const load: Load = data.get('load') as Load
+    let availableBeds: number
+    let cardiacSupport: boolean
+    let neurologicalSupport: boolean
+    let renalSupport: boolean
+    let respiratorySupport: boolean
+
+    try {
+      phoneNumber = validatePhone(data.get('phoneNumber'));
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "phoneNumber",
+        success: false
+      });
+    }
+
+    try {
+      baseRate = validateFloat(data.get('price'), "Base Rate");
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "price",
+        success: false
+      });
+    }
+
+    try {
+      availableBeds = validateInteger(data.get('availableBeds'), "Available Beds");
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "availableBeds",
+        success: false
+      });
+    }
+
+    cardiacSupport      = (data.get('cardiacSupport') ?? '') === 'on'
+    neurologicalSupport = (data.get('neurologicalSupport') ?? '') === 'on'
+    renalSupport        = (data.get('renalSupport') ?? '') === 'on'
+    respiratorySupport  = (data.get('respiratorySupport') ?? '') === 'on'
+
+    const service: ICUServiceDTO = {
+      phoneNumber         ,
+      baseRate            ,
+      load                ,
+      availableBeds       ,
+      cardiacSupport      ,
+      neurologicalSupport ,
+      renalSupport        ,
+      respiratorySupport  ,
+    }
+
+    if (defPhoneNumber         == phoneNumber &&
+        defBaseRate            == baseRate &&
+        defLoad                == load &&
+        defAvailableBeds       == availableBeds &&
+        defCardiacSupport      == cardiacSupport &&
+        defNeurologicalSupport == neurologicalSupport &&
+        defRenalSupport        == renalSupport &&
+        defRespiratorySupport  == respiratorySupport
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
+    }
+
+    iCUDAO.update(serviceID, service)
+
+    throw redirect(303, '/facility/dashboard/manageServices');
+  },
+
+  editOPService: async ({ cookies, request, params }) => {
+    const facilityID = cookies.get('facilityID');
+    if (!facilityID) {
+      throw redirect(303, '/facility');
+    }
+
+    const data = await request.formData();
+    let serviceID = data.get('serviceID');
+
+    if (!serviceID) {
+      return fail(422, { 
+        error: "Service not found",
+        description: "serviceID",
+        success: false  
+      });
+    }
+
+    serviceID = String(serviceID)
+
+    const serviceInfo = await outpatientDAO.getInformation(serviceID);
+
+    const defPrice: Number = serviceInfo.price
+    const defCompletionTimeD: Number = serviceInfo.completionTimeD
+    const defCompletionTimeH: Number = serviceInfo.completionTimeH
+    const defIsAvailable: boolean = serviceInfo.isAvailable
+    const defAcceptsWalkIns: boolean = serviceInfo.acceptsWalkIns
+
+    let price: number
+    let completionTimeD: number
+    let completionTimeH: number
+    const isAvailable: boolean = (data.get('availability') ?? '') === 'on'
+    const acceptsWalkIns: boolean = (data.get('acceptWalkins') ?? '') === 'on'
+
+    try {
+      price = validateFloat(data.get('price'), "Base Rate");
+      let TTime = validateCompletionTime(data.get('completionDays'), data.get('completionHours'), "Completion")
+      completionTimeD = TTime.days
+      completionTimeH = TTime.hours
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        success: false
+      });
+    }
+
+    const service: OutpatientServiceDTO = {
+      price                 ,
+      completionTimeD       ,
+      completionTimeH       ,
+      isAvailable           ,
+      acceptsWalkIns        ,
+    }
+
+    if (defPrice == price &&
+        defCompletionTimeD == completionTimeD &&
+        defCompletionTimeH == completionTimeH &&
+        defIsAvailable == isAvailable &&
+        defAcceptsWalkIns == acceptsWalkIns
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
+    }
+
+    outpatientDAO.update(serviceID, service)
+
+    throw redirect(303, '/facility/dashboard/manageServices');
+        
+  }
 };
 
 

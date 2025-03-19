@@ -6,8 +6,8 @@
 
 
 <form method="POST" 
-action="?/updateService"
-use:enhance
+  action="?/updateService"
+  use:enhance
 >
 <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
   <!-- Left Panel (Static) -->

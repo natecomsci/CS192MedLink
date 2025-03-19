@@ -16,40 +16,22 @@
   import AddService from './AddService.svelte';
   import EditService from './EditService.svelte';
 
-  function serviceTypeURL(type: string): String {
-    if (!specializedServiceType.includes(type)) {
-      return "editOPService"
-    } else if (type == "Ambulance") {
-      return "editAmbulanceService"
-    } else if (type == "Blood Bank") {
-      return "editBloodBankService"
-    } else if (type == "Emergency Room") {
-      return "editERService"
-    } else {
-      return "editICUService"
-    }
-  }
-
-  let selectedServiceID: String = $state('');
   let selectedServiceType: String = $state('');
+  let selectedServiceID: String = $state('');
 
   let currPopUp: String = $state("")
-  let currService: String = $state("")
 
   let search: String = $state("");
 
-  function openDeletePopUp(serviceID: String, type: String) {    
-    selectedServiceID = serviceID;
-    selectedServiceType = type;
-
-    currPopUp = services.length > 1 ? 'delete' : 'deleteRestricted'
-  }
-
   async function getPage(currPage: number, change: number, maxPages: number) {
-    const body = JSON.stringify({currPage, change, maxPages});
+    if ((currPage === 1 && change === -1) || (currPage === maxPages && change === 1)) {
+      return
+    } 
+
+    const body = JSON.stringify({currPage, change});
 
     try {
-      const response = await fetch("./manageServices", {
+      const response = await fetch("./manageServices/facilityHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,26 +67,18 @@
   />
 
 {:else if currPopUp === "addService"}
-  <AddService { data } { form }
+  <AddService 
+    { data } 
+    { form }
     bind:currPopUp={currPopUp}
   />
 {:else if currPopUp === "editService"}
-  <EditService { data } { form }
+  <EditService 
+    { form }
     bind:currPopUp={currPopUp}
-    bind:currService={currService}
+    serviceType={selectedServiceType}
+    serviceID={selectedServiceID}
   />
-
-  <!-- Di ko nagamit eisen srry -->
-{:else if currPopUp === "editAmbulance"}
-<!-- insert editAmbulance PopUP -->
-{:else if currPopUp === "editBloodBank"}
-<!-- insert editBloodBank PopUP -->
-{:else if currPopUp === "editER"}
-<!-- insert editER PopUP -->
-{:else if currPopUp === "editICU"}
-<!-- insert editICU PopUP -->
-{:else if currPopUp === "editOP"}
-<!-- insert editOP PopUP -->
 {/if}
 
 <!-- Header -->
@@ -158,22 +132,26 @@
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
 
-            <!-- edit button ANCHOR TO SEPARATE PAGES -->
+            <!-- edit button -->
             <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
-            </a>
+            </a> -->
 
-            <!-- edit button POP UPS!-->
+            <!-- edit button -->
             <button onclick={() => {currPopUp='editService', currService=type}} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
-            <!-- <button class="inline-flex items-center" onclick={() => openAddServicePopUp(serviceID, type)}  data-sveltekit-reload>
-              <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
-            </button> -->
-
             <!-- Delete Button (Opens Modal) -->
-            <button type="button" class="inline-flex items-center" onclick={() => openDeletePopUp(serviceID, type)} data-sveltekit-reload>
+            <button 
+              type="button" 
+              class="inline-flex items-center" 
+              onclick={() => {selectedServiceID = serviceID,
+                              selectedServiceType = type,
+                              currPopUp = services.length > 1 ? 'delete' : 'deleteRestricted'}
+                              } 
+                data-sveltekit-reload
+            >
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
