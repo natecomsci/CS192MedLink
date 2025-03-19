@@ -4,7 +4,7 @@
 
   import { load } from '$lib/projectArrays';
     import type { Load } from '@prisma/client';
-  let { form, serviceID }: { form: ActionData, serviceID: String } = $props();
+  let { form, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String} = $props();
 
   let phoneNumber: String = $state('')
   let baseRate: Number = $state(0)
@@ -49,7 +49,6 @@
     }
   }
   getData()
-
 </script>
 
 <form method="POST" 
@@ -57,6 +56,9 @@
     action="?/editICUService"
     use:enhance
 >
+  {#if form?.success}
+    {currPopUp = ""}
+  {/if}
     <label class="grid grid-cols-1" >
       {#if form?.error}
           <p class="error">{form.error}</p>

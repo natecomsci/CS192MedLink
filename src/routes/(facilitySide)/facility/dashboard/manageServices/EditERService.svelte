@@ -4,8 +4,8 @@
   
   import { load } from '$lib/projectArrays'
     import type { Load } from '@prisma/client';
-  let { form, serviceID }: { form: ActionData, serviceID: String } = $props();
-
+  let { form, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String} = $props();
+  
   let phoneNumber          : String = $state('')
   let loadVal              : Load   = $state("CLOSED" as Load)
   let availableBeds        : Number = $state(0)

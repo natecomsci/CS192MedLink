@@ -1,5 +1,8 @@
 <script lang="ts">
-    let { serviceID, serviceType, form, currPopUp = $bindable() } = $props();
+    import { enhance } from "$app/forms";
+    import type { ActionData } from "./$types";
+
+    let { form, serviceType, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceType: String, serviceID: String, currPopUp: String} = $props();
 </script>
 
 <!-- Modal Overlay -->
@@ -8,9 +11,8 @@
       <h2 class="text-lg font-bold">Confirm Deletion</h2>
       <p>Are you sure you want to delete this service?</p>
 
-
       <!-- Hidden Form for Deletion -->
-      <form id="deleteForm" method="POST" action="?/deleteService">
+      <form id="deleteForm" method="POST" action="?/deleteService" use:enhance>
             {#if form?.error}
               <p class="text-red-500 text-sm font-semibold">{form.error}</p>
             {/if}
@@ -28,12 +30,10 @@
                   required 
               />
           </div>
+        <div class="flex justify-end space-x-2 mt-4">
+            <button class="px-4 py-2 bg-gray-300 rounded" onclick={() => {currPopUp = ''}} type="button">Cancel</button>
+            <button class="px-4 py-2 bg-red-600 text-white rounded" type="submit">Confirm</button>
+        </div>
       </form>
-
-      <!-- Buttons -->
-      <div class="flex justify-end space-x-2 mt-4">
-          <button class="px-4 py-2 bg-gray-300 rounded" onclick={() => {currPopUp = ''}}>Cancel</button>
-          <button class="px-4 py-2 bg-red-600 text-white rounded" type="submit">Confirm</button>
-      </div>
   </div>
 </div>

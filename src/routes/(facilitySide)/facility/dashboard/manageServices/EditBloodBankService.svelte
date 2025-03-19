@@ -2,7 +2,7 @@
   import type { ActionData } from './$types';
   import { enhance } from '$app/forms';
       
-  let { form, serviceID }: { form: ActionData, serviceID: String } = $props();
+  let { form, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String} = $props();
 
   let phoneNumber     : String = $state('')
   let openingTime     : String = $state('')
@@ -66,6 +66,9 @@
   action="?/editBloodBankService"
   use:enhance
 >
+  {#if form?.success}
+    {currPopUp = ""}
+  {/if}
   <label class="grid grid-cols-1" >
       {#if form?.error}
       <p class="error">{form.error}</p>

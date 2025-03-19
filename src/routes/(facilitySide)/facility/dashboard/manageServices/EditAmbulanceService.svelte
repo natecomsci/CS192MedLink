@@ -3,7 +3,7 @@
   import { enhance } from '$app/forms';
   
   import { availability } from "$lib/projectArrays";
-  let { form, serviceID }: { form: ActionData, serviceID: String } = $props();
+  let { form, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String} = $props();
 
   let phoneNumber: string = $state('')
   let openingTime: Date = $state(new Date())
@@ -53,6 +53,9 @@
     action="?/editAmbulanceService"
     use:enhance
 >
+    {#if form?.success}
+    {currPopUp = ""}
+  {/if}
     <label class="grid grid-cols-1" >
         {#if form?.error}
         <p class="error">{form.error}</p>

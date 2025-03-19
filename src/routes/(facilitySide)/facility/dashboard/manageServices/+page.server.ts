@@ -30,7 +30,7 @@ import { validateCompletionTime, validateCoverageRadius, validateFloat, validate
 import type { Availability, Load } from '@prisma/client';
 import { dateToTimeMapping } from '$lib/Mappings';
 
-
+// DAOs
 const ambulanceDAO = new AmbulanceServiceDAO();
 const bloodBankDAO = new BloodBankServiceDAO();
 const eRDAO = new ERServiceDAO();
@@ -39,6 +39,28 @@ const outpatientDAO = new OutpatientServiceDAO();
 const facilityDAO = new FacilityDAO();
 
 export const load: PageServerLoad = async ({ cookies }) => {
+  function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[] {
+    let availableServices: String[] = ["None"]
+    
+    for (let serviceType of specializedServiceType) { 
+      if (!serviceTypes.includes(serviceType)) {
+        availableServices.push(serviceType);
+      }
+    }
+    return availableServices
+  }
+
+  function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
+    let availableOPServices: String[] = ["None"]
+    
+    for (let serviceType of OPServiceTypes) { 
+      if (!serviceTypes.includes(serviceType)) {
+        availableOPServices.push(serviceType)
+      }
+    }
+    return availableOPServices;
+  }
+
   const facilityID = cookies.get('facilityID');
 
   if (!facilityID) {
@@ -148,6 +170,12 @@ export const actions: Actions = {
   },
   
   addService: async ({ cookies, request }) => {
+    const facilityID = cookies.get('facilityID');
+
+    if (!facilityID) {
+      throw redirect(303, '/facility');
+    }
+
     const data = await request.formData();
 
     const serviceType = data.get('serviceType');
@@ -160,22 +188,13 @@ export const actions: Actions = {
     const mileRate = data.get('mileageRate');
     const maxCover = data.get('maxCoverageRadius');
 
-
     const turnTD  = data.get('turnaroundDays');
     const turnTH  = data.get('turnaroundHours');
-
 
     const OPType  = data.get('OPserviceType');
     const compTD  = data.get('completionDays');
     const compTH  = data.get('completionHours');
     const walkins = data.get('acceptWalkins');
-    
-
-    const facilityID = cookies.get('facilityID');
-
-    if (!facilityID) {
-      throw redirect(303, '/facility');
-    }
     
     switch (serviceType){
       case "Ambulance": {
@@ -456,7 +475,9 @@ export const actions: Actions = {
 
     ambulanceDAO.update(serviceID, service)
 
-    throw redirect(303, '/facility/dashboard/manageServices');
+    return {
+      success: true
+    }
   },
 
   editBloodBankService: async ({ cookies, request }) => {
@@ -576,10 +597,12 @@ export const actions: Actions = {
 
     bloodBankDAO.update(serviceID, service)
 
-    throw redirect(303, '/facility/dashboard/manageServices');
+    return {
+      success: true
+    }
   },
 
-  editERService: async ({ cookies, request, params }) => {
+  editERService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     if (!facilityID) {
       throw redirect(303, '/facility');
@@ -670,10 +693,12 @@ export const actions: Actions = {
 
     eRDAO.update(serviceID, service)
 
-    throw redirect(303, '/facility/dashboard/manageServices');
+    return {
+      success: true
+    }
   },
 
-  editICUService: async ({ cookies, request, params }) => {
+  editICUService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     if (!facilityID) {
       throw redirect(303, '/facility');
@@ -777,10 +802,12 @@ export const actions: Actions = {
 
     iCUDAO.update(serviceID, service)
 
-    throw redirect(303, '/facility/dashboard/manageServices');
+    return {
+      success: true
+    }
   },
 
-  editOPService: async ({ cookies, request, params }) => {
+  editOPService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     if (!facilityID) {
       throw redirect(303, '/facility');
@@ -810,8 +837,8 @@ export const actions: Actions = {
     let price: number
     let completionTimeD: number
     let completionTimeH: number
-    const isAvailable: boolean = (data.get('availability') ?? '') === 'on'
-    const acceptsWalkIns: boolean = (data.get('acceptWalkins') ?? '') === 'on'
+    const isAvailable: boolean = (data.get('isAvailable') ?? '') === 'on'
+    const acceptsWalkIns: boolean = (data.get('acceptsWalkIns') ?? '') === 'on'
 
     try {
       price = validateFloat(data.get('price'), "Base Rate");
@@ -848,31 +875,8 @@ export const actions: Actions = {
 
     outpatientDAO.update(serviceID, service)
 
-    throw redirect(303, '/facility/dashboard/manageServices');
-        
+    return {
+      success: true
+    }
   }
 };
-
-
-function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[] {
-  let availableServices: String[] = ["None"]
-  
-  for (let serviceType of specializedServiceType) { 
-    if (!serviceTypes.includes(serviceType)) {
-      availableServices.push(serviceType);
-    }
-  }
-  return availableServices
-}
-
-function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
-  let availableOPServices: String[] = ["None"]
-  
-  for (let serviceType of OPServiceTypes) { 
-    if (!serviceTypes.includes(serviceType)) {
-      availableOPServices.push(serviceType)
-    }
-  }
-  return availableOPServices;
-}
-

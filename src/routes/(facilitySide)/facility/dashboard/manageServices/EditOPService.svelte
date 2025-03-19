@@ -2,8 +2,8 @@
   import type { ActionData } from './$types';
   import { enhance } from '$app/forms';
 
-  let { form, serviceID }: { form: ActionData, serviceID: String } = $props();
-
+  let { form, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String} = $props();
+  
   let price: Number = $state(0)
   let completionTimeD: Number = $state(0)
   let completionTimeH: Number = $state(0)
@@ -43,24 +43,33 @@
 
 </script>
 
+
 <form method="POST" 
     id="editService"
     action="?/editOPService"
     use:enhance
 >
-<div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
+  {#if form?.success}
+    {currPopUp = ""}
+  {/if}
+  <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
 
 <!-- Vertical Divider -->
-<div class="w-[2px] bg-gray-300"></div>
+    <div class="w-[2px] bg-gray-300"></div>
 
 <!-- Right Panel (Scrollable) -->
-  <div class="flex-1 p-6 overflow-y-auto border border-green-100">
-    <label class="grid grid-cols-1" >
-      {#if form?.error}
-          <p class="error">{form.error}</p>
-      {/if}
       <div class="flex-1 p-6 overflow-y-auto border border-green-100">
-  
+        <label class="grid grid-cols-1" >
+          {#if form?.error}
+              <p class="error">{form.error}</p>
+          {/if}
+            <div class="flex-1 p-6 overflow-y-auto border border-green-100">
+              <input 
+                  class="hidden" 
+                  name="serviceID"
+                  type="text"
+                  value={serviceID}
+              />
           <!-- Turnaround Time -->
           <div class="card">
               <label><span class="text-label">Completion Time</span>
@@ -84,8 +93,8 @@
                       />
                       Hours
                   </div>
-              </label>
-          </div>
+                </label>
+              </div>
   
   
           <!-- Price Rate -->

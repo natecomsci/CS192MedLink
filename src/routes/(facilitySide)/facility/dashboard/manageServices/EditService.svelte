@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ActionData } from './$types';
+  import type { PageData, ActionData } from './$types';
 
   import EditAmbulanceService from './EditAmbulanceService.svelte';
   import EditBloodBankService from './EditBloodBankService.svelte';
@@ -7,10 +7,9 @@
   import EditICUService from './EditICUService.svelte';
   import EditOPService from './EditOPService.svelte';
 
-  let { form, serviceType, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceType: String, serviceID: String, currPopUp: String} = $props();
+  let { data, form, serviceType, serviceID, currPopUp = $bindable()}: {data: PageData, form: ActionData, serviceType: String, serviceID: String, currPopUp: String} = $props();
 
 </script>
- 
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
   <div class=" w-11/12 max-w-3/4 rounded-lg  overflow-hidden ">
     <div class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl p-2 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
@@ -39,35 +38,40 @@
 
         <!-- Right Panel -->
         <div class="flex-1 p-6 overflow-y-auto  "> 
-            <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{serviceType}</h2>
-            <label class="grid grid-cols-1">
-                {#if serviceType == "Ambulance"}
-                  <EditAmbulanceService 
-                    { form }
-                    { serviceID }
-                  />
-                {:else if serviceType == "Blood Bank"}
-                  <EditBloodBankService
-                    { form }
-                    { serviceID }
-                  />
-                {:else if serviceType == "Emergency Room"}
-                  <EditERService
-                    { form }
-                    { serviceID }
-                  />
-                {:else if serviceType == "Intensive Care Unit"}
-                  <EditICUService
-                    { form }
-                    { serviceID }
-                  />
-                {:else}
-                  <EditOPService
-                    { form }
-                    { serviceID }
-                  />
-                {/if}
-            </label>
+          <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{serviceType}</h2>
+          <label class="grid grid-cols-1">
+              {#if serviceType == "Ambulance"}
+                <EditAmbulanceService 
+                  { form }
+                  { serviceID }
+                  bind:currPopUp={currPopUp}
+                />
+              {:else if serviceType == "Blood Bank"}
+                <EditBloodBankService
+                  { form }
+                  { serviceID }
+                  bind:currPopUp={currPopUp}
+                />
+              {:else if serviceType == "Emergency Room"}
+                <EditERService
+                  { form }
+                  { serviceID }
+                  bind:currPopUp={currPopUp}
+                />
+              {:else if serviceType == "Intensive Care Unit"}
+                <EditICUService
+                  { form }
+                  { serviceID }
+                  bind:currPopUp={currPopUp}
+                />
+              {:else}
+                <EditOPService
+                  { form }
+                  { serviceID }
+                  bind:currPopUp={currPopUp}
+                />
+              {/if}
+          </label>
         </div>
       </div>
     </div>

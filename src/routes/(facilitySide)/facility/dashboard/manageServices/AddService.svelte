@@ -56,20 +56,20 @@
         <div class="flex-1 p-6 overflow-y-auto  "> 
             <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{serviceType}</h2>
             <label class="grid grid-cols-1">
-                {#if form?.error}
-                    <p class="error">{form.error}</p>
-                {/if}
-                {#if serviceType == "Ambulance"}
-                  <AmbulanceService />
-                {:else if serviceType == "Blood Bank"}
-                  <BloodBankService/>
-                {:else if serviceType == "Emergency Room"}
-                  <ERService />
-                {:else if serviceType == "Intensive Care Unit"}
-                  <ICUService />
-                {:else if serviceType == "Outpatient"}
-                  <OutpatientService {data} {form}/>
-                {/if}
+              {#if form?.error}
+                  <p class="error">{form.error}</p>
+              {/if}
+              {#if serviceType == "Ambulance"}
+                <AmbulanceService />
+              {:else if serviceType == "Blood Bank"}
+                <BloodBankService/>
+              {:else if serviceType == "Emergency Room"}
+                <ERService />
+              {:else if serviceType == "Intensive Care Unit"}
+                <ICUService />
+              {:else if serviceType == "Outpatient"}
+                <OutpatientService {data} {form}/>
+              {/if}
             </label>
         </div>
       </div>

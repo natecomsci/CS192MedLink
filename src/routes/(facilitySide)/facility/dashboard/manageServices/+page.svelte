@@ -53,6 +53,10 @@
 
 </script>
 
+{#if data.success}
+    {currPopUp = ""}
+  {/if}
+
 {#if currPopUp === "delete"}
   <DeleteServiceConfirm
     serviceID={selectedServiceID}
@@ -74,6 +78,7 @@
   />
 {:else if currPopUp === "editService"}
   <EditService 
+    { data } 
     { form }
     bind:currPopUp={currPopUp}
     serviceType={selectedServiceType}
