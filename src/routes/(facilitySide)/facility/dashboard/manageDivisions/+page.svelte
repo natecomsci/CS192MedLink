@@ -31,7 +31,7 @@
     const body = JSON.stringify({currPage, change});
 
     try {
-      const response = await fetch("./manageServices/adminHandler", {
+      const response = await fetch("./manageDivisions/adminHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,12 +65,12 @@
     bind:currPopUp={currPopUp}
   />
 
-{:else if currPopUp === "addAdmin"}
+{:else if currPopUp === "addDivision"}
   <AddDivision 
     { form }
     bind:currPopUp={currPopUp}
   />
-{:else if currPopUp === "editAdmin"}
+{:else if currPopUp === "editDivision"}
   <EditDivision 
     { firstname }
     { middlename }

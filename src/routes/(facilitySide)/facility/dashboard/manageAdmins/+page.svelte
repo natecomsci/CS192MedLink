@@ -31,7 +31,7 @@
     const body = JSON.stringify({currPage, change});
 
     try {
-      const response = await fetch("./manageServices/adminHandler", {
+      const response = await fetch("./manageAdmins/adminHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
