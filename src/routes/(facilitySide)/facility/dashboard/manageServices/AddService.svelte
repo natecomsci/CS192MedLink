@@ -1,15 +1,15 @@
 <script lang="ts">
 
-  import type { PageProps } from './$types';
+  import type { ActionData, PageData, PageProps } from './$types';
 
-  import AmbulanceService from './AmbulanceService.svelte';
-  import BloodBankService from './BloodBankService.svelte';
-  import ERService from './ERService.svelte';
-  import ICUService from './ICUService.svelte';
-  import OutpatientService from './OutpatientService.svelte';
+  import AmbulanceService from './AddAmbulanceService.svelte';
+  import BloodBankService from './AddBloodBankService.svelte';
+  import ERService from './AddERService.svelte';
+  import ICUService from './AddICUService.svelte';
+  import OutpatientService from './AddOutpatientService.svelte';
   import { enhance } from '$app/forms';
 
-  let { data, form, currPopUp = $bindable() } = $props();
+  let { data, form, currPopUp = $bindable() }: { data: PageData, form: ActionData, currPopUp: String } = $props();
   let serviceType: String = $state('');
   let division: String = $state('');
 

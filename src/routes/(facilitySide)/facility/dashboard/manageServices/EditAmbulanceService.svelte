@@ -1,15 +1,57 @@
 <script lang="ts">
-  import type { PageProps } from "./$types";
+  import type { ActionData } from "./$types";
   import { enhance } from '$app/forms';
-    import { availability } from "$lib/projectArrays";
+  
+  import { availability } from "$lib/projectArrays";
+  let { form, serviceID }: { form: ActionData, serviceID: String } = $props();
 
-  let { data, form }: PageProps = $props();
+  let phoneNumber: string = $state('')
+  let openingTime: Date = $state(new Date())
+  let closingTime: Date = $state(new Date())
+  let baseRate: number = $state(0)
+  let minCoverageRadius: number = $state(0)
+  let mileageRate: number = $state(0)
+  let maxCoverageRadius: number = $state(0)
+
+  async function getData() {
+    const body = JSON.stringify({serviceID, serviceType:"Ambulance"});
+
+    try {
+      const response = await fetch("./manageServices/serviceInfoHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+      console.log(rv)
+
+      phoneNumber = rv.phoneNumber
+      openingTime = rv.openingTime
+      closingTime = rv.closingTime
+      baseRate = rv.baseRate
+      minCoverageRadius = rv.minCoverageRadius
+      mileageRate = rv.mileageRate
+      maxCoverageRadius = rv.maxCoverageRadius
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+  getData()
+
 </script>
 
-
 <form method="POST" 
-action="?/updateService"
-use:enhance
+    id="editService"
+    action="?/editAmbulanceService"
+    use:enhance
 >
     <label class="grid grid-cols-1" >
         {#if form?.error}
@@ -18,14 +60,19 @@ use:enhance
 
         <div class="container">
             <!-- Phone Number -->
+            <input 
+                class="hidden" 
+                name="serviceID"
+                type="text"
+                value={serviceID}
+            />
             <div class="card">
                 <label><span class ="text-label">Phone No.</span>
                     <input 
                         class="input-box" 
                         name="phoneNumber"
                         type="tel"
-                        
-                        
+                        value={phoneNumber}
                     />
                 </label>
             </div>
@@ -38,14 +85,14 @@ use:enhance
                         class="input-box w-30"
                         name="opening"
                         type="time"
-                        
+                        value={openingTime}
                         >
                         to
                         <input 
                         class="input-box w-30"
                         name="closing"
                         type="time"
-                        
+                        value={closingTime}
                         >
                     </div>
                 </label>
@@ -61,7 +108,7 @@ use:enhance
                         placeholder="Price"
                         step=0.01
                         min=0
-                        
+                        value={baseRate}
                     />
                 </label>
             </div>
@@ -79,8 +126,8 @@ use:enhance
                             class = "input-box w-30"
                             step=0.01
                             min=0
-                            
-                            >
+                            value={minCoverageRadius}
+                              >
                             km
                         </label>
                         
@@ -93,7 +140,7 @@ use:enhance
                             class = "input-box w-30"
                             step=0.01
                             min=0
-                            
+                            value={maxCoverageRadius}
                             >
                             km
                         </label>
@@ -111,7 +158,7 @@ use:enhance
                         placeholder="Mileage Rate" 
                         step=0.01
                         min=0
-                        
+                        value={mileageRate}
                     />
                 </label>
             </div>
@@ -127,8 +174,5 @@ use:enhance
             </label>
             </div>
         </div>
-    
-
-
     </label>
 </form>

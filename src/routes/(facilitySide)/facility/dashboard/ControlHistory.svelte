@@ -15,7 +15,7 @@
     const body = JSON.stringify({currPage, change, maxPages});
 
     try {
-      const response = await fetch("./dashboard", {
+      const response = await fetch("./dashboard/manageServices/facilityHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

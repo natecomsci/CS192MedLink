@@ -1,44 +1,64 @@
 <script lang="ts">
-  import type { PageProps } from './$types';
-  import { load } from '$lib/projectArrays';
+  import type { ActionData } from './$types';
   import { enhance } from '$app/forms';
 
-  let { data, form }: PageProps = $props();
+  let { form, serviceID }: { form: ActionData, serviceID: String } = $props();
+
+  let price: Number = $state(0)
+  let completionTimeD: Number = $state(0)
+  let completionTimeH: Number = $state(0)
+  let isAvailable: boolean = $state(false)
+  let acceptsWalkIns: boolean = $state(false)
+
+  async function getData() {
+    const body = JSON.stringify({serviceID, serviceType:"Outpatient"});
+
+    try {
+      const response = await fetch("./manageServices/serviceInfoHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+      console.log(rv)
+
+      price = rv.price
+      completionTimeD = rv.completionTimeD
+      completionTimeH = rv.completionTimeH
+      isAvailable = rv.isAvailable
+      acceptsWalkIns = rv.acceptsWalkIns
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+  getData()
+
 </script>
 
 <form method="POST" 
-action="?/updateService"
-use:enhance
+    id="editService"
+    action="?/editOPService"
+    use:enhance
 >
 <div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
-<!-- Left Panel (Static) -->
-<div class="w-1/3 bg-white p-6 flex flex-col shadow-md border border-purple-700">
-    <!-- Back Button & Edit Ambulance Service-->
-    <div class= "flex items-center gap-5">
-        <a href="/facility/dashboard/manageServices" data-sveltekit-reload>
-          <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
-        </a>
-
-        <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Edit INSERT NAME Service</h1>
-    </div>
-
-    <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
-        Edit Service
-    </button>
-</div>
 
 <!-- Vertical Divider -->
 <div class="w-[2px] bg-gray-300"></div>
 
 <!-- Right Panel (Scrollable) -->
-<div class="flex-1 p-6 overflow-y-auto border border-green-100">
-    <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Attributes</h2>
+  <div class="flex-1 p-6 overflow-y-auto border border-green-100">
     <label class="grid grid-cols-1" >
       {#if form?.error}
           <p class="error">{form.error}</p>
       {/if}
-
-
       <div class="flex-1 p-6 overflow-y-auto border border-green-100">
   
           <!-- Turnaround Time -->
@@ -50,16 +70,17 @@ use:enhance
                           type="number" 
                           name="completionDays"
                           class="border p-2 rounded  w-30" 
-                          placeholder="Days" 
-                           />
+                          placeholder="Days"
+                          value={completionTimeD}
+                      />
                       Days
                   
                       <input 
                           type="number" 
                           name="completionHours"
                           class="border p-2 rounded  w-30" 
-                          placeholder="Hours" 
-                          
+                          placeholder="Hours"
+                          value={completionTimeH}
                       />
                       Hours
                   </div>
@@ -77,7 +98,7 @@ use:enhance
                       placeholder="Price"
                       step=0.01
                       min=0
-                       
+                      value={price}
                   />
                   
               </label>
@@ -89,6 +110,7 @@ use:enhance
               <input 
                 name="isAvailable" 
                 type="checkbox"
+                checked={isAvailable}
               >
             </label>
             <label>
@@ -96,6 +118,7 @@ use:enhance
               <input 
                 name="acceptsWalkIns" 
                 type="checkbox"
+                checked={acceptsWalkIns}
               >
             </label>
           </div>
