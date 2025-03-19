@@ -133,13 +133,8 @@
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
 
-            <!-- edit button -->
-            <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center" data-sveltekit-reload>
-              <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
-            </a> -->
 
-            <!-- edit button -->
-            <button onclick={() => {currPopUp='editService', currService=type}} class="inline-flex items-center" data-sveltekit-reload>
+            <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID}} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
