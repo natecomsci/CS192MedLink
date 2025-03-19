@@ -93,8 +93,8 @@
     bind:currPopUp={currPopUp}
     bind:currService={currService}
   />
-<!-- insert editAmbulance PopUP -->
 
+  <!-- Di ko nagamit eisen srry -->
 {:else if currPopUp === "editAmbulance"}
 <!-- insert editAmbulance PopUP -->
 {:else if currPopUp === "editBloodBank"}
@@ -158,12 +158,12 @@
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
 
-            <!-- edit button -->
+            <!-- edit button ANCHOR TO SEPARATE PAGES -->
             <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </a>
 
-            <!-- edit button -->
+            <!-- edit button POP UPS!-->
             <button onclick={() => {currPopUp='editService', currService=type}} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>

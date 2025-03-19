@@ -58,15 +58,15 @@
                     <p class="error">{form.error}</p>
                 {/if}
                 {#if currService == "Ambulance"}
-                  <EditAmbulanceService />
+                  <EditAmbulanceService {data} {form}/>
                 {:else if currService == "Blood Bank"}
-                  <EditBloodBankService/>
+                  <EditBloodBankService {data} {form}/>
                 {:else if currService == "Emergency Room"}
-                  <EditERService />
+                  <EditERService {data} {form} />
                 {:else if currService == "Intensive Care Unit"}
-                  <EditICUService />
+                  <EditICUService {data} {form}/>
                 {:else if currService == "Outpatient"}
-                  <EditOPService/>
+                  <EditOPService {data} {form}/>
                 {/if}
             </label>
         </div>

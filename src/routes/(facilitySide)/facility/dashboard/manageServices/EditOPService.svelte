@@ -10,46 +10,20 @@
 action="?/updateService"
 use:enhance
 >
-<div class=" h-[calc(100vh-100px)] flex bg-gray-100 border border-black">
-<!-- Left Panel (Static) -->
-<div class="w-1/3 bg-white p-6 flex flex-col shadow-md border border-purple-700">
-    <!-- Back Button & Edit Ambulance Service-->
-    <div class= "flex items-center gap-5">
-        <a href="/facility/dashboard/manageServices" data-sveltekit-reload>
-          <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
-        </a>
-
-        <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Edit INSERT NAME Service</h1>
-    </div>
-
-    <button class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">
-        Edit Service
-    </button>
-</div>
-
-<!-- Vertical Divider -->
-<div class="w-[2px] bg-gray-300"></div>
-
-<!-- Right Panel (Scrollable) -->
-<div class="flex-1 p-6 overflow-y-auto border border-green-100">
-    <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Attributes</h2>
     <label class="grid grid-cols-1" >
       {#if form?.error}
           <p class="error">{form.error}</p>
       {/if}
-
-
-      <div class="flex-1 p-6 overflow-y-auto border border-green-100">
-  
+      <div class="container">
           <!-- Turnaround Time -->
-          <div class="mt-4 bg-white p-4 rounded-lg shadow">
-              <label class="block text-gray-700 ">Completion Time
+          <div class="card">
+              <label><span class="text-label">Completion Time</span>
                   <div class="flex items-center gap-2">
   
                       <input 
                           type="number" 
                           name="completionDays"
-                          class="border p-2 rounded  w-30" 
+                          class="input-box  w-30" 
                           placeholder="Days" 
                            />
                       Days
@@ -57,7 +31,7 @@ use:enhance
                       <input 
                           type="number" 
                           name="completionHours"
-                          class="border p-2 rounded  w-30" 
+                          class="input-box w-30" 
                           placeholder="Hours" 
                           
                       />
@@ -68,12 +42,12 @@ use:enhance
   
   
           <!-- Price Rate -->
-          <div class="mt-4 bg-white p-4 rounded-lg shadow">
-              <label class="block text-gray-700">Base Price
+          <div class="card">
+              <label><span class="text-label">Base Price</span>
                   <input 
                       name="price"
                       type="number" 
-                      class="border p-2 rounded w-full" 
+                      class="input-box" 
                       placeholder="Price"
                       step=0.01
                       min=0
@@ -83,16 +57,18 @@ use:enhance
               </label>
           </div>
   
-          <div class="mt-4 bg-white p-4 rounded-lg shadow">
+          <div class="card">
             <label>
-              Is Available
+                <span class="text-label">Is Available</span>
+              
               <input 
                 name="isAvailable" 
                 type="checkbox"
               >
             </label>
             <label>
-              Accepts WalkIns
+              
+              <span class="text-label">Accepts WalkIns</span>
               <input 
                 name="acceptsWalkIns" 
                 type="checkbox"
@@ -101,6 +77,5 @@ use:enhance
           </div>
         </div>  
       </label>
-    </div>
-  </div>
+
 </form>

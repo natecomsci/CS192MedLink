@@ -10,7 +10,6 @@
 action="?/updateService"
 use:enhance
 >
-
     <label class="grid grid-cols-1" >
         {#if form?.error}
               <p class="error">{form.error}</p>
@@ -48,7 +47,7 @@ use:enhance
                         name="availableBeds"
                         type="number" 
                         class="input-box" 
-                        placeholder="Price"
+                        placeholder="Available Beds"
                         step=1
                         min=0
                          
@@ -63,7 +62,7 @@ use:enhance
                         name="nonUrgentPatients"
                         type="number" 
                         class="input-box" 
-                        placeholder="Price"
+                        placeholder="Non Urgent Patients"
                         step=1
                         min=0
                          
@@ -79,7 +78,7 @@ use:enhance
                         name="nonUrgentQueueLength"
                         type="number" 
                         class="input-box" 
-                        placeholder="Price"
+                        placeholder="Non Urgent Patients Queue Length"
                         step=1
                         min=0
                          
@@ -94,7 +93,7 @@ use:enhance
                         name="urgentPatients"
                         type="number" 
                         class="input-box" 
-                        placeholder="Price"
+                        placeholder="Urget Patients"
                         step=1
                         min=0
                          
@@ -109,7 +108,7 @@ use:enhance
                         name="urgentQueueLength"
                         type="number" 
                         class="input-box" 
-                        placeholder="Price"
+                        placeholder="Urgent Patients Queue Length"
                         step=1
                         min=0
                          
@@ -124,7 +123,7 @@ use:enhance
                         name="criticalPatients"
                         type="number" 
                         class="input-box" 
-                        placeholder="Price"
+                        placeholder="Critical Patients"
                         step=1
                         min=0
                          
@@ -139,7 +138,7 @@ use:enhance
                         name="criticalQueueLength"
                         type="number" 
                         class="input-box" 
-                        placeholder="Price"
+                        placeholder="Critical Patients Queue Length"
                         step=1
                         min=0
                          

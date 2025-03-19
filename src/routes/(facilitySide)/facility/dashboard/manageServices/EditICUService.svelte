@@ -61,7 +61,7 @@ use:enhance
                       name="availableBeds" 
                       type="number" 
                       class="input-box" 
-                      placeholder="Price" 
+                      placeholder="Available Beds" 
                       step=0.01
                       min=0
                        

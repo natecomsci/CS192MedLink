@@ -92,45 +92,45 @@ use:enhance
                     </div>
                 </label>
             </div>
-    
+        
 
-<div class="mt-4 bg-white p-4 rounded-lg shadow">
-    <label class="block text-label mb-2">Blood Type Availability</label>
-    <div class="grid grid-cols-2 gap-2">
-        <label class="flex items-center space-x-2">
-            <input name="ap" type="checkbox">
-            <span>A+</span>
-        </label>
-        <label class="flex items-center space-x-2">
-            <input name="an" type="checkbox">
-            <span>A-</span>
-        </label>
-        <label class="flex items-center space-x-2">
-            <input name="bp" type="checkbox">
-            <span>B+</span>
-        </label>
-        <label class="flex items-center space-x-2">
-            <input name="bn" type="checkbox">
-            <span>B-</span>
-        </label>
-        <label class="flex items-center space-x-2">
-            <input name="op" type="checkbox">
-            <span>O+</span>
-        </label>
-        <label class="flex items-center space-x-2">
-            <input name="on" type="checkbox">
-            <span>O-</span>
-        </label>
-        <label class="flex items-center space-x-2">
-            <input name="abp" type="checkbox">
-            <span>AB+</span>
-        </label>
-        <label class="flex items-center space-x-2">
-            <input name="abn" type="checkbox">
-            <span>AB-</span>
-        </label>
+    <div class="card">
+        <span class="text-label">Blood Type Availability</span>
+        <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center space-x-2">
+                <input name="ap" type="checkbox">
+                <span>A+</span>
+            </label>
+            <label class="flex items-center space-x-2">
+                <input name="an" type="checkbox">
+                <span>A-</span>
+            </label>
+            <label class="flex items-center space-x-2">
+                <input name="bp" type="checkbox">
+                <span>B+</span>
+            </label>
+            <label class="flex items-center space-x-2">
+                <input name="bn" type="checkbox">
+                <span>B-</span>
+            </label>
+            <label class="flex items-center space-x-2">
+                <input name="op" type="checkbox">
+                <span>O+</span>
+            </label>
+            <label class="flex items-center space-x-2">
+                <input name="on" type="checkbox">
+                <span>O-</span>
+            </label>
+            <label class="flex items-center space-x-2">
+                <input name="abp" type="checkbox">
+                <span>AB+</span>
+            </label>
+            <label class="flex items-center space-x-2">
+                <input name="abn" type="checkbox">
+                <span>AB-</span>
+            </label>
+        </div>
     </div>
-</div>
 
 
 
