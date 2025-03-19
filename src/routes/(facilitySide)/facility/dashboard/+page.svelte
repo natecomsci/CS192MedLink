@@ -31,7 +31,7 @@
           </a>
       </div>
       <div class="sm:flex items-center gap-4 hidden">
-          <a href="/dashboard/managerSettingsUpdate" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
+          <a href="./dashboard/managerSettingsUpdate" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
               <p>Settings</p>
           </a>
       </div>
