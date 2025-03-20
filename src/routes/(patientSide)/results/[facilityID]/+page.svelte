@@ -34,7 +34,7 @@
   
   <div class="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-lg">
     <div class="flex items-center space-x-4">
-      <img src="{photo}" alt="Facility Image" class="w-24 h-24 rounded-lg object-cover border" />
+      <img src="{photo}" alt="Facility" class="w-24 h-24 rounded-lg object-cover border" />
   
       <div>
         <h1 class="text-2xl font-bold">{facilityName}</h1>

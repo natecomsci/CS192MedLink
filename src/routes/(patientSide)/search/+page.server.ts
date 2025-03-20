@@ -11,12 +11,12 @@ const serviceDAO = new ServicesDAO();
 
 export const load: PageServerLoad = async ({ url }) => {
     const query = url.searchParams.get("query")?.trim() || "";
-    let byFacilities: FacilityDTO[];
-    let byService: FacilityDTO[];
+    let byFacilities: { results: FacilityDTO[], hasMore: boolean }
+    let byService: { results: FacilityDTO[], hasMore: boolean }
 
     try {
-        byFacilities = await facilityDAO.search(query);
-        byService = (await serviceDAO.search(query, 0)).results;
+        byFacilities = await facilityDAO.search(query, 0);
+        byService = await serviceDAO.search(query, 0);
 
     } catch (error) {
         console.log("📄 Page loaded. No search performed yet.");
@@ -29,53 +29,63 @@ export const load: PageServerLoad = async ({ url }) => {
       );
     }
 
-    return { byFacilities, byService, query };
+    return { 
+        facilities: byFacilities.results, 
+        moreFacilities: byFacilities.hasMore,
+        services: byService.results, 
+        moreServices: byService.hasMore,
+        query,
+    };
 };
 
 export const actions = {
-    search: async ({ request }) => {
-        const formData = await request.formData();
-        let query = formData.get("query") as string;
+  search: async ({ request }) => {
+    const formData = await request.formData();
+    let query = formData.get("query") as string;
 
-        if (query === "") {
-            return fail(400, 
-            { 
-              error: 'Please enter a search query.',
-              description: 'search',
-              success: false
-            }
-          );
+    if (query === "") {
+      return fail(400, 
+        { 
+          error: 'Please enter a search query.',
+          description: 'search',
+          success: false
         }
+      );
+    }
 
-        query = query.trim()
+    query = query.trim()
 
-        let byFacilities: FacilityDTO[];
-        let byService: FacilityDTO[];
+    let byFacilities: { results: FacilityDTO[], hasMore: boolean }
+    let byService: { results: FacilityDTO[], hasMore: boolean }
 
-        try {
-            byFacilities = await facilityDAO.search(query);
-            byService = (await serviceDAO.search(query, 0)).results;
+    try {
+      byFacilities = await facilityDAO.search(query, 0);
+      byService = await serviceDAO.search(query, 0);
 
-        } catch (error) {
-            console.error('❌ Error in search action:', error);
-            return fail(400, 
-            { 
-              error: 'Error in search action',
-              description: 'search',
-              success: false
-            }
-          );
+    } catch (error) {
+      console.error('❌ Error in search action:', error);
+      return fail(400, 
+        { 
+          error: 'Error in search action',
+          description: 'search',
+          success: false
         }
-        return { byFacilities, byService, query }; 
-    },
-      viewDetails: async ({ request }) => {
-        const formData = await request.formData();
-        const facilityID = formData.get("facilityID") as string;
+      );
+    }
+    return { 
+      facilities: byFacilities.results, 
+      moreFacilities: byFacilities.hasMore,
+      services: byService.results, 
+      moreServices: byService.hasMore,
+      query,
+    };
+  },
+  viewDetails: async ({ request }) => {
+    const formData = await request.formData();
+    const facilityID = formData.get("facilityID") as string;
 
-    
-        // Redirect to the facility details page
-        throw redirect(303, `/results/${facilityID}`);
-      },
-    
 
+    // Redirect to the facility details page
+    throw redirect(303, `/results/${facilityID}`);
+  },
 } satisfies Actions;

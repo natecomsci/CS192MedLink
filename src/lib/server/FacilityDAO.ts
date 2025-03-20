@@ -170,10 +170,10 @@ export class FacilityDAO {
     }
   }
 
-  async search(query: string): Promise<FacilityDTO[]> {
+  async search(query: string, offset: number): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
     try {
       if (!query.trim()) {
-        return [];
+        return { results: [], hasMore: false };
       }
 
       const facilities = await prisma.facility.findMany({
@@ -190,9 +190,14 @@ export class FacilityDAO {
           facilityID: true,
           name: true,
         },
+        skip: offset,
+        take: 11
       });
 
-      return facilities;
+      return {
+        results: facilities.slice(0, 10),
+        hasMore: facilities.length > 10,
+      };
     } catch (error) {
       console.error("Search Error: ", error);
       throw new Error("Could not search facilities.");
