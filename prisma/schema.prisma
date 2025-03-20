@@ -146,28 +146,28 @@ model Address {
 model Facility {
   facilityID String @id @default(uuid())
 
-  password          String
-
   name              String
-  photo             String?        
+  photo             String        
   address           Address?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
-  email             String?       @unique
-  phoneNumber       String?       @unique
-  facilityType      FacilityType?
-  ownership         Ownership?
+  email             String       @unique
+  phoneNumber       String       @unique
+  facilityType      FacilityType
+  ownership         Ownership
   bookingSystem     String?
   acceptedProviders Provider[]
-  updatedAt         DateTime      @updatedAt
+  updatedAt         DateTime     @updatedAt
 
   // RELATIONS
 
   // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
 
-  // Every Facility may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
+  // Every Facility may have exactly one of each specialized Service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services. This constraint is handled by business logic.
   services  Service[]
 
+  // Facility - Manager : A Facility must have exactly one Manager. This constraint is handled by business logic.
+
   // Facility - Admin : A Facility may or may not have Admins.
-  admins    Admin[]
+  employees Employee[]
 
   // Facility - Division : A Facility may or may not have Divisions.
   divisions Division[]
@@ -198,14 +198,17 @@ model Division {
   services   Service[]
 
   // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
-  admins     Admin[]
+  admins     Employee[]
 }
 
-model Admin {
-  adminID String @id @default(uuid())
+// Table for both Managers and Admins of a Facility.
+
+model Employee {
+  employeeID String @id @default(uuid())
 
   password  String
 
+  role      Role
   fname     String
   mname     String?
   lname     String
@@ -215,9 +218,14 @@ model Admin {
 
   // RELATIONS
 
+  // Manager - Facility : Every Manager must work for exactly one Facility.
+
   // Admin - Facility : Every Admin must work for exactly one Facility.
-  facility   Facility   @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String
+
+  // Employee : An Employee may or may not be associated with an UpdateLog.
+  updateLog  UpdateLog[]
 
   // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
   divisions  Division[]
@@ -387,6 +395,18 @@ model OutpatientService {
   serviceID String  @id
 }
 
+model UpdateLog {
+  updateLogID String @id @default(uuid())
+
+  type      String
+  action    Action
+  createdAt DateTime @default(now())
+
+  // UpdateLog - Employee : An UpdateLog is linked to exactly one Employee, who is either a Manager or Admin.
+  employee   Employee @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
+  employeeID String   @unique
+}
+
 // ENUMS
 
 enum Provider {
@@ -520,4 +540,15 @@ enum Load {
   NEAR_CAPACITY
   FULL_CAPACITY
   CLOSED
+}
+
+enum Role {
+  MANAGER
+  ADMIN
+}
+
+enum Action {
+  CREATE
+  UPDATE
+  DELETE
 }
