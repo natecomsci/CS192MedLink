@@ -70,7 +70,7 @@
     { form }
     bind:currPopUp={currPopUp}
   />
-{:else if currPopUp === "editDivision"}
+<!-- {:else if currPopUp === "editDivision"}
   <EditDivision 
     { firstname }
     { middlename }
@@ -78,7 +78,7 @@
     { form }
     bind:currPopUp={currPopUp}
     divisionID={selectedDivisionID}
-  />
+  /> -->
 {/if}
 
 <!-- Header -->
@@ -120,16 +120,14 @@
     </div>
 
     <!-- Scrollable List Container -->
-    <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
+    <!-- <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
       {#each admins as  { fname, mname, lname, adminID, divisionID }}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
-          <!-- Left Side: Text Content -->
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{mname ? fname + ' ' + mname + ' ' + lname : fname + ' ' + lname}</h3>
             <p class="text-purple-600 px-4">Insert Division Here</p>
           </div>
         
-          <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
             <button onclick={() => {
                 currPopUp='editAdmin', 
@@ -143,7 +141,6 @@
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
-            <!-- Delete Button (Opens Modal) -->
             <button 
               type="button" 
               class="inline-flex items-center" 
@@ -158,7 +155,7 @@
           </div>
         </div>
       {/each}
-    </div>
+    </div> -->
     {#if form?.description === "pass"}
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}

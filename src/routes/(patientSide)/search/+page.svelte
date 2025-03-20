@@ -1,8 +1,69 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+    import type { FacilityDTO } from '$lib';
 
   let { data, form } = $props();
   let activeTab = $state("service"); // Default view
+
+  let facilities: FacilityDTO[] = $state([])
+  let services: FacilityDTO[] = $state([])
+
+  facilities = [...(data.facilities ?? [])]
+  services = [...(data.services ?? [])]
+
+  let currFacilityOffset: number = $state(10)
+  let currServiceOffset: number = $state(10)
+
+  let currFacilityHasMore: boolean = $state(data.moreFacilities ?? false)
+  let currServiceHasMore: boolean = $state(data.moreServices ?? false)
+
+  async function getPage(hasMore: boolean, query: string) {
+    let currOffset: number
+    if (!hasMore) {
+      return
+    } 
+
+    if (activeTab === "facility") {
+      currOffset = currFacilityOffset
+    } else if (activeTab === "service") {
+      currOffset = currServiceOffset
+    } else {
+      return
+    }
+
+    const body = JSON.stringify({activeTab, currOffset, query});
+
+    try {
+      const response = await fetch("./search/loadMoreHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+
+      if (activeTab === "facility") {
+        facilities = [...facilities, ...rv.results];
+        currFacilityOffset = currFacilityOffset + 10;
+        currFacilityHasMore = rv.hasMore;
+      } else if (activeTab === "service") {
+        services = [...services, ...rv.results];
+        currServiceOffset = currServiceOffset + 10;
+        currServiceHasMore = rv.hasMore;
+      } else {
+        return
+      }
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
 
 </script>
 
@@ -47,8 +108,8 @@
   </form>
 
   {#if activeTab === "facility"}
-    {#if (data.byFacilities ?? []).length > 0}
-      {#each (data.byFacilities ?? []) as facility}
+    {#if facilities.length > 0}
+      {#each facilities as facility}
       <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
         <div>
           <span class="font-semibold">{facility.name}</span>
@@ -59,21 +120,31 @@
         </form>
       </div>
       {/each}
+      {#if currFacilityHasMore} 
+        <button onclick={() => getPage(currFacilityHasMore, data.query ?? '')}>
+          Load more...
+        </button>
+      {/if}
     {:else}     
       <p>No facilities found.</p>
     {/if}
 
   {:else if activeTab === "service"}
-    {#if (data.byService ?? []).length > 0}
-      {#each (data.byService ?? []) as facility}
+    {#if services.length > 0}
+      {#each services as facility}
         <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
           <div>
             <span class="font-semibold">{facility.name}</span>
-              <!-- <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p> -->
+              <input type="hidden" name="facilityID" value={facility.facilityID} />
           </div>
           <button class="text-xl font-bold">+</button>
         </div>
       {/each}
+      {#if currServiceHasMore} 
+        <button onclick={() => getPage(currServiceHasMore, data.query ?? '')}>
+          Load more...
+        </button>
+      {/if}
     {:else}
       <p>No facilities found.</p>
     {/if}
