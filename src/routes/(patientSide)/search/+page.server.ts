@@ -1,4 +1,4 @@
-import { fail } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 
 import type { Actions, PageServerLoad } from "./$types";
 import type { FacilityDTO } from "$lib/server/DTOs";
@@ -68,4 +68,14 @@ export const actions = {
         }
         return { byFacilities, byService, query }; 
     },
+      viewDetails: async ({ request }) => {
+        const formData = await request.formData();
+        const facilityID = formData.get("facilityID") as string;
+
+    
+        // Redirect to the facility details page
+        throw redirect(303, `/results/${facilityID}`);
+      },
+    
+
 } satisfies Actions;

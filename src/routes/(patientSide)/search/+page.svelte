@@ -49,15 +49,17 @@
   {#if activeTab === "facility"}
     {#if (data.byFacilities ?? []).length > 0}
       {#each (data.byFacilities ?? []) as facility}
-        <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <span class="font-semibold">{facility.name}</span>
-              <!-- <p class="text-sm text-gray-600">Services: {facility.serviceID.name(", ")}</p> -->
-          </div>
-          <button class="text-xl font-bold">+</button>
+      <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
+        <div>
+          <span class="font-semibold">{facility.name}</span>
         </div>
+        <form method="POST" action="?/viewDetails">
+          <input type="hidden" name="facilityID" value={facility.facilityID} />
+          <button type="submit" class="text-xl font-bold">+</button>
+        </form>
+      </div>
       {/each}
-    {:else}
+    {:else}     
       <p>No facilities found.</p>
     {/if}
 
