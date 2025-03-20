@@ -40,7 +40,7 @@
                 <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Add a Service</h1>
             </div>
 
-            <label>
+            <label class="mt-5">
               <span class="text-label">Select a Service</span>
               <select name="serviceType" bind:value={serviceType} required class="border-2 border-[#D9D9D9] p-2 rounded w-full">
                 {#each (data.availableServices ?? []) as service}

@@ -113,23 +113,25 @@
   
         <div class="card grid gap-2 p-4 bg-white rounded-lg shadow">
             <label class="flex items-center space-x-2">
-                <span class="text-label">Is Available</span>
+                
                 <input 
                     name="isAvailable" 
                     type="checkbox"
                     class="accent-purple-600" 
                     checked={isAvailable}
                 >
+                <span class="text-label">Is Available</span>
             </label>
 
             <label class="flex items-center space-x-2">
-                <span class="text-label">Accepts WalkIns</span>
+                
                 <input 
                     name="acceptsWalkIns" 
                     type="checkbox"
                     class="accent-purple-600" 
                     checked={acceptsWalkIns}
                 >
+                <span class="text-label">Accepts WalkIns</span>
             </label>
         </div>
 

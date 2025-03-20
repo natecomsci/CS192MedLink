@@ -50,9 +50,9 @@
   <!-- Right Side: Admins, Services, Divisions -->
   <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
     <Admins />
-    <div class="grid grid-cols-1 gap-4 h-full">
+    <div class="grid grid-cols-2 gap-4 h-full">
       <Services {services}/>
-      <!-- <Divisions/> -->
+      <Divisions/>
     </div>
   </div>
 </div>
