@@ -1,5 +1,6 @@
 import { prisma } from "$lib/server/prisma";
 import { fail, redirect } from "@sveltejs/kit";
+import bcrypt from 'bcryptjs';
 
 import { Role } from "@prisma/client";
 
@@ -23,11 +24,11 @@ export const actions = {
     }
 
     try {
-      const { _, hashedPassword } = await adminDAO.createAndHashPassword();
+      const hashedPassword = await bcrypt.hash(password.toString(), 10);
 
       await prisma.employee.create({
         data: {
-          managerID : managerID.toString(),
+          employeeID : managerID.toString(),
           fname     : fname.toString(),
           mname     : mname.toString(),
           lname     : lname.toString(),

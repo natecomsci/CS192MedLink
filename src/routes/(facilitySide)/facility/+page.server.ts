@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
 import type { Actions } from './$types';
 import { FacilityDAO } from '$lib/server/FacilityDAO';
+import { AdminDAO } from '$lib';
 
 export const actions = {
   signIn: async ({ request, cookies }) => {
@@ -34,24 +35,25 @@ export const actions = {
         }
       );
     }
-
+    const adminDAO = new AdminDAO()
     const facilityDAO = new FacilityDAO()
     const facility = await facilityDAO.getByID(fid);
+    const employee = await adminDAO.getByID(fid)
     const hasAdmins = await facilityDAO.facilityHasAdmins(fid)
     const hasDivisions = await facilityDAO.facilityHasAdmins(fid)
 
 
-    if (!facility) {
+    if (!employee) {
       return fail(400, 
         { 
-          error: 'Facility ID not found',
+          error: 'Employee ID not found',
           description: 'ID',
           success: false
         }
       );
     }
 
-    const passwordMatch = await bcrypt.compare(password, facility.password);
+    const passwordMatch = await bcrypt.compare(password, employee.password);
     if (!passwordMatch) {
       return fail(400, 
         { 
@@ -62,7 +64,7 @@ export const actions = {
       );
     }
 
-    cookies.set('facilityID', fid, {path: '/'});
+    cookies.set('facilityID', employee.facilityID, {path: '/'});
     cookies.set('hasAdmins', String(hasAdmins), {path: '/'});
     cookies.set('hasDivisions', String(hasDivisions), {path: '/'});
 

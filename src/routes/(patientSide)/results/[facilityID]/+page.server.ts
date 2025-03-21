@@ -1,7 +1,8 @@
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { AddressDAO } from '$lib/server/AddressDAO';
 import { FacilityDAO } from '$lib/server/FacilityDAO';
 import { fail, redirect } from "@sveltejs/kit";
+
 
 export const load: PageServerLoad = async ({ params }) => {
   const facilityDAO = new FacilityDAO();
@@ -45,3 +46,13 @@ export const load: PageServerLoad = async ({ params }) => {
     });
   }
 };
+
+export const actions = {
+  viewServices: async ({ params }) => {
+   const { facilityID } = params;
+
+
+    // Redirect to the facility details page
+    throw redirect(303, `/servicesForSearch/${facilityID}`);
+  },
+} satisfies Actions;

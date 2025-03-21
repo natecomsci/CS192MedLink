@@ -75,4 +75,17 @@
       </div>
     {/if}
   </div>
+
+  <form method="POST" action="?/viewServices" class="mt-6">
+    <button type="submit" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-blue-7500">
+         Services Offered
+    </button>
+</form>
+
+<form method="POST" action="?/viewServices" class="mt-6">
+  <button type="submit" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-blue-7500">
+       Divisions 
+  </button>
+</form>
+
   
