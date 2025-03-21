@@ -6,7 +6,10 @@ import { Provider } from "@prisma/client";
 
 import type { Facility } from "@prisma/client";
 
-import type { AddressDTO, FacilityDTO, GeneralInformationFacilityDTO } from "./DTOs";
+import type { AddressDTO, 
+              FacilityDTO, 
+              GeneralInformationFacilityDTO 
+            } from "./DTOs";
 
 import { AddressDAO } from "./AddressDAO";
 
@@ -47,10 +50,6 @@ export class FacilityDAO {
         throw new Error("Missing needed Address data.");
       }
 
-      if (!facility.email || !facility.phoneNumber || !facility.facilityType || !facility.ownership) {
-        throw new Error("Facility information is incomplete.");
-      }
-
       return {
         name              : facility.name,
         photo             : facility.photo,
@@ -72,28 +71,23 @@ export class FacilityDAO {
   async updateGeneralInformation(facilityID: string, data: GeneralInformationFacilityDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { address, ...facilityData } = data;
+    
         await tx.facility.update({
           where: { 
             facilityID 
           },
           data: {
-            name              : data.name,
-            photo             : data.photo,
-            email             : data.email,
-            phoneNumber       : data.phoneNumber,
-            facilityType      : data.facilityType,
-            ownership         : data.ownership,
-            bookingSystem     : data.bookingSystem,
-            acceptedProviders : data.acceptedProviders,
+            ...facilityData
           }
         });
-
-        if (data.address) {
-          await addressDAO.updateAddress(facilityID, data.address, tx)
+  
+        if (address) {
+          await addressDAO.updateAddress(facilityID, address, tx);
         }
       });
     } catch (error) {
-      console.log("Details: ", error)
+      console.error("Details: ", error);
       throw new Error("Could not update general information for Facility.");
     }
   }
@@ -142,13 +136,13 @@ export class FacilityDAO {
 
   async facilityHasAdmins(facilityID: string): Promise<boolean> {
     try {
-      const count = await prisma.admin.count({
+      const count = await prisma.employee.count({
         where: {
           facilityID
         }
       });
 
-      return count > 0;
+      return count > 1;
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not check if Facility has Admins.");
@@ -170,56 +164,36 @@ export class FacilityDAO {
     }
   }
 
-  async search(query: string, offset: number): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
+  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
     try {
-      if (!query.trim()) {
+      if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
 
       const facilities = await prisma.facility.findMany({
-        where: {
-          name: {
-            contains: query,
-            mode: "insensitive", // Case-insensitive search
-          },
+        where: { 
+          name: { 
+            contains : query, mode : "insensitive"
+          } 
         },
-        orderBy: {
-          updatedAt: "desc",
-        },
-        select: {
-          facilityID: true,
-          name: true,
-        },
-        skip: offset,
-        take: 11
-      });
-
-      return {
-        results: facilities.slice(0, 10),
-        hasMore: facilities.length > 10,
-      };
-    } catch (error) {
-      console.error("Search Error: ", error);
-      throw new Error("Could not search facilities.");
-    }
-  }
-
-  async getAllFacilities(): Promise<FacilityDTO[]> {
-    try {
-      const facilities = await prisma.facility.findMany({
         orderBy: {
           updatedAt: "desc"
         },
         select: {
-          facilityID: true,
-          name: true,
-        }
+          facilityID : true,
+          name       : true,
+        },
+        skip: offset,
+        take: numberToFetch + 1
       });
-  
-      return facilities;
+
+      return {
+        results: facilities.slice(0, numberToFetch),
+        hasMore: facilities.length > numberToFetch,
+      };
     } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not retrieve facilities.");
+      console.error("Search Error: ", error);
+      throw new Error("Could not search facilities.");
     }
   }
 }

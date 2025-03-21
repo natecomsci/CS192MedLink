@@ -128,7 +128,7 @@ model Address {
   brgy      Brgy   @relation(fields: [brgyID], references: [brgyID])
   brgyID    Int
 
-  street    String?
+  street    String
 
   // RELATIONS
 
@@ -171,6 +171,9 @@ model Facility {
 
   // Facility - Division : A Facility may or may not have Divisions.
   divisions Division[]
+
+  // Facility - Update Log : A Facility may or may not have Update Logs.
+  logs      UpdateLog[]
 
   // Facility - Bookmark : A Facility may or may not be bookmarked.
   bookmarks Bookmark[]
@@ -224,7 +227,7 @@ model Employee {
   facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String
 
-  // Employee : An Employee may or may not be associated with an UpdateLog.
+  // Employee : An Employee may or may not be associated with Update Logs.
   updateLog  UpdateLog[]
 
   // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
@@ -402,9 +405,13 @@ model UpdateLog {
   action    Action
   createdAt DateTime @default(now())
 
-  // UpdateLog - Employee : An UpdateLog is linked to exactly one Employee, who is either a Manager or Admin.
+  // UpdateLog - Facility : An Update Log is linked to exactly one Facility.
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // UpdateLog - Employee : An Update Log is linked to exactly one Employee, who is either a Manager or Admin.
   employee   Employee @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
-  employeeID String   @unique
+  employeeID String
 }
 
 // ENUMS

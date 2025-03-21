@@ -2,35 +2,64 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import type { CreateOutpatientServiceDTO, OutpatientServiceDTO } from "./DTOs";
+import { Action }  from "@prisma/client";
+
+import { UpdateLogDAO } from "./UpdateLogDAO";
+
+import type { OutpatientServiceDTO,
+              CreateOutpatientServiceDTO 
+            } from "./DTOs";
+
+let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class OutpatientServiceDAO {
-  async create(facilityID: string, data: CreateOutpatientServiceDTO): Promise<void> {
+  async create(facilityID: string, employeeID: string, data: CreateOutpatientServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { serviceType, divisionID, ...outpatientData } = data;
+  
         const service = await tx.service.create({
           data: {
-            type     : data.serviceType, 
-            facility : { connect: { facilityID } }
+            type: serviceType,
+            facility : { 
+              connect: { 
+                facilityID 
+              } 
+            },
+
+            ...((divisionID !== undefined) && {
+              divisions: {
+                connect: { 
+                  divisionID 
+                }
+              }
+            })
           }
         });
 
         await tx.outpatientService.create({
           data: {
-            price           : data.price,
-            completionTimeD : data.completionTimeD,
-            completionTimeH : data.completionTimeH,
-            acceptsWalkIns  : data.acceptsWalkIns,
-
-            service: { connect: { serviceID: service.serviceID } }
+            ...outpatientData,
+            service: { 
+              connect: { 
+                serviceID: service.serviceID 
+              } 
+            }
           }
         });
+  
+        await updateLogDAO.createUpdateLog(
+          { type: serviceType, action: Action.CREATE },
+          facilityID,
+          employeeID,
+          tx
+        );
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not create OutpatientService.");
     }
-  }
+  }  
 
   async getInformation(serviceID: string): Promise<OutpatientServiceDTO> {
     try {
@@ -38,20 +67,31 @@ export class OutpatientServiceDAO {
         where: { 
           serviceID 
         },
-        include: { service: { select: { updatedAt: true } } }
+        include: { 
+          service: { 
+            select: { 
+              divisionID : true, 
+              updatedAt  : true, 
+            } 
+          } 
+        }
       });
   
       if (!service) {
         throw new Error("Missing needed OutpatientService data.");
       }
-  
+
+      const { divisionID, updatedAt } = service.service;
+
       return {
         price           : service.price,
         completionTimeD : service.completionTimeD,
         completionTimeH : service.completionTimeH,
         isAvailable     : service.isAvailable,
         acceptsWalkIns  : service.acceptsWalkIns,
-        updatedAt       : service.service.updatedAt,
+        updatedAt,
+
+        ...(divisionID ? { divisionID } : {}),
       };
 
     } catch (error) {
@@ -60,27 +100,38 @@ export class OutpatientServiceDAO {
     }
   }  
 
-  async update(serviceID: string, data: OutpatientServiceDTO): Promise<void> {
+  async update(serviceID: string, facilityID: string, employeeID: string, data: OutpatientServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { divisionID, ...outpatientData } = data;
+
         await tx.outpatientService.update({
           where: { 
             serviceID 
           },
           data: { 
-            ...data 
+            ...outpatientData 
           }
         });
   
         const updatedAt: Date = new Date();
 
+        const serviceUpdateData = {
+          updatedAt,
+          ...((divisionID !== undefined) && {
+            division: { 
+              connect: { 
+                divisionID 
+              } 
+            }
+          })
+        };
+        
         const service = await tx.service.update({
           where: { 
             serviceID 
           },
-          data: { 
-            updatedAt: updatedAt 
-          },
+          data: serviceUpdateData,
           select: { 
             facilityID: true
           }
@@ -94,29 +145,30 @@ export class OutpatientServiceDAO {
             updatedAt : updatedAt
           }
         });
+
+        const outpatientService = await tx.service.findUnique({
+          where: { 
+            serviceID 
+          },
+          select: { 
+            type: true 
+          }
+        });
+
+        if (!outpatientService) {
+          throw new Error("OutpatientService not found.");
+        }
+
+        await updateLogDAO.createUpdateLog(
+          { type: outpatientService.type, action: Action.UPDATE },
+          facilityID,
+          employeeID,
+          tx
+        );
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update OutpatientService.");
     }
   }
-
-  async delete(serviceID: string): Promise<void> {
-    try {
-      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        await tx.outpatientService.delete({
-          where: { serviceID }
-        });
-  
-        // Delete the associated service record
-        await tx.service.delete({
-          where: { serviceID }
-        });
-      });
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not delete OutPatientService.");
-    }
-  }
-  
 }

@@ -43,6 +43,7 @@
     "@tailwindcss/vite": "^4.0.5",
     "bcryptjs": "^3.0.2",
     "flowbite-svelte-icons": "^2.0.2",
+    "generate-password-ts": "^1.6.5",
     "tailwindcss": "^4.0.5",
     "ts-node": "^10.9.2",
     "uuid": "^11.1.0",
