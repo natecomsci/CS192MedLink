@@ -31,12 +31,15 @@ import type { Availability, Load } from '@prisma/client';
 import { dateToTimeMapping } from '$lib/Mappings';
 
 // DAOs
+const servicesDAO = new ServicesDAO();
+const facilityDAO = new FacilityDAO();
+
 const ambulanceDAO = new AmbulanceServiceDAO();
 const bloodBankDAO = new BloodBankServiceDAO();
 const eRDAO = new ERServiceDAO();
 const iCUDAO = new ICUServiceDAO();
 const outpatientDAO = new OutpatientServiceDAO();
-const facilityDAO = new FacilityDAO();
+
 
 export const load: PageServerLoad = async ({ cookies }) => {
   function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[] {
@@ -69,7 +72,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   
   const servicesDAO = new ServicesDAO();
 
-  let paginatedServices = await servicesDAO.getPaginatedServices(facilityID, 1, facilityServicePageSize)
+  let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
 
   const services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
@@ -97,7 +100,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 export const actions: Actions = {
   deleteService: async ({ request, cookies }) => {
     const facilityID = cookies.get('facilityID');
-    if (!facilityID) {
+    const employeeID = cookies.get('employeeID');
+    if (!facilityID || !employeeID) {
       throw redirect(303, '/facility');
     }
 
@@ -137,25 +141,12 @@ export const actions: Actions = {
         });
       }
 
-      // Delete service based on type
-      switch (serviceType) {
-        case "Ambulance":
-          await ambulanceDAO.delete(serviceID);
-          break;
-        case "Blood Bank":
-          await bloodBankDAO.delete(serviceID);
-          break;
-        case "Emergency Room":
-          await eRDAO.delete(serviceID);
-          break;
-        case "Intensive Care Unit":
-          await iCUDAO.delete(serviceID);
-          break;
-        default:
-          await outpatientDAO.delete(serviceID);
-          break;
-      }
+      await servicesDAO.delete(serviceID, facilityID, employeeID);
 
+      return {
+        success: true
+      }
+      
     } catch (error) {
       return fail(500, { 
         error: "Failed to delete service",
@@ -163,16 +154,13 @@ export const actions: Actions = {
         success: false  
       });
     }
-
-    return {
-      success: true
-    }
   },
   
   addService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
+    const employeeID = cookies.get('employeeID');
 
-    if (!facilityID) {
+    if (!facilityID || !employeeID) {
       throw redirect(303, '/facility');
     }
 
@@ -239,7 +227,7 @@ export const actions: Actions = {
 
         const dao = new AmbulanceServiceDAO();
 
-        dao.create(facilityID, service)
+        dao.create(facilityID, employeeID, service)
         break;
       }
 
@@ -281,7 +269,7 @@ export const actions: Actions = {
 
         const dao = new BloodBankServiceDAO();
 
-        dao.create(facilityID, service)
+        dao.create(facilityID, employeeID, service)
         break;
       }
 
@@ -304,7 +292,7 @@ export const actions: Actions = {
 
         const dao = new ERServiceDAO();
 
-        dao.create(facilityID, service)
+        dao.create(facilityID, employeeID, service)
         break;
       }
 
@@ -330,7 +318,7 @@ export const actions: Actions = {
 
         const dao = new ICUServiceDAO();
 
-        dao.create(facilityID, service)
+        dao.create(facilityID, employeeID, service)
         break;
       }
 
@@ -366,7 +354,7 @@ export const actions: Actions = {
 
         const dao = new OutpatientServiceDAO();
 
-        dao.create(facilityID, service)
+        dao.create(facilityID, employeeID, service)
         break;
       }
 
@@ -386,7 +374,8 @@ export const actions: Actions = {
 
   editAmbulanceService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
-    if (!facilityID) {
+    const employeeID = cookies.get('employeeID');
+    if (!facilityID || !employeeID) {
       throw redirect(303, '/facility');
     }
 
@@ -473,7 +462,7 @@ export const actions: Actions = {
       });
     }
 
-    ambulanceDAO.update(serviceID, service)
+    ambulanceDAO.update(serviceID, facilityID, employeeID, service)
 
     return {
       success: true
@@ -482,7 +471,8 @@ export const actions: Actions = {
 
   editBloodBankService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
-    if (!facilityID) {
+    const employeeID = cookies.get('employeeID');
+    if (!facilityID || !employeeID) {
       throw redirect(303, '/facility');
     }
 
@@ -595,7 +585,7 @@ export const actions: Actions = {
     }
 
 
-    bloodBankDAO.update(serviceID, service)
+    bloodBankDAO.update(serviceID, facilityID, employeeID, service)
 
     return {
       success: true
@@ -604,7 +594,8 @@ export const actions: Actions = {
 
   editERService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
-    if (!facilityID) {
+    const employeeID = cookies.get('employeeID');
+    if (!facilityID || !employeeID) {
       throw redirect(303, '/facility');
     }
 
@@ -691,7 +682,7 @@ export const actions: Actions = {
       });
     }
 
-    eRDAO.update(serviceID, service)
+    eRDAO.update(serviceID, facilityID, employeeID, service)
 
     return {
       success: true
@@ -700,7 +691,8 @@ export const actions: Actions = {
 
   editICUService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
-    if (!facilityID) {
+    const employeeID = cookies.get('employeeID');
+    if (!facilityID || !employeeID) {
       throw redirect(303, '/facility');
     }
 
@@ -800,7 +792,7 @@ export const actions: Actions = {
       });
     }
 
-    iCUDAO.update(serviceID, service)
+    iCUDAO.update(serviceID, facilityID, employeeID, service)
 
     return {
       success: true
@@ -809,7 +801,8 @@ export const actions: Actions = {
 
   editOPService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
-    if (!facilityID) {
+    const employeeID = cookies.get('employeeID');
+    if (!facilityID || !employeeID) {
       throw redirect(303, '/facility');
     }
 
@@ -873,7 +866,7 @@ export const actions: Actions = {
       });
     }
 
-    outpatientDAO.update(serviceID, service)
+    outpatientDAO.update(serviceID, facilityID, employeeID, service)
 
     return {
       success: true

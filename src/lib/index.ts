@@ -21,27 +21,36 @@ import { ServicesDAO } from "./server/ServicesDAO";
 
 import type { 
         ServiceDTO,
-        CreateAmbulanceServiceDTO,
-        AmbulanceServiceDTO,
-        BloodTypeMappingDTO,
-        CreateBloodBankServiceDTO,
-        BloodBankServiceDTO,
-        CreateERServiceDTO,
-        ERServiceDTO,
-        CreateICUServiceDTO,
-        ICUServiceDTO,
-        CreateOutpatientServiceDTO,
-        OutpatientServiceDTO,
+        PaginatedServiceDTO,
+        
+        FacilityDTO,
+        GeneralInformationFacilityDTO,
+
         RegionDTO,
         POrCDTO,
         COrMDTO,
         BrgyDTO,
         AddressDTO,
-        FacilityDTO,
-        GeneralInformationFacilityDTO,
-        CreateAdminDTO,
+
+        CreateAmbulanceServiceDTO,
+        AmbulanceServiceDTO,
+
+        BloodTypeMappingDTO,
+        CreateBloodBankServiceDTO,
+        BloodBankServiceDTO,
+
+        CreateERServiceDTO,
+        ERServiceDTO,
+
+        CreateICUServiceDTO,
+        ICUServiceDTO,
+
+        CreateOutpatientServiceDTO,
+        OutpatientServiceDTO,
+
         InitialAdminDetailsDTO,
-        PaginatedServiceDTO,
+        AdminDTO,
+        PaginatedAdminDTO,
       } from "./server/DTOs";
 
 import { 
@@ -61,33 +70,46 @@ import {
 
 // Global Project Variables
 export const facilityServicePageSize: number = 5
+export const patientSearchPageSize: number = 5
+
+export const facilityAdminsPageSize: number = 5
+
 
 export type OPServiceType = typeof OPServiceTypes[number];
 
 export type {
   // DTOs
   ServiceDTO,
-  CreateAmbulanceServiceDTO,
-  AmbulanceServiceDTO,
-  BloodTypeMappingDTO,
-  CreateBloodBankServiceDTO,
-  BloodBankServiceDTO,
-  CreateERServiceDTO,
-  ERServiceDTO,
-  CreateICUServiceDTO,
-  ICUServiceDTO,
-  CreateOutpatientServiceDTO,
-  OutpatientServiceDTO,
+  PaginatedServiceDTO,
+
+  FacilityDTO,
+  GeneralInformationFacilityDTO,
+
   RegionDTO,
   POrCDTO,
   COrMDTO,
   BrgyDTO,
   AddressDTO,
-  FacilityDTO,
-  GeneralInformationFacilityDTO,
-  CreateAdminDTO,
+
+  CreateAmbulanceServiceDTO,
+  AmbulanceServiceDTO,
+
+  BloodTypeMappingDTO,
+  CreateBloodBankServiceDTO,
+  BloodBankServiceDTO,
+
+  CreateERServiceDTO,
+  ERServiceDTO,
+
+  CreateICUServiceDTO,
+  ICUServiceDTO,
+
+  CreateOutpatientServiceDTO,
+  OutpatientServiceDTO,
+
   InitialAdminDetailsDTO,
-  PaginatedServiceDTO,
+  AdminDTO,
+  PaginatedAdminDTO,
 }
 
 export {

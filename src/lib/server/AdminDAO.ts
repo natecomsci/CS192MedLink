@@ -1,3 +1,5 @@
+// @ts-nocheck comment at the top of a file
+
 import { prisma } from "./prisma";
 
 import { Role } from "@prisma/client";

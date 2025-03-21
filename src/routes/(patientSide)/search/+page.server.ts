@@ -6,6 +6,8 @@ import type { FacilityDTO } from "$lib/server/DTOs";
 import { FacilityDAO } from "$lib/server/FacilityDAO";
 import { ServicesDAO } from "$lib/server/ServicesDAO"; 
 
+import { patientSearchPageSize } from "$lib";
+
 const facilityDAO = new FacilityDAO();
 const serviceDAO = new ServicesDAO(); 
 
@@ -15,8 +17,8 @@ export const load: PageServerLoad = async ({ url }) => {
     let byService: { results: FacilityDTO[], hasMore: boolean }
 
     try {
-        byFacilities = await facilityDAO.search(query, 0);
-        byService = await serviceDAO.search(query, 0);
+        byFacilities = await facilityDAO.patientSearch(query, patientSearchPageSize, 0);
+        byService = await serviceDAO.patientSearch(query, patientSearchPageSize, 0);
 
     } catch (error) {
         console.log("📄 Page loaded. No search performed yet.");
@@ -59,8 +61,8 @@ export const actions = {
     let byService: { results: FacilityDTO[], hasMore: boolean }
 
     try {
-      byFacilities = await facilityDAO.search(query, 0);
-      byService = await serviceDAO.search(query, 0);
+      byFacilities = await facilityDAO.patientSearch(query, patientSearchPageSize, 0);
+      byService = await serviceDAO.patientSearch(query, patientSearchPageSize, 0);
 
     } catch (error) {
       console.error('❌ Error in search action:', error);
