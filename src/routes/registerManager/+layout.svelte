@@ -1,6 +1,6 @@
 <!-- src/routes/registerFacility/+layout.svelte -->
 <script>
-  export let title = "Register Facility";
+  export let title = "Register Manager";
 </script>
 
 <main>

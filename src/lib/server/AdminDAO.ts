@@ -8,7 +8,7 @@ import type { AdminDTO,
               Create_UpdateAdminDTO, 
               InitialAdminDetailsDTO,
               PaginatedAdminDTO
-            } from './DTOs';
+            } from "./DTOs";
 
 import generator from "generate-password-ts";
 
