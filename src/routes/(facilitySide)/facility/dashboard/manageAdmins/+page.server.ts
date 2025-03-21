@@ -2,9 +2,10 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import bcrypt from 'bcryptjs';
 
-// import { facilityServicePageSize } from '$lib/index';
+import { facilityAdminsPageSize } from '$lib/index';
 
-import { AdminDAO, FacilityDAO, validatePersonName } from '$lib/index';
+import { AdminDAO, FacilityDAO, validatePersonName, type PaginatedAdminDTO } from '$lib';
+// import type { PaginatedAdminDTO } from '$lib/server/DTOs';
 
 const adminDAO = new AdminDAO();
 const facilityDAO = new FacilityDAO();
@@ -16,36 +17,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
     throw redirect(303, '/facility');
   }
   
-  // const paginatedAdmins = await adminDAO.getPaginatedAdmins(facilityID, 1, facilityAdminsPageSize)
-
-  const admin1 = {
-    adminID  : '1',
-    fname    : 'fname1',
-    mname    : 'mname',
-    lname    : 'lname',
-  }
-
-  const admin2 = {
-    adminID  : '2',
-    fname    : 'fname2',
-    lname    : 'lname',
-  }
-
-  const admin3 = {
-    adminID  : '3',
-    fname    : 'fname3',
-    mname    : 'mname',
-    lname    : 'lname',
-    divisionID: 'shi'
-  }
+  const paginatedAdmins: PaginatedAdminDTO = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
 
   return {
-    admins: [admin1, admin2, admin3],
-    totalPages: 1,
-    currentPage: 1,
-
-    // Paginated Admins
-    // admins: paginatedAdmins.admins,
+    admins: paginatedAdmins.admins,
+    totalPages: paginatedAdmins.totalPages,
+    currentPage: paginatedAdmins.currentPage,
   };
 };
 
