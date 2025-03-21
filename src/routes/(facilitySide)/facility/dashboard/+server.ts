@@ -1,8 +1,8 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 
-import { ServicesDAO, facilityServicePageSize } from '$lib';
+import { UpdateLogDAO, facilityUpdateLogsPageSize } from '$lib';
 
-let servicesDAO: ServicesDAO = new ServicesDAO();
+const updateLogDAO = new UpdateLogDAO();
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -23,7 +23,10 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { services } = await servicesDAO.getPaginatedServicesByFacility(facilityID, newPageNumber, facilityServicePageSize);
+  // const { services } = await updateLogDAO.getPaginatedServicesByFacility(facilityID, newPageNumber, facilityServicePageSize);
 
-  return json(services);
+
+let { updateLogs } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, 1, facilityUpdateLogsPageSize)
+
+  return json(updateLogs);
 };

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ServiceDTO } from "$lib/server/DTOs";
 
-  let { services } : {services: ServiceDTO[]} = $props();
+  let { mainServicesShown }: {mainServicesShown: ServiceDTO[]} = $props();
 
 </script>
 
@@ -16,7 +16,7 @@
   </div>
 
   <div class="mt-4">
-    {#each services as { type }}
+    {#each mainServicesShown as { type }}
       <div class="py-2 border-b border-transparent">
         <p class="font-bold">{type} Information</p>
         <!-- <p class="text-gray-500 italic">Emergency Division</p> -->

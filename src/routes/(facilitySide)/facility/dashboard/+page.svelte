@@ -13,7 +13,7 @@
 
   let { data, form }: PageProps = $props();
 
-  const services: ServiceDTO[] = data.services 
+  const mainServicesShown: ServiceDTO[] = data.services 
 
 </script>
 
@@ -51,7 +51,7 @@
   <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
     <Admins />
     <div class="grid grid-cols-2 gap-4 h-full">
-      <Services {services}/>
+      <Services {mainServicesShown}/>
       <Divisions/>
     </div>
   </div>

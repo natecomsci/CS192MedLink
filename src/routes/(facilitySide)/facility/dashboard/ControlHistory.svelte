@@ -2,11 +2,9 @@
   import type { PageProps } from "./$types";
   import { dateToTimeMapping } from "$lib/Mappings";
 
-  let admin = "Admin 1";
-
   let { data }: PageProps = $props();
 
-  let services = $state(data.services)
+  let updateLogs = $state(data.updateLogs)
   let currentPage = $state(data.currentPage)
   let totalPages = data.totalPages
 
@@ -15,7 +13,7 @@
     const body = JSON.stringify({currPage, change, maxPages});
 
     try {
-      const response = await fetch("./dashboard/manageServices/facilityHandler", {
+      const response = await fetch("./dashboard", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,7 +25,7 @@
         throw new Error(`Response status: ${response.status}`);
       }
 
-      services = await response.json();
+      updateLogs = await response.json();
       currentPage = (currentPage + change)
       
     } catch (error) {
@@ -48,7 +46,7 @@
 
     <!-- Scrollable List -->
     <div class="flex-1 overflow-y-auto p-4">
-      {#each services as { type, updatedAt }}
+      {#each updateLogs as { type, action, employeeID, createdAt }}
         <!-- history item -->
       <div class="py-2 border-b border-transparent">
           <div class="history-item justify-between">
@@ -58,14 +56,14 @@
           
               <!-- Left Content: Admin & Message -->
               <div class="info">
-                <span class="admin">{admin}</span>
-                <span class="message">Updated {type} Information</span>
+                <span class="admin">Need to change to actual name here smth smth{employeeID}</span>
+                <span class="message">{action} {type}</span>
               </div>
             </div>
           
             <!-- Right Content: Timestamp & Department -->
             <div class="details">
-              <span class="timestamp">Updated at {dateToTimeMapping(new Date(updatedAt))}</span>
+              <span class="timestamp">Updated at {dateToTimeMapping(new Date(createdAt))}</span>
               <!-- <span class="department">{department}</span> -->
             </div>
         </div>
