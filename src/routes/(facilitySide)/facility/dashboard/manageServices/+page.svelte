@@ -162,8 +162,7 @@
     </div>
 
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addService'}}>
-    <span class="text-xl">+</span>
-    Add service
+    <span class="text-xl">+ Add service</span>
   </button>
 </div>
 

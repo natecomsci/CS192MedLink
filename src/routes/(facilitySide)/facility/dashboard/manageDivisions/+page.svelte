@@ -71,6 +71,7 @@
     bind:currPopUp={currPopUp}
   />
 <!-- {:else if currPopUp === "editDivision"}
+<!-- {:else if currPopUp === "editDivision"}
   <EditDivision 
     { firstname }
     { middlename }
@@ -78,6 +79,7 @@
     { form }
     bind:currPopUp={currPopUp}
     divisionID={selectedDivisionID}
+  /> -->
   /> -->
 {/if}
 
@@ -94,7 +96,7 @@
     </a>
 
     <!-- Manage Services -->
-    <h2 class="font-bold text-[27px] text-[#3D1853]">Manage Admins</h2>
+    <h2 class="font-bold text-[27px] text-[#3D1853]">Manage Divisions</h2>
   </div>
 
   <!-- Medlink Logo -->
@@ -120,32 +122,27 @@
     </div>
 
     <!-- Scrollable List Container -->
-    <!-- <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
-      {#each admins as  { fname, mname, lname, adminID, divisionID }}
+    <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
+        {#each Array(20) as _,j}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <div>
-            <h3 class="text-lg font-bold text-gray-900 px-4">{mname ? fname + ' ' + mname + ' ' + lname : fname + ' ' + lname}</h3>
-            <p class="text-purple-600 px-4">Insert Division Here</p>
+            <h3 class="text-lg font-bold text-gray-900 px-4">Division Name</h3>
+            <p class="text-purple-600 px-4"></p>
           </div>
         
           <div class="flex items-center space-x-3 pr-4">
+            <!-- Edit Button -->
             <button onclick={() => {
-                currPopUp='editAdmin', 
-                selectedAdminID=adminID,
-                firstname=fname
-                middlename=mname
-                lastname=lname
-              }} 
+                currPopUp='editDivision'}} 
               class="inline-flex items-center" data-sveltekit-reload
             >
-              <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
+            <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
             <button 
               type="button" 
               class="inline-flex items-center" 
-              onclick={() => {selectedAdminID = adminID,
-                              currPopUp = admins.length > 1 ? 'delete' : 'deleteRestricted'}
+              onclick={() => {currPopUp = divisions.length > 1 ? 'delete' : 'deleteRestricted'}
                               } 
                 data-sveltekit-reload
             >
@@ -165,9 +162,8 @@
       <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next ⟩</button>
     </div>
 
-  <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addAdmin'}}>
-    <span class="text-xl">+</span>
-    Add Admin
+  <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addDivision'}}>
+    <span class="text-xl">+ Add Division</span>
   </button>
 </div>
 
