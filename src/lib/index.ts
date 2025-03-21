@@ -39,7 +39,6 @@ import type {
         AddressDTO,
         FacilityDTO,
         GeneralInformationFacilityDTO,
-        CreateAdminDTO,
         InitialAdminDetailsDTO,
         PaginatedServiceDTO,
       } from "./server/DTOs";
@@ -61,6 +60,7 @@ import {
 
 // Global Project Variables
 export const facilityServicePageSize: number = 5
+export const patientSearchPageSize: number = 5
 
 export type OPServiceType = typeof OPServiceTypes[number];
 
@@ -85,7 +85,6 @@ export type {
   AddressDTO,
   FacilityDTO,
   GeneralInformationFacilityDTO,
-  CreateAdminDTO,
   InitialAdminDetailsDTO,
   PaginatedServiceDTO,
 }

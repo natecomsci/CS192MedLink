@@ -14,7 +14,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
   const {currPage, change} : {currPage: number, change: number} = await request.json();
 
-  const { services } = await servicesDAO.getPaginatedServices(facilityID, currPage+change, facilityServicePageSize);
+  const { services } = await servicesDAO.getPaginatedServicesByFacility(facilityID, currPage+change, facilityServicePageSize);
 
   return json(services);
 };

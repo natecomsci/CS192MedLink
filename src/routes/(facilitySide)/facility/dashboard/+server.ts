@@ -1,12 +1,10 @@
-import type { RequestHandler } from '@sveltejs/kit';
-import { json, redirect } from '@sveltejs/kit';
-import { ServicesDAO } from '$lib/server/ServicesDAO';
-import { facilityServicePageSize } from '$lib/index';
+import { json, redirect, type RequestHandler } from '@sveltejs/kit';
+
+import { ServicesDAO, facilityServicePageSize } from '$lib';
 
 let servicesDAO: ServicesDAO = new ServicesDAO();
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-  // location is of type RegionDTO | POrCDTO | COrMDTO
   const facilityID = cookies.get('facilityID');
 
   if (!facilityID) {
@@ -25,7 +23,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { services } = await servicesDAO.getPaginatedServices(facilityID, newPageNumber, facilityServicePageSize);
+  const { services } = await servicesDAO.getPaginatedServicesByFacility(facilityID, newPageNumber, facilityServicePageSize);
 
   return json(services);
 };

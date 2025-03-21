@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  let paginatedServices = await servicesDAO.getPaginatedServices(facilityID, 1, facilityServicePageSize)
+  let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
   
   return {
     services: paginatedServices.services,
