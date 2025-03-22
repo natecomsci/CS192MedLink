@@ -13,6 +13,7 @@ import { AddressDAO } from "./server/AddressDAO";
 import { AdminDAO } from "./server/AdminDAO";
 import { AmbulanceServiceDAO } from "./server/AmbulanceDAO";
 import { BloodBankServiceDAO, BloodTypeMappingDAO } from "./server/BloodBankDAO";
+import { EmployeeDAO } from "./server/EmployeeDAO";
 import { ERServiceDAO } from "./server/ERDAO";
 import { FacilityDAO } from "./server/FacilityDAO";
 import { ICUServiceDAO } from "./server/ICUDAO";
@@ -131,6 +132,7 @@ export {
   // DAOs
   AddressDAO,
   AdminDAO,
+  EmployeeDAO,
   FacilityDAO,
   ServicesDAO,
   UpdateLogDAO,

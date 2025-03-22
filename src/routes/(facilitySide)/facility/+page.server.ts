@@ -2,21 +2,26 @@ import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
 import type { Actions } from './$types';
 import { FacilityDAO } from '$lib/server/FacilityDAO';
-import { AdminDAO } from '$lib';
+import { EmployeeDAO } from '$lib';
 
 export const actions = {
   signIn: async ({ request, cookies }) => {
-    const facilityID = cookies.get('facilityID');
+    const facilityIDCookie = cookies.get('facilityID');
+    const employeeIDCookie = cookies.get('employeeID');
+    const roleCookie = cookies.get('role');
+    const hasAdminsCookie = cookies.get('hasAdmins');
+    const hasDivisionsCookie = cookies.get('hasDivisions');
 
-    if (facilityID) {
+    if (facilityIDCookie && employeeIDCookie && roleCookie && hasAdminsCookie && hasDivisionsCookie) {
       throw redirect(303, '/facility/dashboard');
     }
 
+
     const data = await request.formData();
-    const fid = data.get('fid') as string;
+    const employeeID = data.get('employeeID') as string;
     const password = data.get('password') as string;
     
-    if (!fid) {
+    if (!employeeID) {
       return fail(400, 
         { 
           error: 'Missing Employee ID',
@@ -35,13 +40,9 @@ export const actions = {
         }
       );
     }
-    const adminDAO = new AdminDAO()
-    const facilityDAO = new FacilityDAO()
-    const facility = await facilityDAO.getByID(fid);
-    const employee = await adminDAO.getByID(fid)
-    const hasAdmins = await facilityDAO.facilityHasAdmins(fid)
-    const hasDivisions = await facilityDAO.facilityHasAdmins(fid)
 
+    const employeeDAO = new EmployeeDAO()
+    const employee = await employeeDAO.getByID(employeeID)
 
     if (!employee) {
       return fail(400, 
@@ -64,7 +65,13 @@ export const actions = {
       );
     }
 
+    const facilityDAO = new FacilityDAO()
+    const hasAdmins = await facilityDAO.facilityHasAdmins(employee.facilityID)
+    const hasDivisions = await facilityDAO.facilityHasDivisions(employee.facilityID)
+
     cookies.set('facilityID', employee.facilityID, {path: '/'});
+    cookies.set('employeeID', employee.employeeID, {path: '/'});
+    cookies.set('role', employee.role, {path: '/'});
     cookies.set('hasAdmins', String(hasAdmins), {path: '/'});
     cookies.set('hasDivisions', String(hasDivisions), {path: '/'});
 
