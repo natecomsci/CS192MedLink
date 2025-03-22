@@ -1,12 +1,10 @@
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // MODELS
@@ -198,10 +196,13 @@ model Division {
   // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
 
   // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
-  services   Service[]
+  services Service[]
 
   // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
-  admins     Employee[]
+  admins   Employee[]
+
+  // Division - Update Log : A Division may or may not have Update Logs.
+  logs     UpdateLog[]
 }
 
 // Table for both Managers and Admins of a Facility.
@@ -401,16 +402,20 @@ model OutpatientService {
 model UpdateLog {
   updateLogID String @id @default(uuid())
 
-  type      String
+  entity    String
   action    Action
   createdAt DateTime @default(now())
 
-  // UpdateLog - Facility : An Update Log is linked to exactly one Facility.
-  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  // Update Log - Facility : An Update Log is linked to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String
 
-  // UpdateLog - Employee : An Update Log is linked to exactly one Employee, who is either a Manager or Admin.
-  employee   Employee @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
+  // Update Log - Division : If a Facility has Divisions, every Update Log must be linked to exactly one Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
+  divisionID String?
+
+  // Update Log - Employee : An Update Log is linked to exactly one Employee, who is either a Manager or Admin.
+  employee   Employee  @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
   employeeID String
 }
 

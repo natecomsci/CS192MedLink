@@ -92,6 +92,17 @@ export class FacilityDAO {
     }
   }
 
+  /*
+  async updatePhoto(facilityID: string, <INSERT PARAMETERS>): Promise<void> {
+    try {
+      
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not update Employee photo.");
+    }
+  }
+  */
+
   async getAddressByFacility(facilityID: string): Promise<AddressDTO | null> {
     try {
       const address = await prisma.address.findUnique({

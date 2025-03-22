@@ -46,16 +46,7 @@ export class BloodTypeMappingDAO {
 
   async createBloodTypeMapping(serviceID: string, tx: Prisma.TransactionClient): Promise<void> {
     await tx.bloodTypeMapping.create({
-      data: {
-        A_P  : false,
-        A_N  : false,
-        B_P  : false,
-        B_N  : false,
-        O_P  : false,
-        O_N  : false,
-        AB_P : false,
-        AB_N : false,
-  
+      data: {  
         BloodBankService: {
           connect: {
             serviceID
@@ -125,7 +116,7 @@ export class BloodBankServiceDAO {
         await bloodTypeMappingDAO.createBloodTypeMapping(service.serviceID, tx);
   
         await updateLogDAO.createUpdateLog(
-          { type: "Blood Bank", action: Action.CREATE },
+          { entity: "Blood Bank", action: Action.CREATE },
           facilityID,
           employeeID,
           tx
@@ -236,7 +227,7 @@ export class BloodBankServiceDAO {
         });
 
         await updateLogDAO.createUpdateLog(
-          { type: "Blood Bank", action: Action.UPDATE },
+          { entity: "Blood Bank", action: Action.UPDATE },
           facilityID,
           employeeID,
           tx

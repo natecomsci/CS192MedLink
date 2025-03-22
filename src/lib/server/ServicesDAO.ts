@@ -37,11 +37,13 @@ export class ServicesDAO {
     }
   }
 
+  // unsure of output format. are these all needed or kahit ID lang. (ifl ID lang)
+
   async getByFacility(facilityID: string): Promise<ServiceDTO[]> {
     try {
       const services = await prisma.service.findMany({
         where: {
-          facilityID,
+          facilityID
         },
         select: {
           serviceID : true,
@@ -54,7 +56,7 @@ export class ServicesDAO {
       return services;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get services of the facility.");
+      throw new Error("Could not get Services of the facility.");
     }
   }
 
@@ -69,13 +71,13 @@ export class ServicesDAO {
             type: true 
           }
         });
-  
+
         if (!service) {
           throw new Error("Service not found.");
         }
   
         await updateLogDAO.createUpdateLog(
-          { type: service.type, action: Action.DELETE },
+          { entity: service.type, action: Action.DELETE },
           facilityID,
           employeeID,
           tx
@@ -190,7 +192,7 @@ export class ServicesDAO {
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not search for facilities with services whose name matches the query.");
+      throw new Error("Could not search for Facilities with Services whose name matches the query.");
     }
   }
 
@@ -226,7 +228,7 @@ export class ServicesDAO {
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not search for services within the facility whose name matches the query.");
+      throw new Error("Could not search for Services within the facility whose name matches the query.");
     }
   }
 
@@ -261,7 +263,7 @@ export class ServicesDAO {
       return { services, totalPages, currentPage: page };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated services within the entire facility.");
+      throw new Error("Could not get paginated Services within the entire facility.");
     }
   }
 
@@ -306,7 +308,7 @@ export class ServicesDAO {
       return { services, totalPages, currentPage: page };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not search paginated services within the entire facility.");
+      throw new Error("Could not search paginated Services within the entire facility.");
     }
   }
 }

@@ -34,7 +34,7 @@ export class UpdateLogDAO {
             facilityID 
           },
           select: {
-            type       : true,
+            entity     : true,
             action     : true,
             employeeID : true,
             createdAt  : true,
@@ -71,12 +71,12 @@ export class UpdateLogDAO {
         prisma.updateLog.findMany({
           where: {
             facilityID,
-            type: { 
+            entity: { 
               contains: query, mode: "insensitive" 
             }
           },
           select: {
-            type       : true,
+            entity       : true,
             action     : true,
             employeeID : true,
             createdAt  : true,
@@ -90,7 +90,7 @@ export class UpdateLogDAO {
         prisma.updateLog.count({
           where: { 
             facilityID,
-            type: { 
+            entity: { 
               contains: query, mode: "insensitive" 
             } 
           }

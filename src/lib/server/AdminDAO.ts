@@ -2,9 +2,9 @@
 
 import { prisma } from "./prisma";
 
-import { Role } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
-import type { Employee } from '@prisma/client';
+import { Role } from "@prisma/client";
 
 import type { AdminDTO,
               Create_UpdateAdminDTO, 
@@ -17,26 +17,6 @@ import generator from "generate-password-ts";
 import bcrypt from "bcryptjs";
 
 export class AdminDAO {
-  async getByID(adminID: string): Promise<Employee | null> {
-    try {
-      const admin = await prisma.employee.findUnique({
-        where: { 
-          employeeID : adminID 
-        }
-      });
-  
-      if (!admin) {
-        console.warn("No Admin with the specified ID found in the facility.");
-        return null;
-      }
-  
-      return admin;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get Admin.");
-    }
-  }
-
   async createAndHashPassword(): Promise<{ password: string, hashedPassword: string }> {
       const password: string = generator.generate({
         length  : 10,

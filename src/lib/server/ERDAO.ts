@@ -50,7 +50,7 @@ export class ERServiceDAO {
         });
   
         await updateLogDAO.createUpdateLog(
-          { type: "Emergency Room", action: Action.CREATE },
+          { entity: "Emergency Room", action: Action.CREATE },
           facilityID,
           employeeID,
           tx
@@ -152,7 +152,7 @@ export class ERServiceDAO {
         });
 
         await updateLogDAO.createUpdateLog(
-          { type: "Emergency Room", action: Action.UPDATE },
+          { entity: "Emergency Room", action: Action.UPDATE },
           facilityID,
           employeeID,
           tx

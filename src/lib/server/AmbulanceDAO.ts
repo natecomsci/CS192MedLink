@@ -49,7 +49,7 @@ export class AmbulanceServiceDAO {
         });
   
         await updateLogDAO.createUpdateLog(
-          { type: "Ambulance", action: Action.CREATE },
+          { entity: "Ambulance", action: Action.CREATE },
           facilityID,
           employeeID,
           tx
@@ -150,7 +150,7 @@ export class AmbulanceServiceDAO {
         });
 
         await updateLogDAO.createUpdateLog(
-          { type: "Ambulance", action: Action.UPDATE },
+          { entity: "Ambulance", action: Action.UPDATE },
           facilityID,
           employeeID,
           tx
