@@ -4,10 +4,12 @@ import type { PageServerLoad } from './$types';
 import { 
   facilityServicePageSize, 
   facilityUpdateLogsPageSize, 
+  facilityAdminsPageSize,
+
   UpdateLogDAO, 
   ServicesDAO, 
   AdminDAO,
-  facilityAdminsPageSize
+
 } from '$lib';
 
 export const load: PageServerLoad = async ({ cookies }) => {
@@ -31,8 +33,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
     updateLogs: paginatedUpdateLogs.updateLogs,
     totalPages: paginatedUpdateLogs.totalPages,
     currentPage: paginatedUpdateLogs.currentPage,
+
+    role,
     hasAdmins: Boolean(hasAdmins),
     hasDivisions: Boolean(hasDivisions),
+
   };
 
   if (toShow.hasAdmins) {
@@ -44,7 +49,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (toShow.hasDivisions) {
     // const divisionsDAO = new DivisionsDAO
     // const divisions = divisionsDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize)
-    // Object.defineProperty(toShow, "divisionsDAO", {value: divisionsDAO})
+    // Object.defineProperty(toShow, "divisions", {value: divisions})
   }
   
   return toShow

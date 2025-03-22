@@ -1,4 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
+import type { Availability, Load } from '@prisma/client';
+
 import type { PageServerLoad, Actions } from './$types';
 import bcrypt from 'bcryptjs';
 
@@ -13,26 +15,37 @@ import type { AmbulanceServiceDTO,
               ERServiceDTO, 
               ICUServiceDTO, 
               OutpatientServiceDTO, 
-              ServiceDTO } from '$lib/server/DTOs';
+              ServiceDTO,
+              OPServiceType,
+            } from '$lib';
 
-import { facilityServicePageSize } from '$lib/index';
-import { OPServiceTypes, specializedServiceType, type OPServiceType } from '$lib/projectArrays';
 
-import { AmbulanceServiceDAO } from "$lib/server/AmbulanceDAO";
-import { BloodBankServiceDAO } from "$lib/server/BloodBankDAO";
-import { ERServiceDAO } from "$lib/server/ERDAO";
-import { ICUServiceDAO } from "$lib/server/ICUDAO";
-import { OutpatientServiceDAO } from "$lib/server/OutpatientDAO";
-import { FacilityDAO } from "$lib/server/FacilityDAO";
-import { ServicesDAO } from '$lib/server/ServicesDAO';
+import { facilityServicePageSize,
 
-import { validateCompletionTime, validateCoverageRadius, validateFloat, validateInteger, validateOperatingHours, validatePhone } from '$lib/server/formValidators';
-import type { Availability, Load } from '@prisma/client';
-import { dateToTimeMapping } from '$lib/Mappings';
+         OPServiceTypes, 
+         specializedServiceType,
+
+         AmbulanceServiceDAO,
+         BloodBankServiceDAO,
+         ERServiceDAO,
+         ICUServiceDAO,
+         OutpatientServiceDAO,
+         ServicesDAO,
+
+         validateCompletionTime, 
+         validateCoverageRadius, 
+         validateFloat, 
+         validateInteger, 
+         validateOperatingHours, 
+         validatePhone,
+
+         dateToTimeMapping,
+         EmployeeDAO,
+       } from '$lib';
 
 // DAOs
 const servicesDAO = new ServicesDAO();
-const facilityDAO = new FacilityDAO();
+const employeeDAO = new EmployeeDAO();
 
 const ambulanceDAO = new AmbulanceServiceDAO();
 const bloodBankDAO = new BloodBankServiceDAO();
@@ -40,33 +53,13 @@ const eRDAO = new ERServiceDAO();
 const iCUDAO = new ICUServiceDAO();
 const outpatientDAO = new OutpatientServiceDAO();
 
-
 export const load: PageServerLoad = async ({ cookies }) => {
-  function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[] {
-    let availableServices: String[] = ["None"]
-    
-    for (let serviceType of specializedServiceType) { 
-      if (!serviceTypes.includes(serviceType)) {
-        availableServices.push(serviceType);
-      }
-    }
-    return availableServices
-  }
-
-  function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
-    let availableOPServices: String[] = ["None"]
-    
-    for (let serviceType of OPServiceTypes) { 
-      if (!serviceTypes.includes(serviceType)) {
-        availableOPServices.push(serviceType)
-      }
-    }
-    return availableOPServices;
-  }
-
   const facilityID = cookies.get('facilityID');
+  const role = cookies.get('role');
+  const hasAdmins = cookies.get('hasAdmins');
+  const hasDivisions = cookies.get('hasDivisions');
 
-  if (!facilityID) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
     throw redirect(303, '/facility');
   }
   
@@ -120,10 +113,10 @@ export const actions: Actions = {
     }
 
     try {
-      // Fetch facility data from DB
-      const facility = await facilityDAO.getByID(facilityID);
-      if (!facility) {
-        console.error(`Facility with ID ${facilityID} not found.`);
+      const employee = await employeeDAO.getByID(employeeID);
+
+      if (!employee) {
+        console.error(`Facility with ID ${employeeID} not found.`);
         return fail(404, { 
           error: "Facility not found",
           description: "not_found",
@@ -132,7 +125,7 @@ export const actions: Actions = {
       }
 
       // Verify password
-      const passwordMatch = await bcrypt.compare(password, facility.password);
+      const passwordMatch = await bcrypt.compare(password, employee.password);
       if (!passwordMatch) {
         return fail(400, { 
           error: 'Incorrect ID-password pair',
@@ -873,3 +866,27 @@ export const actions: Actions = {
     }
   }
 };
+
+
+function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[] {
+  let availableServices: String[] = ["None"]
+  
+  for (let serviceType of specializedServiceType) { 
+    if (!serviceTypes.includes(serviceType)) {
+      availableServices.push(serviceType);
+    }
+  }
+  return availableServices
+}
+
+function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
+  let availableOPServices: String[] = ["None"]
+  
+  for (let serviceType of OPServiceTypes) { 
+    if (!serviceTypes.includes(serviceType)) {
+      availableOPServices.push(serviceType)
+    }
+  }
+  return availableOPServices;
+}
+

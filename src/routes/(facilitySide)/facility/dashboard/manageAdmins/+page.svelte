@@ -18,7 +18,7 @@
 
   let selectedAdminID: String = $state('');
   let firstname: String = $state('')
-  let middlename: String = $state('')
+  let middlename: string | undefined = $state('')
   let lastname: String = $state('')
 
   let currPopUp: String = $state("")
@@ -33,7 +33,7 @@
     const body = JSON.stringify({currPage, change});
 
     try {
-      const response = await fetch("./manageAdmins/adminHandler", {
+      const response = await fetch("./manageAdmins/adminPagingHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +75,6 @@
 {:else if currPopUp === "editAdmin"}
   <EditAdmin 
     { firstname }
-    { middlename }
     { lastname }
     { form }
     bind:currPopUp={currPopUp}
@@ -137,7 +136,7 @@
                 currPopUp='editAdmin', 
                 selectedAdminID=admin.employeeID,
                 firstname=admin.fname,
-                middlename=admin.mname ?? '',
+                middlename=admin.mname,
                 lastname=admin.lname
               }} 
               class="inline-flex items-center" data-sveltekit-reload

@@ -1,75 +1,77 @@
+import { fail, redirect } from '@sveltejs/kit';
+
 import type { FacilityType, 
               Ownership, 
               Provider 
             } from '@prisma/client';
+import { createClient } from '@supabase/supabase-js';
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+
 import type { PageServerLoad, 
               Actions 
             } from './$types';
-import type { AddressDTO, 
-              GeneralInformationFacilityDTO 
-            } from '$lib/server/DTOs';
+
 import { v4 as uuidv4 } from 'uuid';
-import { fail, redirect } from '@sveltejs/kit';
 
-import { AddressDAO } from '$lib/server/AddressDAO';
-import { FacilityDAO } from '$lib/server/FacilityDAO';
-import { createClient } from '@supabase/supabase-js';
-
-import { validateEmail, 
+import { type GeneralInformationFacilityDTO,
+         AddressDAO,
+         FacilityDAO,
+         validateEmail, 
          validatePhone, 
          validateStreet, 
          validateLink, 
          validateFacilityName, 
-         validateImage
-       } from '$lib/server/formValidators';
+         validateImage,
+         providers,  
+      } from '$lib';
 
-import { providers,  
-       } from '$lib/projectArrays';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+let defPhoto: string
+let defName: string
+let defPhoneNumber: string
+let defEmail: string
+let defBookingSystem: string
+let defFacilityType: FacilityType
+let defOwnership: Ownership
+let defAcceptedProviders: Provider[]
 
-let def_photo: string
-let def_name: string
-let def_phoneNumber: string
-let def_email: string
-let def_bookingSystem: string
-let def_facilityType: FacilityType
-let def_ownership: Ownership
-let def_acceptedProviders: Provider[]
-
-let def_regionID: Number
-let def_pOrCID: Number
-let def_cOrMID: Number
-let def_brgyID: Number
-let def_street: string
+let defRegionID: Number
+let defPOrCID: Number
+let defCOrMID: Number
+let defBrgyID: Number
+let defStreet: string
 
 const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 
 export const load: PageServerLoad = async ({ cookies }) => {
-  let facilityDAO = new FacilityDAO();
-  let facilityID = cookies.get('facilityID');
-  
-  if (!facilityID) {
+  const facilityID = cookies.get('facilityID');
+  const role = cookies.get('role');
+  const hasAdmins = cookies.get('hasAdmins');
+  const hasDivisions = cookies.get('hasDivisions');
+
+  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
     throw redirect(303, '/facility');
   }
 
+  let facilityDAO = new FacilityDAO();
   const addressDAO = new AddressDAO();
 
   try {
     let facilityInfo = await facilityDAO.getGeneralInformation(facilityID);
 
-    def_photo = facilityInfo.photo
-    def_name = facilityInfo.name
-    def_phoneNumber = facilityInfo.phoneNumber
-    def_email = facilityInfo.email
-    def_bookingSystem = facilityInfo.bookingSystem ?? ""
-    def_facilityType = facilityInfo.facilityType
-    def_ownership = facilityInfo.ownership
-    def_acceptedProviders = facilityInfo.acceptedProviders
-    def_regionID = facilityInfo.address.regionID
-    def_pOrCID = facilityInfo.address.pOrCID
-    def_cOrMID = facilityInfo.address.cOrMID
-    def_brgyID = facilityInfo.address.brgyID
-    def_street = facilityInfo.address.street
+    defPhoto = facilityInfo.photo
+    defName = facilityInfo.name
+    defPhoneNumber = facilityInfo.phoneNumber
+    defEmail = facilityInfo.email
+    defBookingSystem = facilityInfo.bookingSystem ?? ""
+    defFacilityType = facilityInfo.facilityType
+    defOwnership = facilityInfo.ownership
+    defAcceptedProviders = facilityInfo.acceptedProviders
+
+    defRegionID = facilityInfo.address.regionID
+    defPOrCID = facilityInfo.address.pOrCID
+    defCOrMID = facilityInfo.address.cOrMID
+    defBrgyID = facilityInfo.address.brgyID
+    defStreet = facilityInfo.address.street
 
     return {
         regions: await addressDAO.getRegions(),
@@ -77,24 +79,24 @@ export const load: PageServerLoad = async ({ cookies }) => {
         corms: await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
         brgys: await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
 
-        facilityName: def_name,
+        facilityName: defName,
 
-        photo: def_photo,
+        photo: defPhoto,
 
-        regionID: def_regionID,
-        provinceID: def_pOrCID, 
-        cityID: def_cOrMID, 
-        barangayID: def_brgyID, 
-        street: def_street,
+        regionID: defRegionID,
+        provinceID: defPOrCID, 
+        cityID: defCOrMID, 
+        barangayID: defBrgyID, 
+        street: defStreet,
 
-        email: def_email,
-        contactNumber: def_phoneNumber,
-        type: def_facilityType,
-        ownership: def_ownership,
+        email: defEmail,
+        contactNumber: defPhoneNumber,
+        type: defFacilityType,
+        ownership: defOwnership,
 
-        bookingSystem: def_bookingSystem,
+        bookingSystem: defBookingSystem,
         
-        providers: def_acceptedProviders,
+        providers: defAcceptedProviders,
     };
 } catch (error) {
     return fail(500, {
@@ -105,16 +107,16 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 export const actions = {
   update: async ({ cookies, request }) => {
-    const data = await request.formData();
     const facilityID = cookies.get('facilityID');
+    const role = cookies.get('role');
+    const hasAdmins = cookies.get('hasAdmins');
+    const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID) {
-      return fail(422, { 
-        error: "Facility not signed in.",
-        description: "facility",
-        success: false  
-      });
+    if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+      throw redirect(303, '/facility');
     }
+
+    const data = await request.formData();
 
     // Address handling
     const address = {
@@ -125,18 +127,8 @@ export const actions = {
       street: ''
     };
 
-    try {
-      address.street = validateStreet(data.get('street'));
-    } catch (error) {
-      return fail(422, { 
-        error: (error as Error).message,
-        description: "street",
-        success: false  
-      });
-    }
-
     // General Information
-    let photo: string = def_photo;
+    let photo: string = defPhoto;
     let name: string, phoneNumber: string, email: string, bookingSystem: string;
     const facilityType: FacilityType = data.get('type') as FacilityType;
     const ownership: Ownership = data.get('ownership') as Ownership;
@@ -146,7 +138,8 @@ export const actions = {
       name = validateFacilityName(data.get('facilityName'));
       phoneNumber = validatePhone(data.get('phoneNumber'));
       email = await validateEmail(data.get('email'));
-      bookingSystem = String(data.get('bookingSystem')) === "" ? '' : await validateLink(data.get('bookingSystem'))
+      bookingSystem = String(data.get('bookingSystem')) === "" ? "" : await validateLink(data.get('bookingSystem'))
+      address.street = validateStreet(data.get('street'));
 
     } catch (error) {
       return fail(422, { 
@@ -209,19 +202,19 @@ export const actions = {
 
     const facilityDAO = new FacilityDAO();
 
-    if (def_photo == photo && 
-        def_name == name &&
-        def_phoneNumber == phoneNumber &&
-        def_email == email &&
-        def_bookingSystem == bookingSystem &&
-        def_facilityType == facilityType &&
-        def_ownership == ownership &&
-        def_regionID == address.regionID &&
-        def_pOrCID == address.pOrCID &&
-        def_cOrMID == address.cOrMID &&
-        def_brgyID == address.brgyID &&
-        def_street == address.street &&
-        def_acceptedProviders.toString() == acceptedProviders.toString()) {
+    if (defPhoto == photo && 
+        defName == name &&
+        defPhoneNumber == phoneNumber &&
+        defEmail == email &&
+        defBookingSystem == bookingSystem &&
+        defFacilityType == facilityType &&
+        defOwnership == ownership &&
+        defRegionID == address.regionID &&
+        defPOrCID == address.pOrCID &&
+        defCOrMID == address.cOrMID &&
+        defBrgyID == address.brgyID &&
+        defStreet == address.street &&
+        defAcceptedProviders.toString() == acceptedProviders.toString()) {
       return fail(422, { 
         error: "No changes made",
         description: "button",

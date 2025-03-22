@@ -26,7 +26,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   // const { services } = await updateLogDAO.getPaginatedServicesByFacility(facilityID, newPageNumber, facilityServicePageSize);
 
 
-let { updateLogs } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, 1, facilityUpdateLogsPageSize)
+  let { updateLogs } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, newPageNumber, facilityUpdateLogsPageSize)
 
   return json(updateLogs);
 };

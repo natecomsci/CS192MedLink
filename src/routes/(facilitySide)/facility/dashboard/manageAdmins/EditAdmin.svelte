@@ -2,7 +2,38 @@
   import { enhance } from '$app/forms';
   import type { PageData, ActionData } from './$types';
 
-  let { firstname, middlename, lastname, form, adminID, currPopUp = $bindable()}: {firstname: String, middlename: String | null, lastname: String, form: ActionData, adminID: String, currPopUp: String} = $props();
+  let { firstname, lastname, form, adminID, currPopUp = $bindable()}: {firstname: String, lastname: String, form: ActionData, adminID: String, currPopUp: String} = $props();
+
+  let middlename = $state('')
+  let divisions = $state([])
+
+  async function getData() {
+    const body = JSON.stringify({adminID});
+
+    try {
+      const response = await fetch("./manageAdmins/adminInfoHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+      console.log(rv)
+
+      middlename = rv.mname
+      divisions = rv.divisions
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+  getData()
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -54,7 +85,7 @@
               {/if}
               <input type="hidden" name="adminID" value="{adminID}" />
               <input type = "text" name = "fname" class="border-black border-2" value={firstname}>
-              <input type = "text" name = "mname" class="border-black border-2" value={middlename}>
+              <input type = "text" name = "mname" class="border-black border-2" value={middlename ?? ''}>
               <input type = "text" name = "lname" class="border-black border-2" value={lastname}>
             </form>
           </div>

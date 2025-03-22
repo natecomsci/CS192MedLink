@@ -40,6 +40,11 @@
 
         <!-- Right Panel -->
         <div class="flex-1 p-6 overflow-y-auto  "> 
+          {#if form?.error}
+            <p>
+              {form.error}
+            </p>
+          {/if}
             <p>
               Add Admin Page
               <input type = "text" name = "fname" class="border-black border-2">
