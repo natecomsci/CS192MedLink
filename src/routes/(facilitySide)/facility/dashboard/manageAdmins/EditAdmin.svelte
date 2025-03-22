@@ -35,6 +35,42 @@
   }
   getData()
 
+  let showNewPassword = $state(false)
+  let newPassword = $state('')
+  let passwordConfirmation = $state('')
+
+  let errorShown = $state('')
+
+  async function resetPassword() {
+    const body = JSON.stringify({adminID, passwordConfirmation});
+
+    try {
+      const response = await fetch("./manageAdmins/resetPasswordHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+
+      if (typeof rv === 'string') {
+        newPassword = rv
+        showNewPassword = true
+      } else {
+        errorShown = rv.error
+      }
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
   <div class=" w-11/12 max-w-3/4 rounded-lg  overflow-hidden ">
@@ -87,6 +123,19 @@
               <input type = "text" name = "fname" class="border-black border-2" value={firstname}>
               <input type = "text" name = "mname" class="border-black border-2" value={middlename ?? ''}>
               <input type = "text" name = "lname" class="border-black border-2" value={lastname}>
+              <button type="button" onclick={() => resetPassword()}>
+                Reset Password
+              </button>
+              <input type = "text" name = "passwordConfirmation" class="border-black border-2" bind:value={passwordConfirmation} placeholder="passwordConfirmation">
+              {#if showNewPassword}
+                <p>
+                  {newPassword}
+                </p>
+              {/if}
+
+              <p>
+                {errorShown}
+              </p>
             </form>
           </div>
         </div>
