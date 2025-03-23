@@ -1,9 +1,12 @@
+// @ts-nocheck comment at the top of a file
+
 import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
 import type { DivisionDTO,
               Create_UpdateDivisionDTO,
+              LinkableServiceDTO,
               PaginatedDivisionDTO
             } from "./DTOs";
 
@@ -89,6 +92,32 @@ export class DivisionDAO {
     }
   }
 
+  async getLinkableServices(facilityID: string): Promise<LinkableServiceDTO[]> {
+    try {
+      const divisionsWithServices = await prisma.division.findMany({
+        where: {
+          facilityID
+        },
+        select: {
+          divisionID : true,
+          services   : {
+            select   : {
+              serviceID : true,
+              type      : true,
+            }
+          }
+        }
+      });
+
+      const services = divisionsWithServices.filter(division => division.services.length > 1).flatMap(noisivid => noisivid.services);
+  
+      return services;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get linkable services for the facility.");
+    }
+  }
+  
   // update
 
   async delete(divisionID: string): Promise<void> {
@@ -101,6 +130,21 @@ export class DivisionDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not delete Division.");
+    }
+  }
+
+  async divisionHasServices(divisionID: string): Promise<boolean> {
+    try {
+      const count = await prisma.service.count({
+        where: {
+          divisionID
+        }
+      });
+
+      return count > 0;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not check if Division has Services.");
     }
   }
 

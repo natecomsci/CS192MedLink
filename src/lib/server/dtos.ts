@@ -41,11 +41,6 @@ export interface AddressDTO {
   street   : string,
 }
 
-export interface FacilityDTO {
-  facilityID : string;
-  name       : string,
-}
-
 export interface GeneralInformationFacilityDTO {
   name              : string,
   photo             : string,
@@ -70,6 +65,11 @@ export interface Create_UpdateDivisionDTO {
   phoneNumber : string,
   openingTime : Date,
   closingTime : Date,
+}
+
+export interface LinkableServiceDTO {
+  serviceID   : string,
+  type        : string,
 }
 
 export interface AdminDTO {
@@ -231,10 +231,28 @@ export interface UpdateLogDTO {
   createdAt  : Date,
 }
 
+export interface ServiceResultsDTO {
+  facilityID : string;
+  name       : string,
+  serviceID  : string;
+  type       : string,
+}
+
+export interface FacilityResultsDTO {
+  facilityID : string;
+  name       : string,
+}
+
 export interface PaginatedServiceDTO {
   services    : ServiceDTO[],
   totalPages  : number,
   currentPage : number,
+}
+
+export interface PatientServiceSearchDTO {
+  facilityID : string;
+  name       : string,
+  services   : string[], 
 }
 
 export interface PaginatedAdminDTO {

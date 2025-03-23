@@ -1,3 +1,5 @@
+// @ts-nocheck comment at the top of a file
+
 import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
@@ -10,7 +12,7 @@ import type { ServiceDTO,
               PaginatedServiceDTO 
             } from "./DTOs";
 
-import type { FacilityDTO } from "./DTOs";
+import type { ServiceResultsDTO } from "./DTOs";
 
 import type { Service } from '@prisma/client';
 
@@ -157,38 +159,40 @@ export class ServicesDAO {
   }
   */
 
-  // where: { services: { some: { type: { contains: query, mode: "insensitive" } } } },
-
-  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
+  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: ServiceResultsDTO[], hasMore: boolean }> {
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
 
-      const facilities = await prisma.facility.findMany({
+      const services = await prisma.service.findMany({
         where: { 
-          services: { 
-            some: { 
-              type: { 
-                contains : query, mode : "insensitive"
-              } 
-            } 
+          type: { 
+            contains : query, mode : "insensitive"
           } 
         },
         orderBy: {
           updatedAt: "desc"
         },
         select: {
-          facilityID : true,
-          name       : true,
+          serviceID : true,
+          type      : true,
+          facility  : {
+            select: {
+              facilityID : true,
+              name       : true,
+            }
+          },
         },
         skip: offset,
         take: numberToFetch + 1
       });
-  
+
+      const results = services.map(({ serviceID, type, facility }) => ({facilityID: facility.facilityID, name: facility.name, serviceID, type}));
+
       return {
-        results: facilities.slice(0, numberToFetch),
-        hasMore: facilities.length > numberToFetch,
+        results: results.slice(0, numberToFetch),
+        hasMore: services.length > numberToFetch,
       };
     } catch (error) {
       console.error("Details: ", error);

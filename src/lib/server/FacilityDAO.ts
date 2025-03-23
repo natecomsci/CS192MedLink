@@ -2,12 +2,12 @@ import { prisma } from "./prisma";
 
 import { Prisma } from "@prisma/client";
 
-import { Provider } from "@prisma/client";
+import { Role, Provider } from "@prisma/client";
 
 import type { Facility } from "@prisma/client";
 
 import type { AddressDTO, 
-              FacilityDTO, 
+              FacilityResultsDTO, 
               GeneralInformationFacilityDTO 
             } from "./DTOs";
 
@@ -145,15 +145,31 @@ export class FacilityDAO {
     }
   }
 
-  async facilityHasAdmins(facilityID: string): Promise<boolean> {
+  async facilityHasServices(facilityID: string): Promise<boolean> {
     try {
-      const count = await prisma.employee.count({
+      const count = await prisma.service.count({
         where: {
           facilityID
         }
       });
 
-      return count > 1;
+      return count > 0;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not check if Facility has Services.");
+    }
+  }
+
+  async facilityHasAdmins(facilityID: string): Promise<boolean> {
+    try {
+      const count = await prisma.employee.count({
+        where: {
+          facilityID,
+          role: Role.ADMIN
+        }
+      });
+
+      return count > 0;
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not check if Facility has Admins.");
@@ -175,7 +191,7 @@ export class FacilityDAO {
     }
   }
 
-  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: FacilityDTO[], hasMore: boolean }> {
+  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: FacilityResultsDTO[], hasMore: boolean }> {
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
