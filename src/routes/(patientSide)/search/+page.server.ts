@@ -74,6 +74,7 @@ export const actions = {
         }
       );
     }
+    console.log("✅ Search successful. Found")
     return { 
       facilities: byFacilities.results, 
       moreFacilities: byFacilities.hasMore,

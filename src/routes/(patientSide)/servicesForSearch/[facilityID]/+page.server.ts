@@ -1,11 +1,13 @@
-import type { PageServerLoad } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
 import { ServicesDAO } from "$lib/server/ServicesDAO";
-import { redirect } from "@sveltejs/kit";
+import { redirect, fail } from "@sveltejs/kit";
 import { FacilityDAO } from '$lib/server/FacilityDAO';
 
+const servicesDAO = new ServicesDAO();
+const facilityDAO = new FacilityDAO();
+
 export const load: PageServerLoad = async ({ params }) => {
-  const servicesDAO = new ServicesDAO();
-  const facilityDAO = new FacilityDAO();
+
   const { facilityID } = params;
 
   if (!facilityID) {
@@ -18,7 +20,7 @@ export const load: PageServerLoad = async ({ params }) => {
     return {
       services: services ?? [], // Ensuring services is always an array
       error: services.length === 0 ? "No services found for this facility." : null,
-      facilityName: facility
+      facilityName: facility.name
     };
     
   } catch (error) {
@@ -29,4 +31,47 @@ export const load: PageServerLoad = async ({ params }) => {
       facilityName: []
     };
   }
+
+  
 };
+
+
+export const actions = {
+  search: async ({ request, params }) => {
+    const formData = await request.formData();
+    let query = formData.get("query") as string;
+    const { facilityID } = params;
+
+
+
+    if (!query || query.trim() === "") {
+      return fail(400, {
+        error: "Please enter a search query.",
+        description: "search",
+        success: false
+      });
+    }
+
+    query = query.trim();
+
+    try {
+      const { results: services, hasMore } = await servicesDAO.patientSearchByFacility(
+        query, 10, 0, facilityID
+      );
+
+      console.log("✅ Search successful. Found", services, "services.");
+
+      return {
+        services: services ?? []
+      };
+
+    } catch (error) {
+      console.error("❌ Error in search action:", error);
+      return fail(400, {
+        error: "Error in search action",
+        description: "search",
+        success: false
+      });
+    }
+  }
+} satisfies Actions;

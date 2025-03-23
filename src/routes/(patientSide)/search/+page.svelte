@@ -1,7 +1,7 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-    import type { FacilityDTO } from '$lib';
-
+  import type { FacilityDTO } from '$lib';
+  import { goto } from '$app/navigation';
   let { data, form } = $props();
   let activeTab = $state("service"); // Default view
 
@@ -62,6 +62,12 @@
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
+    }
+  }
+
+  function viewServiceDetails(service) {
+    if (service.type === "Ambulance") {
+      goto(`/serviceInfo/Ambulance/${service.serviceID}`);
     }
   }
 
@@ -138,7 +144,7 @@
             <p class="text-sm text-gray-600">{service.type}</p> <!-- Display service type -->
             <input type="hidden" name="facilityID" value={service.facilityID} />
           </div>
-          <button class="text-xl font-bold">+</button>
+          <button class="text-xl font-bold" onclick={() => viewServiceDetails(service)}>+</button>
         </div>
       {/each}
       {#if currServiceHasMore} 
@@ -149,5 +155,5 @@
     {:else}
       <p>No services found.</p>
     {/if}
-  {/if}  
+  {/if}   
 </div>
