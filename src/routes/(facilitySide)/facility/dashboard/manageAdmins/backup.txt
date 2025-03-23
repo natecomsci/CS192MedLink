@@ -1,4 +1,64 @@
 <script lang="ts">
+  import type { ActionData, PageData } from './$types';
+  import { enhance } from '$app/forms';
+
+  let { form, currPopUp = $bindable() }: { form: ActionData, currPopUp: String } = $props();
+</script>
+
+<div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+  <div class=" w-11/12 max-w-3/4 rounded-lg  overflow-hidden ">
+    <form method="POST" action="?/addAdmin" use:enhance={()=> {
+      return async ({ update }) => {
+      await update({invalidateAll:true});
+      if (form?.success) {
+      currPopUp = ''
+      }
+      };
+      }}
+      class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl p-2 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+      >
+      <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
+        <!-- Left Panel -->
+        <div class="w-1/3 bg-white p-6 flex flex-col ">
+          <div class="flex items-center gap-5">
+            <button onclick={()=> currPopUp = ''} data-sveltekit-reload type="button">
+              <img src="/back_icon.svg" alt="Back"
+                class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50" />
+            </button>
+            <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Add Admin</h1>
+          </div>
+
+          <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700"
+            data-sveltekit-reload>
+            Add Admin
+          </button>
+        </div>
+
+        <!-- Vertical Divider -->
+        <div class="w-[2px] bg-gray-300"></div>
+
+        <!-- Right Panel -->
+        <div class="flex-1 p-6 overflow-y-auto  ">
+          <p>
+            Add Admin Page
+            <input type="text" name="fname" class="border-black border-2">
+            <input type="text" name="mname" class="border-black border-2">
+            <input type="text" name="lname" class="border-black border-2">
+            <!-- make dropdown similar to updateFacility Insurance
+              <input type = "button" id = "add-admin-btn">
+              -->
+
+          </p>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+==================================================================
++Page
+<script lang="ts">
   import Logo from '$lib/images/Logo.png';
   import type { PageProps } from "./$types";
 
@@ -62,6 +122,15 @@
           departments: ["Department 1", "Department 1", "Department 1", "Department 1", "Department 1"]
       }
   });
+
+  function editAdmin() {
+      console.log("Edit", ad.name);
+  }
+
+  function deleteAdmin() {
+      console.log("Delete", ad.name);
+  }
+
 </script>
 
 {#if currPopUp === "delete"}
@@ -134,14 +203,14 @@
       {#each admins as  admin}
 
 
-        <div class="admin-card shadow-[0px_4px_10px_rgba(0,0,0,0.3)]  ">
+        <div class="admin-card shadow-[0px_4px_10px_rgba(0,0,0,0.3)] border ">
             <!-- Profile Picture -->
-            <img class="profile-pic" src={ad.profilePicture} alt="" />
+            <img class="profile-pic" src={ad.profilePicture} alt="Profile Picture" />
 
             <!-- Admin Info -->
             <div class="info">
-                <h3 class="name">{admin.mname ? admin.fname + ' ' + admin.mname + ' ' + admin.lname : admin.fname + ' ' + admin.lname}</h3>
-                <p class="id">{admin.employeeID}</p>
+                <h3 class="name">{ad.name}</h3>
+                <p class="id">{ad.id}</p>
                 <p class="departments">
                     {#each ad.departments as dept, i}
                         <span class="dept">{dept}</span>
@@ -178,6 +247,46 @@
 
           </div>
         </div>
+
+        <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
+          <!-- Left Side: Text Content -->
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 px-4">{admin.mname ? admin.fname + ' ' + admin.mname + ' ' + admin.lname : admin.fname + ' ' + admin.lname}</h3>
+            <p class="text-purple-600 px-4">Insert Division Here</p>
+          </div>
+        
+          <!-- Right Side: Icons -->
+          <div class="flex items-center space-x-3 pr-4">
+            <button onclick={() => {
+                currPopUp='editAdmin', 
+                selectedAdminID=admin.employeeID,
+                firstname=admin.fname,
+                middlename=admin.mname,
+                lastname=admin.lname
+              }} 
+              class="inline-flex items-center" data-sveltekit-reload
+            >
+              <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
+            </button>
+
+            <!-- Delete Button (Opens Modal) -->
+            <button 
+              type="button" 
+              class="inline-flex items-center" 
+              onclick={() => {selectedAdminID = admin.employeeID,
+                              currPopUp = admins.length > 1 ? 'delete' : 'deleteRestricted'}
+                              } 
+                data-sveltekit-reload
+            >
+              <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
+            </button>
+
+          </div>
+        </div>
+
+
+
+
       {/each}
     </div>
     {#if form?.description === "pass"}
@@ -203,17 +312,16 @@
         background: white;
         padding: 15px;
         border-radius: 25px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         max-width: full;
         gap: 15px;
     }
 
     .profile-pic {
-        width: 80px;
-        height: 80px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
         object-fit: cover;
-        background: gray;
     }
 
     .info {
@@ -265,3 +373,66 @@
         opacity: 0.7;
     }
 </style>
+
+
+================================= edit
+
+
+<div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+  <div class=" w-11/12 max-w-3/4 rounded-lg  overflow-hidden ">
+    <div class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl p-2 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+      <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
+        <!-- Left Panel -->
+        <div class="w-1/3 bg-white p-6 flex flex-col ">
+            <div class="flex items-center gap-5">
+                <button onclick={() => currPopUp = ''} data-sveltekit-reload>
+                  <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
+                </button>
+                <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Edit Admin</h1>
+            </div>
+
+            <div class=" py-10">
+                <h1 class=" text-[25px] font-['DM_Sans'] font-bold text-black">{middlename ? firstname + ' ' + middlename + ' ' + lastname : firstname + ' ' + lastname}</h1>
+                <!-- <h3 class="text-[20px] font-['DM_Sans'] font-bold text-purple-500">Division Name</h3> -->
+            </div>
+
+            <button form="editAdmin" type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" data-sveltekit-reload>
+                Edit Admin
+            </button>
+        </div>
+
+        <!-- Vertical Divider -->
+        <div class="w-[2px] bg-gray-300"></div>
+
+        <!-- Right Panel -->
+        <div class="flex-1 p-6 overflow-y-auto  "> 
+          <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{middlename ? firstname + ' ' + middlename + ' ' + lastname : firstname + ' ' + lastname}</h2>
+          <div class="grid grid-cols-1">
+
+              Edit Admin Page
+              {#if form?.error}
+                  <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
+              {/if}
+              <input type="hidden" name="adminID" value="{adminID}" />
+              <input type = "text" name = "fname" class="border-black border-2" value={firstname}>
+              <input type = "text" name = "mname" class="border-black border-2" value={middlename ?? ''}>
+              <input type = "text" name = "lname" class="border-black border-2" value={lastname}>
+              <button type="button" onclick={() => resetPassword()}>
+                Reset Password
+              </button>
+              <input type = "text" name = "passwordConfirmation" class="border-black border-2" bind:value={passwordConfirmation} placeholder="passwordConfirmation">
+              {#if showNewPassword}
+                <p>
+                  {newPassword}
+                </p>
+              {/if}
+
+              <p>
+                {errorShown}
+              </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
