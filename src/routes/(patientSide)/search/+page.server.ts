@@ -1,7 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
 
 import type { Actions, PageServerLoad } from "./$types";
-import type { FacilityDTO } from "$lib/server/DTOs";
+import type { FacilityResultsDTO, ServiceResultsDTO } from "$lib/server/DTOs";
 
 import { FacilityDAO } from "$lib/server/FacilityDAO";
 import { ServicesDAO } from "$lib/server/ServicesDAO"; 
@@ -13,8 +13,8 @@ const serviceDAO = new ServicesDAO();
 
 export const load: PageServerLoad = async ({ url }) => {
     const query = url.searchParams.get("query")?.trim() || "";
-    let byFacilities: { results: FacilityDTO[], hasMore: boolean }
-    let byService: { results: FacilityDTO[], hasMore: boolean }
+    let byFacilities: { results: FacilityResultsDTO[], hasMore: boolean }
+    let byService: { results: ServiceResultsDTO[], hasMore: boolean }
 
     try {
         byFacilities = await facilityDAO.patientSearch(query, patientSearchPageSize, 0);
@@ -57,8 +57,8 @@ export const actions = {
 
     query = query.trim()
 
-    let byFacilities: { results: FacilityDTO[], hasMore: boolean }
-    let byService: { results: FacilityDTO[], hasMore: boolean }
+    let byFacilities: { results: FacilityResultsDTO[], hasMore: boolean }
+    let byService: { results: ServiceResultsDTO[], hasMore: boolean }
 
     try {
       byFacilities = await facilityDAO.patientSearch(query, patientSearchPageSize, 0);

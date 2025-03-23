@@ -129,13 +129,14 @@
       <p>No facilities found.</p>
     {/if}
 
-  {:else if activeTab === "service"}
+    {:else if activeTab === "service"}
     {#if services.length > 0}
-      {#each services as facility}
+      {#each services as service}
         <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
           <div>
-            <span class="font-semibold">{facility.name}</span>
-              <input type="hidden" name="facilityID" value={facility.facilityID} />
+            <span class="font-semibold">{service.name}</span>
+            <p class="text-sm text-gray-600">{service.type}</p> <!-- Display service type -->
+            <input type="hidden" name="facilityID" value={service.facilityID} />
           </div>
           <button class="text-xl font-bold">+</button>
         </div>
@@ -146,7 +147,7 @@
         </button>
       {/if}
     {:else}
-      <p>No facilities found.</p>
+      <p>No services found.</p>
     {/if}
-  {/if}
+  {/if}  
 </div>
