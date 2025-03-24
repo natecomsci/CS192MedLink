@@ -1,12 +1,12 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import type { FacilityDTO } from '$lib';
+  import type { FacilityResultsDTO } from '$lib';
   import { goto } from '$app/navigation';
   let { data, form } = $props();
   let activeTab = $state("service"); // Default view
 
-  let facilities: FacilityDTO[] = $state([])
-  let services: FacilityDTO[] = $state([])
+  let facilities: FacilityResultsDTO[] = $state([])
+  let services: FacilityResultsDTO[] = $state([])
 
   facilities = [...(data.facilities ?? [])]
   services = [...(data.services ?? [])]
