@@ -1,9 +1,9 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
-    import type { ServiceResultsDTO } from "$lib/server/DTOs";
+    import type { ServiceDTO } from "$lib/server/DTOs";
     import type { ActionData } from "./$types";
 
-    let { form, serviceType, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceType: String, serviceID: String, currPopUp: String, services: ServiceResultsDTO} = $props();
+    let { form, serviceType, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceType: String, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
 
     async function getNewServicePage() {
    
