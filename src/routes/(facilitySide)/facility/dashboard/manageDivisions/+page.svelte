@@ -71,7 +71,6 @@
     bind:currPopUp={currPopUp}
   />
 <!-- {:else if currPopUp === "editDivision"}
-<!-- {:else if currPopUp === "editDivision"}
   <EditDivision 
     { firstname }
     { middlename }
@@ -79,7 +78,6 @@
     { form }
     bind:currPopUp={currPopUp}
     divisionID={selectedDivisionID}
-  /> -->
   /> -->
 {/if}
 

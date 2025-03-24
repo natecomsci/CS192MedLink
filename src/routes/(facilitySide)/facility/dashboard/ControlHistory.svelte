@@ -35,34 +35,54 @@
 
 </script>
   <div class="h-full flex flex-col">
-    <!-- Sticky Header -->
-    <div class="flex items-center justify-between text-[30px] pl-4 pr-4 text-[#9044C4] font-bold text-lg border-b border-[#DBD8DF] sticky bg-white z-10">
+  <!-- Sticky Header -->
+  <div class="flex items-center  border-green-400 pl-4 sticky bg-white z-10">
+
+    <span class=" text-[30px] font-bold text-lg text-[#9044C4] whitespace-nowrap pr-4">
       Control History
-      <div class=text-[20px]>
-        Searchbar 
-        View
-      </div>
+    </span>
+
+    <div class=" flex items-center gap-3 flex-grow">
+      <!-- Increased width for better alignment -->
+      <input
+        type="text"
+        placeholder="Search"
+        class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
+      />
+      
+      <!-- Ensures "View By:" stays in one line -->
+      <span class="whitespace-nowrap">View By:</span>
+
+      <select class="p-4 py-0 border-2 border-gray-500 rounded-3xl h-10">
+        <option>Default</option>
+      </select>
     </div>
 
+  </div>
+
+
+
+
+
     <!-- Scrollable List -->
-    <div class="flex-1 overflow-y-auto p-4">
+    <div class="flex-1 overflow-y-auto p-4 ">
       {#each updateLogs as { entity, action, employeeID, createdAt }}
         <!-- history item -->
-      <div class="py-2 border-b border-transparent">
-          <div class="history-item justify-between">
-            <div class ='flex space-x-5 items-center'>
+      <div class="py-2 -b mb-4 ">
+          <div class="history-item justify-between  -green-200">
+            <div class ='flex items-center'>
               <!-- Profile Placeholder -->
-              <div class="profile-circle"></div>
+              <!-- <div class="profile-circle"></div> -->
           
               <!-- Left Content: Admin & Message -->
               <div class="info">
-                <span class="admin">Need to change to actual name here smth smth{employeeID}</span>
+                <span class="admin">Admin {employeeID}</span>
                 <span class="message">{action} {entity}</span>
               </div>
             </div>
           
             <!-- Right Content: Timestamp & Department -->
-            <div class="details">
+            <div class="details ">
               <span class="timestamp">Updated at {dateToTimeMapping(new Date(createdAt))}</span>
               <!-- <span class="department">{department}</span> -->
             </div>
@@ -73,7 +93,7 @@
 
     <!-- Pagination -->
 
-    <div class="p-4 border-t border-[#DBD8DF] flex justify-between items-center">
+    <div class="p-4 -t -[#DBD8DF] flex justify-between items-center">
       <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>« Prev</button>
       <span class="text-purple-700 font-semibold">{currentPage} of {totalPages}</span>
       <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next »</button>
@@ -94,15 +114,15 @@
     width: 63px;
     height: 63px;
     background: #d9d9d9;
-    border-radius: 50%;
+    -radius: 50%;
     flex-shrink: 0;
   }
 
   .info {
     display: flex;
     flex-direction: column;
-    padding-top: 11px;
-    width: 300px;
+    padding-top: 0px;
+    width:px;
   }
 
   .admin {
@@ -125,7 +145,7 @@
   .details {
     display: flex;
     flex-direction: column;
-    padding-top: 11px;
+    padding-top: 0px;
     width: 179px;
     text-align: right;
   }
@@ -135,8 +155,8 @@
     font-style: italic;
     font-weight: 500;
     font-size: 20px;
-    color: #565656;
-    letter-spacing: -0.02em;
+    color: #6d6666;
+    letter-spacing: 0.01em;
   }
 
   /*.department {

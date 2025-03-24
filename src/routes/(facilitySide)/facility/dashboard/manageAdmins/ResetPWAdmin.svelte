@@ -99,7 +99,13 @@
 
     <div class="flex flex-col mt-5">
         <span class = "text-label">Generated Password:</span>
-        <h1 class="text-[20px] font-semibold font-t">InsertPWHere</h1>
+
+        {#if showNewPassword}
+        <p  class="text-[20px] font-semibold font-t">
+        {newPassword}
+        </p>
+        {/if}
+        <!-- <h1 class="text-[20px] font-semibold font-t">InsertPWHere</h1> -->
         <button type="button" class="text-purple-500 hover:underline" onclick={() => {ResetPW = true; }}>
         Copy Button
         </button>
@@ -107,14 +113,7 @@
 
 
     
-
-    {#if showNewPassword}
-      <p>
-        {newPassword}
-      </p>
-    {/if}
-
-    <p>
+    <p class="text-red-500 font-semibold">
       {errorShown}
     </p>
 
