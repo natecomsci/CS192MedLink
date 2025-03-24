@@ -67,9 +67,13 @@ export interface Create_UpdateDivisionDTO {
   closingTime : Date,
 }
 
-export interface LinkableServiceDTO {
-  serviceID   : string,
-  type        : string,
+export interface MultiServiceDivisionsDTO {
+  divisionID  : string,
+  name        : string,
+  services    : {
+    serviceID:  string, 
+    type      : string,
+  }[],
 }
 
 export interface AdminDTO {

@@ -6,7 +6,7 @@ import type { Prisma } from "@prisma/client";
 
 import type { DivisionDTO,
               Create_UpdateDivisionDTO,
-              LinkableServiceDTO,
+              MultiServiceDivisionsDTO,
               PaginatedDivisionDTO
             } from "./DTOs";
 
@@ -21,7 +21,7 @@ export class DivisionDAO {
         }
       });
 
-      if (!divisionID) {
+      if (!division) {
         console.warn("No Division found with the specified ID.");
         return null;
       }
@@ -88,35 +88,58 @@ export class DivisionDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not connect services to Division.");
+      throw new Error("Could not connect Services to Division.");
     }
   }
 
-  async getLinkableServices(facilityID: string): Promise<LinkableServiceDTO[]> {
+  async getMultiServiceDivisions(facilityID: string): Promise<MultiServiceDivisionsDTO[]> {
     try {
-      const divisionsWithServices = await prisma.division.findMany({
+      const multiServiceDivisionIDs = await prisma.service.groupBy({
+        by: ["divisionID"],
         where: {
-          facilityID
+          division: {
+            facilityID
+          }
+        },
+        having: {
+          divisionID: {
+            _count: {
+              gt: 1
+            }
+          }
+        }
+      });
+  
+      const divisionIDs = multiServiceDivisionIDs.map(division => division.divisionID).filter((divisionID): divisionID is string => (divisionID !== null));
+  
+      if (divisionIDs.length === 0) {
+        return [];
+      }
+  
+      const divisions = await prisma.division.findMany({
+        where: {
+          divisionID: { 
+            in: divisionIDs 
+          }
         },
         select: {
           divisionID : true,
+          name       : true,
           services   : {
-            select   : {
+            select: {
               serviceID : true,
               type      : true,
             }
           }
         }
       });
-
-      const services = divisionsWithServices.filter(division => division.services.length > 1).flatMap(noisivid => noisivid.services);
   
-      return services;
+      return divisions;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get linkable services for the facility.");
+      throw new Error("Could not get Divisions with multiple services, as well as their Services.");
     }
-  }
+  }  
   
   // update
 

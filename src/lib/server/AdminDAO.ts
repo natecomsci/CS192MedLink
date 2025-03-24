@@ -17,6 +17,68 @@ import generator from "generate-password-ts";
 import bcrypt from "bcryptjs";
 
 export class AdminDAO {
+  async getByID(adminID: string): Promise<Admin | null> {
+    try {
+      const division = await prisma.admin.findUnique({
+        where: {
+          adminID
+        }
+      });
+
+      if (!division) {
+        console.warn("No Division found with the specified ID.");
+        return null;
+      }
+
+      return division;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Admin.");
+    }
+  }
+
+  // unsure of output format. are these all needed or kahit ID lang. (ifl ID lang)
+
+  async getByFacility(facilityID: string): Promise<AdminDTO[]> {
+    try {
+      const admins = await prisma.admin.findMany({
+        where: {
+          facilityID,
+          role: Role.ADMIN
+        },
+        select: {
+          employeeID : true,
+          fname      : true,
+          mname      : true,
+          lname      : true,
+          divisions  : { 
+            select: { 
+              divisionID: true 
+            } 
+          },
+          createdAt  : true,
+          updatedAt  : true,
+        }
+      });
+
+      return admins.map((admin) => ({
+        employeeID : admin.employeeID,
+        fname      : admin.fname,
+        lname      : admin.lname,
+        createdAt  : admin.createdAt,
+        updatedAt  : admin.updatedAt,
+
+        ...(admin.mname ? { mname: admin.mname } : {}),
+        ...(admin.divisions
+          ? admin.divisions.map((division) => division.divisionID)
+          : {}),
+      }));
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Admins of the facility.");
+    }
+  }
+
   async createAndHashPassword(): Promise<{ password: string, hashedPassword: string }> {
       const password: string = generator.generate({
         length  : 10,
