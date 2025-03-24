@@ -8,10 +8,35 @@
   import ICUService from './AddICUService.svelte';
   import OutpatientService from './AddOutpatientService.svelte';
   import { enhance } from '$app/forms';
+  import type { ServiceDTO } from '$lib';
 
-  let { data, form, currPopUp = $bindable() }: { data: PageData, form: ActionData, currPopUp: String } = $props();
+  let { data, form, currPopUp = $bindable(), services = $bindable() }: { data: PageData, form: ActionData, currPopUp: String, services: ServiceDTO[] } = $props();
   let serviceType: String = $state('');
   let division: String = $state('');
+
+  async function getNewServicePage() {
+   
+    const body = JSON.stringify({currPage: 1, change: 0});
+
+    try {
+      const response = await fetch("./manageServices/servicePagingHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      services = await response.json();
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
 
 </script>
  
@@ -25,6 +50,7 @@
           await update({invalidateAll:true});
           if (form?.success) {
               currPopUp = ''
+              getNewServicePage()
           }
         };
       }}

@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { ServiceDTO } from '$lib';
   import type { PageData, ActionData } from './$types';
 
   import EditAmbulanceService from './EditAmbulanceService.svelte';
@@ -7,7 +8,7 @@
   import EditICUService from './EditICUService.svelte';
   import EditOPService from './EditOPService.svelte';
 
-  let { data, form, serviceType, serviceID, currPopUp = $bindable()}: {data: PageData, form: ActionData, serviceType: String, serviceID: String, currPopUp: String} = $props();
+  let { data, form, serviceType, serviceID, currPopUp = $bindable(), services = $bindable() }: {data: PageData, form: ActionData, serviceType: String, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -45,30 +46,35 @@
                   { form }
                   { serviceID }
                   bind:currPopUp={currPopUp}
+                  bind:services={services}
                 />
               {:else if serviceType == "Blood Bank"}
                 <EditBloodBankService
                   { form }
                   { serviceID }
                   bind:currPopUp={currPopUp}
+                  bind:services={services}
                 />
               {:else if serviceType == "Emergency Room"}
                 <EditERService
                   { form }
                   { serviceID }
                   bind:currPopUp={currPopUp}
+                  bind:services={services}
                 />
               {:else if serviceType == "Intensive Care Unit"}
                 <EditICUService
                   { form }
                   { serviceID }
                   bind:currPopUp={currPopUp}
+                  bind:services={services}
                 />
               {:else}
                 <EditOPService
                   { form }
                   { serviceID }
                   bind:currPopUp={currPopUp}
+                  bind:services={services}
                 />
               {/if}
           </label>

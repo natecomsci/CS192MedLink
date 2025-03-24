@@ -65,21 +65,27 @@
 
 {#if currPopUp === "delete"}
   <DeleteAdminConfirm
-    { form }
+    bind:data={data}
+    bind:admins={admins}
+    bind:form={form}
     bind:currPopUp={currPopUp}
     adminID={selectedAdminID}
   />
 
 {:else if currPopUp === "addAdmin"}
   <AddAdmin 
-    { form }
+    bind:data={data}
+    bind:admins={admins}
+    bind:form={form}
     bind:currPopUp={currPopUp}
   />
 {:else if currPopUp === "editAdmin"}
   <EditAdmin 
     { firstname }
     { lastname }
-    { form }
+    bind:data={data}
+    bind:admins={admins}
+    bind:form={form}
     bind:currPopUp={currPopUp}
     adminID={selectedAdminID}
   />

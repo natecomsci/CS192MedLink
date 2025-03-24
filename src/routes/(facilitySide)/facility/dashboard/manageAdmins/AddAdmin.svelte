@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { ActionData, PageData } from './$types';
   import { enhance } from '$app/forms';
+  import { redirect } from '@sveltejs/kit';
+  import type { AdminDTO } from '$lib';
 
-
-  let { form, currPopUp = $bindable() }: { form: ActionData, currPopUp: String } = $props();
+  let { data = $bindable(), form = $bindable(), currPopUp = $bindable(), admins = $bindable()}: { data: PageData, form: ActionData, currPopUp: String, admins: AdminDTO[] } = $props();
 
   let firstName = $state("");
   let middleName =$state("") ;
@@ -12,10 +13,8 @@
   let allDivisions = ["Division 1", "Division 2", "Division 3", "Division 4", "Division 5", "Division 6", "Division 7", "Division 8","ahahahhahahahaha"];
   let selectedDivisions:string[] = $state([]);
 
-  let isDropdownOpen = false;
-
-  function toggleDropdown() {
-    isDropdownOpen = !isDropdownOpen;
+  function red() {
+    throw redirect(300, '/facility/dashboard/manageAdmins')
   }
 
   function toggleDivision(division: string) {
@@ -32,6 +31,31 @@
     }
 
   let showDropdown = $state(false);
+
+
+  async function getNewAdmins() {
+    const body = JSON.stringify({currPage: 1, change: 0});
+
+    try {
+      const response = await fetch("./manageAdmins/adminPagingHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      admins = await response.json();
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+
 </script>
 
 <form 
@@ -42,6 +66,7 @@
           await update({invalidateAll:true});
           if (form?.success) {
               currPopUp = ''
+              getNewAdmins()
           }
         };
       }}

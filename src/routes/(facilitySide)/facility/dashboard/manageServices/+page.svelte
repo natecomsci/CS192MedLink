@@ -30,7 +30,7 @@
     const body = JSON.stringify({currPage, change});
 
     try {
-      const response = await fetch("./manageServices/facilityHandler", {
+      const response = await fetch("./manageServices/servicePagingHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -57,6 +57,7 @@
     serviceID={selectedServiceID}
     serviceType={selectedServiceType}
     {form}
+    bind:services={services}
     bind:currPopUp={currPopUp}
   />
 
@@ -69,12 +70,14 @@
   <AddService 
     { data } 
     { form }
+    bind:services={services}
     bind:currPopUp={currPopUp}
   />
 {:else if currPopUp === "editService"}
   <EditService 
     { data } 
     { form }
+    bind:services={services}
     bind:currPopUp={currPopUp}
     serviceType={selectedServiceType}
     serviceID={selectedServiceID}

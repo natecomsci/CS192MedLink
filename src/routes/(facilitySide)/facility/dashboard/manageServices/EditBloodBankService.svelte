@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { ActionData } from './$types';
   import { enhance } from '$app/forms';
+    import type { ServiceDTO } from '$lib';
       
-  let { form, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String} = $props();
+  let { form, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
 
   let phoneNumber     : String = $state('')
   let openingTime     : String = $state('')
@@ -59,6 +60,30 @@
   }
   getData()
 
+  async function getNewServicePage() {
+   
+    const body = JSON.stringify({currPage: 1, change: 0});
+
+    try {
+      const response = await fetch("./manageServices/servicePagingHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      services = await response.json();
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+
 </script>
 
 <form method="POST" 
@@ -69,6 +94,7 @@
             await update({invalidateAll:true});
             if (form?.success) {
                 currPopUp = ''
+                getNewServicePage()
             }
         };
     }}

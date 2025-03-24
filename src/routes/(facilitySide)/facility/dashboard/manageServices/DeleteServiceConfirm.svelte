@@ -1,8 +1,34 @@
 <script lang="ts">
     import { enhance } from "$app/forms";
+    import type { ServiceResultsDTO } from "$lib/server/DTOs";
     import type { ActionData } from "./$types";
 
-    let { form, serviceType, serviceID, currPopUp = $bindable()}: {form: ActionData, serviceType: String, serviceID: String, currPopUp: String} = $props();
+    let { form, serviceType, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceType: String, serviceID: String, currPopUp: String, services: ServiceResultsDTO} = $props();
+
+    async function getNewServicePage() {
+   
+    const body = JSON.stringify({currPage: 1, change: 0});
+
+    try {
+      const response = await fetch("./manageServices/servicePagingHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      services = await response.json();
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+  
 </script>
 
 <!-- Modal Overlay -->
@@ -18,6 +44,7 @@
             await update({invalidateAll:true});
             if (form?.success) {
                 currPopUp = ''
+                getNewServicePage()
             }
           };
         }}

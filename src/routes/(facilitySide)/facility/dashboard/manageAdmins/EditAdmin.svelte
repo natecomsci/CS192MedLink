@@ -1,9 +1,10 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import type { AdminDTO } from '$lib';
   import type { PageData, ActionData } from './$types';
   import ResetPWAdmin from "./ResetPWAdmin.svelte";
 
-  let { firstname, lastname, form, adminID, currPopUp = $bindable()}: {firstname: String, lastname: String, form: ActionData, adminID: String, currPopUp: String} = $props();
+  let { firstname, lastname, data = $bindable(), form = $bindable(), adminID, currPopUp = $bindable(), admins = $bindable()}: {firstname: String, lastname: String, data: PageData, form: ActionData, adminID: String, currPopUp: String, admins:AdminDTO[]} = $props();
 
   let middlename = $state('')
   let divisions = $state([])
@@ -86,12 +87,6 @@
   let allDivisions = ["Division 1", "Division 2", "Division 3", "Division 4", "Division 5", "Division 6", "Division 7", "Division 8","ahahahhahahahaha"];
   let selectedDivisions:string[] = $state([]);
 
-  let isDropdownOpen = false;
-
-  function toggleDropdown() {
-    isDropdownOpen = !isDropdownOpen;
-  }
-
   function toggleDivision(division: string) {
     if (selectedDivisions.includes(division)) {
       selectedDivisions = selectedDivisions.filter(d => d !== division);
@@ -106,6 +101,30 @@
     }
 
   let showDropdown = $state(false);
+
+  async function getNewAdmins() {
+    const body = JSON.stringify({currPage: 1, change: 0});
+
+    try {
+      const response = await fetch("./manageAdmins/adminPagingHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      admins = await response.json();
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+
 </script>
 
 {#if ResetPW}
@@ -128,6 +147,7 @@
       await update({invalidateAll:true});
       if (form?.success) {
           currPopUp = ''
+          getNewAdmins()
       }
     };
   }}
