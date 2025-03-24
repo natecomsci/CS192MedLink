@@ -25,7 +25,7 @@ import type {
         ServiceDTO,
         PaginatedServiceDTO,
         
-        FacilityDTO,
+        FacilityResultsDTO,
         GeneralInformationFacilityDTO,
 
         RegionDTO,
@@ -85,7 +85,7 @@ export type {
   ServiceDTO,
   PaginatedServiceDTO,
 
-  FacilityDTO,
+  FacilityResultsDTO,
   GeneralInformationFacilityDTO,
 
   RegionDTO,

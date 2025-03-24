@@ -103,13 +103,18 @@ export const actions: Actions = {
   
   addAdmin: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
+    const role = cookies.get('role');
     const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !hasDivisions) {
-      throw redirect(303, '/facility');
+    if (role != Role.MANAGER) {
+      return fail(422, { 
+        error: "Managers are the only ones who can delete admins",
+        description: "wrong permissions",
+        success: false  
+      });
     }
 
-    if (!facilityID) {
+    if (!facilityID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -187,17 +192,39 @@ export const actions: Actions = {
 
   editAdmin: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
+    const role = cookies.get('role');
     const hasDivisions = cookies.get('hasDivisions');
 
     if (!facilityID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
-    if (!facilityID) {
-      throw redirect(303, '/facility');
+    if (role != Role.MANAGER) {
+      return fail(422, { 
+        error: "Managers are the only ones who can delete admins",
+        description: "wrong permissions",
+        success: false  
+      });
+    }
+    
+    const data = await request.formData();
+
+    const adminID = data.get('adminID') as string;
+
+    const employee = await employeeDAO.getByID(adminID)
+
+    if (!employee) {
+      return fail(422, {
+        error: "No employee found",
+        description: "validation",
+        success: false
+      });
     }
 
-    const data = await request.formData();
+    const defFname = employee.fname
+    const defMname = employee.mname
+    const defLname = employee.lname
+    // const defDivisions = employee.divisions
 
     
     const firstName = data.get('fname');
@@ -205,7 +232,7 @@ export const actions: Actions = {
     const lastName = data.get('lname');
 
     try {
-      const adminID = data.get('adminID') as string;
+      
       const fname   = validatePersonName(firstName);
       const lname   = validatePersonName(lastName);
 
@@ -257,6 +284,16 @@ export const actions: Actions = {
         }
       }
 
+      if (defFname == fname &&
+          defMname == (middleName as string) &&
+          defLname == lname 
+        ) {
+        return fail(422, { 
+          error: "No changes made",
+          description: "button",
+          success: false  
+        });
+      }
 
       //concern on facility ID of admin not being the same
 

@@ -12,7 +12,6 @@
 
   // PopUps
   import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
-  import DeleteAdminRestricted from "./DeleteAdminRestricted.svelte";
   import AddAdmin from './AddAdmin.svelte';
   import EditAdmin from './EditAdmin.svelte';
 
@@ -69,11 +68,6 @@
     { form }
     bind:currPopUp={currPopUp}
     adminID={selectedAdminID}
-  />
-
-{:else if currPopUp === "deleteRestricted"}
-  <DeleteAdminRestricted
-    bind:currPopUp={currPopUp}
   />
 
 {:else if currPopUp === "addAdmin"}

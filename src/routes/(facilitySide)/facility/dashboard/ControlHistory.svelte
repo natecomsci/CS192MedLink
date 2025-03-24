@@ -46,7 +46,7 @@
 
     <!-- Scrollable List -->
     <div class="flex-1 overflow-y-auto p-4">
-      {#each updateLogs as { type, action, employeeID, createdAt }}
+      {#each updateLogs as { entity, action, employeeID, createdAt }}
         <!-- history item -->
       <div class="py-2 border-b border-transparent">
           <div class="history-item justify-between">
@@ -57,7 +57,7 @@
               <!-- Left Content: Admin & Message -->
               <div class="info">
                 <span class="admin">Need to change to actual name here smth smth{employeeID}</span>
-                <span class="message">{action} {type}</span>
+                <span class="message">{action} {entity}</span>
               </div>
             </div>
           

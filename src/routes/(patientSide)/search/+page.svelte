@@ -1,12 +1,12 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-    import type { FacilityDTO } from '$lib';
-
+  import type { FacilityResultsDTO } from '$lib';
+  import { goto } from '$app/navigation';
   let { data, form } = $props();
   let activeTab = $state("service"); // Default view
 
-  let facilities: FacilityDTO[] = $state([])
-  let services: FacilityDTO[] = $state([])
+  let facilities: FacilityResultsDTO[] = $state([])
+  let services: FacilityResultsDTO[] = $state([])
 
   facilities = [...(data.facilities ?? [])]
   services = [...(data.services ?? [])]
@@ -64,6 +64,20 @@
       throw new Error(`Response status: ${error}`);
     }
   }
+
+  function viewServiceDetails(service) {
+  if (service.type === "Ambulance") {
+    goto(`/serviceInfo/Ambulance/${service.serviceID}`);
+  } else if (service.type === "Blood Bank") {
+    goto(`/serviceInfo/BloodBank/${service.serviceID}`);
+  } else if (service.type === "Emergency Room") {
+    goto(`/serviceInfo/Emergency/${service.serviceID}`);
+  } else if (service.type === "Intensive Care Unit") {
+    goto(`/serviceInfo/ICU/${service.serviceID}`);
+  } else {
+    goto(`/serviceInfo/Outpatient/${service.serviceID}`);
+  }
+}
 
 </script>
 
@@ -129,15 +143,16 @@
       <p>No facilities found.</p>
     {/if}
 
-  {:else if activeTab === "service"}
+    {:else if activeTab === "service"}
     {#if services.length > 0}
-      {#each services as facility}
+      {#each services as service}
         <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
           <div>
-            <span class="font-semibold">{facility.name}</span>
-              <input type="hidden" name="facilityID" value={facility.facilityID} />
+            <span class="font-semibold">{service.name}</span>
+            <p class="text-sm text-gray-600">{service.type}</p> <!-- Display service type -->
+            <input type="hidden" name="facilityID" value={service.facilityID} />
           </div>
-          <button class="text-xl font-bold">+</button>
+          <button class="text-xl font-bold" onclick={() => viewServiceDetails(service)}>+</button>
         </div>
       {/each}
       {#if currServiceHasMore} 
@@ -146,7 +161,7 @@
         </button>
       {/if}
     {:else}
-      <p>No facilities found.</p>
+      <p>No services found.</p>
     {/if}
-  {/if}
+  {/if}   
 </div>
