@@ -2,6 +2,7 @@
   import type { ActionData, PageData } from './$types';
   import { enhance } from '$app/forms';
 
+
   let { form, currPopUp = $bindable() }: { form: ActionData, currPopUp: String } = $props();
 
   let firstName = $state("");
