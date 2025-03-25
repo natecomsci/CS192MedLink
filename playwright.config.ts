@@ -1,5 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -24,7 +23,10 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-
+  //reporter: [
+    //['list'], // Keeps the default Playwright test output
+   // [Reporter], // Uses the custom "always pass" reporter
+  //],
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'http://localhost:5173/',
@@ -64,10 +66,10 @@ export default defineConfig({
     //   name: 'Microsoft Edge',
     //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
     // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+     //{
+       //name: 'Google Chrome',
+       //use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+     //},
   ],
 
   /* Run your local dev server before starting the tests */
