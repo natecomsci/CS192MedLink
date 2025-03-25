@@ -13,9 +13,9 @@ import type { AmbulanceServiceDTO,
 let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class AmbulanceServiceDAO {
-  async create(facilityID: string, employeeID: string, data: CreateAmbulanceServiceDTO): Promise<void> {
+  async create(facilityID: string, employeeID: string, data: CreateAmbulanceServiceDTO): Promise<string> {
     try {
-      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, ...ambulanceData } = data;
   
         const service = await tx.service.create({
@@ -47,14 +47,18 @@ export class AmbulanceServiceDAO {
             }
           }
         });
-  
+
         await updateLogDAO.createUpdateLog(
           { entity: "Ambulance", action: Action.CREATE },
           facilityID,
           employeeID,
           tx
         );
+
+        return service.serviceID;
       });
+  
+      return serviceID;
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not create AmbulanceService.");

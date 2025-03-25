@@ -78,9 +78,9 @@ export class BloodTypeMappingDAO {
 let bloodTypeMappingDAO: BloodTypeMappingDAO = new BloodTypeMappingDAO();
 
 export class BloodBankServiceDAO {
-  async create(facilityID: string, employeeID: string, data: CreateBloodBankServiceDTO): Promise<void> {
+  async create(facilityID: string, employeeID: string, data: CreateBloodBankServiceDTO): Promise<string> {
     try {
-      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, ...bloodBankData } = data;
   
         const service = await tx.service.create({
@@ -121,12 +121,16 @@ export class BloodBankServiceDAO {
           employeeID,
           tx
         );
+
+        return service.serviceID;
       });
+  
+      return serviceID;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create BloodBankService.");
+      throw new Error("Could not create AmbulanceService.");
     }
-  }  
+  }
 
   async getInformation(serviceID: string): Promise<BloodBankServiceDTO> {
     try {

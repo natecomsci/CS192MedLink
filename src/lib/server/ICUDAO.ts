@@ -13,9 +13,9 @@ import type { ICUServiceDTO,
 let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class ICUServiceDAO {
-  async create(facilityID: string, employeeID: string, data: CreateICUServiceDTO): Promise<void> {
+  async create(facilityID: string, employeeID: string, data: CreateICUServiceDTO): Promise<string> {
     try {
-      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, ...iCUData } = data;
   
         const service = await tx.service.create({
@@ -55,12 +55,16 @@ export class ICUServiceDAO {
           employeeID,
           tx
         );
+
+        return service.serviceID;
       });
+  
+      return serviceID;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create ICUService.");
+      throw new Error("Could not create AmbulanceService.");
     }
-  }  
+  }
 
   async getInformation(serviceID: string): Promise<ICUServiceDTO> {
     try {
