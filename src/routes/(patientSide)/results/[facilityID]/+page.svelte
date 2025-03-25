@@ -10,13 +10,9 @@
     let provinceList: POrCDTO[] = $state(data.provinces ?? []);
     let cityList: COrMDTO[] = $state(data.corms ?? []);
     let barangayList: BrgyDTO[] = $state(data.brgys ?? []);
-  
-    let regionID: String = $state(String(data.regionID) ?? '');
-    let provinceID: String = $state(String(data.provinceID) ?? '');
-    let cityID: String = $state(String(data.cityID) ?? '');
-    let barangayID: String = $state(String(data.barangayID) ?? '');
-    let street = $state(data.street ?? '');
-  
+    let facilityAddress    = $state(data.fullAddress);
+
+
     let selectedOwnership = $state(data.ownership);
     let selectedType = $state(data.type);
   
@@ -48,15 +44,11 @@
       <p><strong>Phone:</strong> {contactNumber}</p>
     </div>
   
-    <div class="mt-4">
-      <h2 class="text-xl font-semibold">Location</h2>
-      <p><strong>Street:</strong> {street}</p>
-      <p><strong>Barangay:</strong> {barangayID}</p>
-      <p><strong>City/Municipality:</strong> {cityID}</p>
-      <p><strong>Province:</strong> {provinceID}</p>
-      <p><strong>Region:</strong> {regionID}</p>
-    </div>
-  
+    <p><strong>Address:</strong> {facilityAddress ? 
+      `${facilityAddress.street}, ${facilityAddress.barangay}, ${facilityAddress.city}, ${facilityAddress.province}, ${facilityAddress.region}` 
+      : "Address not available"}
+    </p>
+    
     {#if bookingSystem}
       <div class="mt-4">
         <h2 class="text-xl font-semibold">Booking System</h2>
