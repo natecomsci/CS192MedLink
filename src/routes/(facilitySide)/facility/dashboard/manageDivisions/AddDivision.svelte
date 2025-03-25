@@ -110,8 +110,7 @@
             {#each linkableServices as { divisionID, name, services }}
               {name}
               {#each services as { serviceID, type }}
-                {type}
-
+                
                 <div class="option">
                   <input type=checkbox
                               bind:group={selectedLinkableServices[divisionID]}
@@ -122,7 +121,6 @@
                               >
                   <label for={type}>{type}</label>
                 </div>
-                }
               {/each}
             {/each} 
           </label>
