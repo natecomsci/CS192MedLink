@@ -1,5 +1,5 @@
 <script lang="ts">
-    let { i }: { i:number } = $props();
+    // let { i }: { i:number } = $props();
 </script>
 
 <div class="container">
@@ -9,7 +9,7 @@
             <span class="text-label">Phone No.</span>
             <input 
                 class="input-box" 
-                name="phoneNumber{i}"
+                name="phoneNumber"
                 type="tel"
                 value="+63 9"
             />  
@@ -23,14 +23,14 @@
             <div class="flex-container">
                 <input 
                     class="input-box w-30"
-                    name="opening{i}"
+                    name="opening"
                     type="time"
                     value="08:00" 
                 >
                 <h1 class="text-label">to</h1>
                 <input 
                     class="input-box w-30"
-                    name="closing{i}"
+                    name="closing"
                     type="time"
                     value="16:00" 
                 >
@@ -43,7 +43,7 @@
         <label>
             <span class="text-label">Base Price</span>
             <input 
-                name="price{i}" 
+                name="price" 
                 type="number" 
                 class="input-box" 
                 placeholder="Price" 
@@ -60,14 +60,14 @@
             <div class="flex-container">
                 <input 
                     type="number" 
-                    name="turnaroundDays{i}"
+                    name="turnaroundDays"
                     class="input-box w-30" 
                     placeholder="Days" 
                 />
                 Days
                 <input 
                     type="number" 
-                    name="turnaroundHours{i}"
+                    name="turnaroundHours"
                     class="input-box w-30" 
                     placeholder="Hours" 
                 />
