@@ -43,8 +43,7 @@
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
   <div class=" w-11/12 max-w-3/4 rounded-lg  overflow-hidden ">
     <form 
-      method="POST" 
-      action="?/addService"
+      action="/addService"
       use:enhance={() => {
         return async ({ update }) => {
           await update({invalidateAll:true});

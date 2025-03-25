@@ -27,10 +27,11 @@ import {
         OutpatientServiceDAO,
         validateFacilityName
       } from '$lib';
-import type { Create_UpdateDivisionDTO } from '$lib/server/DTOs';
+import type { Create_UpdateDivisionDTO, MultiServiceDivisionsDTO } from '$lib/server/DTOs';
 
 const divisionDAO = new DivisionDAO();
-const facilityDAO = new FacilityDAO();
+
+let existingServices: MultiServiceDivisionsDTO[]
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -62,6 +63,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
     availableServices.push("Outpatient")
   }
 
+  existingServices = linkableServices
+
   return {
     divisions: paginatedDivisions.divisions,
     totalPages: paginatedDivisions.totalPages,
@@ -74,60 +77,60 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 export const actions = {
   deleteDivision: async ({ request, cookies }) => {
-    const facilityID = cookies.get('facilityID');
+    // const facilityID = cookies.get('facilityID');
 
-    if (!facilityID) {
-      throw redirect(303, '/facility');
-    }
+    // if (!facilityID) {
+    //   throw redirect(303, '/facility');
+    // }
 
-    const data = await request.formData();
+    // const data = await request.formData();
 
-    const divisionID = data.get("divisionID") as string;
-    const password = data.get("password") as string;
+    // const divisionID = data.get("divisionID") as string;
+    // const password = data.get("password") as string;
 
-    if (!divisionID || !password) {
-      return fail(422, { 
-        error: "Division ID and password are required",
-        description: "missing params",
-        success: false  
-      });
-    }
+    // if (!divisionID || !password) {
+    //   return fail(422, { 
+    //     error: "Division ID and password are required",
+    //     description: "missing params",
+    //     success: false  
+    //   });
+    // }
 
-    try {
-      // // Fetch facility data from DB
-      // const facility = await facilityDAO.getByID(facilityID);
-      // if (!facility) {
-      //   console.error(`Facility with ID ${facilityID} not found.`);
-      //   return fail(404, { 
-      //     error: "Facility not found",
-      //     description: "not_found",
-      //     success: false  
-      //   });
-      // }
+    // try {
+    //   // // Fetch facility data from DB
+    //   // const facility = await facilityDAO.getByID(facilityID);
+    //   // if (!facility) {
+    //   //   console.error(`Facility with ID ${facilityID} not found.`);
+    //   //   return fail(404, { 
+    //   //     error: "Facility not found",
+    //   //     description: "not_found",
+    //   //     success: false  
+    //   //   });
+    //   // }
 
-      // // Verify password
-      // const passwordMatch = await bcrypt.compare(password, facility.password);
-      // if (!passwordMatch) {
-      //   return fail(400, { 
-      //     error: 'Incorrect ID-password pair',
-      //     description: 'pass',
-      //     success: false
-      //   });
-      // }
+    //   // // Verify password
+    //   // const passwordMatch = await bcrypt.compare(password, facility.password);
+    //   // if (!passwordMatch) {
+    //   //   return fail(400, { 
+    //   //     error: 'Incorrect ID-password pair',
+    //   //     description: 'pass',
+    //   //     success: false
+    //   //   });
+    //   // }
 
-      // divisionDAO.delete(divisionID)
+    //   // divisionDAO.delete(divisionID)
 
-    } catch (error) {
-      return fail(500, { 
-        error: "Failed to delete division",
-        description: "database",
-        success: false  
-      });
-    }
+    // } catch (error) {
+    //   return fail(500, { 
+    //     error: "Failed to delete division",
+    //     description: "database",
+    //     success: false  
+    //   });
+    // }
 
-    return {
-      success: true
-    }
+    // return {
+    //   success: true
+    // }
   },
   
   addDivision: async ({ cookies, request }) => {
@@ -167,50 +170,49 @@ export const actions = {
       });
     }
 
-    console.log(divisionName)
-    console.log(phone)
-    console.log(open)
-    console.log(close)
-
-    let newServices = []
-    let serviceTypeNames: string[] = ["serviceType0", "serviceType1", "serviceType2"];
-
     const serviceType = data.get("serviceType") as string;
-    const serviceType0 = data.get("serviceType0") as string;
-    const serviceType1 = data.get("serviceType1") as string;
-    const serviceType2 = data.get("serviceType2") as string;
-    console.log("serviceType", serviceType)
-    console.log("serviceType0", serviceType0)
-    console.log("serviceType1", serviceType1)
-    console.log("serviceType2", serviceType2)
 
-    try {
-      // for (let i = 0; i < 3; i++) {
-      //   let t = "serviceType" + String(i)
-      //   console.log(data.get("serviceType" + i))
-      //   console.log("serviceType" + i)
-      //   if (data.get("serviceType" + String(i))){
+    let newService
 
-      //     service = addService({data, i})
-
-      //     newServices.push(service)
-      //   }
-      // }
-
-      for (var sType of serviceTypeNames) {
-        console.log(sType, data.get(sType))
+    if (serviceType) {
+      try {
+        newService = validateService({data})
+      } catch (error) {
+        return fail(422, {
+            error: (error as Error).message,
+            description: "Service Validation",
+            success: false
+          });
       }
-    } catch (error) {
-      return fail(422, {
-          error: (error as Error).message,
-          description: "Service Validation",
-          success: false
-        });
     }
 
-    if (newServices.length == 0) {
+    let servicesToAttach = []
+    let numberOfExistingServices
+    let count = 0
+
+    for (let {services} of existingServices) {
+      numberOfExistingServices = services.length
+      for (let {serviceID, type} of services) {
+        if (data.get(serviceID)) {
+          count++
+          servicesToAttach.push(serviceID)
+        }
+
+        if (numberOfExistingServices == count) {
+          return fail(422, {
+            error: "Cannot select all services in an existing facility",
+            description: "Creation errors",
+            success: false
+          });
+        }
+      }
+
+      count = 0 
+    }
+
+    if (!serviceType && !servicesToAttach) {
       return fail(422, {
-          error: "Division must have at least 1 service",
+          error: "New division must have at least 1 service",
           description: "Service Validation",
           success: false
         });
@@ -224,12 +226,14 @@ export const actions = {
     }
 
     try {
-      divisionDAO.create(facilityID, division)
-
-      for (var service of newServices) {
-        service.dao.create(facilityID, employeeID, service.service)
-        console.log(service.service)
+      divisionID = await divisionDAO.create(facilityID, division)
+      if (newService) {
+        const serviceID = await newService.dao.create(facilityID, employeeID, newService.service)
+        servicesToAttach.push(serviceID)
       }
+
+      divisionDAO.connectServicesToDivision(facilityID, servicesToAttach)
+
     } catch (error) {
       return fail(422, {
           error: (error as Error).message,
@@ -244,27 +248,27 @@ export const actions = {
   },
 
   editDivision: async ({ cookies, request }) => {
-    const facilityID = cookies.get('facilityID');
+    // const facilityID = cookies.get('facilityID');
 
-    if (!facilityID) {
-      throw redirect(303, '/facility');
-    }
+    // if (!facilityID) {
+    //   throw redirect(303, '/facility');
+    // }
 
-    const data = await request.formData();
+    // const data = await request.formData();
 
-    const divisionID = data.get("divisionID") as string;
+    // const divisionID = data.get("divisionID") as string;
 
-    // const adminInfo = await adminDAO.getInformation(adminID);
+    // // const adminInfo = await adminDAO.getInformation(adminID);
 
-    const firstName = data.get('fname');
-    const middleName = data.get('mname');
-    const lastName = data.get('lname');
-    const pass = data.get('password');
+    // const firstName = data.get('fname');
+    // const middleName = data.get('mname');
+    // const lastName = data.get('lname');
+    // const pass = data.get('password');
 
-    let fname: string  
-    let mname: string | undefined
-    let lname: string   
-    let password: string   
+    // let fname: string  
+    // let mname: string | undefined
+    // let lname: string   
+    // let password: string   
 
   },
 } satisfies Actions;
@@ -292,25 +296,24 @@ function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
   return availableOPServices;
 }
 
-async function addService({ data, i }: {data: FormData, i: number}) {
-  const serviceType = data.get('serviceType'+String(i));
-  console.log(serviceType)
+function validateService({ data }: {data: FormData}) {
+  const serviceType = data.get('serviceType');
 
-  const phone    = data.get('phoneNumber'+String(i));
-  const open     = data.get('opening'+String(i));
-  const close    = data.get('closing'+String(i));
-  const rates    = data.get('price'+String(i));
-  const minCover = data.get('minCoverageRadius'+String(i));
-  const mileRate = data.get('mileageRate'+String(i));
-  const maxCover = data.get('maxCoverageRadius'+String(i));
+  const phone    = data.get('phoneNumber');
+  const open     = data.get('opening');
+  const close    = data.get('closing');
+  const rates    = data.get('price');
+  const minCover = data.get('minCoverageRadius');
+  const mileRate = data.get('mileageRate');
+  const maxCover = data.get('maxCoverageRadius');
 
-  const turnTD  = data.get('turnaroundDays'+String(i));
-  const turnTH  = data.get('turnaroundHours'+String(i));
+  const turnTD  = data.get('turnaroundDays');
+  const turnTH  = data.get('turnaroundHours');
 
-  const OPType  = data.get('OPserviceType'+String(i));
-  const compTD  = data.get('completionDays'+String(i));
-  const compTH  = data.get('completionHours'+String(i));
-  const walkins = data.get('acceptWalkins'+String(i));
+  const OPType  = data.get('OPserviceType');
+  const compTD  = data.get('completionDays');
+  const compTH  = data.get('completionHours');
+  const walkins = data.get('acceptWalkins');
   
   switch (serviceType){
     case "Ambulance": {

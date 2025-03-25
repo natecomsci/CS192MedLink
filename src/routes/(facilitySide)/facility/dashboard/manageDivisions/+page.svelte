@@ -148,7 +148,6 @@
             >
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
-
           </div>
         </div>
       {/each}
