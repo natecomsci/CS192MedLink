@@ -292,7 +292,7 @@ model Service {
 
   // Service - Division : If a Facility has Divisions, every Service must belong to a Division.
   division          Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID        String?   @unique                                                                      // "@unique" is needed to enforce one-to-one relationships on Prisma.
+  divisionID        String?
 
   // Links to specific services
   ambulanceService  AmbulanceService?
