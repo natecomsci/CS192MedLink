@@ -1,27 +1,35 @@
 import type { Actions, PageServerLoad } from "./$types";
-import { AmbulanceServiceDAO } from '$lib/server/AmbulanceDAO';
+import { OutpatientServiceDAO } from '$lib/server/OutpatientDAO';
 import { FacilityDAO } from '$lib/server/FacilityDAO';
+import { ServicesDAO } from '$lib/server/ServicesDAO';
 import { AddressDAO } from '$lib/server/AddressDAO';
 import { fail, redirect } from "@sveltejs/kit";
-import { ServicesDAO } from '$lib/server/ServicesDAO';
 
 export const load: PageServerLoad = async ({ params }) => {
-  const ambulanceDAO = new AmbulanceServiceDAO();
+  const outpatientDAO = new OutpatientServiceDAO();
   const facilityDAO = new FacilityDAO();
+  const servicesDAO = new ServicesDAO();
   const addressDAO = new AddressDAO();
-  const servicesDAO = new ServicesDAO()
   const { serviceID } = params;
-  
-  let ambulanceService = await ambulanceDAO.getInformation(serviceID);
+
   if (!serviceID) {
+    console.warn("No serviceID provided, redirecting...");
     throw redirect(303, "/facility");
   }
 
   try {
+    console.log("Fetching service details for serviceID:", serviceID);
     let service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
       console.error("Service or facilityID not found for serviceID:", serviceID);
       throw new Error("Service or facilityID not found.");
+    }
+    
+    console.log("Fetching outpatient service details...");
+    let outpatientService = await outpatientDAO.getInformation(serviceID);
+    if (!outpatientService) {
+      console.error("Outpatient Service details not found for serviceID:", serviceID);
+      throw new Error("Outpatient Service details not found.");
     }
     
     console.log("Fetching facility details for facilityID:", service.facilityID);
@@ -33,7 +41,7 @@ export const load: PageServerLoad = async ({ params }) => {
     
     console.log("Fetching address details...");
     let address = await addressDAO.getByFacility(service.facilityID);
-    let fullAddress = null;
+    let formattedAddress = "Address not available";
 
     if (address) {
       const [region, province, city, barangay] = await Promise.all([
@@ -43,31 +51,27 @@ export const load: PageServerLoad = async ({ params }) => {
         addressDAO.getNameOfBrgy(address.brgyID),
       ]);
 
-      fullAddress = {
-        street: address.street,
-        region: region || "Unknown Region",
-        province: province || "Unknown Province",
-        city: city || "Unknown City",
-        barangay: barangay || "Unknown Barangay",
-      };
+      formattedAddress = [
+        address.street,
+        barangay,
+        city,
+        province,
+        region
+      ].filter(Boolean).join(", ");
     }
 
-    console.log("Fetched Service Data:", service);
-
     return {
-      facilityName       : facility.name,
-      facilityAddress    : fullAddress,
-      phoneNumber       : ambulanceService.phoneNumber ?? null,
-      openingTime       : ambulanceService.openingTime ?? null,
-      closingTime       : ambulanceService.closingTime ?? null,
-      baseRate          : ambulanceService.baseRate ?? null,
-      minCoverageRadius : ambulanceService.minCoverageRadius ?? null,
-      mileageRate       : ambulanceService.mileageRate ?? null,
-      maxCoverageRadius : ambulanceService.maxCoverageRadius ?? null,
-      availability      : ambulanceService.availability ?? null,
+      facilityName    : facility.name,
+      facilityAddress : formattedAddress,
+      price           : outpatientService.price,
+      completionTimeD : outpatientService.completionTimeD,
+      completionTimeH : outpatientService.completionTimeH,
+      isAvailable     : outpatientService.isAvailable,
+      acceptsWalkIns  : outpatientService.acceptsWalkIns,
+      ...(outpatientService.divisionID ? { divisionID: outpatientService.divisionID } : {}),
     };
   } catch (error) {
-    console.error("Error loading service details:", error);
-    return fail(500, { description: "Could not get service information." });
+    console.error("Error loading outpatient or facility details:", error);
+    return fail(500, { description: "Could not get outpatient service or facility information." });
   }
 };

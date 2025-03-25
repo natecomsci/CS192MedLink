@@ -190,13 +190,34 @@ export class FacilityDAO {
       throw new Error("Could not check if Facility has Divisions.");
     }
   }
-
-  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: FacilityResultsDTO[], hasMore: boolean }> {
+  async getFacilityByServiceID(serviceID: string) {
+    try {
+      return await prisma.facility.findFirst({
+        where: {
+          services: { some: { id: serviceID } } // Assumes `services` is a relation
+        },
+        select: {
+          id: true,
+          name: true,
+          address: true
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching facility by serviceID:", error);
+      throw new Error("Could not fetch facility details.");
+    }
+  }
+  
+  async patientSearch(
+    query: string, 
+    numberToFetch: number, 
+    offset: number
+  ): Promise<{ results: FacilityResultsDTO[], hasMore: boolean }> {
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
-
+  
       const facilities = await prisma.facility.findMany({
         where: { 
           name: { 
@@ -209,11 +230,20 @@ export class FacilityDAO {
         select: {
           facilityID : true,
           name       : true,
+          address    : {
+            select: {
+              regionID : true,
+              pOrCID   : true,
+              cOrMID   : true,
+              brgyID   : true,
+              street   : true,
+            }
+          }
         },
         skip: offset,
         take: numberToFetch + 1
       });
-
+  
       return {
         results: facilities.slice(0, numberToFetch),
         hasMore: facilities.length > numberToFetch,
@@ -222,5 +252,8 @@ export class FacilityDAO {
       console.error("Search Error: ", error);
       throw new Error("Could not search facilities.");
     }
+
+    
   }
+  
 }

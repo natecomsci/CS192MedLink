@@ -20,7 +20,8 @@ export const load: PageServerLoad = async ({ params }) => {
     return {
       services: services ?? [], // Ensuring services is always an array
       error: services.length === 0 ? "No services found for this facility." : null,
-      facilityName: facility.name
+      facilityName: facility.name,
+      facilityID: facility?.facilityID
     };
     
   } catch (error) {
@@ -42,36 +43,27 @@ export const actions = {
     let query = formData.get("query") as string;
     const { facilityID } = params;
 
-
+    if (!facilityID) {
+      return fail(400, { error: "Facility ID is required.", description: "search", success: false });
+    }
 
     if (!query || query.trim() === "") {
-      return fail(400, {
-        error: "Please enter a search query.",
-        description: "search",
-        success: false
-      });
+      return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
 
     query = query.trim();
 
     try {
-      const { results: services, hasMore } = await servicesDAO.patientSearchByFacility(
+      const { results: searchedServices } = await servicesDAO.patientSearchByFacility(
         query, 10, 0, facilityID
       );
 
-      console.log("✅ Search successful. Found", services, "services.");
+      console.log("✅ Search successful. Found", searchedServices, "services.");
 
-      return {
-        services: services ?? []
-      };
-
+      return { services: searchedServices ?? [] }; // Ensure it returns a list
     } catch (error) {
       console.error("❌ Error in search action:", error);
-      return fail(400, {
-        error: "Error in search action",
-        description: "search",
-        success: false
-      });
+      return fail(400, { error: "Error in search action", description: "search", success: false });
     }
   }
 } satisfies Actions;

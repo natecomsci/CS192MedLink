@@ -172,6 +172,7 @@ export interface CreateERServiceDTO {
 }
 
 export interface ERServiceDTO {
+  facilityID           : string
   phoneNumber          : string,
   load                 : Load,
   availableBeds        : number,
