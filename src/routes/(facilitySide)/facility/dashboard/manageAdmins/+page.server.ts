@@ -4,7 +4,7 @@ import type { PageServerLoad, Actions } from './$types';
 import { Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-import { AdminDAO, EmployeeDAO, validatePersonName, facilityAdminsPageSize, type PaginatedAdminDTO } from '$lib';
+import { AdminDAO, EmployeeDAO, validatePersonName, facilityAdminsPageSize, type PaginatedAdminDTO, DivisionDAO, type DivisionDTO } from '$lib';
 
 const adminDAO = new AdminDAO();
 const employeeDAO = new EmployeeDAO();
@@ -22,15 +22,20 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const paginatedAdmins: PaginatedAdminDTO = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
 
   if (Boolean(hasDivisions)) {
-    // get all divisions/
-    // facilityDivisions = smth smth
+    const divisionDAO = new DivisionDAO();
+    const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
+    return {
+      admins: paginatedAdmins.admins,
+      totalPages: paginatedAdmins.totalPages,
+      currentPage: paginatedAdmins.currentPage,
+      divisions
+    };
   }
 
   return {
     admins: paginatedAdmins.admins,
     totalPages: paginatedAdmins.totalPages,
     currentPage: paginatedAdmins.currentPage,
-    // divisions: 
   };
 };
 

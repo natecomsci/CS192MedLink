@@ -4,13 +4,13 @@
   import { redirect } from '@sveltejs/kit';
   import type { AdminDTO } from '$lib';
 
-  let { data = $bindable(), form = $bindable(), currPopUp = $bindable(), admins = $bindable()}: { data: PageData, form: ActionData, currPopUp: String, admins: AdminDTO[] } = $props();
+  let { data, form, currPopUp = $bindable(), admins = $bindable()}: { data: PageData, form: ActionData, currPopUp: String, admins: AdminDTO[] } = $props();
 
   let firstName = $state("");
   let middleName =$state("") ;
   let lastName = $state("");
 
-  let allDivisions = ["Division 1", "Division 2", "Division 3", "Division 4", "Division 5", "Division 6", "Division 7", "Division 8","ahahahhahahahaha"];
+  let divisions = $state(data.divisions ?? []);
   let selectedDivisions:string[] = $state([]);
 
   function red() {
@@ -24,11 +24,6 @@
       selectedDivisions = [...selectedDivisions, division];
     }
   }
-
-    function isAccepted(division:string ): boolean {
-      return false
-        // return data.providers?.includes(p) ?? false
-    }
 
   let showDropdown = $state(false);
 
@@ -122,15 +117,14 @@
             <!-- Dropdown Content -->
             {#if showDropdown}
                 <div class="absolute w-full bg-white border shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
-                    {#each allDivisions as t}
+                    {#each divisions as division}
                         <label class="flex items-center space-x-2">
                             <input 
-                                name={t} 
+                                name={division.name} 
                                 type="checkbox" 
-                                checked={isAccepted(t)}
-                                onclick={() => toggleDivision(t)} 
+                                onclick={() => toggleDivision(division.name)} 
                             />
-                            <span>{t}</span>
+                            <span>{division.name}</span>
                         </label>
                     {/each}
                 </div>

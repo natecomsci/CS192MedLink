@@ -2,7 +2,21 @@
     import { enhance } from '$app/forms';
   import type { PageData, ActionData } from './$types';
 
-  let { divisionName, phoneNumber, openingTime, closingTime, form, divisionID, currPopUp = $bindable()}: {divisionName: String, phoneNumber: String, openingTime: String, closingTime:String, form: ActionData, divisionID: String, currPopUp: String} = $props();
+  let { divisionName, 
+        phoneNumber, 
+        openingTime, 
+        closingTime, 
+        form, 
+        divisionID, 
+        currPopUp = $bindable()}: 
+          { divisionName: String, 
+            phoneNumber: String, 
+            openingTime: String, 
+            closingTime:String, 
+            form: ActionData, 
+            divisionID: String, 
+            currPopUp: String
+          } = $props();
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">

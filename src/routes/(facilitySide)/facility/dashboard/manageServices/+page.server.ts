@@ -72,8 +72,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
 
-  console.log(divisions)
-
   const services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
 

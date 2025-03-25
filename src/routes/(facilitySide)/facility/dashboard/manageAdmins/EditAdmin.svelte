@@ -4,38 +4,11 @@
   import type { PageData, ActionData } from './$types';
   import ResetPWAdmin from "./ResetPWAdmin.svelte";
 
-  let { firstname, lastname, data = $bindable(), form = $bindable(), adminID, currPopUp = $bindable(), admins = $bindable()}: {firstname: String, lastname: String, data: PageData, form: ActionData, adminID: String, currPopUp: String, admins:AdminDTO[]} = $props();
-
-  let middlename = $state('')
-  let divisions = $state([])
-
-  async function getData() {
-    const body = JSON.stringify({adminID});
-
-    try {
-      const response = await fetch("./manageAdmins/adminInfoHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-      console.log(rv)
-
-      middlename = rv.mname
-      divisions = rv.divisions
-      
-    } catch (error) {
-      throw new Error(`Response status: ${error}`);
-    }
-  }
-  getData()
+  let { data, form, adminID, currPopUp = $bindable(), admins = $bindable(),
+    firstname, middlename, lastname, divisions
+  }: { data: PageData, form: ActionData, adminID: String, currPopUp: String, admins:AdminDTO[],
+  firstname:String, middlename:String, lastname:String, divisions:String 
+  } = $props();
 
   let ResetPW = $state(false)
   let showNewPassword = $state(false)
@@ -74,17 +47,6 @@
     }
   }
 
-  const { ad } = ({
-      ad: {
-          name: "Admin 1",
-          id: "1234567891011",
-          profilePicture: "https://via.placeholder.com/50", // Replace with actual image
-          departments: ["Department 1", "Department 1", "Department 1", "Department 1", "Department 1"]
-      }
-  });
-
-  
-  let allDivisions = ["Division 1", "Division 2", "Division 3", "Division 4", "Division 5", "Division 6", "Division 7", "Division 8","ahahahhahahahaha"];
   let selectedDivisions:string[] = $state([]);
 
   function toggleDivision(division: string) {
@@ -165,7 +127,7 @@
 
     <!-- Profile Picture -->
     <div class="p-10 grid place-items-center">
-      <img class="profile-pic border" src={ad.profilePicture} alt="" />
+      <!-- <img class="profile-pic border" src={ad.profilePicture} alt="" /> -->
       <input type="hidden" name="adminID" value="{adminID}" />
     </div>
 
@@ -211,15 +173,15 @@
             <!-- Dropdown Content -->
             {#if showDropdown}
                 <div class="absolute w-full bg-white border shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
-                    {#each allDivisions as t}
+                    {#each divisions as division}
                         <label class="flex items-center space-x-2">
                             <input 
-                                name={t} 
+                                name={division} 
                                 type="checkbox" 
-                                checked={isAccepted(t)}
-                                onclick={() => toggleDivision(t)} 
+                                checked={isAccepted(division)}
+                                onclick={() => toggleDivision(division)} 
                             />
-                            <span>{t}</span>
+                            <span>{division}</span>
                         </label>
                     {/each}
                 </div>
