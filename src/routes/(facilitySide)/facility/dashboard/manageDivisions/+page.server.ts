@@ -226,14 +226,14 @@ export const actions = {
     }
 
     try {
-      divisionID = await divisionDAO.create(facilityID, division)
+      const divisionID = await divisionDAO.create(facilityID, division)
       if (newService) {
         const serviceID = await newService.dao.create(facilityID, employeeID, newService.service)
         servicesToAttach.push(serviceID)
       }
 
-      divisionDAO.connectServicesToDivision(facilityID, servicesToAttach)
-
+      divisionDAO.connectServicesToDivision(divisionID, servicesToAttach)
+      
     } catch (error) {
       return fail(422, {
           error: (error as Error).message,

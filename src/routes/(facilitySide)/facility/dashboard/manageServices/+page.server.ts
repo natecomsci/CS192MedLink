@@ -17,6 +17,7 @@ import type { AmbulanceServiceDTO,
               OutpatientServiceDTO, 
               ServiceDTO,
               OPServiceType,
+              DivisionDTO,
             } from '$lib';
 
 
@@ -41,6 +42,7 @@ import { facilityServicePageSize,
 
          dateToTimeMapping,
          EmployeeDAO,
+         DivisionDAO,
        } from '$lib';
 
 // DAOs
@@ -64,8 +66,13 @@ export const load: PageServerLoad = async ({ cookies }) => {
   }
   
   const servicesDAO = new ServicesDAO();
+  const divisionDAO = new DivisionDAO();
 
   let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
+
+  const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
+
+  console.log(divisions)
 
   const services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
@@ -86,6 +93,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
     // Add Service Lists
     availableServices,
     availableOPServices,
+
+    hasAdmins,
+    hasDivisions,
+    divisions,
 
   };
 };
@@ -160,6 +171,7 @@ export const actions: Actions = {
     const data = await request.formData();
 
     const serviceType = data.get('serviceType');
+    console.log(serviceType)
 
     const phone    = data.get('phoneNumber');
     const open     = data.get('opening');
@@ -208,15 +220,33 @@ export const actions: Actions = {
           });
         }
 
-        const service: CreateAmbulanceServiceDTO = {
-          phoneNumber,
-          openingTime,
-          closingTime,
-          baseRate,
-          minCoverageRadius,
-          mileageRate,
-          maxCoverageRadius
+        const divisionID = data.get("division") as string;
+        let service: CreateAmbulanceServiceDTO
+
+        if (divisionID) {
+          service = {
+            phoneNumber,
+            openingTime,
+            closingTime,
+            baseRate,
+            minCoverageRadius,
+            mileageRate,
+            maxCoverageRadius,
+            divisionID,
+          }
+        } else {
+          service = {
+            phoneNumber,
+            openingTime,
+            closingTime,
+            baseRate,
+            minCoverageRadius,
+            mileageRate,
+            maxCoverageRadius
+          }
         }
+
+        console.log(service)
 
         const dao = new AmbulanceServiceDAO();
 
@@ -251,14 +281,31 @@ export const actions: Actions = {
           });
         }
 
-        const service: CreateBloodBankServiceDTO = {
-          phoneNumber,
-          openingTime,
-          closingTime,
-          pricePerUnit,
-          turnaroundTimeD,
-          turnaroundTimeH
+        const divisionID = data.get("division") as string;
+        let service: CreateBloodBankServiceDTO
+
+        if (divisionID) {
+          service = {
+            phoneNumber,
+            openingTime,
+            closingTime,
+            pricePerUnit,
+            turnaroundTimeD,
+            turnaroundTimeH,
+            divisionID,
+          }
+        } else {
+          service = {
+            phoneNumber,
+            openingTime,
+            closingTime,
+            pricePerUnit,
+            turnaroundTimeD,
+            turnaroundTimeH
+          }
         }
+
+        console.log(service)
 
         const dao = new BloodBankServiceDAO();
 
@@ -283,6 +330,8 @@ export const actions: Actions = {
           phoneNumber
         }
 
+        console.log(service)
+
         const dao = new ERServiceDAO();
 
         dao.create(facilityID, employeeID, service)
@@ -304,10 +353,23 @@ export const actions: Actions = {
           });
         }
 
-        const service: CreateICUServiceDTO = {
-          phoneNumber,
-          baseRate
+        const divisionID = data.get("division") as string;
+        let service: CreateICUServiceDTO
+
+        if (divisionID) {
+          service = {
+            phoneNumber,
+            baseRate,
+            divisionID,
+          }
+        } else {
+          service = {
+            phoneNumber,
+            baseRate,
+          }
         }
+
+        console.log(service)
 
         const dao = new ICUServiceDAO();
 
@@ -337,13 +399,29 @@ export const actions: Actions = {
           });
         }
 
-        const service: CreateOutpatientServiceDTO = {
-          serviceType: OPserviceType,
-          price,
-          completionTimeD,
-          completionTimeH,
-          acceptsWalkIns
+        const divisionID = data.get("division") as string;
+        let service: CreateOutpatientServiceDTO
+
+        if (divisionID) {
+          service = {
+            serviceType: OPserviceType,
+            price,
+            completionTimeD,
+            completionTimeH,
+            acceptsWalkIns,
+            divisionID,
+          }
+        } else {
+          service = {
+            serviceType: OPserviceType,
+            price,
+            completionTimeD,
+            completionTimeH,
+            acceptsWalkIns
+          }
         }
+
+        console.log(service)
 
         const dao = new OutpatientServiceDAO();
 

@@ -28,7 +28,7 @@ export class OutpatientServiceDAO {
             },
 
             ...((divisionID !== undefined) && {
-              divisions: {
+              division: {
                 connect: { 
                   divisionID 
                 }

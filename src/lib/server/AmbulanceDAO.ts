@@ -28,7 +28,7 @@ export class AmbulanceServiceDAO {
             },
 
             ...((divisionID !== undefined) && {
-              divisions: {
+              division: {
                 connect: { 
                   divisionID 
                 }

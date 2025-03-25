@@ -93,7 +93,7 @@ export class BloodBankServiceDAO {
             },
 
             ...((divisionID !== undefined) && {
-              divisions: {
+              division: {
                 connect: { 
                   divisionID 
                 }

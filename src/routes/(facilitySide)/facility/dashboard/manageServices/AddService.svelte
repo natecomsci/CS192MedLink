@@ -43,7 +43,8 @@
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
   <div class=" w-11/12 max-w-3/4 rounded-lg  overflow-hidden ">
     <form 
-      action="/addService"
+      method="POST"
+      action="?/addService"
       use:enhance={() => {
         return async ({ update }) => {
           await update({invalidateAll:true});
@@ -103,6 +104,21 @@
                 <OutpatientService {data} {form}/>
               {/if}
             </label>
+            {#if data.hasDivisions}
+            <label>
+              Divisions
+
+              {#each (data.divisions ?? []) as division}
+              {division.name}
+                <input 
+                  type="radio" 
+                  name="division"
+                  value={division.divisionID}
+                  class="input-box w-30"
+                >
+              {/each}
+            </label>
+            {/if}
         </div>
       </div>
     </form>

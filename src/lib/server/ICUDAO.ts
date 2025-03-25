@@ -29,7 +29,7 @@ export class ICUServiceDAO {
             },
 
             ...((divisionID !== undefined) && {
-              divisions: {
+              division: {
                 connect: { 
                   divisionID 
                 }
@@ -62,7 +62,7 @@ export class ICUServiceDAO {
       return serviceID;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create AmbulanceService.");
+      throw new Error("Could not create ICU Service.");
     }
   }
 

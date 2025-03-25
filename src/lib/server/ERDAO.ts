@@ -29,7 +29,7 @@ export class ERServiceDAO {
             },
 
             ...((divisionID !== undefined) && {
-              divisions: {
+              division: {
                 connect: { 
                   divisionID 
                 }
