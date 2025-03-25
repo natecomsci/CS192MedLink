@@ -19,6 +19,7 @@
   let firstname: String = $state('')
   let middlename: string | undefined = $state('')
   let lastname: String = $state('')
+  let divisions: String = $state('')
 
   let currPopUp: String = $state("")
 
@@ -51,41 +52,33 @@
       throw new Error(`Response status: ${error}`);
     }
   }
-
-  // Can remove
-  const { ad } = ({
-      ad: {
-          name: "Admin 1",
-          id: "1234567891011",
-          profilePicture: "https://via.placeholder.com/50", // Replace with actual image
-          departments: ["Department 1", "Department 1", "Department 1", "Department 1", "Department 1"]
-      }
-  });
 </script>
 
 {#if currPopUp === "delete"}
   <DeleteAdminConfirm
-    bind:data={data}
+    {data}
+    {form}
     bind:admins={admins}
-    bind:form={form}
     bind:currPopUp={currPopUp}
     adminID={selectedAdminID}
   />
 
 {:else if currPopUp === "addAdmin"}
   <AddAdmin 
-    bind:data={data}
+    {data}
+    {form}
     bind:admins={admins}
-    bind:form={form}
     bind:currPopUp={currPopUp}
   />
 {:else if currPopUp === "editAdmin"}
-  <EditAdmin 
-    { firstname }
-    { lastname }
-    bind:data={data}
+  <EditAdmin
+    {data}
+    {form}
+    {firstname}
+    {middlename}
+    {lastname}
+    {divisions}
     bind:admins={admins}
-    bind:form={form}
     bind:currPopUp={currPopUp}
     adminID={selectedAdminID}
   />
@@ -132,20 +125,18 @@
     <!-- Scrollable List Container -->
     <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
       {#each admins as  admin}
-
-
         <div class="admin-card shadow-[0px_4px_10px_rgba(0,0,0,0.3)]  ">
             <!-- Profile Picture -->
-            <img class="profile-pic" src={ad.profilePicture} alt="" />
+            <!-- <img class="profile-pic" src={ad.profilePicture} alt="" /> -->
 
             <!-- Admin Info -->
             <div class="info">
                 <h3 class="name">{admin.mname ? admin.fname + ' ' + admin.mname + ' ' + admin.lname : admin.fname + ' ' + admin.lname}</h3>
-                <p class="id">{admin.employeeID}</p>
+                <!-- <p class="id">{admin.employeeID}</p> -->
                 <p class="departments">
-                    {#each ad.departments as dept, i}
-                        <span class="dept">{dept}</span>
-                        {#if i < ad.departments.length - 1}|{/if}
+                    {#each (admin.divisions ?? []) as division, i}
+                        <span class="dept">{division}</span>
+                        {#if i < (admin.divisions ?? []).length - 1}|{/if}
                     {/each}
                 </p>
             </div>
@@ -157,7 +148,8 @@
                 selectedAdminID=admin.employeeID,
                 firstname=admin.fname,
                 middlename=admin.mname,
-                lastname=admin.lname
+                lastname=admin.lname,
+                divisions=admin.divisions
               }} 
               class="inline-flex items-center" data-sveltekit-reload
             >

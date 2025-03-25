@@ -3,7 +3,7 @@
     import type { AdminDTO } from "$lib";
     import type { ActionData, PageData } from "./$types";
 
-    let { data = $bindable(), form = $bindable(), adminID, currPopUp = $bindable(), admins = $bindable()}: {data: PageData, form: ActionData, adminID: String, currPopUp: String, admins: AdminDTO[]} = $props();
+    let { data, form, adminID, currPopUp = $bindable(), admins = $bindable()}: {data: PageData, form: ActionData, adminID: String, currPopUp: String, admins: AdminDTO[]} = $props();
 
     async function getNewAdmins() {
       const body = JSON.stringify({currPage: 1, change: 0});
