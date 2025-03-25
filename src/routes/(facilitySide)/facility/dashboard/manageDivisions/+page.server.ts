@@ -1,54 +1,34 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
-import bcrypt from 'bcryptjs';
 
-// import { facilityServicePageSize } from '$lib/index';
 
-import { FacilityDAO, validatePersonName } from '$lib/index';
+import { FacilityDAO, facilityDivisionsPageSize, DivisionDAO } from '$lib';
 
-// const divisionDAO = new DivisionDAO();
+const divisionDAO = new DivisionDAO();
 const facilityDAO = new FacilityDAO();
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
+  const hasDivisions = cookies.get('hasDivisions');
 
-  if (!facilityID) {
+  if (!facilityID || !hasDivisions) {
     throw redirect(303, '/facility');
   }
+
+  if (!Boolean(hasDivisions)) {
+    throw redirect(303, '/facility/dashboard')
+  }
   
-  // const paginatedAdmins = await adminDAO.getPaginatedAdmins(facilityID, 1, facilityAdminsPageSize)
-
-  const div1 = {
-    divisionID  : '1',
-    fname    : 'fname1',
-    mname    : 'mname',
-    lname    : 'lname',
-  }
-
-  const div2 = {
-    divisionID  : '2',
-    fname    : 'fname2',
-    lname    : 'lname',
-  }
-
-  const div3 = {
-    divisionID  : '3',
-    fname    : 'fname3',
-    mname    : 'mname',
-    lname    : 'lname',
-  }
+  const paginatedDivisions = await divisionDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize)
 
   return {
-    divisions: [div1, div2, div3],
-    totalPages: 1,
+    divisions: paginatedDivisions.divisions,
+    totalPages: paginatedDivisions.totalPages,
     currentPage: 1,
-
-    // Paginated Admins
-    // admins: paginatedAdmins.admins,
   };
 };
 
-export const actions: Actions = {
+export const actions = {
   deleteDivision: async ({ request, cookies }) => {
     const facilityID = cookies.get('facilityID');
 
@@ -181,4 +161,4 @@ export const actions: Actions = {
     let password: string   
 
   },
-};
+} satisfies Actions;

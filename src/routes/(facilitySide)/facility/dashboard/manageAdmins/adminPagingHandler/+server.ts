@@ -1,5 +1,4 @@
-import type { RequestHandler } from '@sveltejs/kit';
-import { json, redirect } from '@sveltejs/kit';
+import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { AdminDAO, facilityAdminsPageSize } from '$lib';
 
 const adminDAO = new AdminDAO();

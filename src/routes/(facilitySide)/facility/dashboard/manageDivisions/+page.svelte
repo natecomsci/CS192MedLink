@@ -2,25 +2,23 @@
   import Logo from '$lib/images/Logo.png';
   import type { PageProps } from "./$types";
 
-  let { data, form }: PageProps = $props();
-
-  let divisions = $state(data.divisions ?? [])
-  let currentPage: number = $state(data.currentPage)
-  let totalPages = data.totalPages
-
+  import type { DivisionDTO } from '$lib';
+  
   // PopUps
   import DeleteDivisionConfirm from "./DeleteDivisionConfirm.svelte";
   import DeleteDivisionRestricted from "./DeleteDivisionRestricted.svelte";
   import AddDivision from './AddDivision.svelte';
   import EditDivision from './EditDivision.svelte';
 
+  let { data, form }: PageProps = $props();
+
+  let divisions: DivisionDTO[] = $state(data.divisions ?? [])
+  let currentPage: number = $state(data.currentPage)
+  let totalPages = data.totalPages
+
   let selectedDivisionID: String = $state('');
-  // let firstname: String = $state('')
-  // let middlename: String = $state('')
-  // let lastname: String = $state('')
 
   let currPopUp: String = $state("")
-
   let search: String = $state("");
 
   async function getPage(currPage: number, change: number, maxPages: number) {
@@ -31,7 +29,7 @@
     const body = JSON.stringify({currPage, change});
 
     try {
-      const response = await fetch("./manageDivisions/adminHandler", {
+      const response = await fetch("./manageDivisions/divisionPagingHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,6 +66,7 @@
 {:else if currPopUp === "addDivision"}
   <AddDivision 
     { form }
+    bind:admins={divisions}
     bind:currPopUp={currPopUp}
   />
 <!-- {:else if currPopUp === "editDivision"}
@@ -121,7 +120,7 @@
 
     <!-- Scrollable List Container -->
     <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
-        {#each Array(20) as _,j}
+        {#each divisions as { name, divisionID }}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">Division Name</h3>

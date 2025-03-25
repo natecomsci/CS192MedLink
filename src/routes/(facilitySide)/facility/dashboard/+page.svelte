@@ -49,14 +49,11 @@
 
   <!-- Right Side: Admins, Services, Divisions -->
   <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
-    {#if data.hasAdmins}
-      <Admins />
-    {/if}
+      <Admins admins={data.admins} />
     <div class="grid grid-cols-2 gap-4 h-full">
-
       <Services {mainServicesShown}/>
       {#if data.hasDivisions}
-        <Divisions/>
+        <Divisions divisions={data.divisions}/>
       {/if}
     </div>
   </div>

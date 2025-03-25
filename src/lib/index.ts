@@ -20,6 +20,7 @@ import { ICUServiceDAO } from "./server/ICUDAO";
 import { OutpatientServiceDAO } from "./server/OutpatientDAO";
 import { ServicesDAO } from "./server/ServicesDAO";
 import { UpdateLogDAO } from "./server/UpdateLogDAO";
+import { DivisionDAO } from "./server/DivisionDAO";
 
 import type { 
         ServiceDTO,
@@ -53,6 +54,8 @@ import type {
         InitialAdminDetailsDTO,
         AdminDTO,
         PaginatedAdminDTO,
+
+        DivisionDTO,
       } from "./server/DTOs";
 
 import { 
@@ -77,6 +80,8 @@ export const patientSearchPageSize: number = 5
 export const facilityAdminsPageSize: number = 5
 
 export const facilityUpdateLogsPageSize: number = 5
+
+export const facilityDivisionsPageSize: number = 5
 
 export type OPServiceType = typeof OPServiceTypes[number];
 
@@ -113,6 +118,8 @@ export type {
   InitialAdminDetailsDTO,
   AdminDTO,
   PaginatedAdminDTO,
+
+  DivisionDTO,
 }
 
 export {
@@ -136,6 +143,7 @@ export {
   FacilityDAO,
   ServicesDAO,
   UpdateLogDAO,
+  DivisionDAO,
   
   AmbulanceServiceDAO,
   BloodBankServiceDAO, BloodTypeMappingDAO,

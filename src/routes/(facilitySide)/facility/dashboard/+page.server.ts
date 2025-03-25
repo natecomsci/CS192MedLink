@@ -5,10 +5,14 @@ import {
   facilityServicePageSize, 
   facilityUpdateLogsPageSize, 
   facilityAdminsPageSize,
+  facilityDivisionsPageSize,
 
   UpdateLogDAO, 
   ServicesDAO, 
   AdminDAO,
+  DivisionDAO,
+  type AdminDTO,
+  type DivisionDTO,
 
 } from '$lib';
 
@@ -28,7 +32,23 @@ export const load: PageServerLoad = async ({ cookies }) => {
   let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
   let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, 1, facilityUpdateLogsPageSize)
 
-  let toShow = {
+  let toShow
+  let admins: AdminDTO[] = [];
+  let divisions: DivisionDTO[] = [];
+
+
+  if (Boolean(hasAdmins)) {
+    const adminDAO = new AdminDAO
+    const paginatedAdmins = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
+    admins = paginatedAdmins.admins
+  }
+   if (Boolean(hasDivisions)) {
+    const divisionsDAO = new DivisionDAO
+    const paginatedDivisions = await divisionsDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize)
+    divisions = paginatedDivisions.divisions
+  } 
+
+  toShow = {
     mainServicesShown: paginatedServices.services,
     updateLogs: paginatedUpdateLogs.updateLogs,
     totalPages: paginatedUpdateLogs.totalPages,
@@ -37,20 +57,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
     role,
     hasAdmins: Boolean(hasAdmins),
     hasDivisions: Boolean(hasDivisions),
-
+    admins, 
+    divisions,
   };
 
-  if (toShow.hasAdmins) {
-    const adminDAO = new AdminDAO
-    const admins = adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
-    Object.defineProperty(toShow, "admins", {value: admins})
-  }
-
-  if (toShow.hasDivisions) {
-    // const divisionsDAO = new DivisionsDAO
-    // const divisions = divisionsDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize)
-    // Object.defineProperty(toShow, "divisions", {value: divisions})
-  }
+  console.log(toShow)
   
   return toShow
 };
