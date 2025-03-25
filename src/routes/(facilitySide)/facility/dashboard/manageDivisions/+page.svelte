@@ -15,6 +15,7 @@
   let divisions: DivisionDTO[] = $state(data.divisions ?? [])
   let currentPage: number = $state(data.currentPage)
   let totalPages = data.totalPages
+  let linkableServices = $state(data.linkableServices)
 
   let selectedDivisionID: String = $state('');
 
@@ -65,8 +66,10 @@
 
 {:else if currPopUp === "addDivision"}
   <AddDivision 
+    { data }
     { form }
-    bind:admins={divisions}
+    bind:divisions={divisions}
+    bind:linkableServices={linkableServices}
     bind:currPopUp={currPopUp}
   />
 <!-- {:else if currPopUp === "editDivision"}
@@ -123,7 +126,7 @@
         {#each divisions as { name, divisionID }}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <div>
-            <h3 class="text-lg font-bold text-gray-900 px-4">Division Name</h3>
+            <h3 class="text-lg font-bold text-gray-900 px-4">{name}</h3>
             <p class="text-purple-600 px-4"></p>
           </div>
         

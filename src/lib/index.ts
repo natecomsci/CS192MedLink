@@ -56,6 +56,7 @@ import type {
         PaginatedAdminDTO,
 
         DivisionDTO,
+        MultiServiceDivisionsDTO,
       } from "./server/DTOs";
 
 import { 
@@ -120,6 +121,7 @@ export type {
   PaginatedAdminDTO,
 
   DivisionDTO,
+  MultiServiceDivisionsDTO,
 }
 
 export {

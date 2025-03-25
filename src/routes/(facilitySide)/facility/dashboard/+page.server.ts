@@ -60,8 +60,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
     admins, 
     divisions,
   };
-
-  console.log(toShow)
   
   return toShow
 };
