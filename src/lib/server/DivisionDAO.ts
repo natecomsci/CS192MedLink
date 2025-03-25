@@ -56,9 +56,9 @@ export class DivisionDAO {
     }
   }
 
-  async create(facilityID: string, data: Create_UpdateDivisionDTO): Promise<void> {
+  async create(facilityID: string, data: Create_UpdateDivisionDTO): Promise<string> {
     try {
-      await prisma.division.create({
+      const division = await prisma.division.create({
         data: {
           ...data,
           facility: {
@@ -66,8 +66,10 @@ export class DivisionDAO {
               facilityID
             }
           }
-        }
+        },
       });
+
+      return division.divisionID
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not create Division.");
