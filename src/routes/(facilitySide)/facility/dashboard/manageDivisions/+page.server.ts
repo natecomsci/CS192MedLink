@@ -156,6 +156,19 @@ export const actions = {
 
     try {
       name = validateFacilityName(divisionName);
+      for (let div of existingServices) {
+
+        if (div.name === name) {
+          return fail(422, {
+            error: "Duplicate name detected",
+            description: "Division Validation",
+            success: false
+          });
+        }
+      }
+
+
+
       phoneNumber = validatePhone(phone);
 
       let OCTime = validateOperatingHours(open, close)
