@@ -156,8 +156,10 @@ export const actions = {
 
     try {
       name = validateFacilityName(divisionName);
-      for (let div of existingServices) {
 
+      const facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      for (let div of facilityDivisions) {
+        console.log(div.name, div.name === name)
         if (div.name === name) {
           return fail(422, {
             error: "Duplicate name detected",
@@ -205,7 +207,6 @@ export const actions = {
 
     for (let {services} of existingServices) {
       numberOfExistingServices = services.length
-      console.log(services)
       for (let {serviceID, type} of services) {
         if (data.get(serviceID)) {
           count++
