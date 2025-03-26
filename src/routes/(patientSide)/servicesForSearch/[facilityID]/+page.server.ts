@@ -37,6 +37,7 @@ export const load: PageServerLoad = async ({ params }) => {
 };
 
 
+
 export const actions = {
   search: async ({ request, params }) => {
     const formData = await request.formData();
@@ -53,17 +54,8 @@ export const actions = {
 
     query = query.trim();
 
-    try {
-      const { results: searchedServices } = await servicesDAO.patientSearchByFacility(
-        query, 10, 0, facilityID
-      );
-
-      console.log("✅ Search successful. Found", searchedServices, "services.");
-
-      return { services: searchedServices ?? [] }; // Ensure it returns a list
-    } catch (error) {
-      console.error("❌ Error in search action:", error);
-      return fail(400, { error: "Error in search action", description: "search", success: false });
-    }
+    // Redirect to the specified page with query parameters
+    throw redirect(303, `/servicesForSearch/${facilityID}/searchServicesWithinFacility/${query}`);
   }
+
 } satisfies Actions;

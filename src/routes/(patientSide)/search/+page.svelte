@@ -1,12 +1,12 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import type { FacilityResultsDTO } from '$lib';
+  import type { FacilityDTO } from '$lib';
   import { goto } from '$app/navigation';
   let { data, form } = $props();
   let activeTab = $state("service"); // Default view
 
-  let facilities: FacilityResultsDTO[] = $state([])
-  let services: FacilityResultsDTO[] = $state([])
+  let facilities: FacilityDTO[] = $state([])
+  let services: FacilityDTO[] = $state([])
 
   facilities = [...(data.facilities ?? [])]
   services = [...(data.services ?? [])]
@@ -88,7 +88,7 @@
     action="?/search"
     class="flex items-center space-x-2"
   >
-    <input
+    <input>
       type="text"
       name="query"
       value={data.query}
