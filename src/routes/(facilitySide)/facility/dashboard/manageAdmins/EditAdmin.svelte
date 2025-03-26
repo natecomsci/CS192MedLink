@@ -4,11 +4,14 @@
   import type { PageData, ActionData } from './$types';
   import ResetPWAdmin from "./ResetPWAdmin.svelte";
 
-  let { data, form, adminID, currPopUp = $bindable(), admins = $bindable(),
-    firstname, middlename, lastname, divisions
-  }: { data: PageData, form: ActionData, adminID: String, currPopUp: String, admins:AdminDTO[],
-  firstname:String, middlename:String | undefined, lastname:String, divisions:String[] | undefined 
-  } = $props();
+  let { data, form, adminID, currPopUp = $bindable(), admins = $bindable() }: 
+    { data: PageData, form: ActionData, adminID: String, currPopUp: String, admins:AdminDTO[] } = $props();
+
+  let firstname = $state('')
+  let middlename = $state('')
+  let lastname = $state('')
+  let divisions = $state('')
+  let prevDivisions = $state('')
 
   let ResetPW = $state(false)
   let showNewPassword = $state(false)
@@ -17,11 +20,11 @@
 
   let errorShown = $state('')
 
-  async function resetPassword() {
-    const body = JSON.stringify({adminID, passwordConfirmation});
+  async function getData() {
+    const body = JSON.stringify({adminID});
 
     try {
-      const response = await fetch("./manageAdmins/resetPasswordHandler", {
+      const response = await fetch("./manageAdmins/adminInfoHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,30 +38,35 @@
 
       const rv = await response.json();
 
-      if (typeof rv === 'string') {
-        newPassword = rv
-        showNewPassword = true
-      } else {
-        errorShown = rv.error
+      firstname = rv.fname
+      middlename = rv.mname
+      lastname = rv.lname
+      divisions = rv.divisions
+
+      for (var div of (data.divisions ?? [])) {
+        if (divisions?.includes(div.divisionID)) {
+          toggleDivision(div.name)
+        }
       }
-      
+
     } catch (error) {
       throw new Error(`Response status: ${error}`);
     }
   }
+  getData()
 
   let selectedDivisions:string[] = $state([]);
 
-  function toggleDivision(division: string) {
-    if (selectedDivisions.includes(division)) {
-      selectedDivisions = selectedDivisions.filter(d => d !== division);
+  function toggleDivision( name: string ) {
+    if (selectedDivisions.includes(name)) {
+      selectedDivisions = selectedDivisions.filter(d => d !== name);
     } else {
-      selectedDivisions = [...selectedDivisions, division];
+      selectedDivisions = [...selectedDivisions, name];
     }
   }
 
-    function isAccepted(division:string ): boolean {
-      return false
+    function isAccepted( division:string ): boolean {
+      return divisions?.includes(division) ?? false
         // return data.providers?.includes(p) ?? false
     }
 
@@ -173,15 +181,15 @@
             <!-- Dropdown Content -->
             {#if showDropdown}
                 <div class="absolute w-full bg-white border shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
-                    {#each divisions as division}
+                    {#each (data.divisions ?? []) as { divisionID, name }}
                         <label class="flex items-center space-x-2">
                             <input 
-                                name={division} 
-                                type="checkbox" 
-                                checked={isAccepted(division)}
-                                onclick={() => toggleDivision(division)} 
+                                name={divisionID} 
+                                type="checkbox"
+                                checked={isAccepted(divisionID)}
+                                onclick={() => toggleDivision(name)} 
                             />
-                            <span>{division}</span>
+                            <span>{name}</span>
                         </label>
                     {/each}
                 </div>

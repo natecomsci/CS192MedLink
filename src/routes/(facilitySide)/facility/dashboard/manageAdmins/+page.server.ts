@@ -24,6 +24,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (hasDivisions === 'true' ? true : false) {
     const divisionDAO = new DivisionDAO();
     const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
+    facilityDivisions = divisions.map(({divisionID}) => divisionID)
     return {
       admins: paginatedAdmins.admins,
       totalPages: paginatedAdmins.totalPages,
@@ -229,7 +230,7 @@ export const actions: Actions = {
     const defFname = employee.fname
     const defMname = employee.mname
     const defLname = employee.lname
-    // const defDivisions = employee.divisions
+    // const defDivisions = employee.divisions ?? []
 
     
     const firstName = data.get('fname');
@@ -240,16 +241,15 @@ export const actions: Actions = {
       
       const fname   = validatePersonName(firstName);
       const lname   = validatePersonName(lastName);
+      let adminDivisionsHandled: string[] = []
 
       let admin
 
-      if (middleName && hasDivisions === 'true' ? true : false) {
+      if (middleName && (hasDivisions === 'true' ? true : false)) {
         const mname = middleName ? validatePersonName(middleName) : '';
 
-        let adminDivisionsHandled: string[] = []
-
         for (const d of facilityDivisions) {
-          if (data.get(d)) {
+          if (data.get(d) === "on") {
             adminDivisionsHandled.push(d);
           }
         }
@@ -269,10 +269,8 @@ export const actions: Actions = {
           lname,
         }
       } else if (hasDivisions === 'true' ? true : false) {
-        let adminDivisionsHandled: string[] = []
-
         for (const d of facilityDivisions) {
-          if (data.get(d)) {
+          if (data.get(d) === "on") {
             adminDivisionsHandled.push(d);
           }
         }
@@ -289,6 +287,8 @@ export const actions: Actions = {
         }
       }
 
+      console.log(admin)
+
       if (defFname == fname &&
           defMname == (middleName as string) &&
           defLname == lname 
@@ -299,8 +299,6 @@ export const actions: Actions = {
           success: false  
         });
       }
-
-      //concern on facility ID of admin not being the same
 
       adminDAO.update(adminID, admin)
 

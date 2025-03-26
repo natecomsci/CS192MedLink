@@ -16,10 +16,6 @@
   import EditAdmin from './EditAdmin.svelte';
 
   let selectedAdminID: String = $state('');
-  let firstname: String = $state('')
-  let middlename: string | undefined = $state('')
-  let lastname: String = $state('')
-  let divisions: String[] | undefined = $state([])
 
   let currPopUp: String = $state("")
 
@@ -98,10 +94,6 @@
   <EditAdmin
     {data}
     {form}
-    {firstname}
-    {middlename}
-    {lastname}
-    {divisions}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
     adminID={selectedAdminID}
@@ -173,11 +165,7 @@
             <div class="flex items-center space-x-3 pr-4">
             <button onclick={() => {
                 currPopUp='editAdmin', 
-                selectedAdminID=admin.employeeID,
-                firstname=admin.fname,
-                middlename=admin.mname,
-                lastname=admin.lname,
-                divisions=admin.divisions
+                selectedAdminID=admin.employeeID
               }} 
               class="inline-flex items-center" data-sveltekit-reload
             >
