@@ -191,7 +191,7 @@ model Division {
   // RELATIONS
 
   // Facility - Divisions : A Facility may or may not have Divisions.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID])
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String
 
   // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.

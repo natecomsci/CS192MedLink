@@ -116,7 +116,11 @@ export class BloodBankServiceDAO {
         await bloodTypeMappingDAO.createBloodTypeMapping(service.serviceID, tx);
   
         await updateLogDAO.createUpdateLog(
-          { entity: "Blood Bank", action: Action.CREATE },
+          {
+            entity: "Blood Bank",
+            action: Action.CREATE,
+            ...(divisionID && { divisionID })
+          },
           facilityID,
           employeeID,
           tx
@@ -185,7 +189,7 @@ export class BloodBankServiceDAO {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, bloodTypeAvailability, ...bloodBankData } = data;
 
-        await tx.ambulanceService.update({
+        await tx.bloodBankService.update({
           where: { 
             serviceID 
           },
@@ -231,7 +235,11 @@ export class BloodBankServiceDAO {
         });
 
         await updateLogDAO.createUpdateLog(
-          { entity: "Blood Bank", action: Action.UPDATE },
+          {
+            entity: "Blood Bank",
+            action: Action.UPDATE,
+            ...(divisionID && { divisionID })
+          },
           facilityID,
           employeeID,
           tx

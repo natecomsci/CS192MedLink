@@ -9,9 +9,10 @@ import type { UpdateLogDTO,
 
 export class UpdateLogDAO {
   async createUpdateLog(data: CreateUpdateLogDTO, facilityID: string, employeeID: string, tx: Prisma.TransactionClient): Promise<void> {
+    const { divisionID, ...rest } = data;
     await tx.updateLog.create({
       data: {
-        ...data,
+        ...rest,
         facility : {
           connect: {
             facilityID
@@ -21,7 +22,14 @@ export class UpdateLogDAO {
           connect: {
             employeeID
           }
-        }
+        },
+        ...(divisionID && {
+          division: {
+            connect: {
+              divisionID
+            }
+          }
+        })
       }
     });
   }

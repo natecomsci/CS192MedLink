@@ -49,7 +49,11 @@ export class OutpatientServiceDAO {
         });
   
         await updateLogDAO.createUpdateLog(
-          { entity: serviceType, action: Action.CREATE },
+          {
+            entity: serviceType,
+            action: Action.CREATE,
+            ...(divisionID && { divisionID })
+          },
           facilityID,
           employeeID,
           tx
@@ -164,7 +168,11 @@ export class OutpatientServiceDAO {
         }
 
         await updateLogDAO.createUpdateLog(
-          { entity: outpatientService.type, action: Action.UPDATE },
+          {
+            entity: outpatientService.type,
+            action: Action.UPDATE,
+            ...(divisionID && { divisionID })
+          },
           facilityID,
           employeeID,
           tx

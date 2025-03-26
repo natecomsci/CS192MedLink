@@ -50,7 +50,11 @@ export class ICUServiceDAO {
         });
   
         await updateLogDAO.createUpdateLog(
-          { entity: "Intensive Care Unit", action: Action.CREATE },
+          {
+            entity: "Intensive Care Unit",
+            action: Action.CREATE,
+            ...(divisionID && { divisionID })
+          },
           facilityID,
           employeeID,
           tx
@@ -155,7 +159,11 @@ export class ICUServiceDAO {
         });
 
         await updateLogDAO.createUpdateLog(
-          { entity: "Intensive Care Unit", action: Action.UPDATE },
+          {
+            entity: "Intensive Care Unit",
+            action: Action.UPDATE,
+            ...(divisionID && { divisionID })
+          },
           facilityID,
           employeeID,
           tx

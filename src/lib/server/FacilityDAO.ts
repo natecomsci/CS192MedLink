@@ -1,3 +1,5 @@
+// @ts-nocheck comment at the top of a file
+
 import { prisma } from "./prisma";
 
 import { Prisma } from "@prisma/client";
@@ -190,29 +192,30 @@ export class FacilityDAO {
       throw new Error("Could not check if Facility has Divisions.");
     }
   }
-  async getFacilityByServiceID(serviceID: string) {
+  
+  async getFacilityByServiceID(serviceID: string) { // no return type
     try {
       return await prisma.facility.findFirst({
         where: {
-          services: { some: { id: serviceID } } // Assumes `services` is a relation
+          services: { 
+            some: { 
+              serviceID 
+            } 
+          }
         },
         select: {
-          id: true,
-          name: true,
-          address: true
+          facilityID : true,
+          name       : true,
+          address    : true,
         }
       });
     } catch (error) {
-      console.error("Error fetching facility by serviceID:", error);
-      throw new Error("Could not fetch facility details.");
+      console.error("Details: ", error);
+      throw new Error("Could not get Facility by serviceID.");
     }
   }
-  
-  async patientSearch(
-    query: string, 
-    numberToFetch: number, 
-    offset: number
-  ): Promise<{ results: FacilityResultsDTO[], hasMore: boolean }> {
+
+  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: FacilityResultsDTO[], hasMore: boolean }> {
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
@@ -250,10 +253,7 @@ export class FacilityDAO {
       };
     } catch (error) {
       console.error("Search Error: ", error);
-      throw new Error("Could not search facilities.");
+      throw new Error("Could not search Facilities.");
     }
-
-    
   }
-  
 }

@@ -172,7 +172,6 @@ export interface CreateERServiceDTO {
 }
 
 export interface ERServiceDTO {
-  facilityID           : string
   phoneNumber          : string,
   load                 : Load,
   availableBeds        : number,
@@ -225,27 +224,29 @@ export interface OutpatientServiceDTO {
 }
 
 export interface CreateUpdateLogDTO {
-  entity     : string,
-  action     : Action,
+  entity      : string,
+  action      : Action,
+  divisionID? : string,
 }
 
 export interface UpdateLogDTO {
-  entity     : string,
-  action     : Action,
-  employeeID : String,
-  createdAt  : Date,
+  entity      : string,
+  action      : Action,
+  employeeID  : String,
+  createdAt   : Date,
 }
 
 export interface ServiceResultsDTO {
-  facilityID : string;
+  facilityID : string,
   name       : string,
   serviceID  : string;
   type       : string,
 }
 
 export interface FacilityResultsDTO {
-  facilityID : string;
+  facilityID : string,
   name       : string,
+  address    : AddressDTO,
 }
 
 export interface PaginatedServiceDTO {
@@ -255,7 +256,7 @@ export interface PaginatedServiceDTO {
 }
 
 export interface PatientServiceSearchDTO {
-  facilityID : string;
+  facilityID : string,
   name       : string,
   services   : string[], 
 }
