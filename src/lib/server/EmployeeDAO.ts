@@ -98,16 +98,16 @@ export class EmployeeDAO {
     }
   }
 
-  /*
-  async updatePhoto(employeeID: string, <INSERT PARAMETERS>): Promise<void> {
+  async updatePhoto(employeeID: string, photoUrl: string): Promise<void> {
     try {
-      
-    can we make a helper function that this method calls to prevent redundancy ? i intend to add an update photo method din sa facilityDAO
-
+      await prisma.employee.update({
+        where: { employeeID },
+        data: { photo: photoUrl },
+      });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update Employee photo.");
     }
   }
-  */
+
 }

@@ -51,26 +51,26 @@ export const actions = {
         const employeeID = cookies.get('employeeID');
         const currentPassword = formData.get('currentPassword');
         const newPassword = formData.get('newPassword');
-    
+
         if (!employeeID || !currentPassword || !newPassword) {
-            return fail(400, { error: 'Missing required fields.' });
+            return fail(400, { message: 'Missing required fields.' });
         }
-    
+
         try {
             // Get stored password hash
             const storedPassword = await employeeDAO.getPassword(employeeID);
             const isMatch = await bcrypt.compare(currentPassword.toString(), storedPassword);
-    
+
             if (!isMatch) {
-                return fail(401, { error: 'Incorrect current password.' });
+                return fail(401, { message: 'Incorrect current password.' });
             }
-    
+
             // Update password
             await employeeDAO.updatePassword(employeeID, newPassword.toString());
             return { success: true, message: 'Password updated successfully.' };
         } catch (error) {
             console.error(error);
-            return fail(500, { error: 'Failed to update password.' });
+            return fail(500, { message: 'Failed to update password.' });
         }
     },
     updatePhoto: async ({ request, cookies }) => {
@@ -135,7 +135,7 @@ export const actions = {
 
         try {
             // Update the employee's photo to null in the database
-            await employeeDAO.updatePhoto(employeeID, "https://placehold.co/1080x1080/png");
+            await employeeDAO.updatePhoto(employeeID, "none");
 
             return { success: true, message: 'Profile photo removed successfully.' };
         } catch (error) {
