@@ -13,10 +13,6 @@
   let divisions = $state(data.divisions ?? []);
   let selectedDivisions:string[] = $state([]);
 
-  function red() {
-    throw redirect(300, '/facility/dashboard/manageAdmins')
-  }
-
   function toggleDivision(division: string) {
     if (selectedDivisions.includes(division)) {
       selectedDivisions = selectedDivisions.filter(d => d !== division);
@@ -26,7 +22,6 @@
   }
 
   let showDropdown = $state(false);
-
 
   async function getNewAdmins() {
     const body = JSON.stringify({currPage: 1, change: 0});

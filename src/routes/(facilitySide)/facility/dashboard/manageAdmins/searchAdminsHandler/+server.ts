@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { AdminDAO } from '$lib';
+import { AdminDAO, facilityAdminsPageSize } from '$lib';
 
 const adminDAO = new AdminDAO();
 
@@ -10,11 +10,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const { adminID } : { adminID: string } = await request.json();
+  const { query } : { query: string } = await request.json();
 
-  let adminInfo = await adminDAO.getInformation(adminID);
+  const { admins } = await adminDAO.employeeSearchAdminsByFacility(facilityID, query, 1, facilityAdminsPageSize);
 
-  console.log(adminInfo)
-
-  return json(adminInfo)
+  return json(admins);
 };

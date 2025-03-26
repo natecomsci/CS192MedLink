@@ -8,6 +8,8 @@
   let currentPage = $state(data.currentPage)
   let totalPages = data.totalPages
 
+  let query = $state('')
+
   async function getPage(currPage: number, change: number, maxPages: number) {
     console.log(currPage, change, maxPages)
     const body = JSON.stringify({currPage, change, maxPages});
@@ -33,6 +35,30 @@
     }
   }
 
+  async function searchControlHistory() {
+
+    const body = JSON.stringify({query});
+
+    try {
+      const response = await fetch("./dashboard/searchControlHistoryHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      updateLogs = await response.json();
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+
 </script>
   <div class="h-full flex flex-col">
   <!-- Sticky Header -->
@@ -44,11 +70,16 @@
 
     <div class=" flex items-center gap-3 flex-grow">
       <!-- Increased width for better alignment -->
+
       <input
         type="text"
-        placeholder="Search"
+        placeholder="search"
+        bind:value={query}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
+      <button onclick={() => searchControlHistory()}>
+        Search
+      </button>
       
       <!-- Ensures "View By:" stays in one line -->
       <span class="whitespace-nowrap">View By:</span>
@@ -60,45 +91,41 @@
 
   </div>
 
-
-
-
-
-    <!-- Scrollable List -->
-    <div class="flex-1 overflow-y-auto p-4 ">
-      {#each updateLogs as { entity, action, employeeID, createdAt }}
-        <!-- history item -->
-      <div class="py-2 -b mb-4 ">
-          <div class="history-item justify-between  -green-200">
-            <div class ='flex items-center'>
-              <!-- Profile Placeholder -->
-              <!-- <div class="profile-circle"></div> -->
-          
-              <!-- Left Content: Admin & Message -->
-              <div class="info">
-                <span class="admin">Admin {employeeID}</span>
-                <span class="message">{action} {entity}</span>
-              </div>
+  <!-- Scrollable List -->
+  <div class="flex-1 overflow-y-auto p-4 ">
+    {#each updateLogs as { entity, action, employeeID, createdAt }}
+      <!-- history item -->
+    <div class="py-2 -b mb-4 ">
+        <div class="history-item justify-between  -green-200">
+          <div class ='flex items-center'>
+            <!-- Profile Placeholder -->
+            <!-- <div class="profile-circle"></div> -->
+        
+            <!-- Left Content: Admin & Message -->
+            <div class="info">
+              <span class="admin">Admin {employeeID}</span>
+              <span class="message">{action} {entity}</span>
             </div>
-          
-            <!-- Right Content: Timestamp & Department -->
-            <div class="details ">
-              <span class="timestamp">Updated at {dateToTimeMapping(new Date(createdAt))}</span>
-              <!-- <span class="department">{department}</span> -->
-            </div>
-        </div>
+          </div>
+        
+          <!-- Right Content: Timestamp & Department -->
+          <div class="details ">
+            <span class="timestamp">Updated at {dateToTimeMapping(new Date(createdAt))}</span>
+            <!-- <span class="department">{department}</span> -->
+          </div>
       </div>
-      {/each}
     </div>
-
-    <!-- Pagination -->
-
-    <div class="p-4 -t -[#DBD8DF] flex justify-between items-center">
-      <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>« Prev</button>
-      <span class="text-purple-700 font-semibold">{currentPage} of {totalPages}</span>
-      <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next »</button>
-    </div>
+    {/each}
   </div>
+
+  <!-- Pagination -->
+
+  <div class="p-4 -t -[#DBD8DF] flex justify-between items-center">
+    <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>« Prev</button>
+    <span class="text-purple-700 font-semibold">{currentPage} of {totalPages}</span>
+    <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next »</button>
+  </div>
+</div>
 
 <style>
   .history-item {

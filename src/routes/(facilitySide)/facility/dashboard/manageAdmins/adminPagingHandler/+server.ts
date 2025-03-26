@@ -10,7 +10,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const {currPage, change} : {currPage: number, change: number} = await request.json();
+  const { currPage, change } : { currPage: number, change: number } = await request.json();
 
   const { admins } = await adminDAO.getPaginatedAdminsByFacility(facilityID, currPage+change, facilityAdminsPageSize);
 

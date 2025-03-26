@@ -16,14 +16,34 @@
   import EditAdmin from './EditAdmin.svelte';
 
   let selectedAdminID: String = $state('');
-  let firstname: String = $state('')
-  let middlename: string | undefined = $state('')
-  let lastname: String = $state('')
-  let divisions: String = $state('')
 
   let currPopUp: String = $state("")
 
-  let search: String = $state("");
+  let query = $state('')
+  async function searchAdmins() {
+
+      const body = JSON.stringify({query});
+
+      try {
+        const response = await fetch("./manageAdmins/searchAdminsHandler", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+
+        admins = await response.json();
+        console.log(admins)
+        
+      } catch (error) {
+        throw new Error(`Response status: ${error}`);
+      }
+    }
 
   async function getPage(currPage: number, change: number, maxPages: number) {
     if ((currPage === 1 && change === -1) || (currPage === maxPages && change === 1)) {
@@ -74,10 +94,6 @@
   <EditAdmin
     {data}
     {form}
-    {firstname}
-    {middlename}
-    {lastname}
-    {divisions}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
     adminID={selectedAdminID}
@@ -112,9 +128,13 @@
     <div class="w-2/3 flex items-center gap-10">
       <input
         type="text"
-        placeholder="Search"
-        class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10 w-2/3"
+        placeholder="search"
+        bind:value={query}
+        class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
+      <button onclick={() => searchAdmins()}>
+        Search
+      </button>
       <h1>View By:</h1>
 
       <select class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10">
@@ -145,11 +165,7 @@
             <div class="flex items-center space-x-3 pr-4">
             <button onclick={() => {
                 currPopUp='editAdmin', 
-                selectedAdminID=admin.employeeID,
-                firstname=admin.fname,
-                middlename=admin.mname,
-                lastname=admin.lname,
-                divisions=admin.divisions
+                selectedAdminID=admin.employeeID
               }} 
               class="inline-flex items-center" data-sveltekit-reload
             >

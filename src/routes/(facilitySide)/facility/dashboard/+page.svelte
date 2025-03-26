@@ -8,6 +8,7 @@
   import ControlHistory from './ControlHistory.svelte';
   import Services from './Services.svelte';
   import Divisions from './Divisions.svelte';
+    import { Role } from '@prisma/client';
 
   let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
 
@@ -38,7 +39,6 @@
   </div>
 </header>
 
-
 <div class="border border-transparent flex h-screen p-10 bg-gray-100">
   <!-- Left Side: Control History -->
   <!-- <div class="border w-1/2 py-5"> -->
@@ -49,7 +49,9 @@
 
   <!-- Right Side: Admins, Services, Divisions -->
   <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
+    {#if data.role == Role.MANAGER}
       <Admins admins={data.admins} />
+    {/if}
     <div class="grid grid-cols-2 gap-4 h-full">
       <Services {mainServicesShown}/>
       {#if data.hasDivisions}
