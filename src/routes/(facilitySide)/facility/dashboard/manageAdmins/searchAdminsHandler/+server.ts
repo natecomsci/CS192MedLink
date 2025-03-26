@@ -10,9 +10,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const { currPage, change } : { currPage: number, change: number } = await request.json();
+  const { query } : { query: string } = await request.json();
 
-  const { admins } = await adminDAO.getPaginatedAdminsByFacility(facilityID, currPage+change, facilityAdminsPageSize);
+  const { admins } = await adminDAO.employeeSearchAdminsByFacility(facilityID, query, 1, facilityAdminsPageSize);
 
   return json(admins);
 };

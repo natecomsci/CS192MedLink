@@ -37,12 +37,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
   let divisions: DivisionDTO[] = [];
 
 
-  if (Boolean(hasAdmins)) {
+  if (hasAdmins === 'true' ? true : false) {
     const adminDAO = new AdminDAO
     const paginatedAdmins = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
     admins = paginatedAdmins.admins
   }
-   if (Boolean(hasDivisions)) {
+   if (hasDivisions === 'true' ? true : false) {
     const divisionsDAO = new DivisionDAO
     const paginatedDivisions = await divisionsDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize)
     divisions = paginatedDivisions.divisions
@@ -55,8 +55,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
     currentPage: paginatedUpdateLogs.currentPage,
 
     role,
-    hasAdmins: Boolean(hasAdmins),
-    hasDivisions: Boolean(hasDivisions),
+    hasAdmins: hasAdmins === 'true' ? true : false,
+    hasDivisions: hasDivisions === 'true' ? true : false,
     admins, 
     divisions,
   };

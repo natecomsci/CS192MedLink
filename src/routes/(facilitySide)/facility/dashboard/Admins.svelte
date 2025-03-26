@@ -15,9 +15,14 @@
   </div>
   
   <div class="flex gap-2 mt-4">
-    {#each admins as {fname, lname}}
-      <div class="w-10 h-10 bg-gray-300 rounded-full">{fname} {lname}</div>
-    {/each}
+    {#if admins.length > 0}
+      {#each admins as {fname, lname}}
+        <div class="w-10 h-10 bg-gray-300 rounded-full">{fname} {lname}</div>
+      {/each}
+    {:else}
+      <a href="/facility/dashboard/manageAdmins">Add an admin</a>
+    {/if}
+
   </div>
 </div>
   

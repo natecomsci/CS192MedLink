@@ -7,7 +7,7 @@
   let { data, form, adminID, currPopUp = $bindable(), admins = $bindable(),
     firstname, middlename, lastname, divisions
   }: { data: PageData, form: ActionData, adminID: String, currPopUp: String, admins:AdminDTO[],
-  firstname:String, middlename:String, lastname:String, divisions:String 
+  firstname:String, middlename:String | undefined, lastname:String, divisions:String[] | undefined 
   } = $props();
 
   let ResetPW = $state(false)

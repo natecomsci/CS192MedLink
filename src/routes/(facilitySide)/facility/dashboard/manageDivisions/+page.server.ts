@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     throw redirect(303, '/facility');
   }
   
-  if (!Boolean(hasDivisions)) {
+  if (hasDivisions === 'true' ? false : true) {
     throw redirect(303, '/facility/dashboard')
   }
   

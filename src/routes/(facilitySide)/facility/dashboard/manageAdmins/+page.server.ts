@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   
   const paginatedAdmins: PaginatedAdminDTO = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
 
-  if (Boolean(hasDivisions)) {
+  if (hasDivisions === 'true' ? true : false) {
     const divisionDAO = new DivisionDAO();
     const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
     return {
@@ -135,7 +135,7 @@ export const actions: Actions = {
 
       let admin
 
-      if (middleName && Boolean(hasDivisions)) {
+      if (middleName && (hasDivisions === 'true' ? true : false)) {
         const mname = middleName ? validatePersonName(middleName) : '';
 
         let adminDivisionsHandled: string[] = []
@@ -160,7 +160,7 @@ export const actions: Actions = {
           mname,
           lname,
         }
-      } else if (Boolean(hasDivisions)) {
+      } else if (hasDivisions === 'true' ? true : false) {
         let adminDivisionsHandled: string[] = []
 
         for (const d of facilityDivisions) {
@@ -243,7 +243,7 @@ export const actions: Actions = {
 
       let admin
 
-      if (middleName && Boolean(hasDivisions)) {
+      if (middleName && hasDivisions === 'true' ? true : false) {
         const mname = middleName ? validatePersonName(middleName) : '';
 
         let adminDivisionsHandled: string[] = []
@@ -268,7 +268,7 @@ export const actions: Actions = {
           mname,
           lname,
         }
-      } else if (Boolean(hasDivisions)) {
+      } else if (hasDivisions === 'true' ? true : false) {
         let adminDivisionsHandled: string[] = []
 
         for (const d of facilityDivisions) {
