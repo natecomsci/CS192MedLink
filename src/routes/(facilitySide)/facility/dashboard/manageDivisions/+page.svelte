@@ -180,7 +180,7 @@
           </div>
         </div>
       {/each}
-    </div> -->
+    </div>
     {#if form?.description === "pass"}
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}

@@ -170,7 +170,7 @@ export const actions = {
       });
     }
 
-    const serviceType = data.get("serviceType") as string;
+    const serviceType = data.get("serviceType");
 
     let newService
 
@@ -192,6 +192,7 @@ export const actions = {
 
     for (let {services} of existingServices) {
       numberOfExistingServices = services.length
+      console.log(services)
       for (let {serviceID, type} of services) {
         if (data.get(serviceID)) {
           count++
@@ -210,9 +211,9 @@ export const actions = {
       count = 0 
     }
 
-    if (!serviceType && !servicesToAttach) {
+    if (!serviceType && (servicesToAttach.length === 0)) {
       return fail(422, {
-          error: "New division must have at least 1 service",
+          error: "New division must have at least 1 serviwace",
           description: "Service Validation",
           success: false
         });
