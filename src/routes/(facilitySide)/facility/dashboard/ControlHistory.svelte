@@ -94,6 +94,8 @@
         <button onclick={() => {
             getPage(1, 0, totalPages)
             query = ""
+            error = ""
+            errorLoc = ""
         }}>
           x
         </button>
