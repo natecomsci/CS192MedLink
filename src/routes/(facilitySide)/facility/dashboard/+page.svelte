@@ -52,7 +52,7 @@
     {#if data.role == Role.MANAGER}
       <Admins admins={data.admins} />
     {/if}
-    <div class="grid grid-cols-2 gap-4 h-full">
+    <div class="flex gap-4 h-full">
       <Services {mainServicesShown}/>
       {#if data.hasDivisions}
         <Divisions divisions={data.divisions}/>

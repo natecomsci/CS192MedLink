@@ -5,7 +5,7 @@
 
 </script>
 
-<div class="bg-white shadow-lg rounded-lg p-8">
+<div class="bg-white shadow-lg rounded-lg p-8 w-full">
   <div class="flex justify-between items-center border-b border-[#DBD8DF] pb-2">
     <h2 class="text-[30px] text-[#9044C4] font-bold">Services</h2>
     <a 
