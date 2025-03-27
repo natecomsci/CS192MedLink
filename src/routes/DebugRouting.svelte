@@ -2,32 +2,29 @@
     <nav>
         <ul class="flex justify-center">
             <li>
-                <a class="block p-4" href="/">P-Guest</a>
+                <a class="block p-4" href="/" data-sveltekit-reload>P-Guest</a>
+            </li>
+            <!-- <li>
+                <a class="block p-4" href="/patient/1" data-sveltekit-reload>P-Reg</a>
             </li>
             <li>
-                <a class="block p-4" href="/patient/1">P-Reg</a>
+                <a class="block p-4" href="/patient/1/settings" data-sveltekit-reload>P-Set</a>
             </li>
             <li>
-                <a class="block p-4" href="/patient/1/settings">P-Set</a>
-            </li>
-            <li>
-                <a class="block p-4" href="/patient/1/bookmarks">P-Book</a>
-            </li>
+                <a class="block p-4" href="/patient/1/bookmarks" data-sveltekit-reload>P-Book</a>
+            </li> -->
 
             <li>
-                <a class="block p-4" href="/facility/">F-Land</a>
+                <a class="block p-4" href="/facility/" data-sveltekit-reload>F-Land</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/dashboard">F-Dash</a>
+                <a class="block p-4" href="/facility/dashboard" data-sveltekit-reload>F-Dash</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/dashboard/manageServices/addService">F-Add</a>
+                <a class="block p-4" href="/facility/dashboard/updateFacilityInfo" data-sveltekit-reload>F-Edit</a>
             </li>
             <li>
-                <a class="block p-4" href="/facility/dashboard/updateFacilityInfo">F-Edit</a>
-            </li>
-            <li>
-                <a class="block p-4" href="/facility/dashboard/managerSettingsUpdate">F-MngUpdate</a>
+                <a class="block p-4" href="/facility/dashboard/managerSettingsUpdate" data-sveltekit-reload>F-MngUpdate</a>
             </li>
         </ul>
     </nav>

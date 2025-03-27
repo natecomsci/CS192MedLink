@@ -89,29 +89,6 @@
         return data.providers?.includes(p) ?? false
     }
 
-    // -------------- DAG DAG NI ELLE -------
-    let imageUrl: string = $state('$lib/images/catle.jpg'); // Default image
-    // let fileInput: HTMLInputElement | null = null;
-    let isPublic = $state(true);
-
-    // function handleFileUpload(event: Event) {
-    //     const input = event.target as HTMLInputElement;
-    //     const file = input.files?.[0];
-    //     if (file) {
-    //         const reader = new FileReader();
-    //         reader.onload = (e) => {
-    //             if (typeof e.target?.result === 'string') {
-    //                 imageUrl = e.target.result;
-    //             }
-    //         };
-    //         reader.readAsDataURL(file);
-    //     }
-    // }
-
-    // function triggerFileInput() {
-    //     fileInput?.click();
-    // }
-
   let selectedProviders: string[] = $state(data.providers ?? []);
   let showDropdown = $state(false);
 </script>
@@ -140,6 +117,8 @@
             accept="image/*"
         />
 
+
+
         {#if form?.error}
             <p class="error">{form.error}</p>
         {/if}
@@ -151,7 +130,6 @@
             type="text" 
             class="border p-2 rounded w-full" 
             placeholder="Name"
-            required 
             bind:value={data.facilityName}/> 
         </label>
           
@@ -163,7 +141,6 @@
                     name="region" 
                     bind:value={regionID} 
                     onchange={() => get_("province")}
-                    required 
                     class="border p-2 rounded w-full"
                 >
                 {#each data.regions ?? [] as r}
@@ -177,7 +154,6 @@
                 <select 
                     name="province" 
                     bind:value={provinceID} 
-                    required 
                     onchange={() => get_("city")}
                     class="border p-2 rounded w-full"
                 >
@@ -192,7 +168,6 @@
               <select 
                   name="city" 
                   bind:value={cityID} 
-                  required 
                   onchange={() => get_("brgy")}
                   disabled={!enableCities}
                   class="border p-2 rounded w-full"
@@ -208,7 +183,6 @@
             <select 
                 name="brgy" 
                 bind:value={barangayID} 
-                required 
                 onchange={() => enableStreet ? "" : enableStreet = !enableStreet}
                 disabled={!enableBarangays}
                 class="border p-2 rounded w-full"
@@ -225,14 +199,11 @@
             <input 
             name="street"
             type="text" 
-            bind:value={data.street}
+            bind:value={street}
             class="border p-2 rounded w-full" 
             disabled={!enableStreet}
             placeholder="Name"
-            required /> 
-            {#if form?.description === "street"}
-                <p class="error">{form.error}</p>
-            {/if}
+            />
         </label>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full items-center">
@@ -242,7 +213,6 @@
                     name="email" 
                     type="text"
                     placeholder="Email"
-                    required 
                     class="border p-2 rounded w-full"
                     bind:value={data.email}/>
             </label>
@@ -253,7 +223,6 @@
                     name="phoneNumber" 
                     type="tel"
                     placeholder="Contact No."
-                    required 
                     class="border p-2 rounded w-full"
                     bind:value={data.contactNumber}
                 />
@@ -264,7 +233,6 @@
                 <select 
                     name="type" 
                     bind:value={selectedType} 
-                    required 
                     class="border p-2 rounded w-full"
                 >
                     {#each facilityType as t}
@@ -329,17 +297,6 @@
 
             <label>
                 Accepted Insurance Providers
-                <!-- {#each providers as t}
-                    <label>
-                      {t}
-                      <input 
-                        name={t}
-                        type="checkbox"
-                        checked={isAccepted(t)}
-                      >
-                    </label>
-                {/each} -->
-
 
                 <div class="relative w-full">
                     <!-- Dropdown Button -->
@@ -376,10 +333,7 @@
                             {/each}
                         </div>
                     {/if}
-                </div>
-                
-                
-                  
+                </div>                  
             </label>
 
 
@@ -388,15 +342,11 @@
         <div class="justify-between flex  py-10 space-x-3">
             <a 
             href="../dashboard"
-            class="flex justify-center items-center font-['Inter'] w-[200px] bg-[#9044C4] text-white py-2 rounded-2xl text-[15px] font-bold transition 
-                  hover:bg-purple-700 active:scale-95 active:bg-purple-800"
+            class="flex justify-center items-center font-['Inter'] w-[200px] bg-[#9044C4] text-white py-2 rounded-2xl text-[15px] font-bold transition hover:bg-purple-700 active:scale-95 active:bg-purple-800"
+            data-sveltekit-reload
         >
             Cancel    
         </a>
-
-        {#if form?.description === "button"}
-            <p class="error">{form.error}</p>
-        {/if}
         
         <button 
             class="flex justify-center items-center font-['Inter'] w-[200px] bg-[#9044C4] text-white py-2 rounded-2xl text-[15px] font-bold transition 
@@ -413,25 +363,6 @@
 
 
 <style>
-    .truncate-container {
-        max-width: calc(100% - 2rem); /* Ensures space for icon */
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        display: block;
-        position: relative;
-    }
-    
-    .truncate-container::after {
-        content: "";
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        width: 3rem;
-        background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
-    }
-
     .selected {
         background-color: #9044C4;
         color: white;

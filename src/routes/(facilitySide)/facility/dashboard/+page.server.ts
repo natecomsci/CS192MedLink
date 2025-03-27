@@ -1,35 +1,65 @@
-import { fail } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-import { ServicesDAO } from '$lib/server/ServicesDAO';
-import type { ServiceDTO } from '$lib/server/DTOs';
+import { 
+  facilityServicePageSize, 
+  facilityUpdateLogsPageSize, 
+  facilityAdminsPageSize,
+  facilityDivisionsPageSize,
+
+  UpdateLogDAO, 
+  ServicesDAO, 
+  AdminDAO,
+  DivisionDAO,
+  type AdminDTO,
+  type DivisionDTO,
+
+} from '$lib';
 
 export const load: PageServerLoad = async ({ cookies }) => {
-  const servicesDAO = new ServicesDAO();
   const facilityID = cookies.get('facilityID');
+  const role = cookies.get('role');
+  const hasAdmins = cookies.get('hasAdmins');
+  const hasDivisions = cookies.get('hasDivisions');
 
-  if (!facilityID) {
-    return fail(422, {
-      error: "Account not signed in.",
-      description: "signIn"
-    });
+  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+    throw redirect(303, '/facility');
   }
 
-  let services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
+  const servicesDAO = new ServicesDAO();
+  const updateLogDAO = new UpdateLogDAO();
 
-  cookies.set('services', JSON.stringify(services), {path: '/'});
+  let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
+  let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, 1, facilityUpdateLogsPageSize)
 
-  services.sort((a, b) => {
-    if (a.updatedAt < b.updatedAt) {
-        return -1;
-    }
-    if (a.updatedAt > b.updatedAt) {
-        return 1;
-    }
-    return 0;
-  });
-  
-  return {
-    services
+  let toShow
+  let admins: AdminDTO[] = [];
+  let divisions: DivisionDTO[] = [];
+
+
+  if (hasAdmins === 'true' ? true : false) {
+    const adminDAO = new AdminDAO
+    const paginatedAdmins = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
+    admins = paginatedAdmins.admins
+  }
+   if (hasDivisions === 'true' ? true : false) {
+    const divisionsDAO = new DivisionDAO
+    const paginatedDivisions = await divisionsDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize)
+    divisions = paginatedDivisions.divisions
+  } 
+
+  toShow = {
+    mainServicesShown: paginatedServices.services,
+    updateLogs: paginatedUpdateLogs.updateLogs,
+    totalPages: paginatedUpdateLogs.totalPages,
+    currentPage: paginatedUpdateLogs.currentPage,
+
+    role,
+    hasAdmins: hasAdmins === 'true' ? true : false,
+    hasDivisions: hasDivisions === 'true' ? true : false,
+    admins, 
+    divisions,
   };
+  
+  return toShow
 };

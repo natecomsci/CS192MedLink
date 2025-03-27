@@ -2,30 +2,71 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import type { CreateICUServiceDTO, ICUServiceDTO } from "./DTOs";
+import { Action }  from "@prisma/client";
+
+import { UpdateLogDAO } from "./UpdateLogDAO";
+
+import type { ICUServiceDTO,
+              CreateICUServiceDTO 
+            } from "./DTOs";
+
+let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class ICUServiceDAO {
-  async create(facilityID: string, data: CreateICUServiceDTO): Promise<void> {
+  async create(facilityID: string, employeeID: string, data: CreateICUServiceDTO): Promise<string> {
     try {
-      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { divisionID, ...iCUData } = data;
+  
         const service = await tx.service.create({
           data: {
-            type     : "Intensive Care Unit",
-            keywords : ["ICU"],
-            facility : { connect: { facilityID } }
+            type: "Intensive Care Unit",
+            keywords: ["ICU"],
+            facility : { 
+              connect: { 
+                facilityID 
+              } 
+            },
+
+            ...((divisionID !== undefined) && {
+              division: {
+                connect: { 
+                  divisionID 
+                }
+              }
+            })
           }
         });
 
         await tx.iCUService.create({
           data: {
-            ...data,
-            service: { connect: { serviceID: service.serviceID } }
+            ...iCUData,
+            service: { 
+              connect: { 
+                serviceID: service.serviceID 
+              } 
+            }
           }
         });
+  
+        await updateLogDAO.createUpdateLog(
+          {
+            entity: "Intensive Care Unit",
+            action: Action.CREATE,
+            ...(divisionID && { divisionID })
+          },
+          facilityID,
+          employeeID,
+          tx
+        );
+
+        return service.serviceID;
       });
+  
+      return serviceID;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create ICUService.");
+      throw new Error("Could not create ICU Service.");
     }
   }
 
@@ -35,13 +76,22 @@ export class ICUServiceDAO {
         where: { 
           serviceID 
         },
-        include: { service: { select: { updatedAt: true } } }
+        include: { 
+          service: { 
+            select: { 
+              divisionID : true, 
+              updatedAt  : true, 
+            } 
+          } 
+        }
       });
   
       if (!service) {
         throw new Error("Missing needed ICUService data.");
       }
-  
+
+      const { divisionID, updatedAt } = service.service;
+
       return {
         phoneNumber         : service.phoneNumber,
         baseRate            : service.baseRate,
@@ -51,7 +101,9 @@ export class ICUServiceDAO {
         neurologicalSupport : service.neurologicalSupport,
         renalSupport        : service.renalSupport,
         respiratorySupport  : service.respiratorySupport,
-        updatedAt           : service.service.updatedAt,
+        updatedAt,
+
+        ...(divisionID ? { divisionID } : {}),
       };
 
     } catch (error) {
@@ -60,27 +112,38 @@ export class ICUServiceDAO {
     }
   }  
 
-  async update(serviceID: string, data: ICUServiceDTO): Promise<void> {
+  async update(serviceID: string, facilityID: string, employeeID: string, data: ICUServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { divisionID, ...iCUData } = data;
+
         await tx.iCUService.update({
           where: { 
             serviceID 
           },
           data: { 
-            ...data 
+            ...iCUData 
           }
         });
 
         const updatedAt: Date = new Date();
 
+        const serviceUpdateData = {
+          updatedAt,
+          ...((divisionID !== undefined) && {
+            division: { 
+              connect: { 
+                divisionID 
+              } 
+            }
+          })
+        };
+        
         const service = await tx.service.update({
           where: { 
             serviceID 
           },
-          data: { 
-            updatedAt: updatedAt 
-          },
+          data: serviceUpdateData,
           select: { 
             facilityID: true
           }
@@ -94,29 +157,21 @@ export class ICUServiceDAO {
             updatedAt : updatedAt
           }
         });
+
+        await updateLogDAO.createUpdateLog(
+          {
+            entity: "Intensive Care Unit",
+            action: Action.UPDATE,
+            ...(divisionID && { divisionID })
+          },
+          facilityID,
+          employeeID,
+          tx
+        );
       });
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update ICUService.");
-    }
-  }
-
-  async delete(serviceID: string): Promise<void> {
-    try {
-      await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        // Delete the ambulance service details first
-        await tx.iCUService.delete({
-          where: { serviceID }
-        });
-  
-        // Delete the associated service record
-        await tx.service.delete({
-          where: { serviceID }
-        });
-      });
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not delete ICUService.");
     }
   }
 }

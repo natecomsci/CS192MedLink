@@ -1,67 +1,113 @@
 <script lang="ts">
+  import Logo from '$lib/images/Logo.png';
   import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
-  import { enhance } from '$app/forms';
 
   let { data, form }: PageProps = $props();
-  const services: ServiceDTO[] = data.servicesObj ?? []
 
-  import { specializedServiceType } from "$lib/projectArrays";
+  let services: ServiceDTO[] = $state(data.services ?? [])
+  let currentPage: number = $state(data.currentPage)
+  let totalPages = $state(data.totalPages)
 
-  function serviceTypeURL(type: string): String {
-    if (!specializedServiceType.includes(type)) {
-      return "editOPService"
-    } else if (type == "Ambulance") {
-      return "editAmbulanceService"
-    } else if (type == "Blood Bank") {
-      return "editBloodBankService"
-    } else if (type == "Emergency Room") {
-      return "editERService"
-    } else {
-      return "editICUService"
-    }
-  }
-
-  import Logo from '$lib/images/Logo.png';
-  let search: String = $state("");
-
-  // FOR MODAL
+  // PopUps
   import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
   import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
+  import AddService from './AddService.svelte';
+  import EditService from './EditService.svelte';
 
-  let showModal = $state(false);
-  let showModal2 = $state(false);
-  let selectedServiceID: String = $state('');
   let selectedServiceType: String = $state('');
-  let numOfServices = services.length;
+  let selectedServiceID: String = $state('');
 
-  function openDeleteModal(serviceID: String, type: String) {    
-    selectedServiceID = serviceID;
-    selectedServiceType = type;
+  let currPopUp: String = $state("")
 
-    if (numOfServices > 1) { 
-        showModal = true;
-        showModal2 = false;
-        
-    } else {
-        showModal = false;
-        showModal2 = true;
+  let query = $state('')
+
+  let error = $state('')
+  let errorLoc = $state('')
+
+  let queryMode = $state(false)
+
+  async function getPage(change: number) {
+    let body;
+    let dest;
+
+    try {
+
+      if (queryMode) {
+        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
+        dest = "./manageServices/searchServicesHandler"
+      } else {
+        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
+        dest = "./manageServices/servicePagingHandler"
+      }
+
+      const response = await fetch(dest, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+
+      if (rv.success) {
+        error = ''
+        errorLoc = ''
+        services = rv.services
+        totalPages = rv.totalPages
+        currentPage = rv.currentPage
+      } else if (rv.description === "services"){
+        error = rv.error
+        errorLoc = "services"
+        services = []
+        totalPages = 1
+        currentPage = 1
+      } else {
+        error = rv.error
+        errorLoc = "query"
+      }
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
     }
   }
+
 </script>
 
-{#if showModal}
+{#if currPopUp === "delete"}
   <DeleteServiceConfirm
     serviceID={selectedServiceID}
     serviceType={selectedServiceType}
     {form}
-    bind:showModal={showModal}
+    bind:services={services}
+    bind:currPopUp={currPopUp}
   />
-{/if}
 
-{#if showModal2}
+{:else if currPopUp === "deleteRestricted"}
   <DeleteServiceRestricted
-    bind:showModal2={showModal2}
+    bind:currPopUp={currPopUp}
+  />
+
+{:else if currPopUp === "addService"}
+  <AddService 
+    { data } 
+    { form }
+    bind:services={services}
+    bind:currPopUp={currPopUp}
+  />
+{:else if currPopUp === "editService"}
+  <EditService 
+    { data } 
+    { form }
+    bind:services={services}
+    bind:currPopUp={currPopUp}
+    serviceType={selectedServiceType}
+    serviceID={selectedServiceID}
   />
 {/if}
 
@@ -69,7 +115,7 @@
 <header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
-    <a href="../dashboard">
+    <a href="/facility/dashboard" data-sveltekit-reload>
       <img
         src="/back_icon.svg"
         alt="Back"
@@ -93,9 +139,32 @@
     <div class="w-2/3 flex items-center gap-10">
       <input
         type="text"
-        placeholder="Search"
-        class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10 w-2/3"
+        placeholder="search"
+        bind:value={query}
+        class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
+      {#if query.length > 0}
+        <button onclick={() => {
+          query = ""
+          error = ""
+          errorLoc = ""
+          queryMode = false
+          currentPage = 1
+          getPage(0)
+        }}>
+          x
+        </button>
+      {/if}
+      <button onclick={() => {
+        queryMode = true
+        currentPage = 1
+        getPage(0)
+      }}>
+        Search
+      </button>
+      {#if errorLoc == "query"}
+        {error}
+      {/if}
       <h1>View By:</h1>
 
       <select class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10">
@@ -105,24 +174,35 @@
 
     <!-- Scrollable List Container -->
     <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
-      {#each services as  { type, serviceID }}
+      {#if errorLoc == "services"}
+        {error}
+      {/if}
+      {#each services as  { type, serviceID, divisionID }}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <!-- Left Side: Text Content -->
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{type}</h3>
-            <p class="text-purple-600 px-4">Insert Division Here</p>
+            {#if divisionID}
+              <p class="text-purple-600 px-4">Division: {divisionID}</p>
+            {/if}
           </div>
         
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
-
-            <!-- edit button -->
-            <a href={'./manageServices/' + serviceTypeURL(type) + '/' + serviceID} class="inline-flex items-center">
+            <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID}} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
-            </a>
+            </button>
 
             <!-- Delete Button (Opens Modal) -->
-            <button class="inline-flex items-center" onclick={() => openDeleteModal(serviceID, type)}>
+            <button 
+              type="button" 
+              class="inline-flex items-center" 
+              onclick={() => {selectedServiceID = serviceID,
+                              selectedServiceType = type,
+                              currPopUp = services.length > 1 ? 'delete' : 'deleteRestricted'}
+                              } 
+                data-sveltekit-reload
+            >
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
@@ -134,14 +214,13 @@
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">⟨ Previous</button>
-      <span class="font-medium">Page 1 of 22</span>
-      <button class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Next ⟩</button>
+      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(-1)}>⟨ Previous</button>
+      <span class="font-medium">Page {currentPage} of {totalPages}</span>
+      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(1)}>Next ⟩</button>
     </div>
 
-  <button class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg">
-    <span class="text-xl">+</span>
-    <a href="./manageServices/addService">Add service</a>
+  <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addService'}}>
+    <span class="text-xl">+ Add service</span>
   </button>
 </div>
 

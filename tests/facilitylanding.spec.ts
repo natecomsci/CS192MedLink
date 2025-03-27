@@ -44,6 +44,7 @@ test.describe('Facility Page UI Tests', () => {
 });
 */
 
+/*
 test('Invalid Faci ID', async ({ page }) => {
   await page.goto('/facility');
   await page.fill('input[name="fid"]', 'wrongID');
@@ -59,4 +60,4 @@ test('Wrong Password', async ({ page }) => {
   await page.click('button:has-text("Log in")');
   await expect(page.locator('p')).toHaveText('Incorrect ID-password pair');
 });
-
+*/

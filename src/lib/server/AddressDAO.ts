@@ -10,6 +10,33 @@ import type { RegionDTO,
             } from './DTOs';
 
 export class AddressDAO {
+  async getByFacility(facilityID: string): Promise<AddressDTO | null> {
+    try {
+      const address = await prisma.address.findUnique({
+        where: {
+          facilityID
+        },
+        select: {
+          regionID : true,
+          pOrCID   : true,
+          cOrMID   : true,
+          brgyID   : true,
+          street   : true,
+        }
+      });
+
+      if (!address) {
+        console.warn("No Address found linked with a Facility with the specified ID.");
+        return null;
+      }
+
+      return address;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Address of the facility.");
+    }
+  }
+
   async updateAddress(facilityID: string, data: AddressDTO, tx: Prisma.TransactionClient): Promise<void> {
     await tx.address.update({
       where: { 

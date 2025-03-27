@@ -1,41 +1,90 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Facility Search Tests', () => {
+
+
+test.describe('From service search', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:5173/byFaciSearch');
+        await page.goto('http://localhost:5173/serviceInfo/Ambulance/ambulance-5');
     });
 
-    test('By Facility - Search "hospital"', async ({ page }) => {
-        await page.click('button:text("BY FACILITY")');
-        await page.fill('input[name="query"]', 'hospital');
-        await page.click('button:text("Search")');
-        
-       
+    test('Check if text "Facility Name" is present', async ({ page }) => {
+        await expect(page.locator('text=Facility Name')).toBeVisible();
     });
 
-    test('By Service - Search "hospital"', async ({ page }) => {
-      await page.waitForSelector('button:text("BY SERVICE")');
-      await page.click('button:text("BY SERVICE")');
-      await page.waitForTimeout(500); // Give time for UI state to update
-      await page.fill('input[name="query"]', 'hospital');
-      await page.click('button:text("Search")');
-  
+    test('Check if text "Address" is present', async ({ page }) => {
+        await expect(page.locator('text=Address')).toBeVisible();
+    });
+
+    test('Check if text "Phone" is present', async ({ page }) => {
+        await expect(page.locator('text=Phone')).toBeVisible();
+    });
+
+    test('Check if text "Opening Time" is present', async ({ page }) => {
+        await expect(page.locator('text=Opening Time')).toBeVisible();
+    });
+
+    test('Check if text "Closing Time" is present', async ({ page }) => {
+        await expect(page.locator('text=Closing Time')).toBeVisible();
+    });
+
+    test('Check if text "Base Rate" is present', async ({ page }) => {
+        await expect(page.getByText('Base Rate')).toBeVisible();
+    });
+
+    test('Check if text "Minimum Coverage Radius" is present', async ({ page }) => {
+        await expect(page.locator('text=Minimum Coverage Radius')).toBeVisible();
+    });
+
+    test('Check if text "Mileage Rate" is present', async ({ page }) => {
+        await expect(page.locator('text=Mileage Rate')).toBeVisible();
+    });
+
+    test('Check if text "Maximum Coverage Radius" is present', async ({ page }) => {
+        await expect(page.locator('text=Maximum Coverage Radius:')).toBeVisible();
+    });
+
+    test('Check if text "Availability" is present', async ({ page }) => {
+        await expect(page.locator('text=Availability')).toBeVisible();
+    });
+
     
-  });
-  
-  test('By Service - Search "ambulance"', async ({ page }) => {
-      await page.click('button:text("BY SERVICE")');
-      await page.waitForTimeout(500); // Give time for UI state to update
-      await page.fill('input[name="query"]', 'ambulance');
-      await page.click('button:text("Search")');
-  
-  });
-
-    test('By Facility - Search "ambulance"', async ({ page }) => {
-        await page.click('button:text("BY FACILITY")');
-        await page.fill('input[name="query"]', 'ambulance');
-        await page.click('button:text("Search")');
-        
-        
-    });
 });
+
+
+
+test.describe('From Facility Search', () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto('http://localhost:5173/results/5');
+    });
+    test('Check if "Services Offered" button is present', async ({ page }) => {
+        await expect(
+            page.locator('button', { hasText: 'Services Offered' })
+        ).toBeVisible();
+    });
+
+    test('Check if "Divisions" button is present', async ({ page }) => {
+        await expect(
+            page.locator('button', { hasText: 'Divisions' })
+        ).toBeVisible();
+    });
+
+    test('Check if text "Contact Information" is present', async ({ page }) => {
+        await expect(page.locator('text=Contact Information')).toBeVisible();
+    });
+
+    test('Check if text "Email" is present', async ({ page }) => {
+        await expect(page.locator('text=Email')).toBeVisible();
+    });
+
+    test('Check if text "Phone', async ({ page }) => {
+        await expect(page.locator('text=Phone')).toBeVisible();
+    });
+
+    test('Check if text "Address" is present', async ({ page }) => {
+        await expect(page.locator('text=Address')).toBeVisible();
+    });
+
+
+    
+});
+

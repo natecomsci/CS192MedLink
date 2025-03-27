@@ -28,7 +28,7 @@
     <div class="space-y-5 py-2">
       
       <input 
-        name="fid"
+        name="employeeID"
         type="text"
         value=''
         placeholder="Employee ID" 

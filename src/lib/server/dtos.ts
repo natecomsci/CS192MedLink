@@ -1,131 +1,14 @@
 import { Provider, 
-         FacilityType,
-         Ownership, 
-         Availability, 
-         Load 
-       } from '@prisma/client';
-
-import {
-        type OPServiceType
-} from '../projectArrays'
+  FacilityType,
+  Ownership, 
+  Availability, 
+  Load,
+  Action 
+} from '@prisma/client';
 
 // DTOs
 
-// Naming Convention: (First Letter of Actor(s) Separated by _)_(View | Create | Update | <Insert Other Action>)<Model Name>DTO
-// On the first part: e.g. F corresponds to "Facility" - both Managers and Admins
-
-// Create and Update Service DTOs assume that a Facility has no Divisions.
-
-export interface ServiceDTO {
-  serviceID  : string;
-  type       : OPServiceType;
-  createdAt  : Date;
-  updatedAt  : Date;
-}
-
-export interface CreateAmbulanceServiceDTO {
-  phoneNumber       : string,
-  openingTime       : Date,
-  closingTime       : Date,
-  baseRate          : number,
-  minCoverageRadius : number,
-  mileageRate       : number,
-  maxCoverageRadius : number,
-}
-
-export interface AmbulanceServiceDTO {
-  phoneNumber        : string,
-  openingTime        : Date,
-  closingTime        : Date,
-  baseRate           : number,
-  minCoverageRadius  : number,
-  mileageRate        : number,
-  maxCoverageRadius  : number,
-  availability       : Availability,
-  updatedAt?         : Date,
-}
-
-export interface BloodTypeMappingDTO {
-  A_P   : boolean,
-  A_N   : boolean,
-  B_P   : boolean,
-  B_N   : boolean,
-  O_P   : boolean,
-  O_N   : boolean,
-  AB_P  : boolean,
-  AB_N  : boolean,
-}
-
-export interface CreateBloodBankServiceDTO {
-  phoneNumber     : string,
-  openingTime     : Date,
-  closingTime     : Date,
-  pricePerUnit    : number,
-  turnaroundTimeD : number,
-  turnaroundTimeH : number,
-}
-
-export interface BloodBankServiceDTO {
-  phoneNumber            : string,
-  openingTime            : Date,
-  closingTime            : Date,
-  pricePerUnit           : number,
-  turnaroundTimeD        : number,
-  turnaroundTimeH        : number,
-  bloodTypeAvailability  : BloodTypeMappingDTO,
-  updatedAt?             : Date,
-}
-
-export interface CreateERServiceDTO {
-  phoneNumber : string,
-}
-
-export interface ERServiceDTO {
-  phoneNumber           : string,
-  load                  : Load,
-  availableBeds         : number,
-  nonUrgentPatients     : number,
-  nonUrgentQueueLength  : number,
-  urgentPatients        : number,
-  urgentQueueLength     : number,
-  criticalPatients      : number,
-  criticalQueueLength   : number,
-  updatedAt?            : Date,
-}
-
-export interface CreateICUServiceDTO {
-  phoneNumber : string,
-  baseRate    : number,
-}
-
-export interface ICUServiceDTO {
-  phoneNumber          : string,
-  baseRate             : number,
-  load                 : Load,
-  availableBeds        : number,
-  cardiacSupport       : boolean,
-  neurologicalSupport  : boolean,
-  renalSupport         : boolean,
-  respiratorySupport   : boolean,
-  updatedAt?           : Date,
-}
-
-export interface CreateOutpatientServiceDTO {
-  serviceType     : string,
-  price           : number,
-  completionTimeD : number,
-  completionTimeH : number,
-  acceptsWalkIns  : boolean,
-}
-
-export interface OutpatientServiceDTO {
-  price            : number,
-  completionTimeD  : number,
-  completionTimeH  : number,
-  isAvailable      : boolean,
-  acceptsWalkIns   : boolean,
-  updatedAt?       : Date,
-}
+// TO DO: ADD ? ON UPDATE DTOs
 
 export interface RegionDTO {
   regionID : number,
@@ -158,28 +41,56 @@ export interface AddressDTO {
   street   : string,
 }
 
-export interface FacilityDTO {
-  facilityID : string;
-  name       : string,
-}
-
 export interface GeneralInformationFacilityDTO {
-  name               : string,
-  photo              : string,
-  address            : AddressDTO,
-  email              : string,
-  phoneNumber        : string,
-  facilityType       : FacilityType,
-  ownership          : Ownership,
-  bookingSystem?     : string,
-  acceptedProviders  : Provider[],
+  name              : string,
+  photo             : string,
+  address           : AddressDTO,
+  email             : string,
+  phoneNumber       : string,
+  facilityType      : FacilityType,
+  ownership         : Ownership,
+  bookingSystem?    : string,
+  acceptedProviders : Provider[],
 }
 
-export interface CreateAdminDTO {
-  fname    : string,
-  mname?   : string,
-  lname    : string,
-  password : string,
+export interface DivisionDTO {
+  divisionID : string,
+  name       : string,
+  createdAt  : Date,
+  updatedAt  : Date,
+}
+
+export interface Create_UpdateDivisionDTO {
+  name        : string,
+  phoneNumber : string,
+  openingTime : Date,
+  closingTime : Date,
+}
+
+export interface MultiServiceDivisionsDTO {
+  divisionID  : string,
+  name        : string,
+  services    : {
+    serviceID:  string, 
+    type      : string,
+  }[],
+}
+
+export interface AdminDTO {
+  employeeID : string;
+  fname      : string,
+  mname?     : string,
+  lname      : string,
+  divisions? : string[],
+  createdAt  : Date;
+  updatedAt  : Date;
+}
+
+export interface Create_UpdateAdminDTO {
+  fname      : string,
+  mname?     : string,
+  lname      : string,
+  divisions? : string[],
 }
 
 export interface InitialAdminDetailsDTO {
@@ -188,4 +99,182 @@ export interface InitialAdminDetailsDTO {
   mname?   : string,
   lname    : string,
   password : string,
+}
+
+export interface ServiceDTO {
+  serviceID   : string,
+  type        : string,
+  divisionID? : string,
+  createdAt   : Date,
+  updatedAt   : Date,
+}
+
+export interface CreateAmbulanceServiceDTO {
+  phoneNumber       : string,
+  openingTime       : Date,
+  closingTime       : Date,
+  baseRate          : number,
+  minCoverageRadius : number,
+  mileageRate       : number,
+  maxCoverageRadius : number,
+  divisionID?       : string,
+}
+
+export interface AmbulanceServiceDTO {
+  phoneNumber       : string,
+  openingTime       : Date,
+  closingTime       : Date,
+  baseRate          : number,
+  minCoverageRadius : number,
+  mileageRate       : number,
+  maxCoverageRadius : number,
+  availability      : Availability,
+  divisionID?       : string,
+  updatedAt?        : Date,
+}
+
+export interface BloodTypeMappingDTO {
+  A_P   : boolean,
+  A_N   : boolean,
+  B_P   : boolean,
+  B_N   : boolean,
+  O_P   : boolean,
+  O_N   : boolean,
+  AB_P  : boolean,
+  AB_N  : boolean,
+}
+
+export interface CreateBloodBankServiceDTO {
+  phoneNumber     : string,
+  openingTime     : Date,
+  closingTime     : Date,
+  pricePerUnit    : number,
+  turnaroundTimeD : number,
+  turnaroundTimeH : number,
+  divisionID?     : string,
+}
+
+export interface BloodBankServiceDTO {
+  phoneNumber           : string,
+  openingTime           : Date,
+  closingTime           : Date,
+  pricePerUnit          : number,
+  turnaroundTimeD       : number,
+  turnaroundTimeH       : number,
+  bloodTypeAvailability : BloodTypeMappingDTO,
+  divisionID?           : string,
+  updatedAt?            : Date,
+}
+
+export interface CreateERServiceDTO {
+  phoneNumber : string,
+  divisionID? : string,
+}
+
+export interface ERServiceDTO {
+  phoneNumber          : string,
+  load                 : Load,
+  availableBeds        : number,
+  nonUrgentPatients    : number,
+  nonUrgentQueueLength : number,
+  urgentPatients       : number,
+  urgentQueueLength    : number,
+  criticalPatients     : number,
+  criticalQueueLength  : number,
+  divisionID?          : string,
+  updatedAt?           : Date,
+}
+
+export interface CreateICUServiceDTO {
+  phoneNumber : string,
+  baseRate    : number,
+  divisionID? : string,
+}
+
+export interface ICUServiceDTO {
+  phoneNumber         : string,
+  baseRate            : number,
+  load                : Load,
+  availableBeds       : number,
+  cardiacSupport      : boolean,
+  neurologicalSupport : boolean,
+  renalSupport        : boolean,
+  respiratorySupport  : boolean,
+  divisionID?         : string,
+  updatedAt?          : Date,
+}
+
+export interface CreateOutpatientServiceDTO {
+  serviceType     : string,
+  price           : number,
+  completionTimeD : number,
+  completionTimeH : number,
+  acceptsWalkIns  : boolean,
+  divisionID?     : string,
+}
+
+export interface OutpatientServiceDTO {
+  price           : number,
+  completionTimeD : number,
+  completionTimeH : number,
+  isAvailable     : boolean,
+  acceptsWalkIns  : boolean,
+  divisionID?     : string,
+  updatedAt?      : Date,
+}
+
+export interface CreateUpdateLogDTO {
+  entity      : string,
+  action      : Action,
+  divisionID? : string,
+}
+
+export interface UpdateLogDTO {
+  entity      : string,
+  action      : Action,
+  employeeID  : String,
+  createdAt   : Date,
+}
+
+export interface ServiceResultsDTO {
+  facilityID : string,
+  name       : string,
+  serviceID  : string;
+  type       : string,
+}
+
+export interface FacilityResultsDTO {
+  facilityID : string,
+  name       : string,
+  address    : AddressDTO,
+}
+
+export interface PaginatedServiceDTO {
+  services    : ServiceDTO[],
+  totalPages  : number,
+  currentPage : number,
+}
+
+export interface PatientServiceSearchDTO {
+  facilityID : string,
+  name       : string,
+  services   : string[], 
+}
+
+export interface PaginatedAdminDTO {
+  admins      : AdminDTO[],
+  totalPages  : number,
+  currentPage : number,
+}
+
+export interface PaginatedUpdateLogDTO {
+  updateLogs  : UpdateLogDTO[],
+  totalPages  : number,
+  currentPage : number,
+}
+
+export interface PaginatedDivisionDTO {
+  divisions   : DivisionDTO[],
+  totalPages  : number,
+  currentPage : number,
 }

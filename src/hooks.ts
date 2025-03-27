@@ -1,7 +1,7 @@
 import type { Reroute } from '@sveltejs/kit';
 
 const translated: Record<string, string> = {
-	'/': '/patient',
+	// '/': '/patient',
 };
 
 export const reroute: Reroute = ({ url }) => {

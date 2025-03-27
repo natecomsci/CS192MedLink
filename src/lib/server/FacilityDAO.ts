@@ -1,12 +1,17 @@
+// @ts-nocheck comment at the top of a file
+
 import { prisma } from "./prisma";
 
 import { Prisma } from "@prisma/client";
 
-import { Provider } from "@prisma/client";
+import { Role, Provider } from "@prisma/client";
 
 import type { Facility } from "@prisma/client";
 
-import type { AddressDTO, FacilityDTO, GeneralInformationFacilityDTO } from "./DTOs";
+import type { AddressDTO, 
+              FacilityResultsDTO, 
+              GeneralInformationFacilityDTO 
+            } from "./DTOs";
 
 import { AddressDAO } from "./AddressDAO";
 
@@ -47,10 +52,6 @@ export class FacilityDAO {
         throw new Error("Missing needed Address data.");
       }
 
-      if (!facility.email || !facility.phoneNumber || !facility.facilityType || !facility.ownership) {
-        throw new Error("Facility information is incomplete.");
-      }
-
       return {
         name              : facility.name,
         photo             : facility.photo,
@@ -72,31 +73,37 @@ export class FacilityDAO {
   async updateGeneralInformation(facilityID: string, data: GeneralInformationFacilityDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { address, ...facilityData } = data;
+    
         await tx.facility.update({
           where: { 
             facilityID 
           },
           data: {
-            name              : data.name,
-            photo             : data.photo,
-            email             : data.email,
-            phoneNumber       : data.phoneNumber,
-            facilityType      : data.facilityType,
-            ownership         : data.ownership,
-            bookingSystem     : data.bookingSystem,
-            acceptedProviders : data.acceptedProviders,
+            ...facilityData
           }
         });
-
-        if (data.address) {
-          await addressDAO.updateAddress(facilityID, data.address, tx)
+  
+        if (address) {
+          await addressDAO.updateAddress(facilityID, address, tx);
         }
       });
     } catch (error) {
-      console.log("Details: ", error)
+      console.error("Details: ", error);
       throw new Error("Could not update general information for Facility.");
     }
   }
+
+  /*
+  async updatePhoto(facilityID: string, <INSERT PARAMETERS>): Promise<void> {
+    try {
+      
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not update Employee photo.");
+    }
+  }
+  */
 
   async getAddressByFacility(facilityID: string): Promise<AddressDTO | null> {
     try {
@@ -140,11 +147,27 @@ export class FacilityDAO {
     }
   }
 
-  async facilityHasAdmins(facilityID: string): Promise<boolean> {
+  async facilityHasServices(facilityID: string): Promise<boolean> {
     try {
-      const count = await prisma.admin.count({
+      const count = await prisma.service.count({
         where: {
           facilityID
+        }
+      });
+
+      return count > 0;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not check if Facility has Services.");
+    }
+  }
+
+  async facilityHasAdmins(facilityID: string): Promise<boolean> {
+    try {
+      const count = await prisma.employee.count({
+        where: {
+          facilityID,
+          role: Role.ADMIN
         }
       });
 
@@ -169,52 +192,68 @@ export class FacilityDAO {
       throw new Error("Could not check if Facility has Divisions.");
     }
   }
-
-  async search(query: string): Promise<FacilityDTO[]> {
+  
+  async getFacilityByServiceID(serviceID: string) { // no return type
     try {
-      if (!query.trim()) {
-        return [];
-      }
-
-      const facilities = await prisma.facility.findMany({
+      return await prisma.facility.findFirst({
         where: {
-          name: {
-            contains: query,
-            mode: "insensitive", // Case-insensitive search
-          },
-        },
-        orderBy: {
-          updatedAt: "desc",
+          services: { 
+            some: { 
+              serviceID 
+            } 
+          }
         },
         select: {
-          facilityID: true,
-          name: true,
-        },
+          facilityID : true,
+          name       : true,
+          address    : true,
+        }
       });
-
-      return facilities;
     } catch (error) {
-      console.error("Search Error: ", error);
-      throw new Error("Could not search facilities.");
+      console.error("Details: ", error);
+      throw new Error("Could not get Facility by serviceID.");
     }
   }
 
-  async getAllFacilities(): Promise<FacilityDTO[]> {
+  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: FacilityResultsDTO[], hasMore: boolean }> {
     try {
+      if (!(query.trim())) {
+        return { results: [], hasMore: false };
+      }
+  
       const facilities = await prisma.facility.findMany({
+        where: { 
+          name: { 
+            contains : query, mode : "insensitive"
+          } 
+        },
         orderBy: {
           updatedAt: "desc"
         },
         select: {
-          facilityID: true,
-          name: true,
-        }
+          facilityID : true,
+          name       : true,
+          address    : {
+            select: {
+              regionID : true,
+              pOrCID   : true,
+              cOrMID   : true,
+              brgyID   : true,
+              street   : true,
+            }
+          }
+        },
+        skip: offset,
+        take: numberToFetch + 1
       });
   
-      return facilities;
+      return {
+        results: facilities.slice(0, numberToFetch),
+        hasMore: facilities.length > numberToFetch,
+      };
     } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not retrieve facilities.");
+      console.error("Search Error: ", error);
+      throw new Error("Could not search Facilities.");
     }
   }
 }

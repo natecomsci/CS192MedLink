@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -128,7 +127,7 @@ model Address {
   brgy      Brgy   @relation(fields: [brgyID], references: [brgyID])
   brgyID    Int
 
-  street    String?
+  street    String
 
   // RELATIONS
 
@@ -146,31 +145,34 @@ model Address {
 model Facility {
   facilityID String @id @default(uuid())
 
-  password          String
-
   name              String
-  photo             String?        
+  photo             String        
   address           Address?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
-  email             String?       @unique
-  phoneNumber       String?       @unique
-  facilityType      FacilityType?
-  ownership         Ownership?
+  email             String       @unique
+  phoneNumber       String       @unique
+  facilityType      FacilityType
+  ownership         Ownership
   bookingSystem     String?
   acceptedProviders Provider[]
-  updatedAt         DateTime      @updatedAt
+  updatedAt         DateTime     @updatedAt
 
   // RELATIONS
 
   // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
 
-  // Every Facility may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
+  // Every Facility may have exactly one of each specialized Service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services. This constraint is handled by business logic.
   services  Service[]
 
+  // Facility - Manager : A Facility must have exactly one Manager. This constraint is handled by business logic.
+
   // Facility - Admin : A Facility may or may not have Admins.
-  admins    Admin[]
+  employees Employee[]
 
   // Facility - Division : A Facility may or may not have Divisions.
   divisions Division[]
+
+  // Facility - Update Log : A Facility may or may not have Update Logs.
+  logs      UpdateLog[]
 
   // Facility - Bookmark : A Facility may or may not be bookmarked.
   bookmarks Bookmark[]
@@ -189,23 +191,29 @@ model Division {
   // RELATIONS
 
   // Facility - Divisions : A Facility may or may not have Divisions.
-  facility   Facility  @relation(fields: [facilityID], references: [facilityID])
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String
 
   // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
 
   // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
-  services   Service[]
+  services Service[]
 
   // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
-  admins     Admin[]
+  admins   Employee[]
+
+  // Division - Update Log : A Division may or may not have Update Logs.
+  logs     UpdateLog[]
 }
 
-model Admin {
-  adminID String @id @default(uuid())
+// Table for both Managers and Admins of a Facility.
+
+model Employee {
+  employeeID String @id @default(uuid())
 
   password  String
 
+  role      Role
   fname     String
   mname     String?
   lname     String
@@ -215,9 +223,14 @@ model Admin {
 
   // RELATIONS
 
+  // Manager - Facility : Every Manager must work for exactly one Facility.
+
   // Admin - Facility : Every Admin must work for exactly one Facility.
-  facility   Facility   @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String
+
+  // Employee : An Employee may or may not be associated with Update Logs.
+  updateLog  UpdateLog[]
 
   // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
   divisions  Division[]
@@ -279,7 +292,7 @@ model Service {
 
   // Service - Division : If a Facility has Divisions, every Service must belong to a Division.
   division          Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
-  divisionID        String?   @unique                                                                      // "@unique" is needed to enforce one-to-one relationships on Prisma.
+  divisionID        String?
 
   // Links to specific services
   ambulanceService  AmbulanceService?
@@ -385,6 +398,26 @@ model OutpatientService {
 
   service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
   serviceID String  @id
+}
+
+model UpdateLog {
+  updateLogID String @id @default(uuid())
+
+  entity    String
+  action    Action
+  createdAt DateTime @default(now())
+
+  // Update Log - Facility : An Update Log is linked to exactly one Facility.
+  facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Update Log - Division : If a Facility has Divisions, every Update Log must be linked to exactly one Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
+  divisionID String?
+
+  // Update Log - Employee : An Update Log is linked to exactly one Employee, who is either a Manager or Admin.
+  employee   Employee  @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
+  employeeID String
 }
 
 // ENUMS
@@ -520,4 +553,15 @@ enum Load {
   NEAR_CAPACITY
   FULL_CAPACITY
   CLOSED
+}
+
+enum Role {
+  MANAGER
+  ADMIN
+}
+
+enum Action {
+  CREATE
+  UPDATE
+  DELETE
 }

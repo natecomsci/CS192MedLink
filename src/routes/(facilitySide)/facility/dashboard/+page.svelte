@@ -1,15 +1,20 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+  
+  import Logo from '$lib/images/Logo.png';
+  import type { ServiceDTO } from '$lib';
 
   import Admins from './Admins.svelte';
   import ControlHistory from './ControlHistory.svelte';
-  import Divisions from './Divisions.svelte';
   import Services from './Services.svelte';
-  import Logo from '$lib/images/Logo.png';
+  import Divisions from './Divisions.svelte';
+    import { Role } from '@prisma/client';
 
   let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
 
   let { data, form }: PageProps = $props();
+
+  const mainServicesShown: ServiceDTO[] = data.mainServicesShown 
 
 </script>
 
@@ -22,18 +27,17 @@
   <div class="flex gap-3">
       <h2 class="font-bold text-[27px] text-[#3D1853]">{hospitalName}</h2>
       <div class="sm:flex items-center gap-4 hidden">
-          <a href="./dashboard/updateFacilityInfo"class="duration-200 hover:text-violet-400">
+          <a href="./dashboard/updateFacilityInfo" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
               <p>GenInfo</p>
           </a>
       </div>
       <div class="sm:flex items-center gap-4 hidden">
-          <a href="/none"class="duration-200 hover:text-violet-400">
+          <a href="./dashboard/managerSettingsUpdate" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
               <p>Settings</p>
           </a>
       </div>
   </div>
 </header>
-
 
 <div class="border border-transparent flex h-screen p-10 bg-gray-100">
   <!-- Left Side: Control History -->
@@ -45,10 +49,14 @@
 
   <!-- Right Side: Admins, Services, Divisions -->
   <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
-    <Admins />
-    <div class="grid grid-cols-1 gap-4 h-full">
-      <Services {data} {form}/>
-      <!-- <Divisions/> -->
+    {#if data.role == Role.MANAGER}
+      <Admins admins={data.admins} />
+    {/if}
+    <div class="flex gap-4 h-full">
+      <Services {mainServicesShown}/>
+      {#if data.hasDivisions}
+        <Divisions divisions={data.divisions}/>
+      {/if}
     </div>
   </div>
 </div>

@@ -12,21 +12,21 @@
         <ul class="flex justify-center">
         		{#if !guest}
 							<li>
-	                <a href={'/patient/'+String(id)+'/settings'} 
+	                <a href={'/patient/'+String(id)+'/settings'} data-sveltekit-reload
 	                    ><Icon icon={Settings} width="20" height="20" /></a
 	                >
 	            </li>
 						{/if}
             
             <li>
-                <a href="{guest ? "/" : '/patient/'+String(id)}">
+                <a href="{guest ? "/" : '/patient/'+String(id)}" data-sveltekit-reload>
                     MedLink
                 </a>
             </li>
 
             {#if !guest}
 							<li>
-	                <a href={'/patient/'+String(id)+'/bookmarks'} 
+	                <a href={'/patient/'+String(id)+'/bookmarks'} data-sveltekit-reload
 	                    ><Icon icon={Bookmarks} width="20" height="20" /></a
 	                >
 	            </li>

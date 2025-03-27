@@ -2,14 +2,26 @@ import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
 import type { Actions } from './$types';
 import { FacilityDAO } from '$lib/server/FacilityDAO';
+import { EmployeeDAO } from '$lib';
 
 export const actions = {
   signIn: async ({ request, cookies }) => {
+    const facilityIDCookie = cookies.get('facilityID');
+    const employeeIDCookie = cookies.get('employeeID');
+    const roleCookie = cookies.get('role');
+    const hasAdminsCookie = cookies.get('hasAdmins');
+    const hasDivisionsCookie = cookies.get('hasDivisions');
+
+    if (facilityIDCookie && employeeIDCookie && roleCookie && hasAdminsCookie && hasDivisionsCookie) {
+      throw redirect(303, '/facility/dashboard');
+    }
+
+
     const data = await request.formData();
-    const fid = data.get('fid') as string;
+    const employeeID = data.get('employeeID') as string;
     const password = data.get('password') as string;
     
-    if (!fid) {
+    if (!employeeID) {
       return fail(400, 
         { 
           error: 'Missing Employee ID',
@@ -29,23 +41,20 @@ export const actions = {
       );
     }
 
-    // Fetch facility by facilityID
-    const facilityDAO = new FacilityDAO()
-    const facility = await facilityDAO.getByID(fid);
+    const employeeDAO = new EmployeeDAO()
+    const employee = await employeeDAO.getByID(employeeID)
 
-
-    if (!facility) {
+    if (!employee) {
       return fail(400, 
         { 
-          error: 'Facility ID not found',
+          error: 'Employee ID not found',
           description: 'ID',
           success: false
         }
       );
     }
 
-    // Compare entered password with hashed password
-    const passwordMatch = await bcrypt.compare(password, facility.password);
+    const passwordMatch = await bcrypt.compare(password, employee.password);
     if (!passwordMatch) {
       return fail(400, 
         { 
@@ -56,10 +65,16 @@ export const actions = {
       );
     }
 
-    // Set cookie on successful login
-    cookies.set('facilityID', fid, {path: '/'});
+    const facilityDAO = new FacilityDAO()
+    const hasAdmins = await facilityDAO.facilityHasAdmins(employee.facilityID)
+    const hasDivisions = await facilityDAO.facilityHasDivisions(employee.facilityID)
 
-    // Redirect to dashboard on success
+    cookies.set('facilityID', employee.facilityID, {path: '/'});
+    cookies.set('employeeID', employee.employeeID, {path: '/'});
+    cookies.set('role', employee.role, {path: '/'});
+    cookies.set('hasAdmins', String(hasAdmins), {path: '/'});
+    cookies.set('hasDivisions', String(hasDivisions), {path: '/'});
+
     throw redirect(303, '/facility/dashboard');
   }
 } satisfies Actions;
