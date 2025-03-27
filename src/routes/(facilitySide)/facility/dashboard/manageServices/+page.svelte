@@ -21,6 +21,10 @@
   let currPopUp: String = $state("")
 
   let query = $state('')
+
+  let error = $state('')
+  let errorLoc = $state('')
+
   async function searchServices() {
 
       const body = JSON.stringify({query});
@@ -38,7 +42,18 @@
           throw new Error(`Response status: ${response.status}`);
         }
 
-        services = await response.json();
+        const rv = await response.json();
+        if (rv.success) {
+          error = ''
+          services = rv.services
+        } else if (rv.description === "services"){
+          errorLoc = "services"
+          error = rv.error
+          services = []
+        } else {
+          errorLoc = "query"
+          error = rv.error
+        }
         
       } catch (error) {
         throw new Error(`Response status: ${error}`);
@@ -139,9 +154,20 @@
         bind:value={query}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
+      {#if query.length > 0}
+        <button onclick={() => {
+            getPage(1, 0, totalPages)
+            query = ""
+        }}>
+          x
+        </button>
+      {/if}
       <button onclick={() => searchServices()}>
         Search
       </button>
+      {#if errorLoc == "query"}
+        {error}
+      {/if}
       <h1>View By:</h1>
 
       <select class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10">
@@ -151,12 +177,17 @@
 
     <!-- Scrollable List Container -->
     <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
+      {#if errorLoc == "services"}
+        {error}
+      {/if}
       {#each services as  { type, serviceID, divisionID }}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <!-- Left Side: Text Content -->
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{type}</h3>
-            <p class="text-purple-600 px-4">{divisionID}</p>
+            {#if divisionID}
+              <p class="text-purple-600 px-4">Division: {divisionID}</p>
+            {/if}
           </div>
         
           <!-- Right Side: Icons -->

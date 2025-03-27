@@ -1,5 +1,4 @@
-import type { RequestHandler } from '@sveltejs/kit';
-import { json, redirect } from '@sveltejs/kit';
+import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { facilityUpdateLogsPageSize, UpdateLogDAO } from '$lib';
 
 let updateLogDAO = new UpdateLogDAO();
@@ -12,8 +11,23 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   }
 
   const { query } : {query: string} = await request.json();
+  if (query.length === 0) {
+    return json({ 
+      error: 'No query',
+      description: 'qeury',
+      success: false
+    });
+  }
 
   const { updateLogs } = await updateLogDAO.employeeSearchUpdateLogsByFacility(facilityID, query, 1, facilityUpdateLogsPageSize);
 
-  return json(updateLogs);
+  if (updateLogs.length === 0) {
+    return json({ 
+      error: 'No logs found',
+      description: 'logs',
+      success: false
+    });
+  }
+
+  return json({updateLogs, success:true});
 };

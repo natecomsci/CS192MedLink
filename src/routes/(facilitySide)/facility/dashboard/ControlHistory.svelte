@@ -10,6 +10,9 @@
 
   let query = $state('')
 
+  let error = $state('')
+  let errorLoc = $state('')
+
   async function getPage(currPage: number, change: number, maxPages: number) {
     console.log(currPage, change, maxPages)
     const body = JSON.stringify({currPage, change, maxPages});
@@ -36,9 +39,7 @@
   }
 
   async function searchControlHistory() {
-
     const body = JSON.stringify({query});
-
     try {
       const response = await fetch("./dashboard/searchControlHistoryHandler", {
         method: "POST",
@@ -52,7 +53,19 @@
         throw new Error(`Response status: ${response.status}`);
       }
 
-      updateLogs = await response.json();
+      
+      const rv = await response.json();
+        if (rv.success) {
+          error = ''
+          updateLogs = rv.updateLogs
+        } else if (rv.description === "logs"){
+          errorLoc = "logs"
+          error = rv.error
+          updateLogs = []
+        } else {
+          errorLoc = "query"
+          error = rv.error
+        }
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
@@ -77,10 +90,20 @@
         bind:value={query}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
+      {#if query.length > 0}
+        <button onclick={() => {
+            getPage(1, 0, totalPages)
+            query = ""
+        }}>
+          x
+        </button>
+      {/if}
       <button onclick={() => searchControlHistory()}>
         Search
       </button>
-      
+      {#if errorLoc == "query"}
+        {error}
+      {/if}
       <!-- Ensures "View By:" stays in one line -->
       <span class="whitespace-nowrap">View By:</span>
 
@@ -93,6 +116,9 @@
 
   <!-- Scrollable List -->
   <div class="flex-1 overflow-y-auto p-4 ">
+    {#if errorLoc == "logs"}
+      {error}
+    {/if}
     {#each updateLogs as { entity, action, employeeID, createdAt }}
       <!-- history item -->
     <div class="py-2 -b mb-4 ">

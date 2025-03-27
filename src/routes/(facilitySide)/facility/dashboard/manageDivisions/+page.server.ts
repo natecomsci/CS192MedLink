@@ -227,7 +227,7 @@ export const actions = {
 
     if (!serviceType && (servicesToAttach.length === 0)) {
       return fail(422, {
-          error: "New division must have at least 1 serviwace",
+          error: "New division must have at least 1 service",
           description: "Service Validation",
           success: false
         });

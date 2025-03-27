@@ -20,6 +20,8 @@
   let currPopUp: String = $state("")
 
   let query = $state('')
+  let error = $state('')
+  let errorLoc = $state('')
   async function searchAdmins() {
 
       const body = JSON.stringify({query});
@@ -37,8 +39,18 @@
           throw new Error(`Response status: ${response.status}`);
         }
 
-        admins = await response.json();
-        console.log(admins)
+        const rv = await response.json();
+        if (rv.success) {
+          error = ''
+          admins = rv.admins
+        } else if (rv.description === "admins"){
+          errorLoc = "admins"
+          error = rv.error
+          admins = []
+        } else {
+          errorLoc = "query"
+          error = rv.error
+        }
         
       } catch (error) {
         throw new Error(`Response status: ${error}`);
@@ -132,9 +144,20 @@
         bind:value={query}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
+      {#if query.length > 0}
+        <button onclick={() => {
+            getPage(1, 0, totalPages)
+            query = ""
+        }}>
+          x
+        </button>
+      {/if}
       <button onclick={() => searchAdmins()}>
         Search
       </button>
+      {#if errorLoc == "query"}
+        {error}
+      {/if}
       <h1>View By:</h1>
 
       <select class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10">
@@ -144,6 +167,9 @@
 
     <!-- Scrollable List Container -->
     <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
+      {#if errorLoc == "admins"}
+        {error}
+      {/if}
       {#each admins as  admin}
         <div class="admin-card shadow-[0px_4px_10px_rgba(0,0,0,0.3)]  ">
             <!-- Profile Picture -->
@@ -188,9 +214,6 @@
         </div>
       {/each}
     </div>
-    {#if form?.description === "pass"}
-      <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
-    {/if}
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
       <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>⟨ Previous</button>
       <span class="font-medium">Page {currentPage} of {totalPages}</span>

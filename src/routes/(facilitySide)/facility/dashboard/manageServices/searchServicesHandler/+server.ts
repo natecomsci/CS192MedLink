@@ -1,5 +1,4 @@
-import type { RequestHandler } from '@sveltejs/kit';
-import { json, redirect } from '@sveltejs/kit';
+import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { ServicesDAO } from '$lib/server/ServicesDAO';
 import { facilityServicePageSize } from '$lib/index';
 
@@ -13,8 +12,23 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   }
 
   const { query } : { query: string } = await request.json();
+  if (query.length === 0) {
+    return json({ 
+      error: 'No query',
+      description: 'qeury',
+      success: false
+    });
+  }
 
   const { services } = await servicesDAO.employeeSearchServicesByFacility(facilityID, query, 1, facilityServicePageSize);
 
-  return json(services);
+  if (services.length === 0) {
+    return json({ 
+      error: 'No services found',
+      description: 'services',
+      success: false
+    });
+  }
+
+  return json({services, success:true});
 };
