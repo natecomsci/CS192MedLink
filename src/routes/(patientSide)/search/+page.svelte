@@ -88,7 +88,7 @@
     action="?/search"
     class="flex items-center space-x-2"
   >
-    <input>
+    <input
       type="text"
       name="query"
       value={data.query}
