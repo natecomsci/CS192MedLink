@@ -88,6 +88,7 @@
     </div>
     
     <!-- SELECT DIVISIONS Dropdown Menu -->
+    {#if data.hasDivisions}
     <label>
         <span class= "text-label">Assign Divisions</span>
         <div class="relative w-full">
@@ -128,6 +129,7 @@
     </label>
 
     <!-- Selected Divisions -->
+    
     <div class="mt-4 flex-1">
       <div class="flex flex-wrap gap-2 mb-4">
         {#each selectedDivisions as division}
@@ -138,6 +140,7 @@
         {/each}
       </div>
     </div>
+    {/if}
 
     <!-- Buttons (Sticks to the Bottom) -->
     <div class="flex justify-between mt-auto">

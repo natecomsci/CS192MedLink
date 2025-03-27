@@ -92,8 +92,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
     availableServices,
     availableOPServices,
 
-    hasAdmins,
-    hasDivisions,
+    hasAdmins: hasAdmins === 'true' ? true : false,
+    hasDivisions: hasDivisions === 'true' ? true : false,
     divisions,
 
   };

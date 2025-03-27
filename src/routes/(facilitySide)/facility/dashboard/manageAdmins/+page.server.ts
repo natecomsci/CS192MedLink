@@ -37,6 +37,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     admins: paginatedAdmins.admins,
     totalPages: paginatedAdmins.totalPages,
     currentPage: paginatedAdmins.currentPage,
+    hasDivisions: hasDivisions === 'true' ? true : false,
   };
 };
 
