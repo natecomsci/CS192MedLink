@@ -1,6 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { ServicesDAO } from '$lib/server/ServicesDAO';
-import { facilityServicePageSize } from '$lib/index';
+import { ServicesDAO, facilityServicePageSize } from '$lib/index';
 
 let servicesDAO: ServicesDAO = new ServicesDAO();
 
@@ -11,7 +10,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const { query } : { query: string } = await request.json();
+  const { query, currPage, change, maxPages }: { query: string, currPage: number, change: number, maxPages: number} = await request.json();
+
   if (query.length === 0) {
     return json({ 
       error: 'No query',
@@ -20,7 +20,17 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  const { services } = await servicesDAO.employeeSearchServicesByFacility(facilityID, query, 1, facilityServicePageSize);
+  let newPageNumber: number
+
+  if (currPage <= 1 && change == -1) {
+    newPageNumber = currPage
+  } else if (currPage >= maxPages && change == 1) {
+    newPageNumber = maxPages
+  } else {
+    newPageNumber = currPage+change
+  }
+
+  const { services, currentPage, totalPages } = await servicesDAO.employeeSearchServicesByFacility(facilityID, query, newPageNumber, facilityServicePageSize);
 
   if (services.length === 0) {
     return json({ 
@@ -30,5 +40,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  return json({services, success:true});
+  return json({services, currentPage, totalPages, success:true});
 };

@@ -10,7 +10,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const { query } : { query: string} = await request.json();
+  const { query, currPage, change, maxPages }: { query: string, currPage: number, change: number, maxPages: number} = await request.json();
+
   if (query.length === 0) {
     return json({ 
       error: 'No query',
@@ -19,7 +20,17 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  const { divisions } = await divisionDAO.employeeSearchDivisionsByFacility(facilityID, query, 1, facilityDivisionsPageSize);
+  let newPageNumber: number
+
+  if (currPage <= 1 && change == -1) {
+    newPageNumber = currPage
+  } else if (currPage >= maxPages && change == 1) {
+    newPageNumber = maxPages
+  } else {
+    newPageNumber = currPage+change
+  }
+
+  const { divisions, currentPage, totalPages } = await divisionDAO.employeeSearchDivisionsByFacility(facilityID, query, newPageNumber, facilityDivisionsPageSize);
 
   if (divisions.length === 0) {
     return json({ 
@@ -29,5 +40,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  return json({divisions, success:true});
+  return json({divisions, currentPage, totalPages, success:true});
 };

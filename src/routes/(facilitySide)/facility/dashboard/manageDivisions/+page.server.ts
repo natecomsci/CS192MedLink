@@ -192,6 +192,13 @@ export const actions = {
     if (serviceType) {
       try {
         newService = validateService({data})
+        if (!newService) {
+          return fail(422, {
+            error: "Service Type not allowed",
+            description: "Service Validation",
+            success: false
+          });
+        }
       } catch (error) {
         return fail(422, {
             error: (error as Error).message,
@@ -444,7 +451,7 @@ function validateService({ data }: {data: FormData}) {
       return {dao, service}
     }
 
-    default: {
+    case "Outpatient": {
       let price: number
       let completionTimeD: number
       let completionTimeH: number

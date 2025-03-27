@@ -8,7 +8,7 @@
 
   let admins: AdminDTO[] = $state(data.admins ?? [])
   let currentPage: number = $state(data.currentPage)
-  let totalPages = data.totalPages
+  let totalPages = $state(data.totalPages)
 
   // PopUps
   import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
@@ -20,52 +20,27 @@
   let currPopUp: String = $state("")
 
   let query = $state('')
+
   let error = $state('')
   let errorLoc = $state('')
-  async function searchAdmins() {
 
-      const body = JSON.stringify({query});
+  let queryMode = $state(false)
 
-      try {
-        const response = await fetch("./manageAdmins/searchAdminsHandler", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-
-        const rv = await response.json();
-        if (rv.success) {
-          error = ''
-          admins = rv.admins
-        } else if (rv.description === "admins"){
-          errorLoc = "admins"
-          error = rv.error
-          admins = []
-        } else {
-          errorLoc = "query"
-          error = rv.error
-        }
-        
-      } catch (error) {
-        throw new Error(`Response status: ${error}`);
-      }
-    }
-
-  async function getPage(currPage: number, change: number, maxPages: number) {
-    if ((currPage === 1 && change === -1) || (currPage === maxPages && change === 1)) {
-      return
-    } 
-
-    const body = JSON.stringify({currPage, change});
+  async function getPage(change: number) {
+    let body;
+    let dest;
 
     try {
-      const response = await fetch("./manageAdmins/adminPagingHandler", {
+
+      if (queryMode) {
+        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
+        dest = "./manageAdmins/searchAdminsHandler"
+      } else {
+        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
+        dest = "./manageAdmins/adminPagingHandler"
+      }
+
+      const response = await fetch(dest, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,8 +52,24 @@
         throw new Error(`Response status: ${response.status}`);
       }
 
-      admins = await response.json();
-      currentPage = (currentPage + change)
+      const rv = await response.json();
+
+      if (rv.success) {
+        error = ''
+        errorLoc = ''
+        admins = rv.admins
+        totalPages = rv.totalPages
+        currentPage = rv.currentPage
+      } else if (rv.description === "admins"){
+        error = rv.error
+        errorLoc = "admins"
+        admins = []
+        totalPages = 1
+        currentPage = 1
+      } else {
+        error = rv.error
+        errorLoc = "query"
+      }
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
@@ -146,15 +137,21 @@
       />
       {#if query.length > 0}
         <button onclick={() => {
-            getPage(1, 0, totalPages)
             query = ""
             error = ""
             errorLoc = ""
+            queryMode = false
+            currentPage = 1
+            getPage(0)
         }}>
           x
         </button>
       {/if}
-      <button onclick={() => searchAdmins()}>
+      <button onclick={() => {
+        queryMode = true
+        currentPage = 1
+        getPage(0)
+      }}>
         Search
       </button>
       {#if errorLoc == "query"}
@@ -217,9 +214,9 @@
       {/each}
     </div>
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>⟨ Previous</button>
+      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(-1)}>⟨ Previous</button>
       <span class="font-medium">Page {currentPage} of {totalPages}</span>
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next ⟩</button>
+      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(1)}>Next ⟩</button>
     </div>
 
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addAdmin'}}>

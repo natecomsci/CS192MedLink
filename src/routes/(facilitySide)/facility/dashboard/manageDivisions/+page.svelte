@@ -14,7 +14,8 @@
 
   let divisions: DivisionDTO[] = $state(data.divisions ?? [])
   let currentPage: number = $state(data.currentPage)
-  let totalPages = data.totalPages
+  let totalPages = $state(data.totalPages)
+
   let linkableServices = $state(data.linkableServices)
 
   let selectedDivisionID: String = $state('');
@@ -26,51 +27,23 @@
   let error = $state('')
   let errorLoc = $state('')
 
-  async function searchDivisions() {
+  let queryMode = $state(false)
 
-      const body = JSON.stringify({query});
-
-      try {
-        const response = await fetch("./manageDivisions/searchDivisionsHandler", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-
-        const rv = await response.json();
-        if (rv.success) {
-          error = ''
-          divisions = rv.divisions
-        } else if (rv.description === "division"){
-          errorLoc = "division"
-          error = rv.error
-          divisions = []
-        } else {
-          errorLoc = "query"
-          error = rv.error
-        }
-        
-      } catch (error) {
-        throw new Error(`Response status: ${error}`);
-      }
-    }
-
-
-  async function getPage(currPage: number, change: number, maxPages: number) {
-    if ((currPage === 1 && change === -1) || (currPage === maxPages && change === 1)) {
-      return
-    } 
-
-    const body = JSON.stringify({currPage, change});
+  async function getPage(change: number,) {
+    let body;
+    let dest;
 
     try {
-      const response = await fetch("./manageDivisions/divisionPagingHandler", {
+
+      if (queryMode) {
+        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
+        dest = "./manageDivisions/searchDivisionsHandler"
+      } else {
+        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
+        dest = "./manageDivisions/divisionPagingHandler"
+      }
+
+      const response = await fetch(dest, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -82,8 +55,24 @@
         throw new Error(`Response status: ${response.status}`);
       }
 
-      divisions = await response.json();
-      currentPage = (currentPage + change)
+      const rv = await response.json();
+
+      if (rv.success) {
+        error = ''
+        errorLoc = ''
+        divisions = rv.divisions
+        totalPages = rv.totalPages
+        currentPage = rv.currentPage
+      } else if (rv.description === "division"){
+        error = rv.error
+        errorLoc = "division"
+        divisions = []
+        totalPages = 1
+        currentPage = 1
+      } else {
+        error = rv.error
+        errorLoc = "query"
+      }
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
@@ -157,15 +146,21 @@
       />
       {#if query.length > 0}
         <button onclick={() => {
-            getPage(1, 0, totalPages)
-            query = ""
-            error = ""
-            errorLoc = ""
+          query = ""
+          error = ""
+          errorLoc = ""
+          queryMode = false
+          currentPage = 1
+          getPage(0)
         }}>
           x
         </button>
       {/if}
-      <button onclick={() => searchDivisions()}>
+      <button onclick={() => {
+        queryMode = true
+        currentPage = 1
+        getPage(0)
+      }}>
         Search
       </button>
       {#if errorLoc == "query"}
@@ -216,9 +211,9 @@
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>⟨ Previous</button>
+      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(-1)}>⟨ Previous</button>
       <span class="font-medium">Page {currentPage} of {totalPages}</span>
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next ⟩</button>
+      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(1)}>Next ⟩</button>
     </div>
 
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addDivision'}}>

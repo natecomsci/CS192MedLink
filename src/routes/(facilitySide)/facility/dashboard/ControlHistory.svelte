@@ -6,19 +6,30 @@
 
   let updateLogs = $state(data.updateLogs)
   let currentPage = $state(data.currentPage)
-  let totalPages = data.totalPages
+  let totalPages = $state(data.totalPages)
 
   let query = $state('')
 
   let error = $state('')
   let errorLoc = $state('')
 
-  async function getPage(currPage: number, change: number, maxPages: number) {
-    console.log(currPage, change, maxPages)
-    const body = JSON.stringify({currPage, change, maxPages});
+  let queryMode = $state(false)
+
+  async function getPage(change: number) {
+    let body;
+    let dest;
 
     try {
-      const response = await fetch("./dashboard", {
+
+      if (queryMode) {
+        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
+        dest = "./dashboard/searchControlHistoryHandler"
+      } else {
+        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
+        dest = "./dashboard"
+      }
+
+      const response = await fetch(dest, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,42 +41,24 @@
         throw new Error(`Response status: ${response.status}`);
       }
 
-      updateLogs = await response.json();
-      currentPage = (currentPage + change)
-      
-    } catch (error) {
-      throw new Error(`Response status: ${error}`);
-    }
-  }
-
-  async function searchControlHistory() {
-    const body = JSON.stringify({query});
-    try {
-      const response = await fetch("./dashboard/searchControlHistoryHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      
       const rv = await response.json();
-        if (rv.success) {
-          error = ''
-          updateLogs = rv.updateLogs
-        } else if (rv.description === "logs"){
-          errorLoc = "logs"
-          error = rv.error
-          updateLogs = []
-        } else {
-          errorLoc = "query"
-          error = rv.error
-        }
+
+      if (rv.success) {
+        error = ''
+        errorLoc = ''
+        updateLogs = rv.updateLogs
+        totalPages = rv.totalPages
+        currentPage = rv.currentPage
+      } else if (rv.description === "logs"){
+        error = rv.error
+        errorLoc = "logs"
+        updateLogs = []
+        totalPages = 1
+        currentPage = 1
+      } else {
+        error = rv.error
+        errorLoc = "query"
+      }
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
@@ -92,15 +85,21 @@
       />
       {#if query.length > 0}
         <button onclick={() => {
-            getPage(1, 0, totalPages)
-            query = ""
-            error = ""
-            errorLoc = ""
+          query = ""
+          error = ""
+          errorLoc = ""
+          queryMode = false
+          currentPage = 1
+          getPage(0)
         }}>
           x
         </button>
       {/if}
-      <button onclick={() => searchControlHistory()}>
+      <button onclick={() => {
+        queryMode = true
+        currentPage = 1
+        getPage(0)
+      }}>
         Search
       </button>
       {#if errorLoc == "query"}
@@ -149,9 +148,9 @@
   <!-- Pagination -->
 
   <div class="p-4 -t -[#DBD8DF] flex justify-between items-center">
-    <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage > 1 ? getPage(currentPage, -1, totalPages) : ''}>« Prev</button>
+    <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => getPage(-1)}>« Prev</button>
     <span class="text-purple-700 font-semibold">{currentPage} of {totalPages}</span>
-    <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => currentPage < totalPages ? getPage(currentPage, 1, totalPages): ''}>Next »</button>
+    <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => getPage(1)}>Next »</button>
   </div>
 </div>
 

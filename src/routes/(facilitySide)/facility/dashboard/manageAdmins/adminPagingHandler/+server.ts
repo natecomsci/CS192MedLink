@@ -10,9 +10,19 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const { currPage, change } : { currPage: number, change: number } = await request.json();
+  const {currPage, change, maxPages}: {currPage: number, change: number, maxPages: number} = await request.json();
 
-  const { admins } = await adminDAO.getPaginatedAdminsByFacility(facilityID, currPage+change, facilityAdminsPageSize);
+  let newPageNumber: number
 
-  return json(admins);
+  if (currPage <= 1 && change == -1) {
+    newPageNumber = currPage
+  } else if (currPage >= maxPages && change == 1) {
+    newPageNumber = maxPages
+  } else {
+    newPageNumber = currPage+change
+  }
+  
+  const { admins, currentPage, totalPages } = await adminDAO.getPaginatedAdminsByFacility(facilityID, newPageNumber, facilityAdminsPageSize);
+
+  return json({admins, currentPage, totalPages, success:true});
 };
