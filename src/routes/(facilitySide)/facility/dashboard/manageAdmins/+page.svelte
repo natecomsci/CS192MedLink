@@ -3,6 +3,12 @@
   import type { PageProps } from "./$types";
 
   import type { AdminDTO } from '$lib';
+  import { adminPagingHandler } from '$lib/postHandlers';
+
+  // PopUps
+  import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
+  import AddAdmin from './AddAdmin.svelte';
+  import EditAdmin from './EditAdmin.svelte';
   
   let { data, form }: PageProps = $props();
 
@@ -10,69 +16,37 @@
   let currentPage: number = $state(data.currentPage)
   let totalPages = $state(data.totalPages)
 
-  // PopUps
-  import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
-  import AddAdmin from './AddAdmin.svelte';
-  import EditAdmin from './EditAdmin.svelte';
+  let currPopUp: String = $state("")
 
   let selectedAdminID: String = $state('');
 
-  let currPopUp: String = $state("")
-
   let query = $state('')
-
   let error = $state('')
   let errorLoc = $state('')
-
-  let queryMode = $state(false)
+  let isInQueryMode = $state(false)
 
   async function getPage(change: number) {
-    let body;
-    let dest;
-
     try {
+      const rv = await adminPagingHandler(query, isInQueryMode, currentPage, change, totalPages);
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageAdmins/searchAdminsHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageAdmins/adminPagingHandler"
+      if (errorLoc !== "query") {
+        admins =  rv.admins
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        admins = rv.admins
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "admins"){
-        error = rv.error
-        errorLoc = "admins"
-        admins = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter")
+    {
+      isInQueryMode = true
+      currentPage = 1
+      getPage(0)
     }
   }
 </script>
@@ -81,9 +55,10 @@
   <DeleteAdminConfirm
     {data}
     {form}
+    adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
-    adminID={selectedAdminID}
+    bind:totalPages={totalPages}
   />
 
 {:else if currPopUp === "addAdmin"}
@@ -92,14 +67,15 @@
     {form}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
+    bind:totalPages={totalPages}
   />
 {:else if currPopUp === "editAdmin"}
   <EditAdmin
     {data}
     {form}
+    adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
-    adminID={selectedAdminID}
   />
 {/if}
 
@@ -133,22 +109,23 @@
         type="text"
         placeholder="search"
         bind:value={query}
+        onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
-      {#if query.length > 0}
+      {#if query.length > 0 || isInQueryMode}
         <button onclick={() => {
             query = ""
             error = ""
             errorLoc = ""
-            queryMode = false
+            isInQueryMode = false
             currentPage = 1
             getPage(0)
         }}>
-          x
+          Clear
         </button>
       {/if}
       <button onclick={() => {
-        queryMode = true
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>
@@ -201,8 +178,9 @@
             <button 
               type="button" 
               class="inline-flex items-center" 
-              onclick={() => {selectedAdminID = admin.employeeID,
-                              currPopUp = admins.length > 1 ? 'delete' : 'deleteRestricted'}
+              onclick={() => {
+                selectedAdminID = admin.employeeID
+                currPopUp = admins.length > 1 ? 'delete' : 'deleteRestricted'}
                               } 
                 data-sveltekit-reload
             >

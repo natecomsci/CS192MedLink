@@ -1,9 +1,21 @@
 <script lang="ts">
   import type { ActionData, PageData } from './$types';
   import { enhance } from '$app/forms';
-  import type { AdminDTO } from '$lib';
 
-  let { data, form, currPopUp = $bindable(), admins = $bindable()}: { data: PageData, form: ActionData, currPopUp: String, admins: AdminDTO[] } = $props();
+  import type { AdminDTO } from '$lib';
+  import { adminPagingHandler } from '$lib/postHandlers';
+
+  let { data, 
+        form, 
+        currPopUp = $bindable(), 
+        admins = $bindable(),
+        totalPages = $bindable(),
+      }: {  data: PageData, 
+            form: ActionData, 
+            currPopUp: String, 
+            admins: AdminDTO[], 
+            totalPages: number,
+          } = $props();
 
   let firstName = $state("");
   let middleName =$state("") ;
@@ -23,25 +35,12 @@
   let showDropdown = $state(false);
 
   async function getNewAdmins() {
-    const body = JSON.stringify({currPage: 1, change: 0});
-
     try {
-      const response = await fetch("./manageAdmins/adminPagingHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      admins = await response.json();
-      
+      const rv = await adminPagingHandler('', false, 1, 0, 1);
+      admins =  rv.admins
+      totalPages = rv.totalPages
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
     }
   }
 

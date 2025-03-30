@@ -24,7 +24,7 @@
     const body = JSON.stringify({adminID});
 
     try {
-      const response = await fetch("./manageAdmins/adminInfoHandler", {
+      const response = await fetch("/handlers/adminInfo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

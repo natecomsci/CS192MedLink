@@ -1,32 +1,33 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
-    import type { AdminDTO } from "$lib";
-    import type { ActionData, PageData } from "./$types";
+  import type { ActionData, PageData } from "./$types";
+  import { enhance } from "$app/forms";
 
-    let { data, form, adminID, currPopUp = $bindable(), admins = $bindable()}: {data: PageData, form: ActionData, adminID: String, currPopUp: String, admins: AdminDTO[]} = $props();
+  import type { AdminDTO } from "$lib";
+  import { adminPagingHandler } from '$lib/postHandlers';
 
-    async function getNewAdmins() {
-      const body = JSON.stringify({currPage: 1, change: 0});
+  let { data, 
+        form, 
+        adminID, 
+        currPopUp = $bindable(), 
+        admins = $bindable(),
+        totalPages = $bindable(),
+      }: {  data: PageData, 
+            form: ActionData, 
+            adminID: String, 
+            currPopUp: String, 
+            admins: AdminDTO[],
+            totalPages: number,
+          } = $props();
 
-      try {
-        const response = await fetch("./manageAdmins/adminPagingHandler", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Response status: ${response.status}`);
-        }
-
-        admins = await response.json();
-        
-      } catch (error) {
-        throw new Error(`Response status: ${error}`);
-      }
+  async function getNewAdmins() {
+    try {
+      const rv = await adminPagingHandler('', false, 1, 0, 1);
+      admins =  rv.admins
+      totalPages = rv.totalPages
+    } catch (error) {
+      console.log(error)
     }
+  }
 </script>
 
 <!-- Modal Overlay -->

@@ -75,6 +75,10 @@ import {
         validateImage,
       } from "./server/formValidators";
 
+import {
+        adminPagingHandler
+} from "./postHandlers"
+
 // Global Project Variables
 export const facilityServicePageSize: number = 5
 export const patientSearchPageSize: number = 5
@@ -171,5 +175,7 @@ export {
   validateStreet,
   validateLink,
   validateImage,
+
+  adminPagingHandler,
 
 }

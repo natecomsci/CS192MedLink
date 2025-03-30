@@ -15,7 +15,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   if (query.length === 0) {
     return json({ 
       error: 'No query',
-      description: 'qeury',
+      description: 'query',
       success: false
     });
   }
