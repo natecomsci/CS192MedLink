@@ -1,6 +1,6 @@
 <script lang="ts">
   import Logo from '$lib/images/Logo.png';
-  import type { ServiceDTO } from "$lib/server/DTOs";
+  import type { ServiceDTO } from "$lib";
   import type { PageProps } from "./$types";
 
   let { data, form }: PageProps = $props();

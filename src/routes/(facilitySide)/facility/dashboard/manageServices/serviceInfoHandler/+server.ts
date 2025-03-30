@@ -1,11 +1,14 @@
 import type { RequestHandler } from '@sveltejs/kit';
 import { json, redirect } from '@sveltejs/kit';
-import { AmbulanceServiceDAO } from '$lib/server/AmbulanceDAO';
-import { dateToTimeMapping } from '$lib/Mappings';
-import { BloodBankServiceDAO } from '$lib/server/BloodBankDAO';
-import { ERServiceDAO } from '$lib/server/ERDAO';
-import { ICUServiceDAO } from '$lib/server/ICUDAO';
-import { OutpatientServiceDAO } from '$lib/server/OutpatientDAO';
+
+import { 
+  dateToTimeMapping,
+  AmbulanceServiceDAO,
+  BloodBankServiceDAO,
+  ERServiceDAO,
+  ICUServiceDAO,
+  OutpatientServiceDAO,
+} from '$lib';
 
 const ambulanceDAO = new AmbulanceServiceDAO();
 const bloodBankDAO = new BloodBankServiceDAO();

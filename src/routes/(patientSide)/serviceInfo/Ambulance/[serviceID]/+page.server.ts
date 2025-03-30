@@ -1,9 +1,11 @@
-import type { Actions, PageServerLoad } from "./$types";
-import { AmbulanceServiceDAO } from '$lib/server/AmbulanceDAO';
-import { FacilityDAO } from '$lib/server/FacilityDAO';
-import { AddressDAO } from '$lib/server/AddressDAO';
 import { fail, redirect } from "@sveltejs/kit";
-import { ServicesDAO } from '$lib/server/ServicesDAO';
+import type { PageServerLoad } from "./$types";
+
+import {  AmbulanceServiceDAO,
+          FacilityDAO,
+          AddressDAO,
+          ServicesDAO,
+} from '$lib';
 
 export const load: PageServerLoad = async ({ params }) => {
   const ambulanceDAO = new AmbulanceServiceDAO();

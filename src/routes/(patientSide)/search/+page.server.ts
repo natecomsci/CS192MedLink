@@ -1,12 +1,8 @@
 import { fail, redirect } from "@sveltejs/kit";
-
 import type { Actions, PageServerLoad } from "./$types";
+
 import type { FacilityResultsDTO, ServiceResultsDTO } from "$lib/server/DTOs";
-
-import { FacilityDAO } from "$lib/server/FacilityDAO";
-import { ServicesDAO } from "$lib/server/ServicesDAO"; 
-
-import { patientSearchPageSize } from "$lib";
+import { FacilityDAO, ServicesDAO, patientSearchPageSize } from "$lib";
 
 const facilityDAO = new FacilityDAO();
 const serviceDAO = new ServicesDAO(); 

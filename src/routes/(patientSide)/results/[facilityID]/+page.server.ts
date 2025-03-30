@@ -1,7 +1,7 @@
-import type { Actions, PageServerLoad } from "./$types";
-import { AddressDAO } from '$lib/server/AddressDAO';
-import { FacilityDAO } from '$lib/server/FacilityDAO';
 import { fail, redirect } from "@sveltejs/kit";
+import type { Actions, PageServerLoad } from "./$types";
+
+import { AddressDAO, FacilityDAO } from '$lib';
 
 export const load: PageServerLoad = async ({ params }) => {
   const facilityDAO = new FacilityDAO();

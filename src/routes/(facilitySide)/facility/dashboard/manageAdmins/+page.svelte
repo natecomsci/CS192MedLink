@@ -238,13 +238,13 @@
         gap: 15px;
     }
 
-    .profile-pic {
+/*    .profile-pic {
         width: 80px;
         height: 80px;
         border-radius: 50%;
         object-fit: cover;
         background: gray;
-    }
+    }*/
 
     .info {
         flex-grow: 1;
@@ -256,10 +256,10 @@
         color: #4a148c;
     }
 
-    .id {
+/*    .id {
         font-size: 0.9rem;
         color: #7b1fa2;
-    }
+    }*/
 
     .departments {
         font-size: 0.9rem;
@@ -267,7 +267,7 @@
         font-style: italic;
     }
 
-    .actions {
+/*    .actions {
         display: flex;
         gap: 10px;
     }
@@ -293,5 +293,5 @@
 
     .delete:hover {
         opacity: 0.7;
-    }
+    }*/
 </style>

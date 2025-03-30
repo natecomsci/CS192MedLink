@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { ServicesDAO, facilityServicePageSize } from '$lib/index';
+import { ServicesDAO, facilityServicePageSize } from '$lib';
 
 let servicesDAO: ServicesDAO = new ServicesDAO();
 

@@ -1,10 +1,12 @@
-import { prisma } from "$lib/server/prisma";
 import { fail, redirect } from "@sveltejs/kit";
+import type { Actions } from './$types';
+
+import { prisma } from "$lib/server/prisma";
 import bcrypt from "bcryptjs";
 
 import { Role } from "@prisma/client";
 
-export const actions = {
+export const actions: Actions = {
   default: async ({ request }) => {
     const data = await request.formData();
 

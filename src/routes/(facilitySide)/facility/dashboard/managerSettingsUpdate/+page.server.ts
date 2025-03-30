@@ -1,16 +1,17 @@
 import { redirect, fail } from '@sveltejs/kit';
-import type { Actions } from './$types';
-import { EmployeeDAO } from '$lib/server/EmployeeDAO';
+
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
-import type { PageServerLoad } from './$types';
-import { validateImage} from '$lib';
+
+import type { Actions, PageServerLoad } from './$types';
+
+import { EmployeeDAO, validateImage } from '$lib';
+
 
 const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 const employeeDAO = new EmployeeDAO();
-
 
 export const load: PageServerLoad = async ({ cookies }) => {
     const employeeID = cookies.get('employeeID');
@@ -26,7 +27,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
             select: { photo: true }
         });
 
-        return { photoUrl: employee?.photo?? "01" };
+        return { photoUrl: employee?.photo ?? "01" };
     } catch (error) {
         console.error(error);
         return { photoUrl: "0001" };

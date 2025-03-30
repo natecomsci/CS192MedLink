@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { ActionData, PageData } from './$types';
   import { enhance } from '$app/forms';
-  import { redirect } from '@sveltejs/kit';
   import type { AdminDTO } from '$lib';
 
   let { data, form, currPopUp = $bindable(), admins = $bindable()}: { data: PageData, form: ActionData, currPopUp: String, admins: AdminDTO[] } = $props();
@@ -158,11 +157,10 @@
 </form>
 
 <style>
-  .selected {
+  /*.selected {
       background-color: #9044C4;
       color: white;
-  }
-
+  }*/
 
   .fade-mask {
       display: block;

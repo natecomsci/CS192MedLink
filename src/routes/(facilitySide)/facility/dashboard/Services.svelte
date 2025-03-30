@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ServiceDTO } from "$lib/server/DTOs";
+  import type { ServiceDTO } from "$lib";
 
   let { mainServicesShown }: {mainServicesShown: ServiceDTO[]} = $props();
 
@@ -16,10 +16,12 @@
   </div>
 
   <div class="mt-4">
-    {#each mainServicesShown as { type }}
+    {#each mainServicesShown as { type, divisionID }}
       <div class="py-2 border-b border-transparent">
         <p class="font-bold">{type} Information</p>
-        <!-- <p class="text-gray-500 italic">Emergency Division</p> -->
+        {#if divisionID}
+          <p class="text-gray-500 italic">{divisionID} Division</p>
+        {/if}
       </div>
     {/each}
   </div>

@@ -1,10 +1,10 @@
 <script lang="ts">
   import type { ActionData } from './$types';
+  import type { Load } from '@prisma/client';
   import { enhance } from '$app/forms';
   
-  import { load } from '$lib/projectArrays'
-    import type { Load } from '@prisma/client';
-    import type { ServiceDTO } from '$lib';
+  import { load, type ServiceDTO } from '$lib'
+  
   let { form, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
   
   let phoneNumber          : String = $state('')

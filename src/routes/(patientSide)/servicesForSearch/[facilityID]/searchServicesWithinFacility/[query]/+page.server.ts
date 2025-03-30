@@ -1,6 +1,7 @@
-import type { PageServerLoad } from "./$types";
-import { ServicesDAO } from "$lib/server/ServicesDAO";
 import { fail } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
+
+import { ServicesDAO } from "$lib";
 
 export const load: PageServerLoad = async ({ params, url }) => {
   const { facilityID } = params;

@@ -164,13 +164,13 @@
     padding: 0;
   }
 
-  .profile-circle {
+  /*.profile-circle {
     width: 63px;
     height: 63px;
     background: #d9d9d9;
     -radius: 50%;
     flex-shrink: 0;
-  }
+  }*/
 
   .info {
     display: flex;

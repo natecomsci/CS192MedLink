@@ -55,6 +55,7 @@ import type {
         AdminDTO,
         PaginatedAdminDTO,
 
+        Create_UpdateDivisionDTO,
         DivisionDTO,
         MultiServiceDivisionsDTO,
       } from "./server/DTOs";
@@ -120,6 +121,7 @@ export type {
   AdminDTO,
   PaginatedAdminDTO,
 
+  Create_UpdateDivisionDTO,
   DivisionDTO,
   MultiServiceDivisionsDTO,
 }
@@ -137,7 +139,10 @@ export {
   ownership,
   availability,
   load,
+}
 
+// Server
+export {
   // DAOs
   AddressDAO,
   AdminDAO,

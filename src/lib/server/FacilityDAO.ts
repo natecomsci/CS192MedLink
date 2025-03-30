@@ -18,7 +18,7 @@ import { AddressDAO } from "./AddressDAO";
 const addressDAO: AddressDAO = new AddressDAO();
 
 export class FacilityDAO {
-  async getByID(facilityID: string): Promise<Facility | null> {
+  async getByID(facilityID: string): Promise<Facility> {
     try {
       const facility = await prisma.facility.findUnique({
         where: {
@@ -28,7 +28,7 @@ export class FacilityDAO {
 
       if (!facility) {
         console.warn("No Facility found.");
-        return null;
+        throw new Error("No Facility found.");
       }
 
       return facility;

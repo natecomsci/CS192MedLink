@@ -2,8 +2,8 @@
   import type { ActionData } from "./$types";
   import { enhance } from '$app/forms';
   
-  import { availability } from "$lib/projectArrays";
-    import type { ServiceDTO } from "$lib";
+  import { availability, type ServiceDTO } from "$lib";
+  
   let { form, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
 
   let phoneNumber: string = $state('')
