@@ -214,7 +214,8 @@ export const actions = {
         defCOrMID == address.cOrMID &&
         defBrgyID == address.brgyID &&
         defStreet == address.street &&
-        defAcceptedProviders.toString() == acceptedProviders.toString()) {
+        defAcceptedProviders.toString() == acceptedProviders.toString()
+      ) {
       return fail(422, { 
         error: "No changes made",
         description: "button",

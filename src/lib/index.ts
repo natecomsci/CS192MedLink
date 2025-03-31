@@ -52,6 +52,7 @@ import type {
         OutpatientServiceDTO,
 
         InitialAdminDetailsDTO,
+        Create_UpdateAdminDTO,
         AdminDTO,
         PaginatedAdminDTO,
 
@@ -122,6 +123,7 @@ export type {
   OutpatientServiceDTO,
 
   InitialAdminDetailsDTO,
+  Create_UpdateAdminDTO,
   AdminDTO,
   PaginatedAdminDTO,
 

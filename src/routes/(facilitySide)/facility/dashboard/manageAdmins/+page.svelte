@@ -27,7 +27,7 @@
 
   async function getPage(change: number) {
     try {
-      const rv = await adminPagingHandler(query, isInQueryMode, currentPage, change, totalPages);
+      const rv = await adminPagingHandler({query, isInQueryMode, currentPage, change, totalPages});
       error =  rv.error
       errorLoc =  rv.errorLoc
 
@@ -58,6 +58,7 @@
     adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
     bind:totalPages={totalPages}
   />
 
@@ -67,6 +68,7 @@
     {form}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
     bind:totalPages={totalPages}
   />
 {:else if currPopUp === "editAdmin"}
@@ -76,6 +78,8 @@
     adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 {/if}
 

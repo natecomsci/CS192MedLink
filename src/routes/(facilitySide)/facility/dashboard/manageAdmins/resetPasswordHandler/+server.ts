@@ -38,5 +38,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
   const newpass = await adminDAO.resetPassword(adminID);
 
-  return json(newpass);
+  return json({newpass, success: true});
 };

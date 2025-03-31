@@ -9,13 +9,15 @@
         form, 
         currPopUp = $bindable(), 
         admins = $bindable(),
+        currentPage = $bindable(),
         totalPages = $bindable(),
-      }: {  data: PageData, 
-            form: ActionData, 
-            currPopUp: String, 
-            admins: AdminDTO[], 
-            totalPages: number,
-          } = $props();
+      }:{ data: PageData, 
+          form: ActionData, 
+          currPopUp: String, 
+          admins: AdminDTO[],
+          currentPage: number, 
+          totalPages: number,
+        } = $props();
 
   let firstName = $state("");
   let middleName =$state("") ;
@@ -36,11 +38,18 @@
 
   async function getNewAdmins() {
     try {
-      const rv = await adminPagingHandler('', false, 1, 0, 1);
+      const rv = await adminPagingHandler({
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
+      });
       admins =  rv.admins
+      currentPage = 1
       totalPages = rv.totalPages
     } catch (error) {
-      console.log(error)
+      console.log((error as Error).message)
     }
   }
 

@@ -12,9 +12,20 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
   const { adminID } : { adminID: string } = await request.json();
 
-  let adminInfo = await adminDAO.getInformation(adminID);
+  let {
+    employeeID,
+    fname,
+    mname,
+    lname,
+    divisions,
+  } = await adminDAO.getInformation(adminID);
 
-  console.log(adminInfo)
-
-  return json(adminInfo)
+  return json({
+    employeeID,
+    fname,
+    mname,
+    lname,
+    divisions,
+    success: true,
+  })
 };
