@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import { dateToTimeMapping } from "$lib/Mappings";
+  import { pagingQueryHandler } from "$lib/postHandlers";
 
   let { data }: PageProps = $props();
 
@@ -13,55 +14,22 @@
   let error = $state('')
   let errorLoc = $state('')
 
-  let queryMode = $state(false)
+  let isInQueryMode = $state(false)
 
   async function getPage(change: number) {
-    let body;
-    let dest;
-
     try {
+      const rv = await pagingQueryHandler({page: "logs", query, isInQueryMode, currentPage, change, totalPages});
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./dashboard/searchControlHistoryHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./dashboard"
+      if (errorLoc !== "query") {
+        updateLogs =  rv.list
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
+        
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        updateLogs = rv.updateLogs
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "logs"){
-        error = rv.error
-        errorLoc = "logs"
-        updateLogs = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
     }
   }
 
@@ -88,7 +56,7 @@
           query = ""
           error = ""
           errorLoc = ""
-          queryMode = false
+          isInQueryMode = false
           currentPage = 1
           getPage(0)
         }}>
@@ -96,7 +64,7 @@
         </button>
       {/if}
       <button onclick={() => {
-        queryMode = true
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>

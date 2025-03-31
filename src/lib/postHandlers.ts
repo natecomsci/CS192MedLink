@@ -1,5 +1,3 @@
-import type { AdminDTO, UpdateLogDTO } from "./server/DTOs";
-
 export async function pagingQueryHandler(
   {
     page,
@@ -18,21 +16,32 @@ export async function pagingQueryHandler(
     }): Promise<{
         error: string,
         errorLoc: string,
-        list: AdminDTO[] | UpdateLogDTO[],
+        list: any[],
         totalPages: number,
         currentPage: number,
   }> {
   let body;
   let dest;
+  let destList: {paging: string, search: string};
+
+  if (page === "admins") {
+    destList = { paging: "/handlers/adminPaging", search: "/handlers/adminSearch" }
+  } else if (page === "logs") {
+    destList = { paging: "/handlers/controlHistoryPaging", search: "/handlers/controlHistorySearch" }
+  } else if (page === "divisions") {
+    destList = { paging: "/handlers/divisionPaging", search: "/handlers/divisionSearch" }
+  } else {
+    destList = { paging: "/handlers/adminPaging", search: "/handlers/adminSearch" }
+  }
 
   try {
 
     if (isInQueryMode) {
       body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-      dest = "/handlers/adminSearch"
+      dest = destList.search
     } else {
       body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-      dest = "/handlers/adminPaging"
+      dest = destList.paging
     }
 
     const response = await fetch(dest, {
@@ -49,30 +58,36 @@ export async function pagingQueryHandler(
 
     const rv = await response.json();
 
+    let error = '';
+    let errorLoc = '';
+    let list = [];
+    totalPages = 1;
+    currentPage = 1;
+
     if (rv.success) {
-      return {
-        error: '',
-        errorLoc: '',
-        list: rv.admins,
-        totalPages: rv.totalPages,
-        currentPage: rv.currentPage,
-      }
-    } else if (rv.description === "admins"){
-      return {
-        error: rv.error,
-        errorLoc: "admins",
-        list: [],
-        totalPages: 1,
-        currentPage: 1,
-      }
+      list = rv.admins
+      totalPages = rv.totalPages
+      currentPage = rv.currentPage
+
     } else {
-      return {
-        error: rv.error,
-        errorLoc: "query",
-        list: [],
-        totalPages: 1,
-        currentPage: 1,
+      error = rv.error
+
+      if (rv.description === "admins" && page === "admins"){
+        errorLoc = "admins"
+      } else if (rv.description === "logs" && page === "logs"){
+        errorLoc = "logs"
+      } else if (rv.description === "divisions" && page === "divisions"){
+        errorLoc = "divisions"
+      } else {
+        errorLoc = "query"
       }
+    }
+    return {
+      error,
+      errorLoc,
+      list,
+      totalPages,
+      currentPage,
     }
     
   } catch (error) {

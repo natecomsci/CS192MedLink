@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { divisions, currentPage, totalPages } = await divisionDAO.getPaginatedDivisionsByFacility(facilityID, currPage+change, facilityDivisionsPageSize);
+  const { divisions, currentPage, totalPages } = await divisionDAO.getPaginatedDivisionsByFacility(facilityID, newPageNumber, facilityDivisionsPageSize);
 
   return json({divisions, currentPage, totalPages, success:true});
 };

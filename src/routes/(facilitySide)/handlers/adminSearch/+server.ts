@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { admins, currentPage, totalPages } = await adminDAO.employeeSearchAdminsByFacility(facilityID, query, 1, facilityAdminsPageSize);
+  const { admins, currentPage, totalPages } = await adminDAO.employeeSearchAdminsByFacility(facilityID, query, newPageNumber, facilityAdminsPageSize);
 
   if (admins.length === 0) {
     return json({ 

@@ -3,7 +3,7 @@
   import type { PageProps } from "./$types";
 
   import type { AdminDTO } from '$lib';
-  import { adminPagingHandler } from '$lib/postHandlers';
+  import { pagingQueryHandler } from '$lib/postHandlers';
 
   // PopUps
   import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
@@ -27,14 +27,15 @@
 
   async function getPage(change: number) {
     try {
-      const rv = await adminPagingHandler({query, isInQueryMode, currentPage, change, totalPages});
+      const rv = await pagingQueryHandler({page: "admins", query, isInQueryMode, currentPage, change, totalPages});
       error =  rv.error
       errorLoc =  rv.errorLoc
 
       if (errorLoc !== "query") {
-        admins =  rv.admins
+        admins =  rv.list
         totalPages =  rv.totalPages
         currentPage =  rv.currentPage
+        
       }
     } catch (error) {
       console.log(error)

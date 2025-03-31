@@ -3,7 +3,7 @@
   import { enhance } from "$app/forms";
 
   import type { AdminDTO } from "$lib";
-  import { adminPagingHandler } from '$lib/postHandlers';
+  import { pagingQueryHandler } from '$lib/postHandlers';
 
   let { data, 
         form, 
@@ -23,14 +23,15 @@
 
   async function getNewAdmins() {
     try {
-      const rv = await adminPagingHandler({
+      const rv = await pagingQueryHandler({
+        page: 'admins',
         query: '',
         isInQueryMode:false,
         currentPage:1,
         change:0,
         totalPages:1,
       });
-      admins =  rv.admins
+      admins =  rv.list
       currentPage = 1
       totalPages = rv.totalPages
     } catch (error) {
