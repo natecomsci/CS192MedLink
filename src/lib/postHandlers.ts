@@ -1,13 +1,15 @@
-import type { AdminDTO } from "./server/DTOs";
+import type { AdminDTO, UpdateLogDTO } from "./server/DTOs";
 
-export async function adminPagingHandler(
+export async function pagingQueryHandler(
   {
+    page,
     query,
     isInQueryMode,
     currentPage,
     change,
     totalPages,
   }: {
+      page: string,
       query: string, 
       isInQueryMode: boolean, 
       currentPage: number, 
@@ -16,11 +18,10 @@ export async function adminPagingHandler(
     }): Promise<{
         error: string,
         errorLoc: string,
-        admins: AdminDTO[],
+        list: AdminDTO[] | UpdateLogDTO[],
         totalPages: number,
         currentPage: number,
   }> {
-
   let body;
   let dest;
 
@@ -52,7 +53,7 @@ export async function adminPagingHandler(
       return {
         error: '',
         errorLoc: '',
-        admins: rv.admins,
+        list: rv.admins,
         totalPages: rv.totalPages,
         currentPage: rv.currentPage,
       }
@@ -60,7 +61,7 @@ export async function adminPagingHandler(
       return {
         error: rv.error,
         errorLoc: "admins",
-        admins: [],
+        list: [],
         totalPages: 1,
         currentPage: 1,
       }
@@ -68,7 +69,7 @@ export async function adminPagingHandler(
       return {
         error: rv.error,
         errorLoc: "query",
-        admins: [],
+        list: [],
         totalPages: 1,
         currentPage: 1,
       }
@@ -122,7 +123,7 @@ export async function resetAdminPassword(adminID:String, passwordConfirmation:St
     const body = JSON.stringify({adminID, passwordConfirmation});
 
     try {
-      const response = await fetch("./manageAdmins/resetPasswordHandler", {
+      const response = await fetch("/handlers/resetPassword", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +139,7 @@ export async function resetAdminPassword(adminID:String, passwordConfirmation:St
 
       if (rv.success) {
         return {
-          value: rv,
+          value: rv.newpass,
           success: true,
         }
       } else {

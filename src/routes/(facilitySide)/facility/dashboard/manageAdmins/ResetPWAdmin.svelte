@@ -43,9 +43,9 @@
           <p  class="text-[20px] font-semibold font-t">
             {newPassword}
           </p>
-          <button type="button" class="text-purple-500 hover:underline" onclick={() => {ResetPW = true; }}>
+          <!-- <button type="button" class="text-purple-500 hover:underline" onclick={() => {ResetPW = true; }}>
           Copy Button
-          </button>
+          </button> -->
         {/if}
     </div>
 
