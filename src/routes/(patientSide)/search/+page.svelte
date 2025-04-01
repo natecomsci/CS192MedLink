@@ -81,27 +81,33 @@
 
 </script>
 
-<div class="max-w-md mx-auto p-4">
+<div class="max-w-md mx-auto p-4 bg-[#FDFCFD]">
   <!-- Search Bar -->
   <form 
     use:enhance 
     action="?/search"
-    class="flex items-center space-x-2"
+    class="items-center space-x-2"
   >
+
+  <!-- Search Bar -->
+  <div class="flex items-center gap-2 p-2 rounded-full border border-gray-300 bg-white shadow-sm w-full">
+    <button type="button" class="pl-4 text-gray-500">
+      ←
+    </button>
     <input
       type="text"
       name="query"
       value={data.query}
-      placeholder={activeTab === "facility" ? "Search facilities..." : "Search services..."}
-      class="flex-1 p-2 rounded-lg border border-gray-300"
+      placeholder="Search"
+      class="flex-1 p-2 text-gray-700 bg-transparent outline-none"
     />
-    {#if form?.error}
-      <p class="text-red-600 mt-2">{form.error}</p>
-    {/if}
-    <button type="submit" class="p-2 rounded-full bg-gray-200">Search</button>
+    <button type="submit" class="p-2 text-gray-500">
+      <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
+    </button>
+  </div>
 
   <!-- Tabs -->
-    <div class="flex mt-4 border-b">
+    <div class="flex mt-2 border-b">
       <button
         class="flex-1 text-center py-2 font-semibold"
         class:text-purple-600={activeTab === "service"}
@@ -121,47 +127,80 @@
     </div>
   </form>
 
+    <!-- ================= Facility ================== -->
+
   {#if activeTab === "facility"}
     {#if facilities.length > 0}
-      {#each facilities as facility}
-      <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
-        <div>
-          <span class="font-semibold">{facility.name}</span>
-        </div>
-        <form method="POST" action="?/viewDetails">
+      <div class="mt-3">
+        {#each facilities as facility}
+
+        <div class="mb-3 flex justify-between items-center p-2 pl-4 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
+          <div>
+            <span class="font-bold text-purple-900">{facility.name}</span>
+          </div>
+        <form method="POST" action="?/viewDetails" class="flex justify-center items-center">
           <input type="hidden" name="facilityID" value={facility.facilityID} />
-          <button type="submit" class="text-xl font-bold">+</button>
+          <button type="submit" class="p-2 text-gray-700 hover:bg-gray-200 rounded-full transition">
+            <img src="/plus_icon.svg" alt="Add" class="w-5 h-5" />
+          </button>
         </form>
+
+        </div>
+        {/each}
       </div>
-      {/each}
+
+
       {#if currFacilityHasMore} 
-        <button onclick={() => getPage(currFacilityHasMore, data.query ?? '')}>
-          Load more...
-        </button>
+        <div class="flex justify-center mt-4">
+          <button 
+            class="bg-[#9044C4] rounded-lg px-6 py-3 text-white font-semibold shadow-md hover:bg-gray-600 transition"
+            onclick={() => getPage(currFacilityHasMore, data.query ?? '')}>
+            Load more...
+          </button>
+        </div>
       {/if}
+
     {:else}     
       <p>No facilities found.</p>
     {/if}
 
-    {:else if activeTab === "service"}
+  <!-- ================= Service ================== -->
+
+  {:else if activeTab === "service"}
     {#if services.length > 0}
-      {#each services as service}
-        <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <span class="font-semibold">{service.name}</span>
-            <p class="text-sm text-gray-600">{service.type}</p> <!-- Display service type -->
-            <input type="hidden" name="facilityID" value={service.facilityID} />
+      <div class="mt-3">
+        {#each services as service}
+        <div class="mb-3 flex justify-between items-center pl-4 pr-4 pt-3 pb-3 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
+          <div class="w-full">
+            <div class="flex justify-between items-center">
+              <p class="font-bold text-purple-900">{service.name}</p>
+              <input type="hidden" name="facilityID" value={service.facilityID} />
+              <button 
+                onclick={() => viewServiceDetails(service)}
+                class="text-gray-700 hover:bg-gray-200 rounded-full transition">
+                <img src="/plus_icon.svg" alt="Add" class="w-5 h-5" />
+              </button>
+            </div>
+            <hr class="my-1 border-gray-300">
+            <p class="italic text-sm text-gray-600">{service.type}</p>
           </div>
-          <button class="text-xl font-bold" onclick={() => viewServiceDetails(service)}>+</button>
         </div>
-      {/each}
+        {/each}
+      </div>
+
       {#if currServiceHasMore} 
-        <button onclick={() => getPage(currServiceHasMore, data.query ?? '')}>
-          Load more...
-        </button>
+        <div class="flex justify-center mt-4">
+          <button 
+            class="bg-[#9044C4] rounded-lg px-6 py-3 text-white font-semibold shadow-md hover:bg-gray-600 transition"
+            onclick={() => getPage(currServiceHasMore, data.query ?? '')}>
+            Load more...
+          </button>
+        </div>
+
       {/if}
     {:else}
       <p>No services found.</p>
     {/if}
-  {/if}   
+    
+{/if}   
 </div>
