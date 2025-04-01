@@ -8,8 +8,6 @@
   // Fetch the photo URL from data
   let photoUrl = data.photoUrl;
 
-  let message = form?.message ?? null;
-  let success = form?.success ?? false;
 </script>
 
 <div class="flex justify-center items-center min-h-screen bg-gray-100">
@@ -17,6 +15,7 @@
       <!-- Profile Image Upload Form -->
       <form
           method="POST"
+          id="updatePhoto"
           action="?/updatePhoto"
           class="text-left"
           use:enhance
@@ -38,18 +37,14 @@
               accept="image/*"
               class="w-full p-2 border rounded mb-4"
           />
+
           {#if form?.error}
-              <p class="error text-red-600">{form.error}</p>
+              <p class="text-sm {form?.success ? 'text-green-600' : 'text-red-600'} mb-4">{form?.error}</p>
           {/if}
 
-          <!-- Feedback Messages -->
-          {#if message}
-              <p class="text-sm {success ? 'text-green-600' : 'text-red-600'} mb-4">{message}</p>
-          {/if}
-
-          <!-- Update Button -->
           <button
               type="submit"
+              form="updatePhoto"
               class="w-full py-2 bg-purple-600 text-white font-semibold rounded-lg mb-3 hover:bg-purple-700"
               onclick={() => window.location.reload()}
           >
@@ -58,9 +53,10 @@
       </form>
 
       <!-- Remove Photo Form -->
-      <form method="POST" action="?/removePhoto" use:enhance>
+      <form method="POST" action="?/removePhoto" use:enhance id="removePhoto">
           <button
               type="submit"
+              form="removePhoto"
               class="w-full py-2 bg-gray-500 text-white font-semibold rounded-lg mb-3 hover:bg-gray-600"
               onclick={() => window.location.reload()}
           >
@@ -72,20 +68,19 @@
 
 
           <!-- Update Button -->
-<!-- Update Password Button (Redirect Only) -->
-<button
-    type="button"
-    class="w-full py-2 bg-purple-600 text-white font-semibold rounded-lg mb-3 hover:bg-purple-700"
-    onclick={() => window.location.href = '/facility/dashboard/managerSettingsUpdate/changePassword'}
+<a
+  href="/facility/dashboard/managerSettingsUpdate/changePassword"
+  class="w-full py-2 bg-purple-600 text-white font-semibold rounded-lg mb-3 hover:bg-purple-700"
 >
-    Change Password
-</button>
+  Change Password
+</a>
 
 
       <!-- Sign Out Form -->
-      <form method="POST" action="?/signOut" use:enhance>
+      <form method="POST" action="?/signOut" use:enhance id="signOut">
           <button
               type="submit"
+              form="signOut"
               class="w-full py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600"
           >
               Sign Out

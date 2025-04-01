@@ -3,7 +3,6 @@ import { redirect, fail } from '@sveltejs/kit';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 import { createClient } from '@supabase/supabase-js';
 import { v4 as uuidv4 } from 'uuid';
-import bcrypt from 'bcryptjs';
 
 import type { Actions, PageServerLoad } from './$types';
 
@@ -46,45 +45,18 @@ export const actions = {
         // Redirect to home or login page
         throw redirect(303, '/facility');
     },
-    
-    updatePassword: async ({ request, cookies }) => {
-        const formData = await request.formData();
-        const employeeID = cookies.get('employeeID');
-        const currentPassword = formData.get('currentPassword');
-        const newPassword = formData.get('newPassword');
-    
-        if (!employeeID || !currentPassword || !newPassword) {
-            return fail(400, { error: 'Missing required fields.' });
-        }
-    
-        try {
-            // Get stored password hash
-            const storedPassword = await employeeDAO.getPassword(employeeID);
-            const isMatch = await bcrypt.compare(currentPassword.toString(), storedPassword);
-    
-            if (!isMatch) {
-                return fail(401, { error: 'Incorrect current password.' });
-            }
-    
-            // Update password
-            await employeeDAO.updatePassword(employeeID, newPassword.toString());
-            return { success: true, message: 'Password updated successfully.' };
-        } catch (error) {
-            console.error(error);
-            return fail(500, { error: 'Failed to update password.' });
-        }
-    },
+
     updatePhoto: async ({ request, cookies }) => {
         const employeeID = cookies.get('employeeID');
         if (!employeeID) {
-            return fail(401, { error: 'Unauthorized. Employee not found.' });
+            return fail(309, { error: 'Unauthorized. Employee not found.' });
         }
 
         const formData = await request.formData();
         const photoFile = formData.get('employeeImage') as File;
 
         if (!photoFile || photoFile.size === 0) {
-            return fail(400, { error: 'No image provided.' });
+            return fail(309, { error: 'No image provided.', success: false });
         }
 
         try {
@@ -117,21 +89,21 @@ export const actions = {
             // Store the image URL in the database
             await employeeDAO.updatePhoto(employeeID, publicUrl);
 
-            return { success: true, message: 'Profile photo updated successfully.', imageUrl: publicUrl };
+            return { success: true, error: 'Profile photo updated successfully.', imageUrl: publicUrl };
         } catch (error) {
             console.error(error);
 
             // Ensure error is always a string for serialization
             const errorMessage = error instanceof Error ? error.message : String(error);
 
-            return fail(400, { error: errorMessage });
+            return fail(309, { error: errorMessage, success: false });
         }
     },
 
     removePhoto: async ({ cookies }) => {
         const employeeID = cookies.get('employeeID');
         if (!employeeID) {
-            return fail(401, { error: 'Unauthorized. Employee not found.' });
+            return fail(309, { error: 'Unauthorized. Employee not found.' });
         }
 
         try {
@@ -141,7 +113,7 @@ export const actions = {
             return { success: true, message: 'Profile photo removed successfully.' };
         } catch (error) {
             console.error(error);
-            return fail(400, { error: error instanceof Error ? error.message : 'Failed to remove profile photo.' });
+            return fail(309, { error: error instanceof Error ? error.message : 'Failed to remove profile photo.' });
         }
     }
     

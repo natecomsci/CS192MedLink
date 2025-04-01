@@ -4,7 +4,7 @@
     import { enhance } from '$app/forms';
 
     import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib';
-    import { facilityType, providers } from '$lib';
+    import { facilityType, providers } from '$lib/projectArrays';
 
     let enableCities = $state(true);
     let enableBarangays = $state(true);
