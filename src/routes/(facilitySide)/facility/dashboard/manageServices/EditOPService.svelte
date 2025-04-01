@@ -25,7 +25,7 @@
     const body = JSON.stringify({serviceID, serviceType:"Outpatient"});
 
     try {
-      const response = await fetch("./manageServices/serviceInfoHandler", {
+      const response = await fetch("./manageServices/serviceInfo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +38,6 @@
       }
 
       const rv = await response.json();
-      console.log(rv)
 
       price = rv.price
       completionTimeD = rv.completionTimeD

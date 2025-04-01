@@ -32,7 +32,7 @@
     const body = JSON.stringify({serviceID, serviceType:"Emergency Room"});
 
     try {
-      const response = await fetch("./manageServices/serviceInfoHandler", {
+      const response = await fetch("./manageServices/serviceInfo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,7 +45,6 @@
       }
 
       const rv = await response.json();
-      console.log(rv)
 
       phoneNumber = rv.phoneNumber
       loadVal = rv.load

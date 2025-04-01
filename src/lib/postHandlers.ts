@@ -35,8 +35,6 @@ export async function pagingQueryHandler(
     destList = { paging: "/handlers/servicePaging", search: "/handlers/serviceSearch" }
   }
 
-  console.log(page, destList)
-
   try {
 
     if (isInQueryMode) {

@@ -19,6 +19,7 @@
 
   let selectedServiceType: String = $state('');
   let selectedServiceID: String = $state('');
+  let selectedDivision: String = $state('');
 
   let currPopUp: String = $state("")
 
@@ -58,11 +59,13 @@
 
 {#if currPopUp === "delete"}
   <DeleteServiceConfirm
+    {form}
     serviceID={selectedServiceID}
     serviceType={selectedServiceType}
-    {form}
     bind:services={services}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 
 {:else if currPopUp === "deleteRestricted"}
@@ -76,6 +79,8 @@
     { form }
     bind:services={services}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 {:else if currPopUp === "editService"}
   <EditService 
@@ -85,6 +90,7 @@
     bind:currPopUp={currPopUp}
     serviceType={selectedServiceType}
     serviceID={selectedServiceID}
+    serviceDivision={selectedDivision}
   />
 {/if}
 
@@ -167,7 +173,7 @@
         
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
-            <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID}} class="inline-flex items-center" data-sveltekit-reload>
+            <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID, selectedDivision=divisionID ?? ''}} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
@@ -177,7 +183,7 @@
               class="inline-flex items-center" 
               onclick={() => {selectedServiceID = serviceID,
                               selectedServiceType = type,
-                              currPopUp = services.length > 1 ? 'delete' : 'deleteRestricted'}
+                              currPopUp = (services.length > 1 || totalPages !== 1) ? 'delete' : 'deleteRestricted'}
                               } 
                 data-sveltekit-reload
             >

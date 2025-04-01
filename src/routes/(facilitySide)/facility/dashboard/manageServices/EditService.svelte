@@ -8,7 +8,25 @@
   import EditICUService from './EditICUService.svelte';
   import EditOPService from './EditOPService.svelte';
 
-  let { data, form, serviceType, serviceID, currPopUp = $bindable(), services = $bindable() }: {data: PageData, form: ActionData, serviceType: String, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
+  let { data, 
+        form, 
+        serviceType, 
+        serviceID, 
+        currPopUp = $bindable(), 
+        services = $bindable(),
+        serviceDivision = $bindable(),
+      }:{ data: PageData, 
+          form: ActionData, 
+          serviceType: String, 
+          serviceID: String, 
+          currPopUp: String, 
+          services: ServiceDTO[],
+          serviceDivision: String,
+        } = $props();
+
+  let formName;
+
+  let selectedDivision = $state(serviceDivision)
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -69,6 +87,7 @@
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
+
               {:else}
                 <EditOPService
                   { form }
@@ -78,6 +97,26 @@
                 />
               {/if}
           </label>
+          <input form="editService" type="text" class="hidden" name="division" value={selectedDivision} />
+
+          {#if data.hasDivisions}
+            <label>
+              Divisions
+
+              {#each (data.divisions ?? []) as division}
+              {division.name}
+                <input 
+                  type="radio" 
+                  name="divSelect" 
+                  bind:group={selectedDivision}
+                  value={division.divisionID}
+
+                  class="input-box w-30"
+                >
+              {/each}
+            </label>
+          {/if}
+        {selectedDivision}
         </div>
       </div>
     </div>

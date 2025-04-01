@@ -160,12 +160,14 @@
             <div class="info">
                 <h3 class="name">{admin.mname ? admin.fname + ' ' + admin.mname + ' ' + admin.lname : admin.fname + ' ' + admin.lname}</h3>
                 <!-- <p class="id">{admin.employeeID}</p> -->
-                <p class="departments">
+                {#if data.hasDivisions}
+                  <p class="departments">
                     {#each (admin.divisions ?? []) as division, i}
-                        <span class="dept">{division}</span>
-                        {#if i < (admin.divisions ?? []).length - 1}|{/if}
+                      <span class="dept">{division}</span>
+                      {#if i < (admin.divisions ?? []).length - 1}|{/if}
                     {/each}
-                </p>
+                  </p>
+                {/if}
             </div>
 
             <!-- Actions (Edit & Delete) -->

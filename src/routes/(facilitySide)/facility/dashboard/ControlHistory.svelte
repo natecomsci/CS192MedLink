@@ -22,8 +22,6 @@
       error =  rv.error
       errorLoc =  rv.errorLoc
 
-      console.log(rv)
-
       if (errorLoc !== "query") {
         updateLogs =  rv.list
         totalPages =  rv.totalPages

@@ -133,7 +133,7 @@
         <input class="input-box" placeholder="Last Name" value={lastname} name = "lname"/>
       </label>
     </div>
-
+    {#if data.hasDivisions}
       <label>
         <span class= "text-label">Assign Divisions</span>
         <div class="relative w-full">
@@ -170,7 +170,7 @@
           {/if}
         </div>                  
       </label>
-
+    {/if}
       <div class="mt-4 flex-1">
         <div class="flex flex-wrap gap-2 mb-4">
           {#each selectedDivisions as division}

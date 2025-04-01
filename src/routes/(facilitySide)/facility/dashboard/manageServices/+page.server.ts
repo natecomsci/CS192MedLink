@@ -55,6 +55,8 @@ const eRDAO = new ERServiceDAO();
 const iCUDAO = new ICUServiceDAO();
 const outpatientDAO = new OutpatientServiceDAO();
 
+let facilityDivisions: DivisionDTO[];
+
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
   const role = cookies.get('role');
@@ -71,6 +73,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
 
   const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
+  facilityDivisions = divisions
 
   const services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
@@ -169,7 +172,6 @@ export const actions: Actions = {
     const data = await request.formData();
 
     const serviceType = data.get('serviceType');
-    console.log(serviceType)
 
     const phone    = data.get('phoneNumber');
     const open     = data.get('opening');
@@ -244,12 +246,12 @@ export const actions: Actions = {
           }
         }
 
-        console.log(service)
-
         const dao = new AmbulanceServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+        return {
+          success: true
+        }
       }
 
       case "Blood Bank": {
@@ -303,12 +305,12 @@ export const actions: Actions = {
           }
         }
 
-        console.log(service)
-
         const dao = new BloodBankServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+        return {
+          success: true
+        }
       }
 
       case "Emergency Room": {
@@ -328,12 +330,12 @@ export const actions: Actions = {
           phoneNumber
         }
 
-        console.log(service)
-
         const dao = new ERServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+        return {
+          success: true
+        }
       }
 
       case "Intensive Care Unit": {
@@ -367,12 +369,12 @@ export const actions: Actions = {
           }
         }
 
-        console.log(service)
-
         const dao = new ICUServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+        return {
+          success: true
+        }
       }
 
       case "Outpatient": {
@@ -419,12 +421,13 @@ export const actions: Actions = {
           }
         }
 
-        console.log(service)
-
         const dao = new OutpatientServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+
+        return {
+          success: true
+        }
       }
 
       default: {
@@ -434,10 +437,6 @@ export const actions: Actions = {
           success: false
         });
       }
-    }
-
-    return {
-      success: true
     }
   },
 
@@ -472,6 +471,7 @@ export const actions: Actions = {
     const defMileageRate: Number = serviceInfo.mileageRate
     const defMaxCoverageRadius: Number = serviceInfo.maxCoverageRadius
     const defAvailability: Availability = serviceInfo.availability
+    const defDivisionID: String | undefined = serviceInfo.divisionID
 
     // New Info
     let phoneNumber: string
@@ -482,6 +482,8 @@ export const actions: Actions = {
     let mileageRate: number
     let maxCoverageRadius: number
     let availability: Availability = data.get('availability') as Availability
+
+    let divisionID: string | undefined = data.get('division') === null ? undefined : data.get('division') as string
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
@@ -513,6 +515,7 @@ export const actions: Actions = {
       mileageRate,
       maxCoverageRadius,
       availability, 
+      divisionID
     }
 
     if (defPhoneNumber == phoneNumber &&
@@ -522,7 +525,8 @@ export const actions: Actions = {
         defMinCoverageRadius == minCoverageRadius &&
         defMileageRate == mileageRate &&
         defMaxCoverageRadius == maxCoverageRadius &&
-        defAvailability == availability
+        defAvailability == availability &&
+        defDivisionID == divisionID 
       ) {
       return fail(422, { 
         error: "No changes made",
@@ -574,6 +578,7 @@ export const actions: Actions = {
     const defO_N  : boolean = serviceInfo.bloodTypeAvailability.O_N
     const defAB_P : boolean = serviceInfo.bloodTypeAvailability.AB_P
     const defAB_N : boolean = serviceInfo.bloodTypeAvailability.AB_N
+    const defDivisionID: String | undefined = serviceInfo.divisionID
 
     let phoneNumber: string
     let openingTime: Date
@@ -581,6 +586,7 @@ export const actions: Actions = {
     let pricePerUnit: number
     let turnaroundTimeD: number
     let turnaroundTimeH: number
+    let divisionID: string | undefined = data.get('division') === null ? undefined : data.get('division') as string
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
@@ -629,6 +635,7 @@ export const actions: Actions = {
       turnaroundTimeD,
       turnaroundTimeH,
       bloodTypeAvailability,
+      divisionID
     }
 
     if (defPhoneNumber == phoneNumber &&
@@ -644,7 +651,8 @@ export const actions: Actions = {
         defO_P  == O_P &&
         defO_N  == O_N &&
         defAB_P == AB_P &&
-        defAB_N == AB_N
+        defAB_N == AB_N &&
+        defDivisionID == divisionID 
       ) {
       return fail(422, { 
           error: "No changes made",
@@ -692,6 +700,7 @@ export const actions: Actions = {
     const defUrgentQueueLength    : Number = serviceInfo.urgentQueueLength;
     const defCriticalPatients     : Number = serviceInfo.criticalPatients;
     const defCriticalQueueLength  : Number = serviceInfo.criticalQueueLength;
+    const defDivisionID: String | undefined = serviceInfo.divisionID
 
     let phoneNumber: string
     const load: Load = data.get('load') as Load
@@ -702,7 +711,7 @@ export const actions: Actions = {
     let urgentQueueLength: number
     let criticalPatients: number
     let criticalQueueLength: number
-
+    let divisionID: string | undefined = data.get('division') === null ? undefined : data.get('division') as string
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
@@ -732,6 +741,7 @@ export const actions: Actions = {
       urgentQueueLength    ,
       criticalPatients     ,
       criticalQueueLength  ,
+      divisionID
     }
 
     if (defPhoneNumber          == phoneNumber &&
@@ -742,7 +752,8 @@ export const actions: Actions = {
         defUrgentPatients       == urgentPatients &&
         defUrgentQueueLength    == urgentQueueLength &&
         defCriticalPatients     == criticalPatients &&
-        defCriticalQueueLength  == criticalQueueLength
+        defCriticalQueueLength  == criticalQueueLength &&
+        defDivisionID == divisionID 
       ) {
       return fail(422, { 
         error: "No changes made",
@@ -788,6 +799,7 @@ export const actions: Actions = {
     const defNeurologicalSupport: boolean = serviceInfo.neurologicalSupport
     const defRenalSupport: boolean = serviceInfo.renalSupport
     const defRespiratorySupport: boolean = serviceInfo.respiratorySupport
+    const defDivisionID: String | undefined = serviceInfo.divisionID
 
 
     let phoneNumber: string
@@ -798,6 +810,7 @@ export const actions: Actions = {
     let neurologicalSupport: boolean
     let renalSupport: boolean
     let respiratorySupport: boolean
+    let divisionID: string | undefined = data.get('division') === null ? undefined : data.get('division') as string
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
@@ -843,6 +856,7 @@ export const actions: Actions = {
       neurologicalSupport ,
       renalSupport        ,
       respiratorySupport  ,
+      divisionID
     }
 
     if (defPhoneNumber         == phoneNumber &&
@@ -852,7 +866,8 @@ export const actions: Actions = {
         defCardiacSupport      == cardiacSupport &&
         defNeurologicalSupport == neurologicalSupport &&
         defRenalSupport        == renalSupport &&
-        defRespiratorySupport  == respiratorySupport
+        defRespiratorySupport  == respiratorySupport &&
+        defDivisionID == divisionID 
       ) {
       return fail(422, { 
         error: "No changes made",
@@ -895,13 +910,18 @@ export const actions: Actions = {
     const defCompletionTimeH: Number = serviceInfo.completionTimeH
     const defIsAvailable: boolean = serviceInfo.isAvailable
     const defAcceptsWalkIns: boolean = serviceInfo.acceptsWalkIns
+    const defDivisionID: String | undefined = serviceInfo.divisionID
 
     let price: number
     let completionTimeD: number
     let completionTimeH: number
     const isAvailable: boolean = (data.get('isAvailable') ?? '') === 'on'
     const acceptsWalkIns: boolean = (data.get('acceptsWalkIns') ?? '') === 'on'
+    
+    let divisionID: string | undefined = data.get('division') === null ? undefined : data.get('division') as string
 
+    console.log(defDivisionID)
+    console.log(divisionID)    
     try {
       price = validateFloat(data.get('price'), "Base Rate");
       let TTime = validateCompletionTime(data.get('completionDays'), data.get('completionHours'), "Completion")
@@ -920,13 +940,15 @@ export const actions: Actions = {
       completionTimeH       ,
       isAvailable           ,
       acceptsWalkIns        ,
+      divisionID
     }
 
     if (defPrice == price &&
         defCompletionTimeD == completionTimeD &&
         defCompletionTimeH == completionTimeH &&
         defIsAvailable == isAvailable &&
-        defAcceptsWalkIns == acceptsWalkIns
+        defAcceptsWalkIns == acceptsWalkIns &&
+        defDivisionID == divisionID 
       ) {
       return fail(422, { 
         error: "No changes made",
