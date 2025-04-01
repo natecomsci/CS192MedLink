@@ -1,19 +1,21 @@
 <script lang="ts">
   import Logo from '$lib/images/Logo.png';
-  import type { ServiceDTO } from "$lib";
   import type { PageProps } from "./$types";
-
-  let { data, form }: PageProps = $props();
-
-  let services: ServiceDTO[] = $state(data.services ?? [])
-  let currentPage: number = $state(data.currentPage)
-  let totalPages = $state(data.totalPages)
+  import type { ServiceDTO } from "$lib";
 
   // PopUps
   import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
   import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
   import AddService from './AddService.svelte';
   import EditService from './EditService.svelte';
+  
+  import { pagingQueryHandler } from '$lib/postHandlers';
+
+  let { data, form }: PageProps = $props();
+
+  let services: ServiceDTO[] = $state(data.services ?? [])
+  let currentPage: number = $state(data.currentPage)
+  let totalPages = $state(data.totalPages)
 
   let selectedServiceType: String = $state('');
   let selectedServiceID: String = $state('');
@@ -25,55 +27,22 @@
   let error = $state('')
   let errorLoc = $state('')
 
-  let queryMode = $state(false)
+  let isInQueryMode = $state(false)
 
   async function getPage(change: number) {
-    let body;
-    let dest;
-
     try {
+      const rv = await pagingQueryHandler({page: "services", query, isInQueryMode, currentPage, change, totalPages});
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageServices/searchServicesHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageServices/servicePagingHandler"
+      if (errorLoc !== "query") {
+        services =  rv.list
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
+        
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        services = rv.services
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "services"){
-        error = rv.error
-        errorLoc = "services"
-        services = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
     }
   }
 
@@ -148,7 +117,7 @@
           query = ""
           error = ""
           errorLoc = ""
-          queryMode = false
+          isInQueryMode = false
           currentPage = 1
           getPage(0)
         }}>
@@ -156,7 +125,7 @@
         </button>
       {/if}
       <button onclick={() => {
-        queryMode = true
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>
