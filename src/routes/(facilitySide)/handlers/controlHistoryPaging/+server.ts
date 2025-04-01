@@ -24,5 +24,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
   let { updateLogs, currentPage, totalPages } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, newPageNumber, facilityUpdateLogsPageSize)
 
-  return json({updateLogs, currentPage, totalPages, success:true});
+  return json({list: updateLogs, currentPage, totalPages, success:true});
 };

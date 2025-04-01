@@ -4,7 +4,7 @@
 
   import ResetPWAdmin from "./ResetPWAdmin.svelte";
 
-  import { adminPagingHandler, getAdminData } from '$lib/postHandlers';
+  import { pagingQueryHandler, getAdminData } from '$lib/postHandlers';
   import type { AdminDTO } from '$lib';
 
   let { data, 
@@ -57,21 +57,21 @@
 
   function isAccepted( division:string ): boolean {
     return divisions?.includes(division) ?? false
-      // return data.providers?.includes(p) ?? false
   }
 
   let showDropdown = $state(false);
 
   async function getNewAdmins() {
     try {
-      const rv = await adminPagingHandler({
+      const rv = await pagingQueryHandler({
+        page: 'admins',
         query: '',
         isInQueryMode:false,
         currentPage:1,
         change:0,
         totalPages:1,
       });
-      admins =  rv.admins
+      admins =  rv.list
       currentPage = 1
       totalPages = rv.totalPages
     } catch (error) {

@@ -24,5 +24,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
   const { services, currentPage, totalPages } = await servicesDAO.getPaginatedServicesByFacility(facilityID, newPageNumber, facilityServicePageSize);
 
-  return json({services, currentPage, totalPages, success:true});
+  return json({list: services, currentPage, totalPages, success:true});
 };

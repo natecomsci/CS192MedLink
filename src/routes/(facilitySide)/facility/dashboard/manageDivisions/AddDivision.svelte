@@ -38,30 +38,6 @@
 
   let showDropdown = $state(false)
 
-  async function getLinkableServices() {
-    const body = JSON.stringify({});
-
-    try {
-      const response = await fetch("./manageDivisions/getLinkableServicesHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      linkableServices = await response.json();
-      
-    } catch (error) {
-      throw new Error(`Response status: ${error}`);
-    }
-  }
-  getLinkableServices()
-
   async function getNewDivisions() {
     try {
       const rv = await pagingQueryHandler({

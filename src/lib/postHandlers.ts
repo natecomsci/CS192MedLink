@@ -13,7 +13,8 @@ export async function pagingQueryHandler(
       currentPage: number, 
       change: number, 
       totalPages: number
-    }): Promise<{
+    }
+    ): Promise<{
         error: string,
         errorLoc: string,
         list: any[],
@@ -31,8 +32,10 @@ export async function pagingQueryHandler(
   } else if (page === "divisions") {
     destList = { paging: "/handlers/divisionPaging", search: "/handlers/divisionSearch" }
   } else {
-    destList = { paging: "/handlers/adminPaging", search: "/handlers/adminSearch" }
+    destList = { paging: "/handlers/servicePaging", search: "/handlers/serviceSearch" }
   }
+
+  console.log(page, destList)
 
   try {
 
@@ -65,7 +68,7 @@ export async function pagingQueryHandler(
     currentPage = 1;
 
     if (rv.success) {
-      list = rv.admins
+      list = rv.list
       totalPages = rv.totalPages
       currentPage = rv.currentPage
 
@@ -78,6 +81,8 @@ export async function pagingQueryHandler(
         errorLoc = "logs"
       } else if (rv.description === "divisions" && page === "divisions"){
         errorLoc = "divisions"
+      } else if (rv.description === "services" && page === "services"){
+        errorLoc = "services"
       } else {
         errorLoc = "query"
       }
@@ -135,36 +140,37 @@ export async function resetAdminPassword(adminID:String, passwordConfirmation:St
   success:boolean,
 
 }> {
-    const body = JSON.stringify({adminID, passwordConfirmation});
+  const body = JSON.stringify({adminID, passwordConfirmation});
 
-    try {
-      const response = await fetch("/handlers/resetPassword", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
+  try {
+    const response = await fetch("/handlers/resetPassword", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body,
+    });
 
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        return {
-          value: rv.newpass,
-          success: true,
-        }
-      } else {
-        return{
-          value: rv.error,
-          success: false,
-        }
-      }
-      
-    } catch (error) {
-      throw new Error(`Response status: ${error}`);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
     }
+
+    const rv = await response.json();
+
+    if (rv.success) {
+      return {
+        value: rv.newpass,
+        success: true,
+      }
+    } else {
+      return{
+        value: rv.error,
+        success: false,
+      }
+    }
+    
+  } catch (error) {
+    throw new Error(`Response status: ${error}`);
   }
+}
+

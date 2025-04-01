@@ -77,7 +77,7 @@ import {
       } from "./server/formValidators";
 
 import {
-        adminPagingHandler
+        pagingQueryHandler
 } from "./postHandlers"
 
 // Global Project Variables
@@ -178,6 +178,6 @@ export {
   validateLink,
   validateImage,
 
-  adminPagingHandler,
+  pagingQueryHandler,
 
 }

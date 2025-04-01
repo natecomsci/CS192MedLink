@@ -40,5 +40,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  return json({services, currentPage, totalPages, success:true});
+  return json({list: services, currentPage, totalPages, success:true});
 };
