@@ -161,19 +161,19 @@
       {#if errorLoc == "services"}
         {error}
       {/if}
-      {#each services as  { type, serviceID, divisionID }}
+      {#each services as  { type, serviceID, division }}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <!-- Left Side: Text Content -->
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{type}</h3>
-            {#if divisionID}
-              <p class="text-purple-600 px-4">Division: {divisionID}</p>
+            {#if division?.divisionID}
+              <p class="text-purple-600 px-4">Division: {division?.divisionID}</p>
             {/if}
           </div>
         
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
-            <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID, selectedDivision=divisionID ?? ''}} class="inline-flex items-center" data-sveltekit-reload>
+            <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID, selectedDivision=division?.divisionID ?? ''}} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 

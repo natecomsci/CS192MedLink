@@ -43,6 +43,7 @@ import { facilityServicePageSize,
          dateToTimeMapping,
          EmployeeDAO,
          DivisionDAO,
+         FacilityServiceListDAO,
        } from '$lib';
 
 // DAOs
@@ -54,8 +55,6 @@ const bloodBankDAO = new BloodBankServiceDAO();
 const eRDAO = new ERServiceDAO();
 const iCUDAO = new ICUServiceDAO();
 const outpatientDAO = new OutpatientServiceDAO();
-
-let facilityDivisions: DivisionDTO[];
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -70,10 +69,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const servicesDAO = new ServicesDAO();
   const divisionDAO = new DivisionDAO();
 
-  let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
+  const facilityService = new FacilityServiceListDAO()
+
+  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize, { updatedAt: "desc" })
 
   const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
-  facilityDivisions = divisions
 
   const services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
@@ -87,7 +87,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   return {
     // Paginated Services
-    services: paginatedServices.services,
+    services: paginatedServices.results,
     totalPages: paginatedServices.totalPages,
     currentPage: paginatedServices.currentPage,
 

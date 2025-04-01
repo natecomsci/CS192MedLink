@@ -1,22 +1,22 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
-import { AddressDAO } from '$lib';
+import { GeographyDAO } from '$lib';
 
-let address: AddressDAO = new AddressDAO();
+let geographyDAO = new GeographyDAO();
 
 export const POST: RequestHandler = async ({ request }) => {
   // location is of type RegionDTO | POrCDTO | COrMDTO
   const location = await request.json();
 
   if (location.regionID) {
-    const rv = await address.getProvinceOfRegion(location.regionID);
+    const rv = await geographyDAO.getProvinceOfRegion(location.regionID);
     return json(rv);
   }
   else if (location.pOrCID) {
-    const rv = await address.getCOrMOfProvince(location.pOrCID);
+    const rv = await geographyDAO.getCOrMOfProvince(location.pOrCID);
     return json(rv);
   }
   else if (location.cOrMID) {
-    const rv = await address.getBrgyOfCOrM(location.cOrMID);
+    const rv = await geographyDAO.getBrgyOfCOrM(location.cOrMID);
     return json(rv);
   }
   return json("error")

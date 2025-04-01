@@ -1,7 +1,7 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { AdminDAO, facilityAdminsPageSize } from '$lib';
+import { FacilityAdminListDAO, facilityAdminsPageSize } from '$lib';
 
-const adminDAO = new AdminDAO();
+const facilityAdminDAO = new FacilityAdminListDAO()
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -30,9 +30,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { admins, currentPage, totalPages } = await adminDAO.employeeSearchAdminsByFacility(facilityID, query, newPageNumber, facilityAdminsPageSize);
+  const { results, currentPage, totalPages } = await facilityAdminDAO.employeeSearchAdminsByFacility(facilityID, query, newPageNumber, facilityAdminsPageSize, { updatedAt: "desc" });
 
-  if (admins.length === 0) {
+  if (results.length === 0) {
     return json({ 
       error: 'No admins found',
       description: 'admins',
@@ -40,5 +40,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  return json({list: admins, currentPage, totalPages, success:true});
+  return json({list: results, currentPage, totalPages, success:true});
 };

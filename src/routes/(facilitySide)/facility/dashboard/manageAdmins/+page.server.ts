@@ -6,11 +6,14 @@ import bcrypt from 'bcryptjs';
 
 import { 
   AdminDAO, 
+  FacilityAdminListDAO,
+
   EmployeeDAO, 
   validatePersonName, 
   facilityAdminsPageSize, 
-  type PaginatedAdminDTO, 
   DivisionDAO, 
+  
+  type PaginatedResultsDTO, 
   type DivisionDTO,
   type Create_UpdateAdminDTO,
 } from '$lib';
@@ -27,11 +30,13 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (!facilityID || !hasDivisions) {
     throw redirect(303, '/facility');
   }
+
+  const facilityAdminDAO = new FacilityAdminListDAO()
   
-  const paginatedAdmins: PaginatedAdminDTO = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
+  const paginatedAdmins: PaginatedResultsDTO = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize, { updatedAt: "desc" })
 
   let data: { [key: string]: any } = {
-    admins: paginatedAdmins.admins,
+    admins: paginatedAdmins.results,
     totalPages: paginatedAdmins.totalPages,
     currentPage: paginatedAdmins.currentPage,
     hasDivisions: hasDivisions === 'true' ? true : false,

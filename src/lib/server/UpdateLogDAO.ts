@@ -4,7 +4,7 @@ import { Prisma } from "@prisma/client";
 
 import type { UpdateLogDTO, 
               CreateUpdateLogDTO, 
-              PaginatedUpdateLogDTO 
+              PaginatedResultsDTO 
             } from "./DTOs";
 
 export class UpdateLogDAO {
@@ -34,7 +34,7 @@ export class UpdateLogDAO {
     });
   }
 
-  async getPaginatedUpdateLogsByFacility(facilityID: string, page: number, pageSize: number): Promise<PaginatedUpdateLogDTO> {
+  async getPaginatedUpdateLogsByFacility(facilityID: string, page: number, pageSize: number): Promise<PaginatedResultsDTO> {
     try {
       const [updateLogs, totalUpdateLogs] = await Promise.all([
         prisma.updateLog.findMany({

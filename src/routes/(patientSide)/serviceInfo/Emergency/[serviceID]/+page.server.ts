@@ -6,12 +6,14 @@ import {
   FacilityDAO,
   AddressDAO,
   ServicesDAO,
+  GeographyDAO,
 } from '$lib';
 
 export const load: PageServerLoad = async ({ params }) => {
   const ERDAO = new ERServiceDAO();
   const facilityDAO = new FacilityDAO();
   const addressDAO = new AddressDAO();
+  const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO();
   
   const { serviceID } = params;
@@ -40,10 +42,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
     if (address) {
       const [region, province, city, barangay] = await Promise.all([
-        addressDAO.getNameOfRegion(address.regionID),
-        addressDAO.getNameOfProvince(address.pOrCID),
-        addressDAO.getNameOfCOrM(address.cOrMID),
-        addressDAO.getNameOfBrgy(address.brgyID),
+        geographyDAO.getNameOfRegion(address.regionID),
+        geographyDAO.getNameOfProvince(address.pOrCID),
+        geographyDAO.getNameOfCOrM(address.cOrMID),
+        geographyDAO.getNameOfBrgy(address.brgyID),
       ]);
 
       fullAddress = {

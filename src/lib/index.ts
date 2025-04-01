@@ -10,7 +10,7 @@ import {
       } from "./projectArrays"
 
 import { AddressDAO } from "./server/AddressDAO";
-import { AdminDAO } from "./server/AdminDAO";
+import { AdminDAO, FacilityAdminListDAO } from "./server/AdminDAO";
 import { AmbulanceServiceDAO } from "./server/AmbulanceDAO";
 import { BloodBankServiceDAO, BloodTypeMappingDAO } from "./server/BloodBankDAO";
 import { EmployeeDAO } from "./server/EmployeeDAO";
@@ -18,13 +18,13 @@ import { ERServiceDAO } from "./server/ERDAO";
 import { FacilityDAO } from "./server/FacilityDAO";
 import { ICUServiceDAO } from "./server/ICUDAO";
 import { OutpatientServiceDAO } from "./server/OutpatientDAO";
-import { ServicesDAO } from "./server/ServicesDAO";
+import { ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO } from "./server/ServicesDAO";
 import { UpdateLogDAO } from "./server/UpdateLogDAO";
 import { DivisionDAO } from "./server/DivisionDAO";
+import { GeographyDAO } from "./server/GeographyDAO";
 
 import type { 
         ServiceDTO,
-        PaginatedServiceDTO,
         
         FacilityResultsDTO,
         GeneralInformationFacilityDTO,
@@ -54,11 +54,12 @@ import type {
         InitialAdminDetailsDTO,
         Create_UpdateAdminDTO,
         AdminDTO,
-        PaginatedAdminDTO,
 
         Create_UpdateDivisionDTO,
         DivisionDTO,
         MultiServiceDivisionsDTO,
+
+        PaginatedResultsDTO,
       } from "./server/DTOs";
 
 import { 
@@ -76,10 +77,6 @@ import {
         validateImage,
       } from "./server/formValidators";
 
-import {
-        pagingQueryHandler
-} from "./postHandlers"
-
 // Global Project Variables
 export const facilityServicePageSize: number = 5
 export const patientSearchPageSize: number = 5
@@ -95,7 +92,6 @@ export type OPServiceType = typeof OPServiceTypes[number];
 export type {
   // DTOs
   ServiceDTO,
-  PaginatedServiceDTO,
 
   FacilityResultsDTO,
   GeneralInformationFacilityDTO,
@@ -125,11 +121,12 @@ export type {
   InitialAdminDetailsDTO,
   Create_UpdateAdminDTO,
   AdminDTO,
-  PaginatedAdminDTO,
 
   Create_UpdateDivisionDTO,
   DivisionDTO,
   MultiServiceDivisionsDTO,
+
+  PaginatedResultsDTO
 }
 
 export {
@@ -151,12 +148,13 @@ export {
 export {
   // DAOs
   AddressDAO,
-  AdminDAO,
+  AdminDAO, FacilityAdminListDAO,
   EmployeeDAO,
   FacilityDAO,
-  ServicesDAO,
+  ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO,
   UpdateLogDAO,
   DivisionDAO,
+  GeographyDAO,
   
   AmbulanceServiceDAO,
   BloodBankServiceDAO, BloodTypeMappingDAO,

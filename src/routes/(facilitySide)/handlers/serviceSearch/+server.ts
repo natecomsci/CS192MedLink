@@ -1,7 +1,7 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { ServicesDAO, facilityServicePageSize } from '$lib';
+import { FacilityServiceListDAO, facilityServicePageSize } from '$lib';
 
-let servicesDAO: ServicesDAO = new ServicesDAO();
+let facilityServiceDAO = new FacilityServiceListDAO();
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -30,9 +30,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { services, currentPage, totalPages } = await servicesDAO.employeeSearchServicesByFacility(facilityID, query, newPageNumber, facilityServicePageSize);
+  const { results, currentPage, totalPages } = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, query, newPageNumber, facilityServicePageSize, { updatedAt: "desc" });
 
-  if (services.length === 0) {
+  if (results.length === 0) {
     return json({ 
       error: 'No services found',
       description: 'services',
@@ -40,5 +40,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  return json({list: services, currentPage, totalPages, success:true});
+  return json({list: results, currentPage, totalPages, success:true});
 };

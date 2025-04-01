@@ -1,7 +1,7 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { AdminDAO, facilityAdminsPageSize } from '$lib';
+import { FacilityAdminListDAO, facilityAdminsPageSize, type PaginatedResultsDTO } from '$lib';
 
-const adminDAO = new AdminDAO();
+const facilityAdminDAO = new FacilityAdminListDAO()
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -21,8 +21,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   } else {
     newPageNumber = currPage+change
   }
-  
-  const { admins, currentPage, totalPages } = await adminDAO.getPaginatedAdminsByFacility(facilityID, newPageNumber, facilityAdminsPageSize);
 
-  return json({list: admins, currentPage, totalPages, success:true});
+  const { results, currentPage, totalPages }: PaginatedResultsDTO = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, newPageNumber, facilityAdminsPageSize, { updatedAt: "desc" })
+
+  return json({list: results, currentPage, totalPages, success:true});
 };

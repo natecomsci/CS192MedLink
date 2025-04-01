@@ -22,7 +22,8 @@ import { type GeneralInformationFacilityDTO,
          validateLink, 
          validateFacilityName, 
          validateImage,
-         providers,  
+         providers,
+         GeographyDAO,  
       } from '$lib';
 
 let defPhoto: string
@@ -52,8 +53,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  let facilityDAO = new FacilityDAO();
-  const addressDAO = new AddressDAO();
+  const facilityDAO = new FacilityDAO();
+  const geographyDAO = new GeographyDAO();
 
   try {
     let facilityInfo = await facilityDAO.getGeneralInformation(facilityID);
@@ -74,10 +75,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
     defStreet = facilityInfo.address.street
 
     return {
-        regions: await addressDAO.getRegions(),
-        provinces: await addressDAO.getProvinceOfRegion(facilityInfo.address.regionID),
-        corms: await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
-        brgys: await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
+        regions: await geographyDAO.getRegions(),
+        provinces: await geographyDAO.getProvinceOfRegion(facilityInfo.address.regionID),
+        corms: await geographyDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
+        brgys: await geographyDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
 
         facilityName: defName,
 

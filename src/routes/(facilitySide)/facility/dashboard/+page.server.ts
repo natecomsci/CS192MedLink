@@ -7,9 +7,10 @@ import {
   facilityAdminsPageSize,
   facilityDivisionsPageSize,
 
+  FacilityServiceListDAO,
+  FacilityAdminListDAO,
+
   UpdateLogDAO, 
-  ServicesDAO, 
-  AdminDAO,
   DivisionDAO,
   type AdminDTO,
   type DivisionDTO,
@@ -26,10 +27,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const servicesDAO = new ServicesDAO();
   const updateLogDAO = new UpdateLogDAO();
 
-  let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
+  const facilityService = new FacilityServiceListDAO()
+
+  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize, { updatedAt: "desc" })
   let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, 1, facilityUpdateLogsPageSize)
 
   let toShow
@@ -38,9 +40,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 
   if (hasAdmins === 'true' ? true : false) {
-    const adminDAO = new AdminDAO
-    const paginatedAdmins = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
-    admins = paginatedAdmins.admins
+    const facilityAdminDAO = new FacilityAdminListDAO()
+    const paginatedAdmins = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize, { updatedAt: "desc" })
+    admins = paginatedAdmins.results
   }
    if (hasDivisions === 'true' ? true : false) {
     const divisionsDAO = new DivisionDAO
@@ -49,8 +51,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
   } 
 
   toShow = {
-    mainServicesShown: paginatedServices.services,
-    updateLogs: paginatedUpdateLogs.updateLogs,
+    mainServicesShown: paginatedServices.results,
+    updateLogs: paginatedUpdateLogs.results,
     totalPages: paginatedUpdateLogs.totalPages,
     currentPage: paginatedUpdateLogs.currentPage,
 

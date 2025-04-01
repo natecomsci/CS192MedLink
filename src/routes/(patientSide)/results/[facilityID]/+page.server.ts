@@ -1,11 +1,11 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-import { AddressDAO, FacilityDAO } from '$lib';
+import { AddressDAO, FacilityDAO, GeographyDAO } from '$lib';
 
 export const load: PageServerLoad = async ({ params }) => {
   const facilityDAO = new FacilityDAO();
-  const addressDAO = new AddressDAO();
+  const geographyDAO = new GeographyDAO();
   const { facilityID } = params;
 
   if (!facilityID) {
@@ -19,10 +19,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
     if (facilityInfo.address) {
       const [region, province, city, barangay] = await Promise.all([
-        addressDAO.getNameOfRegion(facilityInfo.address.regionID),
-        addressDAO.getNameOfProvince(facilityInfo.address.pOrCID),
-        addressDAO.getNameOfCOrM(facilityInfo.address.cOrMID),
-        addressDAO.getNameOfBrgy(facilityInfo.address.brgyID),
+        geographyDAO.getNameOfRegion(facilityInfo.address.regionID),
+        geographyDAO.getNameOfProvince(facilityInfo.address.pOrCID),
+        geographyDAO.getNameOfCOrM(facilityInfo.address.cOrMID),
+        geographyDAO.getNameOfBrgy(facilityInfo.address.brgyID),
       ]);
 
       fullAddress = {
@@ -35,10 +35,10 @@ export const load: PageServerLoad = async ({ params }) => {
     }
 
     return {
-      regions: await addressDAO.getRegions(),
-      provinces: await addressDAO.getProvinceOfRegion(facilityInfo.address.regionID),
-      corms: await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
-      brgys: await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
+      regions: await geographyDAO.getRegions(),
+      provinces: await geographyDAO.getProvinceOfRegion(facilityInfo.address.regionID),
+      corms: await geographyDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
+      brgys: await geographyDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
 
       facilityName: facilityInfo.name,
       photo: facilityInfo.photo,
