@@ -247,7 +247,25 @@ export class PatientServiceListDAO {
     }
   }
 
-  async patientSearchByFacility(query: string, numberToFetch: number, offset: number, facilityID: string): Promise<{ results: FacilityServicePageResultsDTO[], hasMore: boolean }> {
+  async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<{ results: FacilityServicePageResultsDTO[], hasMore: boolean }> {
+    try {
+      return await loadMore({
+        model: prisma.service,
+        where: { 
+          facilityID
+        },
+        select: baseServiceSearchSelect,
+        orderBy,
+        offset,
+        numberToFetch
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get load more Services within the entire Facility.");
+    }
+  }
+
+  async patientSearchByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<{ results: FacilityServicePageResultsDTO[], hasMore: boolean }> {
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
@@ -262,9 +280,7 @@ export class PatientServiceListDAO {
           } 
         },
         select: baseServiceSearchSelect,
-        orderBy: { 
-          updatedAt: "desc" 
-        },
+        orderBy,
         offset,
         numberToFetch
       });
