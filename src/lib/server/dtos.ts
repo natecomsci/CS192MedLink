@@ -41,6 +41,7 @@ export interface AddressDTO {
   street   : string,
 }
 
+//
 export interface GeneralInformationFacilityDTO {
   name              : string,
   photo             : string,
@@ -59,7 +60,7 @@ export interface DivisionDTO {
   createdAt  : Date,
   updatedAt  : Date,
 }
-
+//
 export interface Create_UpdateDivisionDTO {
   name        : string,
   phoneNumber : string,
@@ -68,10 +69,10 @@ export interface Create_UpdateDivisionDTO {
 }
 
 export interface MultiServiceDivisionsDTO {
-  divisionID  : string,
-  name        : string,
-  services    : {
-    serviceID:  string, 
+  divisionID : string,
+  name       : string,
+  services   : {
+    serviceID : string, 
     type      : string,
   }[],
 }
@@ -81,7 +82,10 @@ export interface AdminDTO {
   fname      : string,
   mname?     : string,
   lname      : string,
-  divisions? : string[],
+  divisions? : {
+    divisionID : string,
+    name       : string,
+  }[],
   createdAt  : Date;
   updatedAt  : Date;
 }
@@ -102,11 +106,14 @@ export interface InitialAdminDetailsDTO {
 }
 
 export interface ServiceDTO {
-  serviceID   : string,
-  type        : string,
-  divisionID? : string,
-  createdAt   : Date,
-  updatedAt   : Date,
+  serviceID : string,
+  type      : string,
+  division? : {
+    divisionID : string,
+    name       : string,
+  },
+  createdAt : Date,
+  updatedAt : Date,
 }
 
 export interface CreateAmbulanceServiceDTO {
@@ -239,7 +246,7 @@ export interface UpdateLogDTO {
 export interface ServiceResultsDTO {
   facilityID : string,
   name       : string,
-  serviceID  : string;
+  serviceID  : string,
   type       : string,
 }
 
@@ -249,10 +256,14 @@ export interface FacilityResultsDTO {
   address    : AddressDTO,
 }
 
-export interface PaginatedServiceDTO {
-  services    : ServiceDTO[],
-  totalPages  : number,
-  currentPage : number,
+export interface FacilityServicePageResultsDTO {
+  serviceID : string,
+  type      : string,
+}
+
+export interface FacilityDivisionPageResultsDTO {
+  divisionID : string,
+  name       : string,
 }
 
 export interface PatientServiceSearchDTO {
@@ -261,20 +272,15 @@ export interface PatientServiceSearchDTO {
   services   : string[], 
 }
 
-export interface PaginatedAdminDTO {
-  admins      : AdminDTO[],
+export interface PaginatedResultsDTO {
+  results     : any[],
   totalPages  : number,
   currentPage : number,
 }
 
-export interface PaginatedUpdateLogDTO {
-  updateLogs  : UpdateLogDTO[],
-  totalPages  : number,
-  currentPage : number,
-}
-
-export interface PaginatedDivisionDTO {
-  divisions   : DivisionDTO[],
-  totalPages  : number,
-  currentPage : number,
+export interface AdminPreviewDTO {
+  photo  : string,
+  fname  : string,
+  mname? : string,
+  lname  : string,
 }
