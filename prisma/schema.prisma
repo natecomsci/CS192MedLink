@@ -10,36 +10,6 @@ datasource db {
 
 // MODELS
 
-model Credentials {
-  id String @id // Either a unique email or a phone number. This constraint is handled by business logic.
-
-  password  String
-
-  // RELATIONS
-
-  // Credentials - Patient : Each Credentials must belong to one Patient.
-  patient   Patient @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
-  patientID String  @unique
-}
-
-model Patient {
-  patientID String @id @default(uuid())
-
-  securityQuestion SecurityQuestion
-  providers        Provider[]
-
-  // RELATIONS
-
-  // Patient Credentials - Patient : Every Patient must have at least one and at most two Credentials. The second constraint is handled by business logic.
-  credentials Credentials[]
-
-  // Patient - Bookmark : A Patient may or may not have Bookmarks.
-  bookmarks   Bookmark[]
-
-  // Patient - Folder : A Patient may or may not have Folders.
-  folders     Folder[]
-}
-
 model Region {
   regionID Int @id
 
@@ -146,10 +116,12 @@ model Facility {
   facilityID String @id @default(uuid())
 
   name              String
-  photo             String        
+  photo             String
   address           Address?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
-  email             String       @unique
-  phoneNumber       String       @unique
+  email             String?      @unique     // TEMPORARY, TO ADD []
+  phoneNumber       String       @unique     // TEMPORARY, TO ADD []
+  openingTime       DateTime?    @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime       DateTime?    @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   facilityType      FacilityType
   ownership         Ownership
   bookingSystem     String?
@@ -157,6 +129,8 @@ model Facility {
   updatedAt         DateTime     @updatedAt
 
   // RELATIONS
+
+  // operatingHours OperatingHour[]
 
   // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
 
@@ -173,22 +147,22 @@ model Facility {
 
   // Facility - Update Log : A Facility may or may not have Update Logs.
   logs      UpdateLog[]
-
-  // Facility - Bookmark : A Facility may or may not be bookmarked.
-  bookmarks Bookmark[]
 }
 
 model Division {
   divisionID String @id @default(uuid())
 
   name        String
-  phoneNumber String
-  openingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  closingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  email       String?  @unique         // TEMPORARY, TO ADD []
+  phoneNumber String   @unique         // TEMPORARY, TO ADD []
+  openingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // RELATIONS
+
+  // operatingHours OperatingHour[]
 
   // Facility - Divisions : A Facility may or may not have Divisions.
   facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
@@ -197,13 +171,13 @@ model Division {
   // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
 
   // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
-  services Service[]
+  services   Service[]
 
   // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
-  admins   Employee[]
+  admins     Employee[]
 
   // Division - Update Log : A Division may or may not have Update Logs.
-  logs     UpdateLog[]
+  logs       UpdateLog[]
 }
 
 // Table for both Managers and Admins of a Facility.
@@ -236,55 +210,18 @@ model Employee {
   divisions  Division[]
 }
 
-model Bookmark {
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // RELATIONS
-
-  // Bookmark - Patient : A Bookmark must belong to one Patient.
-  patient    Patient  @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
-  patientID  String
-
-  // Bookmark - Facility : A Bookmark must belong to one Facility.
-  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
-  facilityID String
-
-  // Bookmark - Folder : A Bookmark may or may not be placed in a Folder.
-  folder     Folder?  @relation(fields: [folderID], references: [folderID], onDelete: SetNull)
-  folderID   String?
-
-  @@id([patientID, facilityID])
-}
-
-model Folder {
-  folderID String @id @default(uuid())
-
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // RELATIONS
-
-  // Folder - Patient : Every Folder must belong to one Patient.
-  patient   Patient    @relation(fields: [patientID], references: [patientID], onDelete: Cascade)
-  patientID String
-
-  // Folder - Bookmark : A Folder may or may not contain Bookmarks.
-  bookmarks Bookmark[]
-
-  @@unique([patientID, name]) // Prevents duplicate folder names for a single patient.
-}
-
 model Service {
-  serviceID String   @id @default(uuid())
+  serviceID String @id @default(uuid())
 
   type      String
   keywords  String[]
+  note      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // RELATIONS
+
+  // operatingHours OperatingHour[]
 
   // Service - Facility : Each Service must belong to exactly one Facility.
   facility          Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
@@ -307,14 +244,14 @@ model Service {
 }
 
 model AmbulanceService {
-  phoneNumber       String
-  openingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  closingTime       DateTime     @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  phoneNumber       String?                            // TEMPORARY, TO ADD []
+  openingTime       DateTime? @db.Time(0)              // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime       DateTime? @db.Time(0)              // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  availability      Availability @default(UNAVAILABLE)
   baseRate          Float
   minCoverageRadius Float
   mileageRate       Float
   maxCoverageRadius Float
-  availability      Availability @default(UNAVAILABLE)
 
   // RELATIONS
 
@@ -340,13 +277,13 @@ model BloodTypeMapping {
 }
 
 model BloodBankService {
-  phoneNumber           String
-  openingTime           DateTime          @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  closingTime           DateTime          @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  pricePerUnit          Float
-  turnaroundTimeD       Int                           // Day.
-  turnaroundTimeH       Int                           // Hour. The limit to its possible values (0 - 23) is handled by business logic.
-  bloodTypeAvailability BloodTypeMapping?             // "?" because Prisma cannot enforce "at least one ..." constraints.
+  phoneNumber           String?               // TEMPORARY, TO ADD []
+  openingTime           DateTime? @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime           DateTime? @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  basePricePerUnit      Float
+  turnaroundTimeD       Int                   // Day.
+  turnaroundTimeH       Int                   // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  bloodTypeAvailability BloodTypeMapping?     // "?" because Prisma cannot enforce "at least one ..." constraints.
 
   // RELATIONS
 
@@ -355,15 +292,17 @@ model BloodBankService {
 }
 
 model ERService {
-  phoneNumber          String
-  load                 Load   @default(CLOSED)
-  availableBeds        Int    @default(0)
-  nonUrgentPatients    Int    @default(0)
-  nonUrgentQueueLength Int    @default(0)
-  urgentPatients       Int    @default(0)
-  urgentQueueLength    Int    @default(0)
-  criticalPatients     Int    @default(0)
-  criticalQueueLength  Int    @default(0)
+  phoneNumber          String?                   // TEMPORARY, TO ADD []
+  openingTime          DateTime? @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime          DateTime? @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  load                 Load      @default(CLOSED)
+  availableBeds        Int       @default(0)
+  nonUrgentPatients    Int       @default(0)
+  nonUrgentQueueLength Int       @default(0)
+  urgentPatients       Int       @default(0)
+  urgentQueueLength    Int       @default(0)
+  criticalPatients     Int       @default(0)
+  criticalQueueLength  Int       @default(0)
 
   // RELATIONS
 
@@ -372,14 +311,16 @@ model ERService {
 }
 
 model ICUService {
-  phoneNumber         String
+  phoneNumber         String?                    // TEMPORARY, TO ADD []
+  openingTime         DateTime? @db.Time(0)      // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime         DateTime? @db.Time(0)      // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  load                Load      @default(CLOSED)
   baseRate            Float
-  load                Load    @default(CLOSED)
-  availableBeds       Int     @default(0)
-  cardiacSupport      Boolean @default(false)
-  neurologicalSupport Boolean @default(false)
-  renalSupport        Boolean @default(false)
-  respiratorySupport  Boolean @default(false)
+  availableBeds       Int       @default(0)
+  cardiacSupport      Boolean   @default(false)
+  neurologicalSupport Boolean   @default(false)
+  renalSupport        Boolean   @default(false)
+  respiratorySupport  Boolean   @default(false)
 
   // RELATIONS
 
@@ -388,7 +329,7 @@ model ICUService {
 }
 
 model OutpatientService {
-  price           Float
+  basePrice       Float
   completionTimeD Int                     // Day.
   completionTimeH Int                     // Hour. The limit to its possible values (0 - 23) is handled by business logic.
   isAvailable     Boolean @default(false)
@@ -399,6 +340,34 @@ model OutpatientService {
   service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
   serviceID String  @id
 }
+
+/*
+model OperatingHour {
+  operatingHourID String   @id @default(uuid())
+  day             Day      
+  openingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+
+  // RELATIONS 
+
+  // may either be related to a Facility or a Division, or a specialized Service. This constraint is handled by business logic.
+
+  facility   Facility? @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String?
+
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
+  divisionID String?
+
+  service    Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID  String?
+
+  // REMINDER FOR PAUL: DO POSTGRESQL MANUAL ENFORCEMENT OF RELATION THINGIES
+
+  @@unique([day, facilityID])
+  @@unique([day, divisionID])
+  @@unique([day, serviceID])
+}
+*/
 
 model UpdateLog {
   updateLogID String @id @default(uuid())
@@ -450,19 +419,6 @@ enum Provider {
   PHILHEALTH               // PhilhealthCare, Inc.
   VALUCARE                 // Value Care Health Systems, Inc.
   WELLCARE                 // Wellcare Health Maintenance, Inc.
-}
-
-enum SecurityQuestion {
-  STREETNAME            // What is the name of the street you grew up on?
-  FIRSTFRIENDNICKNAME   // What was the nickname of your first childhood friend?
-  FAVORITEOUTDOORGAME   // What was your favorite game to play outside as a kid?
-  FIRSTPETNAME          // What was the name of your first pet?
-  INFLUENTIALTEACHER    // What was the name of a childhood teacher who influenced you?
-  FAVORITETVSHOW        // What was the first TV show you loved watching?
-  FAVORITEULAM          // What was your childhood favorite ulam?
-  UNUSUALSTREETFOOD     // What’s the most unusual street food you ever tried as a child?
-  FIRSTJOB              // What was your first job or side hustle?
-  MEMORABLEBIRTHDAYGIFT // What is the most memorable birthday gift you received as a child?
 }
 
 enum FacilityType {
@@ -559,6 +515,18 @@ enum Role {
   MANAGER
   ADMIN
 }
+
+/*
+enum Day {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+*/
 
 enum Action {
   CREATE
