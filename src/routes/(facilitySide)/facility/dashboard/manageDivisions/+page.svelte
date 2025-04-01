@@ -80,15 +80,12 @@
     bind:currentPage={currentPage}
     bind:totalPages={totalPages}
   />
-<!-- {:else if currPopUp === "editDivision"}
+{:else if currPopUp === "editDivision"}
   <EditDivision 
-    { firstname }
-    { middlename }
-    { lastname }
     { form }
     bind:currPopUp={currPopUp}
     divisionID={selectedDivisionID}
-  /> -->
+  />
 {/if}
 
 <!-- Header -->

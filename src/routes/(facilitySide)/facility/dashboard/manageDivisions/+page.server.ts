@@ -277,28 +277,77 @@ export const actions = {
   },
 
   editDivision: async ({ cookies, request }) => {
-    // const facilityID = cookies.get('facilityID');
+    const facilityID = cookies.get('facilityID');
+    const employeeID = cookies.get('employeeID');
 
-    // if (!facilityID) {
-    //   throw redirect(303, '/facility');
-    // }
+    if (!facilityID || !employeeID) {
+      throw redirect(303, '/facility');
+    }
 
-    // const data = await request.formData();
+    const data = await request.formData();
 
-    // const divisionID = data.get("divisionID") as string;
+    const divisionID = data.get('divisionID') as string;
 
-    // // const adminInfo = await adminDAO.getInformation(adminID);
+    const division = await divisionDAO.getInformation(divisionID)
 
-    // const firstName = data.get('fname');
-    // const middleName = data.get('mname');
-    // const lastName = data.get('lname');
-    // const pass = data.get('password');
+    if (!division) {
+      return fail(422, {
+        error: "No division found",
+        description: "validation",
+        success: false
+      });
+    }
 
-    // let fname: string  
-    // let mname: string | undefined
-    // let lname: string   
-    // let password: string   
+    let defName: string = division.name
+    let defPhoneNumber: string = division.phoneNumber
+    let defOpeningTime: Date = division.openingTime
+    let defClosingTime: Date = division.closingTime
 
+    let name: string
+    let phoneNumber: string
+    let openingTime: Date
+    let closingTime: Date
+
+    const divisionName = data.get('name');
+    const phone = data.get('phoneNumber');
+    const open = data.get('opening');
+    const close = data.get('closing');
+
+
+    try {
+      name = validateFacilityName(divisionName)
+      phoneNumber = validatePhone(phone)
+      const OPHours = validateOperatingHours(open, close)
+      openingTime = OPHours.openingTime
+      closingTime = OPHours.closingTime
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "validation",
+        success: false
+      });
+    }
+
+    if (defName == name &&
+        defPhoneNumber == phoneNumber&&
+        defOpeningTime == openingTime && 
+        defClosingTime.toString() == closingTime.toString()
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
+    }
+
+    const div = {
+      name,
+      phoneNumber,
+      openingTime,
+      closingTime,
+    }
+
+    divisionDAO.update(divisionID, div)
   },
 } satisfies Actions;
 

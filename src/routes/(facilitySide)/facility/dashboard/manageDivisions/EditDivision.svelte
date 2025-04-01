@@ -2,21 +2,47 @@
     import { enhance } from '$app/forms';
   import type { PageData, ActionData } from './$types';
 
-  let { divisionName, 
-        phoneNumber, 
-        openingTime, 
-        closingTime, 
-        form, 
+  let { form, 
         divisionID, 
         currPopUp = $bindable()}: 
-          { divisionName: String, 
-            phoneNumber: String, 
-            openingTime: String, 
-            closingTime:String, 
-            form: ActionData, 
+          { form: ActionData, 
             divisionID: String, 
             currPopUp: String
           } = $props();
+
+  let divisionName = $state('')
+  let phoneNumber = $state('')
+  let openingTime = $state('')
+  let closingTime = $state('')
+
+  async function getData() {
+    const body = JSON.stringify({divisionID});
+
+    try {
+      const response = await fetch("./manageDivisions/divisionInfo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+
+      divisionName = rv.divisionName
+      phoneNumber = rv.phoneNumber
+      openingTime = rv.openingTime
+      closingTime = rv.closingTime
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+  getData()
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -66,7 +92,7 @@
               {#if form?.error}
                   <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
               {/if}
-              <input type="hidden" name="divisionID" value="{divisionID}" />
+              <input type = "hidden" name="divisionID" value="{divisionID}" />
               <input type = "text" name = "name" value={divisionName}>
               <input type = "text" name = "phoneNumber" value={phoneNumber}>
               <input type = "time" name = "opening" value={openingTime}>
