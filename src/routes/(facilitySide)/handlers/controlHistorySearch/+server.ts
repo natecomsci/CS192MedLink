@@ -30,9 +30,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { updateLogs, currentPage, totalPages } = await updateLogDAO.employeeSearchUpdateLogsByFacility(facilityID, query, newPageNumber, facilityUpdateLogsPageSize);
+  const { results, currentPage, totalPages } = await updateLogDAO.employeeSearchUpdateLogsByFacility(facilityID, query, newPageNumber, facilityUpdateLogsPageSize);
 
-  if (updateLogs.length === 0) {
+  if (results.length === 0) {
     return json({ 
       error: 'No logs found',
       description: 'logs',
@@ -40,5 +40,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  return json({list: updateLogs, currentPage, totalPages, success:true});
+  return json({list: results, currentPage, totalPages, success:true});
 };

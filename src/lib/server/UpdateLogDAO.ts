@@ -62,17 +62,17 @@ export class UpdateLogDAO {
   
       const totalPages = Math.max(1, Math.ceil(totalUpdateLogs / pageSize));
   
-      return { updateLogs, totalPages, currentPage: page };
+      return { results: updateLogs, totalPages, currentPage: page };
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not get paginated update logs within the entire facility.");
     }
   }
   
-  async employeeSearchUpdateLogsByFacility(facilityID: string, query: string, page: number, pageSize: number): Promise<PaginatedUpdateLogDTO> {
+  async employeeSearchUpdateLogsByFacility(facilityID: string, query: string, page: number, pageSize: number): Promise<PaginatedResultsDTO> {
     try {
       if (!(query.trim())) {
-        return { updateLogs: [], totalPages: 1, currentPage: page };
+        return { results: [], totalPages: 1, currentPage: page };
       }
 
       const [updateLogs, totalUpdateLogs] = await Promise.all([
@@ -107,7 +107,7 @@ export class UpdateLogDAO {
   
       const totalPages = Math.max(1, Math.ceil(totalUpdateLogs / pageSize));
   
-      return { updateLogs, totalPages, currentPage: page };
+      return { results: updateLogs, totalPages, currentPage: page };
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not get paginated update logs within the entire facility.");
