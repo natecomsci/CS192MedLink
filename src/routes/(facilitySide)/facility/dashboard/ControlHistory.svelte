@@ -35,6 +35,14 @@
     }
   }
 
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter")
+    {
+      isInQueryMode = true
+      currentPage = 1
+      getPage(0)
+    }
+  }
 </script>
   <div class="h-full flex flex-col">
   <!-- Sticky Header -->
@@ -51,6 +59,7 @@
         type="text"
         placeholder="search"
         bind:value={query}
+        onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
       {#if query.length > 0}
