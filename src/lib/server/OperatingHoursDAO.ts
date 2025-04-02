@@ -20,7 +20,7 @@ export class OperatingHoursDAO {
       const { openingTime, closingTime } = hours;
 
       if ((!openingTime) || (!closingTime)) {
-        throw new Error("Incomplete Operating Hours found.");
+        throw new Error("Incomplete Operating Hour details.");
       }
 
       console.log(`Operating Hours of Facility ${facilityID}: `, {
@@ -54,7 +54,7 @@ export class OperatingHoursDAO {
       const { openingTime, closingTime } = hours;
 
       if ((!openingTime) || (!closingTime)) {
-        throw new Error("Incomplete Operating Hours found.");
+        throw new Error("Incomplete Operating Hour details.");
       }
 
       console.log(`Operating Hours of Division ${divisionID}: `, {
