@@ -64,20 +64,24 @@
       throw new Error(`Response status: ${error}`);
     }
   }
+function viewServiceDetails(service) {
+  let url = "";
 
-  function viewServiceDetails(service) {
   if (service.type === "Ambulance") {
-    goto(`/serviceInfo/Ambulance/${service.serviceID}`);
+    url = `/serviceInfo/Ambulance/${service.serviceID}`;
   } else if (service.type === "Blood Bank") {
-    goto(`/serviceInfo/BloodBank/${service.serviceID}`);
+    url = `/serviceInfo/BloodBank/${service.serviceID}`;
   } else if (service.type === "Emergency Room") {
-    goto(`/serviceInfo/Emergency/${service.serviceID}`);
+    url = `/serviceInfo/Emergency/${service.serviceID}`;
   } else if (service.type === "Intensive Care Unit") {
-    goto(`/serviceInfo/ICU/${service.serviceID}`);
+    url = `/serviceInfo/ICU/${service.serviceID}`;
   } else {
-    goto(`/serviceInfo/Outpatient/${service.serviceID}`);
+    url = `/serviceInfo/Outpatient/${service.serviceID}`;
   }
+
+  window.location.href = url; // Forces a full page reload
 }
+
 
 </script>
 

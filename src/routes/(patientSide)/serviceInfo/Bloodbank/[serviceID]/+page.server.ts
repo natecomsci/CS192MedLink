@@ -62,7 +62,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
     return {
       facilityName        : facility.name,
-      facilityAddress     : fullAddress,
+      facilityAddress     : fullAddress ?? null,
       phoneNumber        : bloodBankService.phoneNumber ?? null,
       openingTime        : bloodBankService.openingTime ?? null,
       closingTime        : bloodBankService.closingTime ?? null,

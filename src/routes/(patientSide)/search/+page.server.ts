@@ -2,10 +2,11 @@ import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
 import type { FacilityResultsDTO, ServiceResultsDTO } from "$lib/server/DTOs";
-import { FacilityDAO, ServicesDAO, patientSearchPageSize } from "$lib";
+import { FacilityDAO, ServicesDAO, patientSearchPageSize, PatientServiceListDAO } from "$lib";
 
 const facilityDAO = new FacilityDAO();
 const serviceDAO = new ServicesDAO(); 
+const patientServiceListDAO = new PatientServiceListDAO()
 
 export const load: PageServerLoad = async ({ url }) => {
     const query = url.searchParams.get("query")?.trim() || "";
@@ -14,7 +15,7 @@ export const load: PageServerLoad = async ({ url }) => {
 
     try {
         byFacilities = await facilityDAO.patientSearch(query, patientSearchPageSize, 0);
-        byService = await serviceDAO.patientSearch(query, patientSearchPageSize, 0);
+        byService = await patientServiceListDAO.patientSearch(query, patientSearchPageSize, 0);
 
     } catch (error) {
         console.log("📄 Page loaded. No search performed yet.");
@@ -58,7 +59,7 @@ export const actions = {
 
     try {
       byFacilities = await facilityDAO.patientSearch(query, patientSearchPageSize, 0);
-      byService = await serviceDAO.patientSearch(query, patientSearchPageSize, 0);
+      byService = await patientServiceListDAO.patientSearch(query, patientSearchPageSize, 0);
 
     } catch (error) {
       console.error('❌ Error in search action:', error);
