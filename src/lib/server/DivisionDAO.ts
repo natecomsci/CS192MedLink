@@ -236,6 +236,28 @@ export class DivisionDAO {
     }
   }
 
+  async getPhoneNumber(divisionID: string): Promise<string> {
+    try {
+      const facility = await prisma.division.findUnique({
+        where: { 
+          divisionID 
+        },
+        select: {
+          phoneNumber : true
+        }
+      });
+
+      if (!facility) {
+        throw new Error("Division not found.");
+      }
+
+      return facility.phoneNumber;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get phone number of Division.");
+    }
+  }
+
   async divisionHasServices(divisionID: string): Promise<boolean> {
     try {
       const count = await prisma.service.count({
@@ -248,54 +270,6 @@ export class DivisionDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not check if Division has Services.");
-    }
-  }
-
-  async getMultiServiceDivisions(facilityID: string): Promise<MultiServiceDivisionsDTO[]> {
-    try {
-      const multiServiceDivisionIDs = await prisma.service.groupBy({
-        by: ["divisionID"],
-        where: {
-          division: {
-            facilityID
-          }
-        },
-        having: {
-          divisionID: {
-            _count: {
-              gt: 1
-            }
-          }
-        }
-      });
-  
-      const divisionIDs = multiServiceDivisionIDs.map(division => division.divisionID).filter((divisionID): divisionID is string => (divisionID !== null));
-  
-      if (divisionIDs.length === 0) {
-        return [];
-      }
-  
-      const divisions = await prisma.division.findMany({
-        where: {
-          divisionID: { 
-            in: divisionIDs 
-          }
-        },
-        select: {
-          ...divisionSelect(),
-          services: {
-            select: {
-              serviceID : true,
-              type      : true,
-            }
-          }
-        }
-      });
-  
-      return divisions;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get Divisions with multiple Services.");
     }
   }
 }
@@ -408,6 +382,54 @@ export class FacilityDivisionListDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not get paginated Divisions within the entire Facility that match the search query.");
+    }
+  }
+
+  async getMultiServiceDivisions(facilityID: string): Promise<MultiServiceDivisionsDTO[]> {
+    try {
+      const multiServiceDivisionIDs = await prisma.service.groupBy({
+        by: ["divisionID"],
+        where: {
+          division: {
+            facilityID
+          }
+        },
+        having: {
+          divisionID: {
+            _count: {
+              gt: 1
+            }
+          }
+        }
+      });
+  
+      const divisionIDs = multiServiceDivisionIDs.map(division => division.divisionID).filter((divisionID): divisionID is string => (divisionID !== null));
+  
+      if (divisionIDs.length === 0) {
+        return [];
+      }
+  
+      const divisions = await prisma.division.findMany({
+        where: {
+          divisionID: { 
+            in: divisionIDs 
+          }
+        },
+        select: {
+          ...divisionSelect(),
+          services: {
+            select: {
+              serviceID : true,
+              type      : true,
+            }
+          }
+        }
+      });
+  
+      return divisions;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Divisions with multiple Services.");
     }
   }
 }

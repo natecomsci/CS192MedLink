@@ -4,10 +4,13 @@ import type { Prisma } from "@prisma/client";
 
 import { Action }  from "@prisma/client";
 
+import { otherServiceInfo } from "./dataLayerUtility";
+
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { ERServiceDTO,
-              CreateERServiceDTO 
+              CreateERServiceDTO,
+              UpdateERServiceDTO, 
             } from "./DTOs";
 
 let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
@@ -15,8 +18,8 @@ let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 export class ERServiceDAO {
   async create(facilityID: string, employeeID: string, data: CreateERServiceDTO): Promise<string> {
     try {
-      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, ...eRData } = data;
+      return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { divisionID, note, ...eRData } = data;
   
         const service = await tx.service.create({
           data: {
@@ -27,6 +30,10 @@ export class ERServiceDAO {
                 facilityID 
               } 
             },
+
+            ...((note !== undefined) && {
+              note
+            }),
 
             ...((divisionID !== undefined) && {
               division: {
@@ -49,10 +56,11 @@ export class ERServiceDAO {
           }
         });
   
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Emergency Room",
             action: Action.CREATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,
@@ -62,8 +70,6 @@ export class ERServiceDAO {
 
         return service.serviceID;
       });
-  
-      return serviceID;
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not create AmbulanceService.");
@@ -76,24 +82,16 @@ export class ERServiceDAO {
         where: { 
           serviceID 
         },
-        include: { 
-          service: { 
-            select: { 
-              divisionID : true, 
-              updatedAt  : true, 
-            } 
-          } 
-        }
+        include: otherServiceInfo
       });
   
       if (!service) {
         throw new Error("Missing needed ERService data.");
       }
 
-      const { divisionID, updatedAt } = service.service;
+      const { note, division, updatedAt } = service.service;
   
       return {
-        phoneNumber          : service.phoneNumber,
         load                 : service.load,
         availableBeds        : service.availableBeds,
         nonUrgentPatients    : service.nonUrgentPatients,
@@ -104,19 +102,26 @@ export class ERServiceDAO {
         criticalQueueLength  : service.criticalQueueLength,
         updatedAt,
 
-        ...(divisionID ? { divisionID } : {}),
-      }; 
+        ...(service.phoneNumber ? { phoneNumber: service.phoneNumber } : {}),
 
+        ...(service.openingTime ? { openingTime: service.openingTime } : {}),
+
+        ...(service.closingTime ? { closingTime: service.closingTime } : {}),
+
+        ...(note ? { note } : {}),
+
+        ...(division ? { division } : {})
+      };
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not get information for ERService.");
     }
   }  
 
-  async update(serviceID: string, facilityID: string, employeeID: string, data: ERServiceDTO): Promise<void> {
+  async update(serviceID: string, facilityID: string, employeeID: string, data: UpdateERServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, ...eRData } = data;
+        const { divisionID, note, ...eRData } = data;
 
         await tx.eRService.update({
           where: { 
@@ -131,6 +136,10 @@ export class ERServiceDAO {
 
         const serviceUpdateData = {
           updatedAt,
+          ...((note !== undefined) && {
+            note
+          }),
+
           ...((divisionID !== undefined) && {
             division: { 
               connect: { 
@@ -159,10 +168,11 @@ export class ERServiceDAO {
           }
         });
 
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Emergency Room",
             action: Action.UPDATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,

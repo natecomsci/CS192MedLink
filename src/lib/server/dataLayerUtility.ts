@@ -14,6 +14,21 @@ export async function createAndHashPassword(): Promise<{ password: string, hashe
     return { password, hashedPassword };
 }
 
+export const otherServiceInfo = {
+  service: {
+    select: {
+      note: true,
+      division: {
+        select: {
+          divisionID: true,
+          name: true,
+        },
+      },
+      updatedAt: true,
+    },
+  },
+};
+
 // pagination utility
 
 type PaginateArgs<T> = {

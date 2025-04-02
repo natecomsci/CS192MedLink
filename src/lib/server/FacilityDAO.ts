@@ -12,8 +12,6 @@ import { AddressDAO } from "./AddressDAO";
 
 const addressDAO: AddressDAO = new AddressDAO();
 
-// getdivisionsbyfacility
-
 export class FacilityDAO {
   async getByID(facilityID: string): Promise<Facility> {
     try {
@@ -92,13 +90,13 @@ export class FacilityDAO {
       });  
 
       if (!facility) {
-        throw new Error("Facility not found");
+        throw new Error("Facility not found.");
       }
 
       const address = await addressDAO.getByFacility(facilityID);
 
       if (!address) {
-        throw new Error("Address not found");
+        throw new Error("Address not found.");
       }
 
       return {
@@ -123,6 +121,28 @@ export class FacilityDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not get information for Facility.");
+    }
+  }
+
+  async getPhoneNumber(facilityID: string): Promise<string> {
+    try {
+      const facility = await prisma.facility.findUnique({
+        where: { 
+          facilityID 
+        },
+        select: {
+          phoneNumber : true
+        }
+      });  
+
+      if (!facility) {
+        throw new Error("Facility not found.");
+      }
+
+      return facility.phoneNumber;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get phone number of Facility.");
     }
   }
 

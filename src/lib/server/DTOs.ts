@@ -1,10 +1,10 @@
 import { Provider, 
-  FacilityType,
-  Ownership, 
-  Availability, 
-  Load,
-  Role,
-  Action 
+         FacilityType,
+         Ownership, 
+         Availability, 
+         Load,
+         Role,
+         Action 
 } from '@prisma/client';
 
 // DTOs
@@ -63,7 +63,7 @@ export interface DivisionDTO {
   createdAt  : Date,
   updatedAt  : Date,
 }
-
+//
 export interface Create_UpdateDivisionDTO {
   name        : string,
   email?      : string,
@@ -121,6 +121,10 @@ export interface AmbulanceServiceDTO {
   updatedAt?        : Date,
 }
 
+export type UpdateAmbulanceServiceDTO = Omit<AmbulanceServiceDTO, "division"> & {
+  divisionID? : string
+};
+
 export interface BloodTypeMappingDTO {
   A_P   : boolean,
   A_N   : boolean,
@@ -133,21 +137,21 @@ export interface BloodTypeMappingDTO {
 }
 
 export interface CreateBloodBankServiceDTO {
-  phoneNumber?    : string,
-  openingTime?    : Date,
-  closingTime?    : Date,
-  pricePerUnit    : number,
-  turnaroundTimeD : number,
-  turnaroundTimeH : number,
-  note?           : string,
-  divisionID?     : string,
+  phoneNumber?     : string,
+  openingTime?     : Date,
+  closingTime?     : Date,
+  basePricePerUnit : number,
+  turnaroundTimeD  : number,
+  turnaroundTimeH  : number,
+  note?            : string,
+  divisionID?      : string,
 }
 
 export interface BloodBankServiceDTO {
   phoneNumber?          : string,
   openingTime?          : Date,
   closingTime?          : Date,
-  pricePerUnit          : number,
+  basePricePerUnit      : number,
   turnaroundTimeD       : number,
   turnaroundTimeH       : number,
   bloodTypeAvailability : BloodTypeMappingDTO,
@@ -158,6 +162,10 @@ export interface BloodBankServiceDTO {
   },
   updatedAt?            : Date,
 }
+
+export type UpdateBloodBankServiceDTO = Omit<BloodBankServiceDTO, "division"> & {
+  divisionID? : string
+};
 
 export interface CreateERServiceDTO {
   phoneNumber? : string,
@@ -187,6 +195,10 @@ export interface ERServiceDTO {
   updatedAt?           : Date,
 }
 
+export type UpdateERServiceDTO = Omit<ERServiceDTO, "division"> & {
+  divisionID? : string
+};
+
 export interface CreateICUServiceDTO {
   phoneNumber? : string,
   openingTime? : Date,
@@ -215,12 +227,17 @@ export interface ICUServiceDTO {
   updatedAt?          : Date,
 }
 
+export type UpdateICUServiceDTO = Omit<ICUServiceDTO, "division"> & {
+  divisionID? : string
+};
+
 export interface CreateOutpatientServiceDTO {
   type            : string,
   basePrice       : number,
   completionTimeD : number,
   completionTimeH : number,
   acceptsWalkIns  : boolean,
+  note?           : string,
   divisionID?     : string,
 }
 
@@ -238,6 +255,10 @@ export interface OutpatientServiceDTO {
   },
   updatedAt?      : Date,
 }
+
+export type UpdateOutpatientServiceDTO = Omit<Omit<OutpatientServiceDTO, "division">, "type"> & {
+  divisionID? : string
+};
 
 export interface AdminDTO {
   employeeID : string,
@@ -319,10 +340,4 @@ export interface AdminPreviewDTO {
   fname  : string,
   mname? : string,
   lname  : string,
-}
-
-export interface PatientServiceSearchDTO { // why
-  facilityID : string,
-  name       : string,
-  services   : string[], 
 }
