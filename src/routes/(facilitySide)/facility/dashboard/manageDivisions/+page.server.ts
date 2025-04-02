@@ -374,7 +374,7 @@ function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
   return availableOPServices;
 }
 
-function validateService({ data }: {data: FormData}) {
+function validateService({ data }: {data: FormData}): any {
   const serviceType = data.get('serviceType');
 
   const phone    = data.get('phoneNumber');

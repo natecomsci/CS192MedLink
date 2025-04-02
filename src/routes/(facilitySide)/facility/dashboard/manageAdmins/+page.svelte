@@ -163,8 +163,10 @@
                 {#if data.hasDivisions}
                   <p class="departments">
                     {#each (admin.divisions ?? []) as division, i}
-                      <span class="dept">{division}</span>
-                      {#if i < (admin.divisions ?? []).length - 1}|{/if}
+                      <span class="dept">
+                        {division.name}
+                        {#if i < (admin.divisions ?? []).length - 1} | {/if}
+                      </span>
                     {/each}
                   </p>
                 {/if}

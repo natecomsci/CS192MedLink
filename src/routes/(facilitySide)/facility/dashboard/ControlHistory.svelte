@@ -2,6 +2,7 @@
   import type { PageProps } from "./$types";
   import { dateToTimeMapping } from "$lib/Mappings";
   import { pagingQueryHandler } from "$lib/postHandlers";
+    import { Role } from "@prisma/client";
 
   let { data }: PageProps = $props();
 
@@ -97,7 +98,7 @@
     {#if errorLoc == "logs"}
       {error}
     {/if}
-    {#each updateLogs as { entity, action, employeeID, createdAt }}
+    {#each updateLogs as { role, entity, action, employeeID, createdAt }}
       <!-- history item -->
     <div class="py-2 -b mb-4 ">
         <div class="history-item justify-between  -green-200">
@@ -107,7 +108,7 @@
         
             <!-- Left Content: Admin & Message -->
             <div class="info">
-              <span class="admin">Admin {employeeID}</span>
+              <span class="admin">{role === Role.MANAGER ? "Manager" : "Admin"} {employeeID}</span>
               <span class="message">{action} {entity}</span>
             </div>
           </div>

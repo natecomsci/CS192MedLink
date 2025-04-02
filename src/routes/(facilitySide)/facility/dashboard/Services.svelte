@@ -19,8 +19,8 @@
     {#each mainServicesShown as { type, division }}
       <div class="py-2 border-b border-transparent">
         <p class="font-bold">{type} Information</p>
-        {#if division?.divisionID}
-          <p class="text-gray-500 italic">{division?.divisionID} Division</p>
+        {#if division?.name}
+          <p class="text-gray-500 italic">{division?.name} Division</p>
         {/if}
       </div>
     {/each}

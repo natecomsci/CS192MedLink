@@ -166,8 +166,8 @@
           <!-- Left Side: Text Content -->
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{type}</h3>
-            {#if division?.divisionID}
-              <p class="text-purple-600 px-4">Division: {division?.divisionID}</p>
+            {#if division?.name}
+              <p class="text-purple-600 px-4">Division: {division?.name}</p>
             {/if}
           </div>
         
