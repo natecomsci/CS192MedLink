@@ -1,4 +1,4 @@
-// @ts-nocheck comment at the top of a file
+// @ts-nocheck
 
 import { prisma } from "./prisma";
 
@@ -13,8 +13,7 @@ import { paginate, loadMore } from "./dataLayerUtility";
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { ServiceDTO,
-              ServiceResultsDTO,
-              FacilityServicePageResultsDTO,
+              LoadMoreResultsDTO,
               PaginatedResultsDTO 
             } from "./DTOs";
 
@@ -80,6 +79,8 @@ export class ServicesDAO {
         select: serviceSelect(true)
       });
 
+      console.log(`Result of "services" query for Facility ${facilityID}: `, services);
+
       console.log(`Services of Facility ${facilityID}: `);
 
       return services;
@@ -98,6 +99,8 @@ export class ServicesDAO {
         select: serviceSelect()
       });
 
+      console.log(`Result of "services" query for Division ${divisionID}: `, services);
+
       console.log(`Services of Division ${divisionID}: `);
 
       return services;
@@ -108,42 +111,6 @@ export class ServicesDAO {
   }
 
   //
-
-  async getCreatableServices(facilityID: string): 
-  Promise<{ types: string[], outpatients: string[] }> {
-    try {
-      const services = (await this.getByFacility(facilityID)).map((service) => service.type);
-
-      const types       = new Set<string>();
-      const outpatients = new Set<string>();
-
-      let hasOutpatient = false;
-
-      for (const type of services) {
-        if (["Ambulance", "Blood Bank", "Emergency Room", "Intensive Care Unit"].includes(type)) {
-          types.add(type);
-        }
-
-        else {
-          if (!hasOutpatient) {
-            types.add("Outpatient");
-
-            hasOutpatient = true;
-          }
-
-          outpatients.add(type);
-        }
-      }
-
-      return {
-        types       : Array.from(types),
-        outpatients : Array.from(outpatients),
-      };
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get creatable Services.");
-    }
-  }
 
   async reconnectDivision(serviceID: string, divisionID: string): Promise<void> {
     try {
@@ -178,7 +145,8 @@ export class ServicesDAO {
             serviceID 
           },
           select: { 
-            type: true 
+            type       : true,
+            divisionID : true, 
           }
         });
 
@@ -186,8 +154,13 @@ export class ServicesDAO {
           throw new Error("Service not found.");
         }
   
-        await updateLogDAO.createUpdateLog(
-          { entity: service.type, action: Action.DELETE },
+        await updateLogDAO.create(
+          {
+            entity: service.type,
+            action: Action.DELETE,
+
+            ...(service.divisionID && { divisionID: service.divisionID })
+          },
           facilityID,
           employeeID,
           tx
@@ -204,10 +177,45 @@ export class ServicesDAO {
       throw new Error("Could not delete Service.");
     }
   }
+
+  async getCreatableServices(facilityID: string): Promise<{ types: string[], outpatients: string[] }> {
+    try {
+      const services = (await this.getByFacility(facilityID)).map((service) => service.type);
+
+      let types       = new Set<string>();
+      let outpatients = new Set<string>();
+
+      let hasOutpatient = false;
+
+      for (const type of services) {
+        if (["Ambulance", "Blood Bank", "Emergency Room", "Intensive Care Unit"].includes(type)) {
+          types.add(type);
+        }
+
+        else {
+          if (!hasOutpatient) {
+            types.add("Outpatient");
+
+            hasOutpatient = true;
+          }
+
+          outpatients.add(type);
+        }
+      }
+
+      return {
+        types       : Array.from(types),
+        outpatients : Array.from(outpatients),
+      };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get creatable Services.");
+    }
+  }
 }
 
 export class PatientServiceListDAO {
-  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: ServiceResultsDTO[], hasMore: boolean }> { // to refine for location-based search
+  async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO> { // to refine for location-based search
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
@@ -215,10 +223,11 @@ export class PatientServiceListDAO {
 
       return await loadMore({
         model: prisma.service,
-        where: { 
+        where: {
+          ...filters,
           type: { 
             contains : query, mode : "insensitive"
-          } 
+          }
         },
         select: {
           ...baseServiceSearchSelect,
@@ -247,7 +256,7 @@ export class PatientServiceListDAO {
     }
   }
 
-  async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<{ results: FacilityServicePageResultsDTO[], hasMore: boolean }> {
+  async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
     try {
       return await loadMore({
         model: prisma.service,
@@ -265,7 +274,7 @@ export class PatientServiceListDAO {
     }
   }
 
-  async patientSearchByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<{ results: FacilityServicePageResultsDTO[], hasMore: boolean }> {
+  async patientSearchServicesByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
@@ -375,7 +384,7 @@ export class FacilityServiceListDAO {
     }
   }
 
-  async employeeSearchAdminsByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchServicesByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };

@@ -1,6 +1,3 @@
-import type { AdminDTO,
-            } from "./DTOs";
-
 import generator from "generate-password-ts";
 
 import bcrypt from "bcryptjs";

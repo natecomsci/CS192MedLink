@@ -2,15 +2,31 @@ import { prisma } from "./prisma";
 
 import { Prisma } from "@prisma/client";
 
-import type { UpdateLogDTO, 
-              CreateUpdateLogDTO, 
+import { paginate } from "./dataLayerUtility";
+
+import type { CreateUpdateLogDTO, 
               PaginatedResultsDTO 
             } from "./DTOs";
 
+const updateLogSelect = {
+  entity     : true,
+  action     : true,
+  employee: {
+    select: {
+      employeeID : true,
+      fname      : true,
+      mname      : true,
+      lname      : true,
+    }
+  },
+  createdAt  : true,
+}
+
 export class UpdateLogDAO {
-  async createUpdateLog(data: CreateUpdateLogDTO, facilityID: string, employeeID: string, tx: Prisma.TransactionClient): Promise<void> {
+  async create(data: CreateUpdateLogDTO, facilityID: string, employeeID: string, tx: Prisma.TransactionClient): Promise<void> {
     const { divisionID, ...rest } = data;
-    await tx.updateLog.create({
+
+    const updateLog = await tx.updateLog.create({
       data: {
         ...rest,
         facility : {
@@ -32,85 +48,93 @@ export class UpdateLogDAO {
         })
       }
     });
+
+    console.log(`Created Update Log: `, updateLog);
   }
 
-  async getPaginatedUpdateLogsByFacility(facilityID: string, page: number, pageSize: number): Promise<PaginatedResultsDTO> {
+  async getPaginatedUpdateLogsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
-      const [updateLogs, totalUpdateLogs] = await Promise.all([
-        prisma.updateLog.findMany({
-          where: { 
-            facilityID 
-          },
-          select: {
-            entity     : true,
-            action     : true,
-            employeeID : true,
-            createdAt  : true,
-          },
-          orderBy: { 
-            createdAt: "desc" 
-          },
-          skip: (Math.max(1, page) - 1) * pageSize,
-          take: pageSize
-        }),
-        prisma.updateLog.count({
-          where: { 
-            facilityID
-          }
-        })
-      ]);
-  
-      const totalPages = Math.max(1, Math.ceil(totalUpdateLogs / pageSize));
-  
-      return { results: updateLogs, totalPages, currentPage: page };
+      return await paginate({
+        model: prisma.updateLog,
+        where: {
+          facilityID
+        },
+        select: updateLogSelect,
+        orderBy,
+        page,
+        pageSize
+      });
     } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get paginated update logs within the entire facility.");
+      console.error("Details:", error);
+      throw new Error("Could not get paginated Update Logs within the entire Facility.");
     }
-  }
-  
-  async employeeSearchUpdateLogsByFacility(facilityID: string, query: string, page: number, pageSize: number): Promise<PaginatedResultsDTO> {
+  } 
+
+  async employeeSearchUpdateLogsByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
 
-      const [updateLogs, totalUpdateLogs] = await Promise.all([
-        prisma.updateLog.findMany({
-          where: {
-            facilityID,
-            entity: { 
-              contains: query, mode: "insensitive" 
-            }
-          },
-          select: {
-            entity       : true,
-            action     : true,
-            employeeID : true,
-            createdAt  : true,
-          },
-          orderBy: { 
-            createdAt: "desc" 
-          },
-          skip: (Math.max(1, page) - 1) * pageSize,
-          take: pageSize
-        }),
-        prisma.updateLog.count({
-          where: { 
-            facilityID,
-            entity: { 
-              contains: query, mode: "insensitive" 
-            } 
+      return await paginate({
+        model: prisma.updateLog,
+        where: {
+          facilityID,
+          type: { 
+            contains: query, mode: "insensitive" 
           }
-        })
-      ]);
-  
-      const totalPages = Math.max(1, Math.ceil(totalUpdateLogs / pageSize));
-  
-      return { results: updateLogs, totalPages, currentPage: page };
+        },
+        select: updateLogSelect,
+        orderBy,
+        page,
+        pageSize
+      });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated update logs within the entire facility.");
+      throw new Error("Could not get paginated Update Logs within the entire Facility that match the search query.");
+    }
+  }
+
+  async getPaginatedUpdateLogsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      return await paginate({
+        model: prisma.updateLog,
+        where: {
+          divisionID
+        },
+        select: updateLogSelect,
+        orderBy,
+        page,
+        pageSize
+      });
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("Could not get paginated Update Logs within the entire Facility.");
+    }
+  } 
+
+  async employeeSearchUpdateLogsByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      if (!(query.trim())) {
+        return { results: [], totalPages: 1, currentPage: page };
+      }
+
+      return await paginate({
+        model: prisma.updateLog,
+        where: {
+          divisionID,
+          type: { 
+            contains: query, mode: "insensitive" 
+          }
+        },
+        select: updateLogSelect,
+        orderBy,
+        page,
+        pageSize
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get paginated Update Logs within the entire Facility that match the search query.");
     }
   }
 }

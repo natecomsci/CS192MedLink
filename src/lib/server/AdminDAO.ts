@@ -1,4 +1,4 @@
-// @ts-nocheck comment at the top of a file
+// @ts-nocheck
 
 import { prisma } from "./prisma";
 
@@ -9,7 +9,7 @@ import { createAndHashPassword, paginate } from "./dataLayerUtility";
 import type { AdminDTO,
               Create_UpdateAdminDTO, 
               InitialAdminDetailsDTO,
-              FacilityDivisionPageResultsDTO,
+              FacilityDivisionResultsDTO,
               AdminPreviewDTO,
               PaginatedResultsDTO
             } from "./DTOs";
@@ -40,11 +40,11 @@ function adminSelect(includeDivs = false) {
 
 function mapAdminToDTO(admin: any): AdminDTO {
   return {
-    employeeID: admin.employeeID,
-    fname: admin.fname,
-    lname: admin.lname,
-    createdAt: admin.createdAt,
-    updatedAt: admin.updatedAt,
+    employeeID : admin.employeeID,
+    fname      : admin.fname,
+    lname      : admin.lname,
+    createdAt  : admin.createdAt,
+    updatedAt  : admin.updatedAt,
 
     ...(admin.mname ? { mname: admin.mname } : {}),
 
@@ -112,7 +112,7 @@ export class AdminDAO {
 
   async create(facilityID: string, data: Create_UpdateAdminDTO): Promise<InitialAdminDetailsDTO> {
     try {
-      const { divisions, ...adminData } = data;
+      const { divisionIDs, ...adminData } = data;
 
       const { password, hashedPassword } = await createAndHashPassword(); // should be in business logic but whatever
 
@@ -127,9 +127,9 @@ export class AdminDAO {
             } 
           },
 
-          ...(divisions && {
+          ...(divisionIDs && {
             divisions: {
-              connect: divisions.map((divisionID) => ({ divisionID }))
+              connect: divisionIDs.map((divisionID) => ({ divisionID }))
             }
           }),          
         }
@@ -167,13 +167,13 @@ export class AdminDAO {
 
   async update(adminID: string, data: Create_UpdateAdminDTO): Promise<void> {
     try {
-      const { divisions, ...adminData } = data;
+      const { divisionIDs, ...adminData } = data;
 
       const adminUpdateData = {
         ...adminData,
-        ...(divisions && {
+        ...(divisionIDs && {
           divisions: {
-            set: divisions.map((divisionID) => ({ divisionID })) // resets relations; may be inefficient but whatever
+            set: divisionIDs.map((divisionID) => ({ divisionID })) // resets relations; may be inefficient but whatever
           }
         }),  
       };
@@ -250,7 +250,7 @@ export class AdminDAO {
 
   // for role-based view access
 
-  async getDivisions(adminID: string): Promise<FacilityDivisionPageResultsDTO[]> { 
+  async getDivisions(adminID: string): Promise<FacilityDivisionResultsDTO[]> { 
     const divisions = await prisma.employee.findUnique({
       where: { 
         employeeID: adminID 
@@ -267,6 +267,8 @@ export class AdminDAO {
       name
     }));
   }
+
+  // defer to business logic and just use updatepassword of employeedao
 
   async resetPassword(adminID: string): Promise<string> {
     try {
@@ -332,8 +334,6 @@ export class FacilityAdminListDAO {
     }
   }
 
-  //
-
   async getPaginatedAdminsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
       return await paginate({
@@ -378,8 +378,6 @@ export class FacilityAdminListDAO {
       throw new Error("Could not get paginated Admins within the entire Facility that match the search query.");
     }
   }
-
-  //
 
   async getPaginatedAdminsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
@@ -433,10 +431,6 @@ export class FacilityAdminListDAO {
       throw new Error("Could not get paginated Admins within the Division that match the search query.");
     }
   }
-
-  //
-
-  // may or may not optimize
 
   async getPaginatedSingleDivisionAdmins(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {

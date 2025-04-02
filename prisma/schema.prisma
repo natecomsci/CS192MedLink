@@ -5,7 +5,6 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 // MODELS
@@ -108,10 +107,6 @@ model Address {
   @@unique([regionID, pOrCID, cOrMID, brgyID, street]) // Ensures each Facility has a unique Address.
 }
 
-// The data layer merged Managers and Facilities.
-
-// Address, Email, Phone Number, Type, and Ownership should be required but we made them optional for our convenience. Their necessity is handled by business logic.
-
 model Facility {
   facilityID String @id @default(uuid())
 
@@ -170,7 +165,7 @@ model Division {
 
   // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
 
-  // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services.
+  // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services. This constraint is handled by business logic.
   services   Service[]
 
   // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
@@ -231,7 +226,7 @@ model Service {
   division          Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
   divisionID        String?
 
-  // Links to specific services
+  // Links to specific Services
   ambulanceService  AmbulanceService?
   bloodBankService  BloodBankService?
   erService         ERService?
@@ -292,9 +287,9 @@ model BloodBankService {
 }
 
 model ERService {
-  phoneNumber          String?                   // TEMPORARY, TO ADD []
-  openingTime          DateTime? @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
-  closingTime          DateTime? @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  phoneNumber          String?                    // TEMPORARY, TO ADD []
+  openingTime          DateTime? @db.Time(0)      // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime          DateTime? @db.Time(0)      // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   load                 Load      @default(CLOSED)
   availableBeds        Int       @default(0)
   nonUrgentPatients    Int       @default(0)

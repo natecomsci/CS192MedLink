@@ -33,15 +33,13 @@ export class AddressDAO {
     }
   }
 
-  async updateAddress(facilityID: string, data: AddressDTO, tx: Prisma.TransactionClient): Promise<void> {
+  async update(facilityID: string, data: AddressDTO, tx: Prisma.TransactionClient): Promise<void> {
     try {
       const address = await tx.address.update({
         where: { 
           facilityID 
         },
-        data: {
-          ... data
-        }
+        data
       });
 
       console.log(`Updated Address of ${facilityID}: `, address);
