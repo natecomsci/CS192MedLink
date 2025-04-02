@@ -185,7 +185,6 @@ export class DivisionDAO {
           {
             entity     : division.name,
             action     : Action.DELETE,
-            divisionID : division.divisionID // maybe to omit
           },
           facilityID,
           employeeID,
