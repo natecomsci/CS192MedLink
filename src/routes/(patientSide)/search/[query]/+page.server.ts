@@ -5,8 +5,8 @@ import { patientSearchPageSize, PatientServiceListDAO } from "$lib";
 
 const patientServiceListDAO = new PatientServiceListDAO()
 
-export const load: PageServerLoad = async ({ url }) => {
-  const query = url.searchParams.get("query")?.trim() || "";
+export const load: PageServerLoad = async ({ params }) => {
+  const query = params.query;
 
   try {
     let byService = await patientServiceListDAO.patientSearch(query, {}, patientSearchPageSize, 0);
@@ -18,9 +18,7 @@ export const load: PageServerLoad = async ({ url }) => {
     };
 
   } catch (error) {
-    console.log("📄 Page loaded. No search performed yet.");
-    return fail(400, 
-    { 
+    return fail(400, { 
       error: 'Error in search action',
       description: 'search',
       success: false
@@ -30,8 +28,8 @@ export const load: PageServerLoad = async ({ url }) => {
 
 export const actions = {
   search: async ({ request }) => {
-    const formData = await request.formData();
-    let query = formData.get("query") as string;
+    const data = await request.formData();
+    const query = (data.get("query") as string).trim();
 
     if (query === "") {
       return fail(400, 
@@ -43,34 +41,13 @@ export const actions = {
       );
     }
 
-    query = query.trim()
-
-    try {
-      let byService = await patientServiceListDAO.patientSearch(query, {}, patientSearchPageSize, 0);
-
-      return { 
-        services: byService.results, 
-        moreServices: byService.hasMore,
-        query,
-      };
-    } catch (error) {
-      console.error('❌ Error in search action:', error);
-      return fail(400, 
-        { 
-          error: 'Error in search action',
-          description: 'search',
-          success: false
-        }
-      );
-    }
+    throw redirect(303, "/search/"+query)
   },
   
   viewDetails: async ({ request }) => {
     const formData = await request.formData();
     const facilityID = formData.get("facilityID") as string;
 
-
-    // Redirect to the facility details page
     throw redirect(303, `/results/${facilityID}`);
   },
 } satisfies Actions;
