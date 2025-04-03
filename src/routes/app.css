@@ -61,6 +61,9 @@
     color: var(--secondary-color);
 }
 
+.bg-main {
+    
+}
 
 body {
     font-family: 'DM Sans', sans-serif;

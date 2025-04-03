@@ -14,27 +14,148 @@
   let criticalPatients   = $state(data.criticalPatients);
   let criticalQueueLength = $state(data.criticalQueueLength);
   let updatedAt          = $state(data.updatedAt);
+
+  let service = "Emergency Room"
+  let queueData = [
+    { type: "Non-Urgent", inCare: nonUrgentPatients, queue: nonUrgentQueueLength },
+    { type: "Urgent", inCare: urgentPatients, queue: urgentQueueLength },
+    { type: "Critical", inCare: criticalPatients, queue: criticalQueueLength }
+  ];
 </script>
 
-<div class="mt-4">
-  <h2 class="text-xl font-semibold">Emergency Service Details</h2>
-  <p><strong>Facility Name:</strong> {facilityName}</p>
-  <p><strong>Address:</strong> 
-    {facilityAddress ? 
-      `${facilityAddress.street}, ${facilityAddress.barangay}, ${facilityAddress.city}, ${facilityAddress.province}, ${facilityAddress.region}` 
-      : "Address not available"}
-  </p>
-  <p><strong>Phone:</strong> {phoneNumber ?? "N/A"}</p>
-  <p><strong>Current Load:</strong> {load ?? "N/A"}</p>
-  <p><strong>Available Beds:</strong> {availableBeds ?? "N/A"}</p>
+<!-- <div class="mt-4"> -->
+  <!-- <h2 class="text-xl font-semibold">Emergency Service Details</h2> -->
+  <!-- <p><strong>Facility Name:</strong> {facilityName}</p> -->
+  <!-- <p><strong>Address:</strong>  -->
+    <!-- {facilityAddress ?  -->
+      <!-- `${facilityAddress.street}, ${facilityAddress.barangay}, ${facilityAddress.city}, ${facilityAddress.province}, ${facilityAddress.region}`  -->
+      <!-- : "Address not available"} -->
+  <!-- </p> -->
+  <!-- <p><strong>Phone:</strong> {phoneNumber ?? "N/A"}</p> -->
+  <!-- <p><strong>Current Load:</strong> {load ?? "N/A"}</p> -->
+  <!-- <p><strong>Available Beds:</strong> {availableBeds ?? "N/A"}</p> -->
   
-  <h3 class="mt-2 font-semibold">Patient Statistics</h3>
-  <p><strong>Non-Urgent Patients:</strong> {nonUrgentPatients ?? "N/A"}</p>
-  <p><strong>Non-Urgent Queue Length:</strong> {nonUrgentQueueLength ?? "N/A"}</p>
-  <p><strong>Urgent Patients:</strong> {urgentPatients ?? "N/A"}</p>
-  <p><strong>Urgent Queue Length:</strong> {urgentQueueLength ?? "N/A"}</p>
-  <p><strong>Critical Patients:</strong> {criticalPatients ?? "N/A"}</p>
-  <p><strong>Critical Queue Length:</strong> {criticalQueueLength ?? "N/A"}</p>
+  <!-- <h3 class="mt-2 font-semibold">Patient Statistics</h3> -->
+  <!-- <p><strong>Non-Urgent Patients:</strong> {nonUrgentPatients ?? "N/A"}</p> -->
+  <!-- <p><strong>Non-Urgent Queue Length:</strong> {nonUrgentQueueLength ?? "N/A"}</p> -->
+  <!-- <p><strong>Urgent Patients:</strong> {urgentPatients ?? "N/A"}</p> -->
+  <!-- <p><strong>Urgent Queue Length:</strong> {urgentQueueLength ?? "N/A"}</p> -->
+  <!-- <p><strong>Critical Patients:</strong> {criticalPatients ?? "N/A"}</p> -->
+  <!-- <p><strong>Critical Queue Length:</strong> {criticalQueueLength ?? "N/A"}</p> -->
 
-  <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p>
+  <!-- <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p> -->
+<!-- </div> -->
+
+
+<div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
+  <!-- Header Facility Name -->
+  <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">
+    <button class="text-gray-600 hover:text-gray-900">✖</button>
+    <h2 class="text-xl font-bold text-center flex-1 -ml-4"><strong>{facilityName}</strong></h2>
+  </div>
+
+  <!-- Service and Info!!!-->
+  <div class="p-5 max-h-[calc(100vh-100px)] overflow-y-auto">
+    <!-- Facility Type  Service Details-->
+    <p class="text-[#6F3990] text-center font-bold text-l">{service}</p>
+    <hr class="my-2 border-gray-300">
+
+    <!-- Current Load Status -->
+    <div class="text-center my-4">
+      <p class="text-[#9044C4] font-semibold">Current Load</p>
+        <div class="flex justify-center mt-2">
+          <span class="bg-[#F5DBA6] text-black font-semibold px-4 py-2 rounded-full flex items-center gap-2">
+            {load}
+          </span>     
+      </div>
+      <div class="flex justify-center mt-2">
+      </div>
+    </div>
+    <hr class="my-4 border-gray-300"> <!-- Line -->
+
+    <!-- Table  -->
+    <div class="max-w-md mx-auto my-4 ">
+      <p class="text-[#9044C4] text-center font-semibold">Queue Status</p>
+      <table class="w-full border-collapse border border-purple-400 rounded-lg mt-2">
+        <!-- Table Header -->
+        <thead>
+          <tr class="bg-purple-100">
+            <th class="border border-purple-400 px-4 py-2 text-left">Patient Type</th>
+            <th class="border border-purple-400 px-4 py-2 text-center">In Care</th>
+            <th class="border border-purple-400 px-4 py-2 text-center">Queue</th>
+          </tr>
+        </thead>
+
+        <!-- Table Body -->
+        <tbody>
+          {#each queueData as row, i}
+            <tr class="{i % 2 === 1 ? 'bg-purple-50' : 'bg-white'}">
+              <td class="border border-purple-400 px-4 py-2 font-semibold">{row.type}</td>
+              <td class="border border-purple-400 px-4 py-2 text-center">{row.inCare ?? "N/A"}</td>
+              <td class="border border-purple-400 px-4 py-2 text-center">{row.queue ?? "N/A"}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="my-4 border-gray-300"> <!-- Line -->
+    <!-- Location -->
+    <div class="mt-4">
+      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
+        📍 Location
+      </p>
+      <p class="text-gray-600 text-sm">
+        {@html facilityAddress 
+          ? `${facilityAddress.street} <br>
+            ${facilityAddress.barangay}, ${facilityAddress.city} <br>
+            ${facilityAddress.province}, ${facilityAddress.region}`
+          : "Address not available"}
+      </p>
+    </div>
+    <hr class="my-4 border-gray-300"> <!-- Line -->
+
+    <!-- Contact Information -->
+    <div>
+      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
+        ☎ Contact Information and Hours
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Phone Number:</strong> {phoneNumber}
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Hours:</strong> 
+      </p>
+    </div>
+
+    <hr class="my-4 border-gray-300"> <!-- Line -->
+
+    <!-- Details -->
+    <div>
+      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
+        📝 Details
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Available Beds:</strong> {availableBeds ?? "N/A"}
+      </p>
+      <p class="text-gray-700 text-sm">
+        <!-- <strong>Base Rate:</strong> Php {baseRate}  -->
+      </p>
+      <p class="text-gray-700 text-sm">
+        <!-- <strong>Maximum Coverage Radius:</strong> {maxCoverageRadius} -->
+      </p>
+      <p class="text-gray-700 text-sm">
+        <!-- <strong>Mileage Rate:</strong> Php {mileageRate}  -->
+      </p>
+    </div>
+
+    <hr class="mt-4 border-gray-300">
+    <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p>  
+  </div>
+  <!-- View Facility Page Button -->
+  <div class="flex bg-white pb-10 pt-5  justify-center">
+    <button class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
+      View Facility Page →
+    </button>
+  </div>
 </div>
