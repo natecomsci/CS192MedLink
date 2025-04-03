@@ -75,6 +75,6 @@ export const actions = {
       url = "Outpatient/"+serviceID;
     }
 
-    throw redirect(303, "/"+facilityID+"/serviceInfo/"+url);
+    throw redirect(303, "/facilityInfo/"+facilityID+"/serviceInfo/"+url);
   },
 } satisfies Actions;

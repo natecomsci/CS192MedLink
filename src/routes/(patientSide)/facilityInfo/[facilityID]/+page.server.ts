@@ -62,9 +62,7 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions = {
   viewServices: async ({ params }) => {
     const { facilityID } = params;
-    
-
     // Redirect to the facility details page
-    throw redirect(303, "/"+facilityID+"/services");
+    throw redirect(303, "/facilityInfo/"+facilityID+"/services");
   },
 } satisfies Actions;

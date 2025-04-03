@@ -80,7 +80,7 @@ export class UpdateLogDAO {
         model: prisma.updateLog,
         where: {
           facilityID,
-          type: { 
+          entity: { 
             contains: query, mode: "insensitive" 
           }
         },
@@ -123,7 +123,7 @@ export class UpdateLogDAO {
         model: prisma.updateLog,
         where: {
           divisionID,
-          type: { 
+          entity: { 
             contains: query, mode: "insensitive" 
           }
         },

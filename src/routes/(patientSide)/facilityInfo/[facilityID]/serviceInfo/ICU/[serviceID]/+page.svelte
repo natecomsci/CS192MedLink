@@ -2,24 +2,25 @@
   import type { PageProps } from './$types';
   let { data }: PageProps = $props();
 
-  let facilityName       = $state(data.facilityName);
-  let facilityAddress    = $state(data.facilityAddress);
-  let phoneNumber        = $state(data.phoneNumber);
-  let load               = $state(data.load);
-  let availableBeds      = $state(data.availableBeds);
-  let nonUrgentPatients  = $state(data.nonUrgentPatients);
-  let nonUrgentQueueLength = $state(data.nonUrgentQueueLength);
-  let urgentPatients     = $state(data.urgentPatients);
-  let urgentQueueLength  = $state(data.urgentQueueLength);
-  let criticalPatients   = $state(data.criticalPatients);
-  let criticalQueueLength = $state(data.criticalQueueLength);
-  let updatedAt          = $state(data.updatedAt);
+  let facilityName        = $state(data.facilityName);
+  let facilityAddress     = $state(data.facilityAddress);
+  let phoneNumber         = $state(data.phoneNumber);
+  let baseRate            = $state(data.baseRate);
+  let load                = $state(data.load);
+  let availableBeds       = $state(data.availableBeds);
+  let cardiacSupport      = $state(data.cardiacSupport);
+  let neurologicalSupport = $state(data.neurologicalSupport);
+  let renalSupport        = $state(data.renalSupport);
+  let respiratorySupport  = $state(data.respiratorySupport);
+  let updatedAt           = $state(data.updatedAt);
 
-  let service = "Emergency Room"
-  let queueData = [
-    { type: "Non-Urgent", inCare: nonUrgentPatients, queue: nonUrgentQueueLength },
-    { type: "Urgent", inCare: urgentPatients, queue: urgentQueueLength },
-    { type: "Critical", inCare: criticalPatients, queue: criticalQueueLength }
+  let service = "Intensive Care Unit"
+
+  let careData = [
+    { type: "Cardiac Support", available: cardiacSupport },
+    { type: "Neureologial Support", available: neurologicalSupport },
+    { type: "Renal Support", available: renalSupport },
+    { type: "Respiratory Support", available: respiratorySupport }
   ];
 </script>
 
@@ -51,31 +52,41 @@
 
     <!-- Table  -->
     <div class="max-w-md mx-auto my-4 ">
-      <p class="text-[#9044C4] text-center font-semibold">Queue Status</p>
+      <p class="text-[#9044C4] text-center font-semibold">Critical Care Support Status</p>
       <table class="w-full border-collapse border border-purple-400 rounded-lg mt-2">
         <!-- Table Header -->
         <thead>
           <tr class="bg-purple-100">
-            <th class="border border-purple-400 px-4 py-2 text-left">Patient Type</th>
-            <th class="border border-purple-400 px-4 py-2 text-center">In Care</th>
-            <th class="border border-purple-400 px-4 py-2 text-center">Queue</th>
+            <th class="border-purple-400 border-2 px-4 py-2 text-center">Care Type</th>
+            <th class="border-purple-400 border-2  px-4 py-2 text-center">Availability</th>
           </tr>
         </thead>
 
         <!-- Table Body -->
         <tbody>
-          {#each queueData as row, i}
-            <tr class="{i % 2 === 1 ? 'bg-purple-50' : 'bg-white'}">
-              <td class="border border-purple-400 px-4 py-2 font-semibold">{row.type}</td>
-              <td class="border border-purple-400 px-4 py-2 text-center">{row.inCare ?? "N/A"}</td>
-              <td class="border border-purple-400 px-4 py-2 text-center">{row.queue ?? "N/A"}</td>
-            </tr>
+          {#each careData as row, i}
+          <tr class="{i % 2 === 1 ? 'bg-purple-50' : 'bg-white'} border-b border-purple-400">
+            <td class="px-4 py-3 font-semibold border border-purple-400 text-center">{row.type}</td>
+            <td class="px-4 py-3 text-center">
+            {#if row.available}
+             <span class="text-green-500 font-bold flex items-center justify-center gap-2">
+                ✔ Yes
+              </span>
+            {:else}
+              <span class="text-red-500 font-bold flex items-center justify-center gap-2">
+                ✖ No
+              </span>
+            {/if}
+            </td>
+          </tr>
           {/each}
         </tbody>
+
       </table>
     </div>
 
     <hr class="my-4 border-gray-300"> <!-- Line -->
+    
     <!-- Location -->
     <div class="mt-4">
       <p class="text-[#9044C4] font-semibold flex items-center gap-2">
@@ -115,7 +126,7 @@
         <strong>Available Beds:</strong> {availableBeds ?? "N/A"}
       </p>
       <p class="text-gray-700 text-sm">
-        <!-- <strong>Base Rate:</strong> Php {baseRate}  -->
+        <strong>Base Rate:</strong> Php {baseRate} 
       </p>
       <p class="text-gray-700 text-sm">
         <!-- <strong>Maximum Coverage Radius:</strong> {maxCoverageRadius} -->
@@ -130,7 +141,7 @@
   </div>
   <!-- View Facility Page Button -->
   <div class="flex bg-white pb-10 pt-5  justify-center">
-    <a href={"/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
+    <a href={"/facilityInfo/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
       View Facility Page →
     </a>
   </div>

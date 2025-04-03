@@ -2,26 +2,40 @@
   import type { PageProps } from './$types';
   let { data }: PageProps = $props();
 
-  let facilityName        = $state(data.facilityName);
-  let facilityAddress     = $state(data.facilityAddress) ;
-  let price              = $state(data.price);
-  let completionTimeD     = $state(data.completionTimeD);
-  let completionTimeH     = $state(data.completionTimeH);
-  let isAvailable         = $state(data.isAvailable);
-  let acceptsWalkIns      = $state(data.acceptsWalkIns);
-  let divisionID          = $state(data.divisionID);
+  let facilityName       = $state(data.facilityName);
+  let facilityAddress    = $state(data.facilityAddress);
+  let phoneNumber       = $state(data.phoneNumber);
+  let openingTime       = $state(data.openingTime);
+  let closingTime       = $state(data.closingTime);
+  let baseRate          = $state(data.baseRate);
+  let minCoverageRadius = $state(data.minCoverageRadius);
+  let mileageRate       = $state(data.mileageRate);
+  let maxCoverageRadius = $state(data.maxCoverageRadius);
+  let availability      = $state(data.availability);
 
   // Rereplace ito? Dagdag ni elle
-  let service = "Outpatient Service Details"
-  let addressParts = facilityAddress?.split(",").map(part => part.trim());
-  let street            = addressParts ? addressParts[0] : "N/A";
-  let barangay          = addressParts ? addressParts[1] : "N/A";
-  let cityMunicipality  = addressParts ? addressParts[2] : "N/A";
-  let province          = addressParts ? addressParts[3] : "N/A";
-  let region            = addressParts ? addressParts[4] : "N/A";
+  let service = "Ambulance"
+  function formatTime(time, showTimeZone = false) {
+    if (!time) return "N/A";
+    const date = new Date(time);
+    let formatted = date.toLocaleTimeString("en-SG", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true, // Ensures AM/PM format
+      timeZoneName: showTimeZone ? "short" : undefined,
+    });
+    formatted = formatted.replace(/am|pm/gi, (match) => match.toUpperCase()); // Capitalize
+    return formatted;     // Return formatted time (with or without time zone) 
+  }
+
+  let formattedTime = openingTime && closingTime
+    ? `${formatTime(openingTime)} - ${formatTime(closingTime, true)}`
+    : "N/A";
+
 </script>
 
 <div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
+  <!-- Header Facility Name -->
   <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">
     <button class="text-gray-600 hover:text-gray-900">✖</button>
     <h2 class="text-xl font-bold text-center flex-1 -ml-4"><strong>{facilityName}</strong></h2>
@@ -37,7 +51,7 @@
     <div class="text-center my-4">
       <p class="text-[#9044C4] font-semibold">Availability Status</p>
       <div class="flex justify-center mt-2">
-        {#if isAvailable}
+        {#if availability}
           <span class="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2">
             ✔ Available
           </span>
@@ -48,21 +62,29 @@
         {/if}
       </div>
     </div>
+
     <hr class="my-4 border-gray-300"> <!-- Line -->
+
     <!-- Location -->
     <div class="mt-4">
       <p class="text-[#9044C4] font-semibold flex items-center gap-2">
         📍 Location
       </p>
-      <p class="text-gray-600 text-sm">
-        {street}<br>
+        <!-- {street}<br>
         {barangay}, {cityMunicipality}<br>
-        {province}, {region}
+        {province}, {region} -->
+        <!-- {facilityAddress ? `${facilityAddress.street},
+        ${facilityAddress.barangay}, ${facilityAddress.city}, 
+        ${facilityAddress.province}, ${facilityAddress.region}` : "Address not available"} -->
+      
+      <p class="text-gray-600 text-sm">
+        {@html facilityAddress 
+          ? `${facilityAddress.street} <br>
+            ${facilityAddress.barangay}, ${facilityAddress.city} <br>
+            ${facilityAddress.province}, ${facilityAddress.region}`
+          : "Address not available"}
       </p>
     </div>
-
-  
-
     <hr class="my-4 border-gray-300">
 
     <!-- Contact Information -->
@@ -71,10 +93,10 @@
         ☎ Contact Information and Hours
       </p>
       <p class="text-gray-700 text-sm">
-        <strong>Phone Number:</strong> 0900 000 0000
+        <strong>Phone Number:</strong> {phoneNumber}
       </p>
       <p class="text-gray-700 text-sm">
-        <strong>Hours:</strong> 00:00 AM – 00:00 PM
+        <strong>Hours:</strong> {formattedTime}
       </p>
     </div>
 
@@ -86,16 +108,16 @@
         📝 Details
       </p>
       <p class="text-gray-700 text-sm">
-        <strong>Walk-Ins:</strong> <span class={acceptsWalkIns ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>{acceptsWalkIns ? "Yes" : "No"}</span>
+        <strong>Minimum Coverage Radius:</strong> {minCoverageRadius}
       </p>
       <p class="text-gray-700 text-sm">
-        <strong>Completion Time:</strong> {completionTimeD} Day, {completionTimeH} Hours
+        <strong>Base Rate:</strong> Php {baseRate} 
       </p>
       <p class="text-gray-700 text-sm">
-        <strong>Base Price:</strong> Php {price} 
+        <strong>Maximum Coverage Radius:</strong> {maxCoverageRadius}
       </p>
       <p class="text-gray-700 text-sm">
-        <strong>Division ID:</strong> {divisionID}
+        <strong>Mileage Rate:</strong> Php {mileageRate} 
       </p>
     </div>
 
@@ -104,7 +126,7 @@
   </div>
   <!-- View Facility Page Button -->
   <div class="flex bg-white pb-10 pt-5  justify-center">
-    <a href={"/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
+    <a href={"/facilityInfo/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
       View Facility Page →
     </a>
   </div>

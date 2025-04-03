@@ -130,7 +130,7 @@
         onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
-      {#if query.length > 0}
+      {#if query.length > 0 || isInQueryMode}
         <button onclick={() => {
           query = ""
           error = ""
@@ -139,7 +139,7 @@
           currentPage = 1
           getPage(0)
         }}>
-          x
+          Clear
         </button>
       {/if}
       <button onclick={() => {

@@ -1,41 +1,38 @@
-import type { Facility } from "@prisma/client";
-import { redirect, fail } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-import { ServicesDAO, FacilityDAO, type ServiceDTO } from "$lib";
+import { PatientServiceListDAO } from "$lib";
 
-const servicesDAO = new ServicesDAO();
-const facilityDAO = new FacilityDAO();
-
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
   const { facilityID } = params;
+  const { query } = params;
+  const numberToFetch = 10; // Adjust as needed
+  const offset = Number(url.searchParams.get("offset")) || 0;
 
-  if (!facilityID) {
-    throw redirect(303, "/facility"); // Redirect if no facility ID is found
-  }
-
-  let services: ServiceDTO[]
-  let facility: Facility
+  const patientServiceListDAO = new PatientServiceListDAO();
 
   try {
-    services = await servicesDAO.getByFacility(facilityID);
-    facility = await facilityDAO.getByID(facilityID);
+    const { results, hasMore } = await patientServiceListDAO.patientSearchServicesByFacility(
+      facilityID, 
+      query, 
+      numberToFetch, 
+      offset, 
+      { updatedAt: "desc" }
+    )
+
+    return {
+      results, 
+      hasMore, 
+      query, 
+      facilityID 
+    };
   } catch (error) {
-    console.error("Error loading facility details:", error);
-    return fail(409, {
-      error: "Could not get facility information.",
-      success: false,
+    console.error("Error loading services:", error);
+    return fail(500, {
+      description: "Could not retrieve service search results."
     });
   }
-
-  return {
-      services: services ?? [], // Ensuring services is always an array
-      error: services.length === 0 ? "No services found for this facility." : null,
-      facilityName: facility.name,
-      facilityID: facility?.facilityID
-    };
 };
-
 
 
 export const actions = {
@@ -54,8 +51,7 @@ export const actions = {
 
     query = query.trim();
 
-    // Redirect to the specified page with query parameters
-    throw redirect(303, `/servicesForSearch/${facilityID}/searchServicesWithinFacility/${query}`);
+    throw redirect(303, "/facilityInfo/"+facilityID+"/services/"+query);
   },
 
   viewDetails: async ({ request, params }) => {
@@ -88,6 +84,6 @@ export const actions = {
       url = "Outpatient/"+serviceID;
     }
 
-    throw redirect(303, "/"+facilityID+"/serviceInfo/"+url);
+    throw redirect(303, "/facilityInfo/"+facilityID+"/serviceInfo/"+url);
   },
 } satisfies Actions;
