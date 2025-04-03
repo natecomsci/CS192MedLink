@@ -142,8 +142,6 @@ export const actions: Actions = {
     const middleName = data.get('mname');
     const lastName = data.get('lname');
 
-    
-
     try {
       const fname   = validatePersonName(firstName);
       const lname   = validatePersonName(lastName);
@@ -156,6 +154,7 @@ export const actions: Actions = {
       }
 
       if (hasDivisions === 'true' ? true : false) {
+        console.log('hello')
         let divisionsHandled: string[] = []
 
         for (const d of facilityDivisions) {
