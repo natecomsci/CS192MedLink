@@ -34,6 +34,7 @@ import {
         type CreateERServiceDTO,
         type CreateICUServiceDTO,
         type CreateOutpatientServiceDTO,
+        dateToTimeMapping,
       } from '$lib';
 
 const divisionDAO = new DivisionDAO();
@@ -177,8 +178,6 @@ export const actions = {
         }
       }
 
-
-
       phoneNumber = validatePhone(phone);
 
       let OCTime = validateOperatingHours(open, close)
@@ -301,8 +300,8 @@ export const actions = {
 
     let defName: string = division.name
     let defPhoneNumber: string = division.phoneNumber
-    let defOpeningTime: Date = division.openingTime
-    let defClosingTime: Date = division.closingTime
+    let defOpeningTime: String = dateToTimeMapping(division.openingTime)
+    let defClosingTime: String = dateToTimeMapping(division.closingTime)
 
     let name: string
     let phoneNumber: string
@@ -316,11 +315,25 @@ export const actions = {
 
 
     try {
-      name = validateFacilityName(divisionName)
+      name = validateFacilityName(divisionName);
+
+      const facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      for (let div of facilityDivisions) {
+        console.log(div.name, div.name === name)
+        if (div.name === name) {
+          return fail(422, {
+            error: "Duplicate name detected",
+            description: "Division Validation",
+            success: false
+          });
+        }
+      }
+
       phoneNumber = validatePhone(phone)
       const OPHours = validateOperatingHours(open, close)
       openingTime = OPHours.openingTime
       closingTime = OPHours.closingTime
+      //
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
@@ -331,8 +344,8 @@ export const actions = {
 
     if (defName == name &&
         defPhoneNumber == phoneNumber&&
-        defOpeningTime == openingTime && 
-        defClosingTime.toString() == closingTime.toString()
+        defOpeningTime == dateToTimeMapping(openingTime) && 
+        defClosingTime == dateToTimeMapping(closingTime)
       ) {
       return fail(422, { 
         error: "No changes made",

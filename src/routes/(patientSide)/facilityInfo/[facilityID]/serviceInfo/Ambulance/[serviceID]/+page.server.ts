@@ -16,12 +16,12 @@ export const load: PageServerLoad = async ({ params }) => {
   const servicesDAO = new ServicesDAO()
   const { facilityID, serviceID } = params;
   
-  let ambulanceService = await ambulanceDAO.getInformation(serviceID);
   if (!serviceID) {
     throw redirect(303, "/facility");
   }
 
   try {
+    let ambulanceService = await ambulanceDAO.getInformation(serviceID);
     let service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
       throw new Error("Service or facilityID not found.");

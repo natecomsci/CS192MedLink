@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { DivisionDAO } from '$lib';
+import { dateToTimeMapping, DivisionDAO } from '$lib';
 
 const divisionDAO = new DivisionDAO();
 
@@ -11,20 +11,15 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   }
 
   const { divisionID } : { divisionID: string } = await request.json();
+  console.log(divisionID)
 
-  let {
-    name,
-    email,
-    phoneNumber,
-    openingTime,
-    closingTime,
-  } = await divisionDAO.getInformation(divisionID);
-
+  let division = await divisionDAO.getInformation(divisionID);
+  
   return json({
-    name,
-    email,
-    phoneNumber,
-    openingTime,
-    closingTime
+    name: division.name,
+    phoneNumber: division.phoneNumber,
+    openingTime: dateToTimeMapping(division.openingTime),
+    closingTime: dateToTimeMapping(division.closingTime),
+    ...(division.email ? { email: division.email } : {}),
   })
 };

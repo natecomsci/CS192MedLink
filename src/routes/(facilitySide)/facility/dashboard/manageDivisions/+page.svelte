@@ -84,6 +84,9 @@
   <EditDivision 
     { form }
     bind:currPopUp={currPopUp}
+    bind:divisions={divisions}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
     divisionID={selectedDivisionID}
   />
 {/if}
@@ -165,7 +168,9 @@
           <div class="flex items-center space-x-3 pr-4">
             <!-- Edit Button -->
             <button onclick={() => {
-                currPopUp='editDivision'}} 
+                currPopUp='editDivision'
+                selectedDivisionID=divisionID
+              }} 
               class="inline-flex items-center" data-sveltekit-reload
             >
             <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />

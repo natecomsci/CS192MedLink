@@ -1,16 +1,26 @@
 <script lang="ts">
-    import { enhance } from '$app/forms';
+  import { enhance } from '$app/forms';
   import type { PageData, ActionData } from './$types';
+  import { pagingQueryHandler } from '$lib/postHandlers';
+    import type { DivisionDTO } from '$lib';
 
   let { form, 
         divisionID, 
-        currPopUp = $bindable()}: 
-          { form: ActionData, 
-            divisionID: String, 
-            currPopUp: String
-          } = $props();
+        currPopUp = $bindable(),
+        divisions = $bindable(), 
+        currentPage = $bindable(),
+        totalPages = $bindable(),
+        }: { 
+          form: ActionData, 
+          divisionID: String, 
+          currPopUp: String,
+          divisions:DivisionDTO[], 
+          currentPage: number, 
+          totalPages: number, 
+        } = $props();
 
   let divisionName = $state('')
+  // let email = $state('')
   let phoneNumber = $state('')
   let openingTime = $state('')
   let closingTime = $state('')
@@ -33,16 +43,38 @@
 
       const rv = await response.json();
 
-      divisionName = rv.divisionName
+      divisionName = rv.name
+      // email = rv.email
       phoneNumber = rv.phoneNumber
       openingTime = rv.openingTime
       closingTime = rv.closingTime
+
+      console.log(openingTime)
+      console.log(closingTime)
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
     }
   }
   getData()
+
+  async function getNewDivisions() {
+    try {
+      const rv = await pagingQueryHandler({
+        page: 'divisions',
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
+      });
+      divisions =  rv.list
+      currentPage = 1
+      totalPages = rv.totalPages
+    } catch (error) {
+      console.log((error as Error).message)
+    }
+  }
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -84,6 +116,7 @@
                   await update({invalidateAll:true});
                   if (form?.success) {
                       currPopUp = ''
+                      getNewDivisions()
                   }
                 };
               }}
@@ -92,11 +125,22 @@
               {#if form?.error}
                   <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
               {/if}
-              <input type = "hidden" name="divisionID" value="{divisionID}" />
-              <input type = "text" name = "name" value={divisionName}>
-              <input type = "text" name = "phoneNumber" value={phoneNumber}>
-              <input type = "time" name = "opening" value={openingTime}>
-              <input type = "time" name = "closing" value={closingTime}>
+              <input type="hidden" name="divisionID" value="{divisionID}" />
+              <input type="text" name="name" value={divisionName}/>
+              <input type="text" name="phoneNumber" value={phoneNumber}/>
+              <input 
+                class="input-box w-30"
+                name="opening"
+                type="time"
+                value={openingTime}
+              >
+                to
+              <input 
+                class="input-box w-30"
+                name="closing"
+                type="time"
+                value={closingTime}
+              >
             </form>
           </div>
         </div>

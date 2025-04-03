@@ -15,7 +15,8 @@ export const load: PageServerLoad = async ({ params }) => {
   const addressDAO = new AddressDAO();
   const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO();
-  const { serviceID } = params;
+  const { facilityID, serviceID } = params;
+  console.log('hello world')
 
   if (!serviceID) {
     throw redirect(303, "/facility");
