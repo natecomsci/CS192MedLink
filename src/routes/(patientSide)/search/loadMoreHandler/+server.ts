@@ -9,7 +9,5 @@ export const POST: RequestHandler = async ({ request }) => {
   const { currOffset, query } : { currOffset: number, query: string } = await request.json();
 
   const { results, hasMore } = await patientServiceListDAO.patientSearch(query, {}, patientSearchPageSize, currOffset);
-
-  console.log(results)
   return json({ results, hasMore })
 };

@@ -23,30 +23,6 @@
   ];
 </script>
 
-<!-- <div class="mt-4"> -->
-  <!-- <h2 class="text-xl font-semibold">Emergency Service Details</h2> -->
-  <!-- <p><strong>Facility Name:</strong> {facilityName}</p> -->
-  <!-- <p><strong>Address:</strong>  -->
-    <!-- {facilityAddress ?  -->
-      <!-- `${facilityAddress.street}, ${facilityAddress.barangay}, ${facilityAddress.city}, ${facilityAddress.province}, ${facilityAddress.region}`  -->
-      <!-- : "Address not available"} -->
-  <!-- </p> -->
-  <!-- <p><strong>Phone:</strong> {phoneNumber ?? "N/A"}</p> -->
-  <!-- <p><strong>Current Load:</strong> {load ?? "N/A"}</p> -->
-  <!-- <p><strong>Available Beds:</strong> {availableBeds ?? "N/A"}</p> -->
-  
-  <!-- <h3 class="mt-2 font-semibold">Patient Statistics</h3> -->
-  <!-- <p><strong>Non-Urgent Patients:</strong> {nonUrgentPatients ?? "N/A"}</p> -->
-  <!-- <p><strong>Non-Urgent Queue Length:</strong> {nonUrgentQueueLength ?? "N/A"}</p> -->
-  <!-- <p><strong>Urgent Patients:</strong> {urgentPatients ?? "N/A"}</p> -->
-  <!-- <p><strong>Urgent Queue Length:</strong> {urgentQueueLength ?? "N/A"}</p> -->
-  <!-- <p><strong>Critical Patients:</strong> {criticalPatients ?? "N/A"}</p> -->
-  <!-- <p><strong>Critical Queue Length:</strong> {criticalQueueLength ?? "N/A"}</p> -->
-
-  <!-- <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p> -->
-<!-- </div> -->
-
-
 <div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
   <!-- Header Facility Name -->
   <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">
@@ -154,8 +130,8 @@
   </div>
   <!-- View Facility Page Button -->
   <div class="flex bg-white pb-10 pt-5  justify-center">
-    <button class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
+    <a href={"/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
       View Facility Page →
-    </button>
+    </a>
   </div>
 </div>

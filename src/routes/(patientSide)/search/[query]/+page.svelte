@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { ServiceResultsDTO } from '$lib';
 
-  const patientSearchPageSize = 5;
-  
   let { data, form } = $props();
+
+  const patientSearchPageSize = data.patientSearchPageSize ?? 5;
 
   let services: ServiceResultsDTO[] = $state(data.services ?? [])
 
@@ -43,15 +43,15 @@
     let url = "";
 
     if (service.type === "Ambulance") {
-      url = `/serviceInfo/Ambulance/${service.serviceID}`;
+      url = "/serviceInfo/Ambulance/"+service.serviceID;
     } else if (service.type === "Blood Bank") {
-      url = `/serviceInfo/BloodBank/${service.serviceID}`;
+      url = "/serviceInfo/BloodBank/"+service.serviceID;
     } else if (service.type === "Emergency Room") {
-      url = `/serviceInfo/Emergency/${service.serviceID}`;
+      url = "/serviceInfo/Emergency/"+service.serviceID;
     } else if (service.type === "Intensive Care Unit") {
-      url = `/serviceInfo/ICU/${service.serviceID}`;
+      url = "/serviceInfo/ICU/"+service.serviceID;
     } else {
-      url = `/serviceInfo/Outpatient/${service.serviceID}`;
+      url = "/serviceInfo/Outpatient/"+service.serviceID;
     }
 
     window.location.href = url; // Forces a full page reload
@@ -60,16 +60,15 @@
 </script>
 
 <div class="max-w-md mx-auto p-4 bg-[#FDFCFD]">
-  <!-- Search Bar -->
   <form 
     method="POST"
     action="?/search"
     class="items-center space-x-2"
   >
     <div class="flex items-center gap-2 p-2 rounded-full border border-gray-300 bg-white shadow-sm w-full">
-      <button type="button" class="pl-4 text-gray-500">
+      <a href="/" class="pl-4 text-gray-500">
         ←
-      </button>
+      </a>
       <input
         type="text"
         name="query"
@@ -86,25 +85,32 @@
     <p class="error">{form.error}</p>
   {/if}
   {#if services.length > 0}
-    <div class="mt-3">
-      {#each services as service}
-        <div class="mb-3 flex justify-between items-center pl-4 pr-4 pt-3 pb-3 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
-          <div class="w-full">
-            <div class="flex justify-between items-center">
-              <p class="font-bold text-purple-900">{service.name}</p>
-              <input type="hidden" name="facilityID" value={service.facilityID} />
-              <button 
-                onclick={() => viewServiceDetails(service)}
-                class="text-gray-700 hover:bg-gray-200 rounded-full transition">
-                <img src="/plus_icon.svg" alt="Add" class="w-5 h-5" />
-              </button>
+    <form
+      method="POST"
+      action="?/viewDetails"
+    >
+      <div class="mt-3">
+        {#each services as service}
+          <div class="mb-3 flex justify-between items-center pl-4 pr-4 pt-3 pb-3 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
+            <div class="w-full">
+              <div class="flex justify-between items-center">
+                <p class="font-bold text-purple-900">{service.name}</p>
+                <input type="hidden" name="facilityID" value={service.facilityID} />
+                <input type="hidden" name="serviceID" value={service.serviceID} />
+                <input type="hidden" name="serviceType" value={service.type} />
+
+                <button
+                  class="text-gray-700 hover:bg-gray-200 rounded-full transition">
+                  <img src="/plus_icon.svg" alt="Add" class="w-5 h-5" />
+                </button>
+              </div>
+              <hr class="my-1 border-gray-300">
+              <p class="italic text-sm text-gray-600">{service.type}</p>
             </div>
-            <hr class="my-1 border-gray-300">
-            <p class="italic text-sm text-gray-600">{service.type}</p>
           </div>
-        </div>
-      {/each}
-    </div>
+        {/each}
+      </div>
+    </form>
     {#if hasMore} 
       <div class="flex justify-center mt-4">
         <button 

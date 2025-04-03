@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params }) => {
   const addressDAO = new AddressDAO();
   const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO()
-  const { serviceID } = params;
+  const { facilityID, serviceID } = params;
   
   let ambulanceService = await ambulanceDAO.getInformation(serviceID);
   if (!serviceID) {
@@ -24,18 +24,14 @@ export const load: PageServerLoad = async ({ params }) => {
   try {
     let service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
-      console.error("Service or facilityID not found for serviceID:", serviceID);
       throw new Error("Service or facilityID not found.");
     }
     
-    console.log("Fetching facility details for facilityID:", service.facilityID);
     let facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
-      console.error("Facility details not found for facilityID:", service.facilityID);
       throw new Error("Facility details not found.");
     }
     
-    console.log("Fetching address details...");
     let address = await addressDAO.getByFacility(service.facilityID);
     let fullAddress = null;
 
@@ -56,8 +52,6 @@ export const load: PageServerLoad = async ({ params }) => {
       };
     }
 
-    console.log("Fetched Service Data:", service);
-
     return {
       facilityName       : facility.name,
       facilityAddress    : fullAddress,
@@ -69,9 +63,9 @@ export const load: PageServerLoad = async ({ params }) => {
       mileageRate       : ambulanceService.mileageRate ?? null,
       maxCoverageRadius : ambulanceService.maxCoverageRadius ?? null,
       availability      : ambulanceService.availability ?? null,
+      facilityID
     };
   } catch (error) {
-    console.error("Error loading service details:", error);
     return fail(500, { description: "Could not get service information." });
   }
 };

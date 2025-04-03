@@ -15,6 +15,7 @@ export const load: PageServerLoad = async ({ params }) => {
       services: byService.results, 
       moreServices: byService.hasMore,
       query,
+      patientSearchPageSize,
     };
 
   } catch (error) {
@@ -47,7 +48,33 @@ export const actions = {
   viewDetails: async ({ request }) => {
     const formData = await request.formData();
     const facilityID = formData.get("facilityID") as string;
+    const serviceID = formData.get("serviceID") as string;
+    const serviceType = formData.get("serviceType") as string;
 
-    throw redirect(303, `/results/${facilityID}`);
+    if (!facilityID || !serviceID || !serviceType) {
+      return fail(400, 
+        { 
+          error: "Don't manipulate the hidden data please",
+          description: 'search',
+          success: false
+        }
+      );
+    }
+
+    let url
+
+    if (serviceType === "Ambulance") {
+      url = "Ambulance/"+serviceID;
+    } else if (serviceType === "Blood Bank") {
+      url = "BloodBank/"+serviceID;
+    } else if (serviceType === "Emergency Room") {
+      url = "Emergency/"+serviceID;
+    } else if (serviceType === "Intensive Care Unit") {
+      url = "ICU/"+serviceID;
+    } else {
+      url = "Outpatient/"+serviceID;
+    }
+
+    throw redirect(303, "/"+facilityID+"/serviceInfo/"+url);
   },
 } satisfies Actions;

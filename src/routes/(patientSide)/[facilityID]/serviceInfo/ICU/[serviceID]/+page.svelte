@@ -15,9 +15,6 @@
   let updatedAt           = $state(data.updatedAt);
 
   let service = "Intensive Care Unit"
-  let formattedAddress = facilityAddress
-    ? `${facilityAddress.street}, ${facilityAddress.barangay}, ${facilityAddress.city}, ${facilityAddress.province}, ${facilityAddress.region}`
-    : "Unknown Address";
 
   let careData = [
     { type: "Cardiac Support", available: cardiacSupport },
@@ -26,22 +23,6 @@
     { type: "Respiratory Support", available: respiratorySupport }
   ];
 </script>
-
-<!-- <div class="mt-4 p-4 border rounded shadow-lg bg-white"> -->
-  <!-- <h2 class="text-xl font-bold mb-4">ICU Service Details</h2> -->
-  <!-- <p><strong>Facility Name:</strong> {facilityName}</p> -->
-  <!-- <p><strong>Address:</strong> {formattedAddress}</p> -->
-  <!-- <p><strong>Phone:</strong> {phoneNumber}</p> -->
-  <!-- <p><strong>Base Rate:</strong> {baseRate}</p> -->
-  <!-- <p><strong>Load:</strong> {load}</p> -->
-  <!-- <p><strong>Available Beds:</strong> {availableBeds}</p> -->
-  <!-- <p><strong>Cardiac Support:</strong> <span class={cardiacSupport ? 'text-green-600' : 'text-red-600'}>{cardiacSupport ? "Yes" : "No"}</span></p> -->
-  <!-- <p><strong>Neurological Support:</strong> <span class={neurologicalSupport ? 'text-green-600' : 'text-red-600'}>{neurologicalSupport ? "Yes" : "No"}</span></p> -->
-  <!-- <p><strong>Renal Support:</strong> <span class={renalSupport ? 'text-green-600' : 'text-red-600'}>{renalSupport ? "Yes" : "No"}</span></p> -->
-  <!-- <p><strong>Respiratory Support:</strong> <span class={respiratorySupport ? 'text-green-600' : 'text-red-600'}>{respiratorySupport ? "Yes" : "No"}</span></p> -->
-  <!-- <p><strong>Last Updated:</strong> {updatedAt}</p> -->
-<!-- </div> -->
-
 
 <div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
   <!-- Header Facility Name -->
@@ -76,8 +57,8 @@
         <!-- Table Header -->
         <thead>
           <tr class="bg-purple-100">
-            <th class="border border-purple-400 border-2 px-4 py-2 text-center">Care Type</th>
-            <th class="border border-purple-400 border-2  px-4 py-2 text-center">Availability</th>
+            <th class="border-purple-400 border-2 px-4 py-2 text-center">Care Type</th>
+            <th class="border-purple-400 border-2  px-4 py-2 text-center">Availability</th>
           </tr>
         </thead>
 
@@ -160,8 +141,8 @@
   </div>
   <!-- View Facility Page Button -->
   <div class="flex bg-white pb-10 pt-5  justify-center">
-    <button class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
+    <a href={"/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
       View Facility Page →
-    </button>
+    </a>
   </div>
 </div>
