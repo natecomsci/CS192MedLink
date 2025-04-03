@@ -32,7 +32,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const facilityService = new FacilityServiceListDAO()
 
   let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize, { updatedAt: "desc" })
-  let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, 1, facilityUpdateLogsPageSize, { updatedAt: "desc" })
+  let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, 1, facilityUpdateLogsPageSize, { createdAt: "desc" })
 
   let toShow
   let admins: AdminDTO[] = [];

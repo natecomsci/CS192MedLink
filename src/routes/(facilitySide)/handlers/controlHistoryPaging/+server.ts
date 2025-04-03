@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  let { results, currentPage, totalPages } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, newPageNumber, facilityUpdateLogsPageSize, { updatedAt: "desc" })
+  let { results, currentPage, totalPages } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, newPageNumber, facilityUpdateLogsPageSize, { createdAt: "desc" })
 
   return json({list: results, currentPage, totalPages, success:true});
 };

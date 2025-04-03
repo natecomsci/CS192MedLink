@@ -15,7 +15,6 @@ export const actions = {
       throw redirect(303, '/facility/dashboard');
     }
 
-
     const data = await request.formData();
     const employeeID = data.get('employeeID') as string;
     const password = data.get('password') as string;
