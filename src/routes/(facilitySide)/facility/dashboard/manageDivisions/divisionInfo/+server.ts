@@ -13,14 +13,16 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   const { divisionID } : { divisionID: string } = await request.json();
 
   let {
-    divisionName,
+    name,
+    email,
     phoneNumber,
     openingTime,
     closingTime,
   } = await divisionDAO.getInformation(divisionID);
 
   return json({
-    divisionName,
+    name,
+    email,
     phoneNumber,
     openingTime,
     closingTime

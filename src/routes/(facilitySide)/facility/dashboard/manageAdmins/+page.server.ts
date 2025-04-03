@@ -163,7 +163,7 @@ export const actions: Actions = {
             divisionsHandled.push(d);
           }
         }
-        admin.divisions = divisionsHandled
+        admin.divisionIDs = divisionsHandled
       }
 
       adminDAO.create(facilityID, admin)
@@ -239,7 +239,7 @@ export const actions: Actions = {
             divisionsHandled.push(d);
           }
         }
-        admin.divisions = divisionsHandled
+        admin.divisionIDs = divisionsHandled
       }
 
       if (defFname == fname &&

@@ -1,11 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-import { 
-        FacilityDAO, 
+import {
         DivisionDAO, 
         ServicesDAO, 
         
+        FacilityDivisionListDAO,
         facilityDivisionsPageSize, 
 
         AmbulanceServiceDAO,
@@ -53,10 +53,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (hasDivisions === 'true' ? false : true) {
     throw redirect(303, '/facility/dashboard')
   }
-  
-  const paginatedDivisions = await divisionDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize)
 
-  const linkableServices = await divisionDAO.getMultiServiceDivisions(facilityID);
+  const facilityDivisionsListDAO = new FacilityDivisionListDAO()
+  const paginatedDivisions = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize, { updatedAt: "desc" })
+    
+  const linkableServices = await facilityDivisionsListDAO.getMultiServiceDivisions(facilityID);
 
   const servicesDAO = new ServicesDAO();
 
@@ -73,7 +74,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   existingServices = linkableServices
 
   return {
-    divisions: paginatedDivisions.divisions,
+    divisions: paginatedDivisions.results,
     totalPages: paginatedDivisions.totalPages,
     currentPage: 1,
     linkableServices,
@@ -255,13 +256,13 @@ export const actions = {
     }
 
     try {
-      const divisionID = await divisionDAO.create(facilityID, division)
+      const divisionID = await divisionDAO.create(facilityID, employeeID, division)
       if (newService) {
         const serviceID = await newService.dao.create(facilityID, employeeID, newService.service)
         servicesToAttach.push(serviceID)
       }
 
-      divisionDAO.connectServicesToDivision(divisionID, servicesToAttach)
+      divisionDAO.connectServices(divisionID, servicesToAttach)
       
     } catch (error) {
       return fail(422, {
@@ -347,7 +348,7 @@ export const actions = {
       closingTime,
     }
 
-    divisionDAO.update(divisionID, div)
+    divisionDAO.update(divisionID, facilityID, employeeID, div)
   },
 } satisfies Actions;
 
@@ -438,13 +439,13 @@ function validateService({ data }: {data: FormData}): any {
       let phoneNumber: string
       let openingTime: Date
       let closingTime: Date
-      let pricePerUnit: number
+      let basePricePerUnit: number
       let turnaroundTimeD: number
       let turnaroundTimeH: number
 
       try {
         phoneNumber = validatePhone(phone);
-        pricePerUnit = validateFloat(rates, "Price Per Unit");
+        basePricePerUnit = validateFloat(rates, "Price Per Unit");
 
         let OCTime = validateOperatingHours(open, close)
         openingTime = OCTime.openingTime
@@ -461,7 +462,7 @@ function validateService({ data }: {data: FormData}): any {
         phoneNumber,
         openingTime,
         closingTime,
-        pricePerUnit,
+        basePricePerUnit,
         turnaroundTimeD,
         turnaroundTimeH
       }
@@ -508,7 +509,7 @@ function validateService({ data }: {data: FormData}): any {
     }
 
     case "Outpatient": {
-      let price: number
+      let basePrice: number
       let completionTimeD: number
       let completionTimeH: number
 
@@ -516,7 +517,7 @@ function validateService({ data }: {data: FormData}): any {
       const acceptsWalkIns    = walkins === 'on';
 
       try {
-        price = validateFloat(rates, "Price");
+        basePrice = validateFloat(rates, "Price");
       
         let CTime = validateCompletionTime(compTD, compTH, "Completion")
         completionTimeD = CTime.days
@@ -526,8 +527,8 @@ function validateService({ data }: {data: FormData}): any {
       }
 
       const service: CreateOutpatientServiceDTO = {
-        serviceType: OPserviceType,
-        price,
+        type: OPserviceType,
+        basePrice,
         completionTimeD,
         completionTimeH,
         acceptsWalkIns

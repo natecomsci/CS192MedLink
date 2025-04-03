@@ -19,7 +19,9 @@
 
   let selectedServiceType: String = $state('');
   let selectedServiceID: String = $state('');
-  let selectedDivision: String = $state('');
+
+  let selectedDivisionID: String = $state('');
+  let selectedDivisionName: String = $state('');
 
   let currPopUp: String = $state("")
 
@@ -90,7 +92,8 @@
     bind:currPopUp={currPopUp}
     serviceType={selectedServiceType}
     serviceID={selectedServiceID}
-    serviceDivision={selectedDivision}
+    serviceDivisionName={selectedDivisionID}
+    serviceDivisionID={selectedDivisionName}
   />
 {/if}
 
@@ -173,7 +176,13 @@
         
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
-            <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID, selectedDivision=division?.divisionID ?? ''}} class="inline-flex items-center" data-sveltekit-reload>
+            <button onclick={() => {
+              currPopUp='editService' 
+              selectedServiceType=type
+              selectedServiceID=serviceID
+              selectedDivisionID=division?.divisionID ?? ''
+              selectedDivisionName=division?.name ?? ''
+            }} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 

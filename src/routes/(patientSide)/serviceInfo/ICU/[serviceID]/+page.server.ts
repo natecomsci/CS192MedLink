@@ -39,7 +39,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
     
     console.log("Fetching facility details for facilityID:", service.facilityID);
-    let facility = await facilityDAO.getGeneralInformation(service.facilityID);
+    let facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
       console.error("Facility details not found for facilityID:", service.facilityID);
       throw new Error("Facility details not found.");
@@ -78,7 +78,7 @@ export const load: PageServerLoad = async ({ params }) => {
       renalSupport        : icuService.renalSupport,
       respiratorySupport  : icuService.respiratorySupport,
       updatedAt           : icuService.updatedAt,
-      ...(icuService.divisionID ? { divisionID: icuService.divisionID } : {}),
+      ...(icuService.division?.divisionID ? { divisionID: icuService.division?.divisionID } : {}),
     };
   } catch (error) {
     console.error("Error loading ICU or facility details:", error);

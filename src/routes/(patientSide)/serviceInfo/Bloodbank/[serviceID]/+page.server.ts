@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
     
     console.log("Fetching facility details for facilityID:", service.facilityID);
-    let facility = await facilityDAO.getGeneralInformation(service.facilityID);
+    let facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
       console.error("Facility details not found for facilityID:", service.facilityID);
       throw new Error("Facility details not found.");
@@ -66,7 +66,7 @@ export const load: PageServerLoad = async ({ params }) => {
       phoneNumber        : bloodBankService.phoneNumber ?? null,
       openingTime        : bloodBankService.openingTime ?? null,
       closingTime        : bloodBankService.closingTime ?? null,
-      pricePerUnit       : bloodBankService.pricePerUnit ?? null,
+      pricePerUnit       : bloodBankService.basePricePerUnit ?? null,
       turnaroundTimeD    : bloodBankService.turnaroundTimeD ?? null,
       turnaroundTimeH    : bloodBankService.turnaroundTimeH ?? null,
       bloodTypeAvailability: bloodBankService.bloodTypeAvailability ?? null,

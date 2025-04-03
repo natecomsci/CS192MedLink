@@ -14,7 +14,6 @@ import type { PageServerLoad,
 import { v4 as uuidv4 } from 'uuid';
 
 import { type GeneralInformationFacilityDTO,
-         AddressDAO,
          FacilityDAO,
          validateEmail, 
          validatePhone, 
@@ -57,12 +56,12 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const geographyDAO = new GeographyDAO();
 
   try {
-    let facilityInfo = await facilityDAO.getGeneralInformation(facilityID);
+    let facilityInfo = await facilityDAO.getInformation(facilityID);
 
     defPhoto = facilityInfo.photo
     defName = facilityInfo.name
     defPhoneNumber = facilityInfo.phoneNumber
-    defEmail = facilityInfo.email
+    defEmail = facilityInfo.email ?? ""
     defBookingSystem = facilityInfo.bookingSystem ?? ""
     defFacilityType = facilityInfo.facilityType
     defOwnership = facilityInfo.ownership
@@ -224,7 +223,7 @@ export const actions = {
       });
     }
 
-    await facilityDAO.updateGeneralInformation(facilityID, genInfo);
+    await facilityDAO.update(facilityID, genInfo);
 
     return { success: true };
   }

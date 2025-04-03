@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { results, currentPage, totalPages } = await updateLogDAO.employeeSearchUpdateLogsByFacility(facilityID, query, newPageNumber, facilityUpdateLogsPageSize);
+  const { results, currentPage, totalPages } = await updateLogDAO.employeeSearchUpdateLogsByFacility(facilityID, query, newPageNumber, facilityUpdateLogsPageSize, { updatedAt: "desc" });
 
   if (results.length === 0) {
     return json({ 

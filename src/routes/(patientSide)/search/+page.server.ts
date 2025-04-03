@@ -1,40 +1,31 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-import type { FacilityResultsDTO, ServiceResultsDTO } from "$lib/server/DTOs";
-import { FacilityDAO, ServicesDAO, patientSearchPageSize, PatientServiceListDAO } from "$lib";
+import { patientSearchPageSize, PatientServiceListDAO } from "$lib";
 
-const facilityDAO = new FacilityDAO();
-const serviceDAO = new ServicesDAO(); 
 const patientServiceListDAO = new PatientServiceListDAO()
 
 export const load: PageServerLoad = async ({ url }) => {
-    const query = url.searchParams.get("query")?.trim() || "";
-    let byFacilities: { results: FacilityResultsDTO[], hasMore: boolean }
-    let byService: { results: ServiceResultsDTO[], hasMore: boolean }
+  const query = url.searchParams.get("query")?.trim() || "";
 
-    try {
-        byFacilities = await facilityDAO.patientSearch(query, patientSearchPageSize, 0);
-        byService = await patientServiceListDAO.patientSearch(query, patientSearchPageSize, 0);
-
-    } catch (error) {
-        console.log("📄 Page loaded. No search performed yet.");
-        return fail(400, 
-        { 
-          error: 'Error in search action',
-          description: 'search',
-          success: false
-        }
-      );
-    }
+  try {
+    let byService = await patientServiceListDAO.patientSearch(query, {}, patientSearchPageSize, 0);
 
     return { 
-        facilities: byFacilities.results, 
-        moreFacilities: byFacilities.hasMore,
-        services: byService.results, 
-        moreServices: byService.hasMore,
-        query,
+      services: byService.results, 
+      moreServices: byService.hasMore,
+      query,
     };
+
+  } catch (error) {
+    console.log("📄 Page loaded. No search performed yet.");
+    return fail(400, 
+    { 
+      error: 'Error in search action',
+      description: 'search',
+      success: false
+    });
+  }
 };
 
 export const actions = {
@@ -54,13 +45,14 @@ export const actions = {
 
     query = query.trim()
 
-    let byFacilities: { results: FacilityResultsDTO[], hasMore: boolean }
-    let byService: { results: ServiceResultsDTO[], hasMore: boolean }
-
     try {
-      byFacilities = await facilityDAO.patientSearch(query, patientSearchPageSize, 0);
-      byService = await patientServiceListDAO.patientSearch(query, patientSearchPageSize, 0);
+      let byService = await patientServiceListDAO.patientSearch(query, {}, patientSearchPageSize, 0);
 
+      return { 
+        services: byService.results, 
+        moreServices: byService.hasMore,
+        query,
+      };
     } catch (error) {
       console.error('❌ Error in search action:', error);
       return fail(400, 
@@ -71,15 +63,8 @@ export const actions = {
         }
       );
     }
-    console.log("✅ Search successful. Found")
-    return { 
-      facilities: byFacilities.results, 
-      moreFacilities: byFacilities.hasMore,
-      services: byService.results, 
-      moreServices: byService.hasMore,
-      query,
-    };
   },
+  
   viewDetails: async ({ request }) => {
     const formData = await request.formData();
     const facilityID = formData.get("facilityID") as string;

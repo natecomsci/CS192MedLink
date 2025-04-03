@@ -20,13 +20,15 @@ import { ICUServiceDAO } from "./server/ICUDAO";
 import { OutpatientServiceDAO } from "./server/OutpatientDAO";
 import { ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO } from "./server/ServicesDAO";
 import { UpdateLogDAO } from "./server/UpdateLogDAO";
-import { DivisionDAO } from "./server/DivisionDAO";
+import { DivisionDAO, FacilityDivisionListDAO } from "./server/DivisionDAO";
 import { GeographyDAO } from "./server/GeographyDAO";
 
 import type { 
         ServiceDTO,
+        ServiceResultsDTO,
+        LoadMoreResultsDTO,
         
-        FacilityResultsDTO,
+        // FacilityResultsDTO,
         GeneralInformationFacilityDTO,
 
         RegionDTO,
@@ -92,8 +94,10 @@ export type OPServiceType = typeof OPServiceTypes[number];
 export type {
   // DTOs
   ServiceDTO,
+  ServiceResultsDTO,
+  LoadMoreResultsDTO,
 
-  FacilityResultsDTO,
+  // FacilityResultsDTO,
   GeneralInformationFacilityDTO,
 
   RegionDTO,
@@ -153,7 +157,7 @@ export {
   FacilityDAO,
   ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO,
   UpdateLogDAO,
-  DivisionDAO,
+  DivisionDAO, FacilityDivisionListDAO,
   GeographyDAO,
   
   AmbulanceServiceDAO,

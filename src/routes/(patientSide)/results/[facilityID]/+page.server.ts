@@ -1,7 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-import { AddressDAO, FacilityDAO, GeographyDAO } from '$lib';
+import { FacilityDAO, GeographyDAO } from '$lib';
 
 export const load: PageServerLoad = async ({ params }) => {
   const facilityDAO = new FacilityDAO();
@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
   try {
     console.log("Fetching facility and address details...");
-    let facilityInfo = await facilityDAO.getGeneralInformation(facilityID);
+    let facilityInfo = await facilityDAO.getInformation(facilityID);
     let fullAddress = null;
 
     if (facilityInfo.address) {

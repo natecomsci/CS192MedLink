@@ -1,12 +1,13 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import type { PageProps } from './$types';
+  import type { ServiceDTO } from '$lib';
 
   let { data }: PageProps = $props(); // Extract data
   let query = data.query;
-  let results = data.results;
+  let results = data.results ?? [];
 
-  function viewServiceDetails(service) {
+  function viewServiceDetails(service: ServiceDTO) {
     if (service.type === "Ambulance") {
       goto(`/serviceInfo/Ambulance/${service.serviceID}`);
     } else if (service.type === "Blood Bank") {

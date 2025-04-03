@@ -1,7 +1,7 @@
 import { fail } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-import { ServicesDAO } from "$lib";
+import { PatientServiceListDAO } from "$lib";
 
 export const load: PageServerLoad = async ({ params, url }) => {
   const { facilityID } = params;
@@ -9,18 +9,22 @@ export const load: PageServerLoad = async ({ params, url }) => {
   const numberToFetch = 10; // Adjust as needed
   const offset = Number(url.searchParams.get("offset")) || 0;
 
-  const facilityDAO = new ServicesDAO();
+  const patientServiceListDAO = new PatientServiceListDAO();
 
   try {
-    const { results, hasMore } = await facilityDAO.patientSearchByFacility(
-      query, numberToFetch, offset, facilityID
-    );
+    const { results, hasMore } = await patientServiceListDAO.patientSearchServicesByFacility(
+      facilityID, 
+      query, 
+      numberToFetch, 
+      offset, 
+      { updatedAt: "desc" }
+    )
 
     return {
-      results, // Fix: Ensure results are returned
-      hasMore,
-      query, // Fix: Pass query to preserve search input
-      facilityID // Fix: Pass facilityID for dynamic routing
+      results, 
+      hasMore, 
+      query, 
+      facilityID 
     };
   } catch (error) {
     console.error("Error loading services:", error);

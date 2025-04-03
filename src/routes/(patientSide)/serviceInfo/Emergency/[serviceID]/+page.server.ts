@@ -31,7 +31,7 @@ export const load: PageServerLoad = async ({ params }) => {
       throw new Error("Service or facilityID not found.");
     }
 
-    let facilityname = await facilityDAO.getGeneralInformation(facility.facilityID);
+    let facilityname = await facilityDAO.getInformation(facility.facilityID);
     if (!facilityname || !facilityname.name) {
       console.error("Facility details not found for facilityID:", facility.facilityID);
       throw new Error("Facility details not found.");

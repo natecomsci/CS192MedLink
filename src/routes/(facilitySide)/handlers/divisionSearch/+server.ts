@@ -1,7 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { DivisionDAO, facilityDivisionsPageSize } from '$lib';
-
-let divisionDAO = new DivisionDAO();
+import { FacilityDivisionListDAO, facilityDivisionsPageSize } from '$lib';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -30,9 +28,11 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { divisions, currentPage, totalPages } = await divisionDAO.employeeSearchDivisionsByFacility(facilityID, query, newPageNumber, facilityDivisionsPageSize);
+  const facilityDivisionListDAO = new FacilityDivisionListDAO()
 
-  if (divisions.length === 0) {
+  const { results, currentPage, totalPages } = await facilityDivisionListDAO.employeeSearchDivisionsByFacility(facilityID, query, newPageNumber, facilityDivisionsPageSize, { updatedAt: "desc" });
+
+  if (results.length === 0) {
     return json({ 
       error: 'No divisions found',
       description: 'division',
@@ -40,5 +40,5 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     });
   }
 
-  return json({list: divisions, currentPage, totalPages, success:true});
+  return json({list: results, currentPage, totalPages, success:true});
 };

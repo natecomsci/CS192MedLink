@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
     
     console.log("Fetching facility details for facilityID:", service.facilityID);
-    let facility = await facilityDAO.getGeneralInformation(service.facilityID);
+    let facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
       console.error("Facility details not found for facilityID:", service.facilityID);
       throw new Error("Facility details not found.");
@@ -68,12 +68,13 @@ export const load: PageServerLoad = async ({ params }) => {
     return {
       facilityName    : facility.name,
       facilityAddress : formattedAddress,
-      price           : outpatientService.price,
+      price           : outpatientService.basePrice,
       completionTimeD : outpatientService.completionTimeD,
       completionTimeH : outpatientService.completionTimeH,
       isAvailable     : outpatientService.isAvailable,
       acceptsWalkIns  : outpatientService.acceptsWalkIns,
-      ...(outpatientService.divisionID ? { divisionID: outpatientService.divisionID } : {}),
+      ...(outpatientService.division?.divisionID ? { divisionID: outpatientService.division?.divisionID } : {}),
+
     };
   } catch (error) {
     console.error("Error loading outpatient or facility details:", error);

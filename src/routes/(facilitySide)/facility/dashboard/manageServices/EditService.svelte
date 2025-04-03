@@ -14,19 +14,22 @@
         serviceID, 
         currPopUp = $bindable(), 
         services = $bindable(),
-        serviceDivision = $bindable(),
+        serviceDivisionName = $bindable(),
+        serviceDivisionID = $bindable(),
       }:{ data: PageData, 
           form: ActionData, 
           serviceType: String, 
           serviceID: String, 
           currPopUp: String, 
           services: ServiceDTO[],
-          serviceDivision: String,
+          serviceDivisionName: String,
+          serviceDivisionID: String,
         } = $props();
 
   let formName;
 
-  let selectedDivision = $state(serviceDivision)
+  let selectedDivisionID = $state(serviceDivisionID)
+  let selectedDivisionName = $state(serviceDivisionName)
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -97,7 +100,8 @@
                 />
               {/if}
           </label>
-          <input form="editService" type="text" class="hidden" name="division" value={selectedDivision} />
+          <input form="editService" type="text" class="hidden" name="divisionID" value={selectedDivisionID} />
+          <input form="editService" type="text" class="hidden" name="divisionName" value={selectedDivisionName} />
 
           {#if data.hasDivisions}
             <label>
@@ -108,15 +112,16 @@
                 <input 
                   type="radio" 
                   name="divSelect" 
-                  bind:group={selectedDivision}
-                  value={division.divisionID}
-
+                  bind:group={selectedDivisionID}
+                  value={() => {
+                    selectedDivisionName = division.name
+                    return division.divisionID
+                  }}
                   class="input-box w-30"
                 >
               {/each}
             </label>
           {/if}
-        {selectedDivision}
         </div>
       </div>
     </div>

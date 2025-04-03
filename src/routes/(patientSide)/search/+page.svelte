@@ -1,37 +1,19 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
-  import type { FacilityDTO } from '$lib';
-  import { goto } from '$app/navigation';
+  import type { ServiceResultsDTO } from '$lib';
+  
   let { data, form } = $props();
-  let activeTab = $state("service"); // Default view
 
-  let facilities: FacilityDTO[] = $state([])
-  let services: FacilityDTO[] = $state([])
+  let services: ServiceResultsDTO[] = $state(data.services ?? [])
 
-  facilities = [...(data.facilities ?? [])]
-  services = [...(data.services ?? [])]
+  let currOffset: number = $state(10)
+  let hasMore: boolean = $state(data.moreServices ?? false)
 
-  let currFacilityOffset: number = $state(10)
-  let currServiceOffset: number = $state(10)
-
-  let currFacilityHasMore: boolean = $state(data.moreFacilities ?? false)
-  let currServiceHasMore: boolean = $state(data.moreServices ?? false)
-
-  async function getPage(hasMore: boolean, query: string) {
-    let currOffset: number
+  async function getPage(query: string) {
     if (!hasMore) {
       return
     } 
-
-    if (activeTab === "facility") {
-      currOffset = currFacilityOffset
-    } else if (activeTab === "service") {
-      currOffset = currServiceOffset
-    } else {
-      return
-    }
-
-    const body = JSON.stringify({activeTab, currOffset, query});
+    const body = JSON.stringify({currOffset, query});
 
     try {
       const response = await fetch("./search/loadMoreHandler", {
@@ -47,24 +29,15 @@
       }
 
       const rv = await response.json();
-
-      if (activeTab === "facility") {
-        facilities = [...facilities, ...rv.results];
-        currFacilityOffset = currFacilityOffset + 10;
-        currFacilityHasMore = rv.hasMore;
-      } else if (activeTab === "service") {
-        services = [...services, ...rv.results];
-        currServiceOffset = currServiceOffset + 10;
-        currServiceHasMore = rv.hasMore;
-      } else {
-        return
-      }
+      services = [...services, ...rv.results];
+      currOffset = currOffset + 10;
+      hasMore = rv.hasMore;
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
     }
   }
-function viewServiceDetails(service) {
+function viewServiceDetails(service: ServiceResultsDTO) {
   let url = "";
 
   if (service.type === "Ambulance") {
@@ -96,7 +69,7 @@ function viewServiceDetails(service) {
       type="text"
       name="query"
       value={data.query}
-      placeholder={activeTab === "facility" ? "Search facilities..." : "Search services..."}
+      placeholder="Search services..."
       class="flex-1 p-2 rounded-lg border border-gray-300"
     />
     {#if form?.error}
@@ -104,68 +77,24 @@ function viewServiceDetails(service) {
     {/if}
     <button type="submit" class="p-2 rounded-full bg-gray-200">Search</button>
 
-  <!-- Tabs -->
-    <div class="flex mt-4 border-b">
-      <button
-        class="flex-1 text-center py-2 font-semibold"
-        class:text-purple-600={activeTab === "service"}
-        type="button"
-        onclick={() => activeTab = "service"}
-      >
-        BY SERVICE
-      </button>
-      <button
-        class="flex-1 text-center py-2 font-semibold"
-        class:text-purple-600={activeTab === "facility"}
-        type="button"
-        onclick={() => activeTab = "facility"}
-      >
-        BY FACILITY
-      </button>
-    </div>
   </form>
-
-  {#if activeTab === "facility"}
-    {#if facilities.length > 0}
-      {#each facilities as facility}
+  {#if services.length > 0}
+    {#each services as service}
       <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
         <div>
-          <span class="font-semibold">{facility.name}</span>
+          <span class="font-semibold">{service.name}</span>
+          <p class="text-sm text-gray-600">{service.type}</p> <!-- Display service type -->
+          <input type="hidden" name="facilityID" value={service.facilityID} />
         </div>
-        <form method="POST" action="?/viewDetails">
-          <input type="hidden" name="facilityID" value={facility.facilityID} />
-          <button type="submit" class="text-xl font-bold">+</button>
-        </form>
+        <button class="text-xl font-bold" onclick={() => viewServiceDetails(service)}>+</button>
       </div>
-      {/each}
-      {#if currFacilityHasMore} 
-        <button onclick={() => getPage(currFacilityHasMore, data.query ?? '')}>
-          Load more...
-        </button>
-      {/if}
-    {:else}     
-      <p>No facilities found.</p>
+    {/each}
+    {#if hasMore} 
+      <button onclick={() => getPage(data.query ?? '')}>
+        Load more...
+      </button>
     {/if}
-
-    {:else if activeTab === "service"}
-    {#if services.length > 0}
-      {#each services as service}
-        <div class="bg-white shadow-lg rounded-lg p-4 flex justify-between items-center">
-          <div>
-            <span class="font-semibold">{service.name}</span>
-            <p class="text-sm text-gray-600">{service.type}</p> <!-- Display service type -->
-            <input type="hidden" name="facilityID" value={service.facilityID} />
-          </div>
-          <button class="text-xl font-bold" onclick={() => viewServiceDetails(service)}>+</button>
-        </div>
-      {/each}
-      {#if currServiceHasMore} 
-        <button onclick={() => getPage(currServiceHasMore, data.query ?? '')}>
-          Load more...
-        </button>
-      {/if}
-    {:else}
-      <p>No services found.</p>
-    {/if}
-  {/if}   
+  {:else}
+    <p>No services found.</p>
+  {/if}
 </div>

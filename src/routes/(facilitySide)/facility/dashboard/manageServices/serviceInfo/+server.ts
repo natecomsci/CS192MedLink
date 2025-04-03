@@ -49,7 +49,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
           phoneNumber           : serviceInfo.phoneNumber,
           openingTime           : dateToTimeMapping(serviceInfo.openingTime),
           closingTime           : dateToTimeMapping(serviceInfo.closingTime),
-          pricePerUnit          : serviceInfo.pricePerUnit,
+          pricePerUnit          : serviceInfo.basePricePerUnit,
           turnaroundTimeD       : serviceInfo.turnaroundTimeD,
           turnaroundTimeH       : serviceInfo.turnaroundTimeH,
           bloodTypeAvailability : serviceInfo.bloodTypeAvailability,
@@ -88,7 +88,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
       serviceInfo = await outpatientDAO.getInformation(serviceID);
 
       return json({
-          price           : serviceInfo.price,
+          price           : serviceInfo.basePrice,
           completionTimeD : serviceInfo.completionTimeD,
           completionTimeH : serviceInfo.completionTimeH,
           isAvailable     : serviceInfo.isAvailable,
