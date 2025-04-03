@@ -34,21 +34,6 @@
 
 </script>
 
-<!-- <div class="mt-4"> -->
-  <!-- <p><strong>Facility Name:</strong> {facilityName}</p> -->
-  <!-- <p><strong>Address:</strong> {facilityAddress ? `${facilityAddress.street}, ${facilityAddress.barangay}, ${facilityAddress.city}, ${facilityAddress.province}, ${facilityAddress.region}` : "Address not available"}</p> -->
-  <!-- <p><strong>Phone:</strong> {phoneNumber}</p> -->
-  <!-- <p><strong>Opening Time:</strong> {openingTime}</p> -->
-  <!-- <p><strong>Closing Time:</strong> {closingTime}</p> -->
-  <!-- <p><strong>Base Rate:</strong> {baseRate}</p> -->
-  <!-- <p><strong>Minimum Coverage Radius:</strong> {minCoverageRadius} km</p> -->
-  <!-- <p><strong>Mileage Rate:</strong> {mileageRate}</p> -->
-  <!-- <p><strong>Maximum Coverage Radius:</strong> {maxCoverageRadius} km</p> -->
-  <!-- <p><strong>Availability:</strong> {availability ? "Available" : "Unavailable"}</p> -->
-<!-- </div> -->
-
-
-
 <div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
   <!-- Header Facility Name -->
   <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">

@@ -104,11 +104,11 @@ function viewServiceDetails(service: ServiceResultsDTO) {
       {/each}
     </div>
 
-    {#if currServiceHasMore} 
+    {#if hasMore} 
       <div class="flex justify-center mt-4">
         <button 
           class="bg-[#9044C4] rounded-lg px-6 py-3 text-white font-semibold shadow-md hover:bg-gray-600 transition"
-          onclick={() => getPage(currServiceHasMore, data.query ?? '')}>
+          onclick={() => getPage(data.query ?? '')}>
           Load more...
         </button>
       </div>

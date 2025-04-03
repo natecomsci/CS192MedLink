@@ -13,29 +13,15 @@
 
   // Rereplace ito? Dagdag ni elle
   let service = "Outpatient Service Details"
-  let addressParts = facilityAddress.split(",").map(part => part.trim());
-  let street = addressParts[0] || "N/A";
-  let barangay = addressParts[1] || "N/A";
-  let cityMunicipality = addressParts[2] || "N/A";
-  let province = addressParts[3] || "N/A";
-  let region = addressParts[4] || "N/A";
+  let addressParts = facilityAddress?.split(",").map(part => part.trim());
+  let street            = addressParts ? addressParts[0] : "N/A";
+  let barangay          = addressParts ? addressParts[1] : "N/A";
+  let cityMunicipality  = addressParts ? addressParts[2] : "N/A";
+  let province          = addressParts ? addressParts[3] : "N/A";
+  let region            = addressParts ? addressParts[4] : "N/A";
 </script>
 
-<!-- <div class="mt-4 p-4 border rounded shadow-lg bg-white">
-  <!-- <h2 class="text-xl font-bold mb-4">Outpatient Service Details</h2> -->
-  <!-- <p><strong>Facility Name:</strong> {facilityName}</p> -->
-  <!-- <p><strong>Address:</strong> {facilityAddress}</p> -->
-  <!-- <p><strong>Price:</strong> {price}</p> -->
-  <!-- <p><strong>Completion Time:</strong> {completionTimeD} days, {completionTimeH} hours</p> -->
-  <!-- <p><strong>Available:</strong> <span class={isAvailable ? 'text-green-600' : 'text-red-600'}>{isAvailable ? "Yes" : "No"}</span></p> -->
-  <!-- <p><strong>Accepts Walk-Ins:</strong> <span class={acceptsWalkIns ? 'text-green-600' : 'text-red-600'}>{acceptsWalkIns ? "Yes" : "No"}</span></p> -->
-  <!-- {#if divisionID}
-    <p><strong>Division ID:</strong> {divisionID}</p>
-  {/if} -->
-<!-- </div> -->
-
 <div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
-  <!-- Header Facility Name -->
   <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">
     <button class="text-gray-600 hover:text-gray-900">✖</button>
     <h2 class="text-xl font-bold text-center flex-1 -ml-4"><strong>{facilityName}</strong></h2>
