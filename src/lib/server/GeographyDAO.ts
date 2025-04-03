@@ -17,8 +17,6 @@ export class GeographyDAO {
         }
       });
 
-      console.log(`Regions: `, regions)
-
       return regions;
     } catch (error) {
       console.error("Details: ", error);
@@ -41,8 +39,6 @@ export class GeographyDAO {
         throw new Error("No Region found.");
       }
 
-      console.log(`Region name: `, object.name)
-
       return object.name;
     } catch (error) {
       console.error("Details: ", error);
@@ -62,8 +58,6 @@ export class GeographyDAO {
           regionID : true,
         }
       });
-
-      console.log(`Provinces of ${await this.getNameOfRegion(regionID)}: `, pOrCs)
 
       return pOrCs;
     } catch (error) {
@@ -87,8 +81,6 @@ export class GeographyDAO {
         throw new Error("No Province found.");
       }
 
-      console.log(`Province name: `, object.name)
-
       return object.name;
     } catch (error) {
       console.error("Details: ", error);
@@ -108,8 +100,6 @@ export class GeographyDAO {
           pOrCID : true,
         }
       });
-
-      console.log(`Cities or Municipalities of ${await this.getNameOfProvince(pOrCID)}: `, cOrMs)
 
       return cOrMs;
     } catch (error) {
@@ -133,8 +123,6 @@ export class GeographyDAO {
         throw new Error("No COrM found.");
       }
 
-      console.log(`City or Municipality name: `, object.name)
-
       return object.name;
     } catch (error) {
       console.error("Details: ", error);
@@ -154,8 +142,6 @@ export class GeographyDAO {
           cOrMID : true,
         }
       });
-
-      console.log(`Barangays of ${await this.getNameOfCOrM(cOrMID)}: `, brgys)
 
       return brgys;
     } catch (error) {
@@ -178,8 +164,6 @@ export class GeographyDAO {
       if (!object) {
         throw new Error("No Barangay found.");
       }
-
-      console.log(`Barangay name: `, object.name)
 
       return object.name;
     } catch (error) {

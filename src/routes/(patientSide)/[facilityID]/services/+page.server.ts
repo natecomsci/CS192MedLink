@@ -56,6 +56,38 @@ export const actions = {
 
     // Redirect to the specified page with query parameters
     throw redirect(303, `/servicesForSearch/${facilityID}/searchServicesWithinFacility/${query}`);
-  }
+  },
 
+  viewDetails: async ({ request, params }) => {
+    const formData = await request.formData();
+    const { facilityID } = params;
+    const serviceID = formData.get("serviceID") as string;
+    const serviceType = formData.get("serviceType") as string;
+
+    if (!facilityID || !serviceID || !serviceType) {
+      return fail(400, 
+        { 
+          error: "Don't manipulate the hidden data please",
+          description: 'search',
+          success: false
+        }
+      );
+    }
+
+    let url
+
+    if (serviceType === "Ambulance") {
+      url = "Ambulance/"+serviceID;
+    } else if (serviceType === "Blood Bank") {
+      url = "BloodBank/"+serviceID;
+    } else if (serviceType === "Emergency Room") {
+      url = "Emergency/"+serviceID;
+    } else if (serviceType === "Intensive Care Unit") {
+      url = "ICU/"+serviceID;
+    } else {
+      url = "Outpatient/"+serviceID;
+    }
+
+    throw redirect(303, "/"+facilityID+"/serviceInfo/"+url);
+  },
 } satisfies Actions;

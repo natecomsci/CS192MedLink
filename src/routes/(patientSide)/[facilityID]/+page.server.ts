@@ -13,7 +13,6 @@ export const load: PageServerLoad = async ({ params }) => {
   }
 
   try {
-    console.log("Fetching facility and address details...");
     let facilityInfo = await facilityDAO.getInformation(facilityID);
     let fullAddress = null;
 
@@ -54,7 +53,6 @@ export const load: PageServerLoad = async ({ params }) => {
       providers: facilityInfo.acceptedProviders,
     };
   } catch (error) {
-    console.error("Error loading facility details:", error);
     return fail(500, {
       description: "Could not get facility information.",
     });
@@ -64,8 +62,9 @@ export const load: PageServerLoad = async ({ params }) => {
 export const actions = {
   viewServices: async ({ params }) => {
     const { facilityID } = params;
+    
 
     // Redirect to the facility details page
-    throw redirect(303, `/servicesForSearch/${facilityID}`);
+    throw redirect(303, "/"+facilityID+"/services");
   },
 } satisfies Actions;

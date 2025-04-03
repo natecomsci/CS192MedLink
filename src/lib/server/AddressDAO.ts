@@ -24,8 +24,6 @@ export class AddressDAO {
         throw new Error("No Address found linked with a Facility with the specified ID.");
       }
 
-      console.log(`Address of ${facilityID}: `, address);
-
       return address;
     } catch (error) {
       console.error("Details: ", error);
@@ -42,7 +40,6 @@ export class AddressDAO {
         data
       });
 
-      console.log(`Updated Address of ${facilityID}: `, address);
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update Address.");

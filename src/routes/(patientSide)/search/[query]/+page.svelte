@@ -39,24 +39,6 @@
     }
   }
 
-  function viewServiceDetails(service: ServiceResultsDTO) {
-    let url = "";
-
-    if (service.type === "Ambulance") {
-      url = "/serviceInfo/Ambulance/"+service.serviceID;
-    } else if (service.type === "Blood Bank") {
-      url = "/serviceInfo/BloodBank/"+service.serviceID;
-    } else if (service.type === "Emergency Room") {
-      url = "/serviceInfo/Emergency/"+service.serviceID;
-    } else if (service.type === "Intensive Care Unit") {
-      url = "/serviceInfo/ICU/"+service.serviceID;
-    } else {
-      url = "/serviceInfo/Outpatient/"+service.serviceID;
-    }
-
-    window.location.href = url; // Forces a full page reload
-  }
-
 </script>
 
 <div class="max-w-md mx-auto p-4 bg-[#FDFCFD]">
@@ -85,16 +67,16 @@
     <p class="error">{form.error}</p>
   {/if}
   {#if services.length > 0}
-    <form
-      method="POST"
-      action="?/viewDetails"
-    >
-      <div class="mt-3">
-        {#each services as service}
-          <div class="mb-3 flex justify-between items-center pl-4 pr-4 pt-3 pb-3 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
-            <div class="w-full">
-              <div class="flex justify-between items-center">
-                <p class="font-bold text-purple-900">{service.name}</p>
+    <div class="mt-3">
+      {#each services as service}
+        <div class="mb-3 flex justify-between items-center pl-4 pr-4 pt-3 pb-3 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
+          <div class="w-full">
+            <div class="flex justify-between items-center">
+              <p class="font-bold text-purple-900">{service.name}</p>
+              <form
+                method="POST"
+                action="?/viewDetails"
+              >
                 <input type="hidden" name="facilityID" value={service.facilityID} />
                 <input type="hidden" name="serviceID" value={service.serviceID} />
                 <input type="hidden" name="serviceType" value={service.type} />
@@ -103,14 +85,14 @@
                   class="text-gray-700 hover:bg-gray-200 rounded-full transition">
                   <img src="/plus_icon.svg" alt="Add" class="w-5 h-5" />
                 </button>
-              </div>
-              <hr class="my-1 border-gray-300">
-              <p class="italic text-sm text-gray-600">{service.type}</p>
+              </form>
             </div>
+            <hr class="my-1 border-gray-300">
+            <p class="italic text-sm text-gray-600">{service.type}</p>
           </div>
-        {/each}
-      </div>
-    </form>
+        </div>
+      {/each}
+    </div>
     {#if hasMore} 
       <div class="flex justify-center mt-4">
         <button 
