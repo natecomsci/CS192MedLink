@@ -14,52 +14,67 @@
 </script>
 
 <PatientHeader/>
-
 <form 
-  class="grid grid-cols-1 justify-items-center p-8" 
+  class="" 
   method="POST"
   action="?/search"
   use:enhance
 >
-  <div class="grid grid-cols-1 justify-items-center">
-    <img src={Logo} alt="MedLink logo" width="100" height="100"/>
-    <h1>Connecting you to healthcare, one search at a time.</h1>
+
+<div class="min-h-screen bg-[#AE72DA] flex flex-col items-center justify-start relative">
+  <!-- Logo Marker -->
+  <div class="absolute top-20 left-1/2 transform -translate-x-1/2 justify-items-center">
+    <img src={Logo} alt="MedLink logo" width="150" height="150" />
   </div>
-  
-  <!-- Search Input -->
-  <div class="flex items-center mt-4">
-    
-    <Icon icon={Search} width="20" height="20" class="mr-2"/>
-    <input name="query" type="text" placeholder="Search" value="" class="border p-2 rounded"/>
 
-    <button type="submit" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded">
-      Search
-    </button>
+  <!-- White Card Section -->
+  <div class="w-full bg-white rounded-t-3xl shadow-lg mt-50 p-6 flex flex-col items-center flex-grow">
+    <!-- Title -->
+    <h1 class="mt-15 mb-5 font-['DM_Sans'] text-[60px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+      Med<span class="text-[#9044C4]">Link</span>
+    </h1>
+    <p class="text-gray-500 text-center mt-2">Connecting you to healthcare,<br>One search at a time...</p>
 
+    <!-- Search Input -->
+    <div class="relative mt-4 flex items-center gap-2 p-2 rounded-full border border-gray-300 bg-white shadow-sm w-3/4">
+      <input
+        type="text"
+        name="query"
+        value=""
+        placeholder="Search services..."
+        class="flex-1 p-2 text-gray-700 bg-transparent outline-none"
+      />
+      <button type="submit" class="p-2 text-gray-500">
+        <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
+      </button>
+    </div>
+
+<!-- 
     <button 
       type="button"
       class="ml-2 text-white bg-purple-700 hover:bg-purple-800 p-2.5 rounded-full"
       onclick={() => showFilter = !showFilter}
     >
       <Icon icon={Filter} width="20" height="20"/>
-    </button>
+    </button> -->
+
+    {#if form?.error}
+      <p class="text-red-600 mt-2">{form.error}</p>
+    {/if}
+
+    {#if showFilter}
+      <p>filters here</p>
+    {/if}
+
+    <!-- Buttons -->
+    <div class="flex gap-4 mt-6">
+      <button class="bg-gray-200 text-white bg-gray-700  px-6 py-3 rounded-full shadow-md">Sign In</button>
+      <button class="bg-purple-600 text-white px-6 py-3 rounded-full shadow-md">Sign Up</button>
+    </div>
+
   </div>
-  {#if form?.error}
-    <p class="text-red-600 mt-2">{form.error}</p>
-  {/if}
-
-  {#if showFilter}
-    <p>filters here</p>
-  {/if}
-</form>
-  
-
-<div class="grid grid-cols-2 justify-items-center p-8">
-
-  <button type="button" class="text-white bg-gray-700 hover:bg-gray-800 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-900">Sign In</button>
-
-  <button type="button" class="text-white bg-purple-700 hover:bg-purple-800 focus:outline-none focus:ring-4 focus:ring-purple-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mb-2 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-900">Sign Up</button>
-
 </div>
+</form>
+
 
 
