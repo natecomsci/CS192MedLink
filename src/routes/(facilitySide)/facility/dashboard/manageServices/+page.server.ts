@@ -43,6 +43,7 @@ import { facilityServicePageSize,
          dateToTimeMapping,
          EmployeeDAO,
          DivisionDAO,
+         FacilityServiceListDAO,
        } from '$lib';
 
 // DAOs
@@ -68,7 +69,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const servicesDAO = new ServicesDAO();
   const divisionDAO = new DivisionDAO();
 
-  let paginatedServices = await servicesDAO.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize)
+  const facilityService = new FacilityServiceListDAO()
+
+  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize, { updatedAt: "desc" })
 
   const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
 
@@ -84,7 +87,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   return {
     // Paginated Services
-    services: paginatedServices.services,
+    services: paginatedServices.results,
     totalPages: paginatedServices.totalPages,
     currentPage: paginatedServices.currentPage,
 
@@ -169,7 +172,6 @@ export const actions: Actions = {
     const data = await request.formData();
 
     const serviceType = data.get('serviceType');
-    console.log(serviceType)
 
     const phone    = data.get('phoneNumber');
     const open     = data.get('opening');
@@ -218,22 +220,8 @@ export const actions: Actions = {
           });
         }
 
-        const divisionID = data.get("division") as string;
-        let service: CreateAmbulanceServiceDTO
-
-        if (divisionID) {
-          service = {
-            phoneNumber,
-            openingTime,
-            closingTime,
-            baseRate,
-            minCoverageRadius,
-            mileageRate,
-            maxCoverageRadius,
-            divisionID,
-          }
-        } else {
-          service = {
+        const divisionID = data.get("divisionID") as string;
+        let service: CreateAmbulanceServiceDTO = {
             phoneNumber,
             openingTime,
             closingTime,
@@ -242,27 +230,30 @@ export const actions: Actions = {
             mileageRate,
             maxCoverageRadius
           }
-        }
 
-        console.log(service)
+        if (divisionID) {
+          service.divisionID = divisionID
+        }
 
         const dao = new AmbulanceServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+        return {
+          success: true
+        }
       }
 
       case "Blood Bank": {
         let phoneNumber: string
         let openingTime: Date
         let closingTime: Date
-        let pricePerUnit: number
+        let basePricePerUnit: number
         let turnaroundTimeD: number
         let turnaroundTimeH: number
 
         try {
           phoneNumber = validatePhone(phone);
-          pricePerUnit = validateFloat(rates, "Price Per Unit");
+          basePricePerUnit = validateFloat(rates, "Price Per Unit");
 
           let OCTime = validateOperatingHours(open, close)
           openingTime = OCTime.openingTime
@@ -279,36 +270,26 @@ export const actions: Actions = {
           });
         }
 
-        const divisionID = data.get("division") as string;
-        let service: CreateBloodBankServiceDTO
-
-        if (divisionID) {
-          service = {
+        const divisionID = data.get("divisionID") as string;
+        let service: CreateBloodBankServiceDTO = {
             phoneNumber,
             openingTime,
             closingTime,
-            pricePerUnit,
-            turnaroundTimeD,
-            turnaroundTimeH,
-            divisionID,
-          }
-        } else {
-          service = {
-            phoneNumber,
-            openingTime,
-            closingTime,
-            pricePerUnit,
+            basePricePerUnit,
             turnaroundTimeD,
             turnaroundTimeH
           }
-        }
 
-        console.log(service)
+        if (divisionID) {
+          service.divisionID = divisionID
+        }
 
         const dao = new BloodBankServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+        return {
+          success: true
+        }
       }
 
       case "Emergency Room": {
@@ -323,17 +304,22 @@ export const actions: Actions = {
             success: false
           });
         }
-
+        
+        const divisionID = data.get("divisionID") as string;
         const service: CreateERServiceDTO = {
           phoneNumber
         }
 
-        console.log(service)
+        if (divisionID) {
+          service.divisionID = divisionID
+        }
 
         const dao = new ERServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+        return {
+          success: true
+        }
       }
 
       case "Intensive Care Unit": {
@@ -351,32 +337,26 @@ export const actions: Actions = {
           });
         }
 
-        const divisionID = data.get("division") as string;
-        let service: CreateICUServiceDTO
+        const divisionID = data.get("divisionID") as string;
+        let service: CreateICUServiceDTO = {
+            phoneNumber,
+            baseRate,
+          }
 
         if (divisionID) {
-          service = {
-            phoneNumber,
-            baseRate,
-            divisionID,
-          }
-        } else {
-          service = {
-            phoneNumber,
-            baseRate,
-          }
+          service.divisionID = divisionID
         }
-
-        console.log(service)
 
         const dao = new ICUServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+        return {
+          success: true
+        }
       }
 
       case "Outpatient": {
-        let price: number
+        let basePrice: number
         let completionTimeD: number
         let completionTimeH: number
 
@@ -384,7 +364,7 @@ export const actions: Actions = {
         const acceptsWalkIns    = walkins === 'on';
 
         try {
-          price = validateFloat(rates, "Price");
+          basePrice = validateFloat(rates, "Price");
         
           let CTime = validateCompletionTime(compTD, compTH, "Completion")
           completionTimeD = CTime.days
@@ -397,34 +377,26 @@ export const actions: Actions = {
           });
         }
 
-        const divisionID = data.get("division") as string;
-        let service: CreateOutpatientServiceDTO
-
-        if (divisionID) {
-          service = {
-            serviceType: OPserviceType,
-            price,
-            completionTimeD,
-            completionTimeH,
-            acceptsWalkIns,
-            divisionID,
-          }
-        } else {
-          service = {
-            serviceType: OPserviceType,
-            price,
+        const divisionID = data.get("divisionID") as string;
+        let service: CreateOutpatientServiceDTO = {
+            type: OPserviceType,
+            basePrice,
             completionTimeD,
             completionTimeH,
             acceptsWalkIns
           }
-        }
 
-        console.log(service)
+        if (divisionID) {
+          service.divisionID = divisionID
+        }
 
         const dao = new OutpatientServiceDAO();
 
         dao.create(facilityID, employeeID, service)
-        break;
+
+        return {
+          success: true
+        }
       }
 
       default: {
@@ -434,10 +406,6 @@ export const actions: Actions = {
           success: false
         });
       }
-    }
-
-    return {
-      success: true
     }
   },
 
@@ -464,7 +432,7 @@ export const actions: Actions = {
     const serviceInfo = await ambulanceDAO.getInformation(serviceID);
 
     // Original Info
-    const defPhoneNumber: String = serviceInfo.phoneNumber
+    const defPhoneNumber: String | undefined = serviceInfo.phoneNumber
     const defOpeningTime: String = dateToTimeMapping(serviceInfo.openingTime)
     const defClosingTime: String = dateToTimeMapping(serviceInfo.closingTime)
     const defBaseRate: Number = serviceInfo.baseRate
@@ -472,6 +440,9 @@ export const actions: Actions = {
     const defMileageRate: Number = serviceInfo.mileageRate
     const defMaxCoverageRadius: Number = serviceInfo.maxCoverageRadius
     const defAvailability: Availability = serviceInfo.availability
+    
+    const defDivisionName: string | undefined = serviceInfo.division?.name
+    const defDivisionID: string | undefined = serviceInfo.division?.divisionID
 
     // New Info
     let phoneNumber: string
@@ -482,6 +453,9 @@ export const actions: Actions = {
     let mileageRate: number
     let maxCoverageRadius: number
     let availability: Availability = data.get('availability') as Availability
+
+    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
+    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
@@ -512,7 +486,7 @@ export const actions: Actions = {
       minCoverageRadius,
       mileageRate,
       maxCoverageRadius,
-      availability, 
+      availability
     }
 
     if (defPhoneNumber == phoneNumber &&
@@ -522,13 +496,18 @@ export const actions: Actions = {
         defMinCoverageRadius == minCoverageRadius &&
         defMileageRate == mileageRate &&
         defMaxCoverageRadius == maxCoverageRadius &&
-        defAvailability == availability
+        defAvailability == availability &&
+        defDivisionID == divisionID && 
+        defDivisionName == divisionName
       ) {
       return fail(422, { 
         error: "No changes made",
         description: "button",
         success: false  
       });
+    }
+    if (divisionID && divisionName) {
+      service.division = {divisionID : divisionID, name: divisionName}
     }
 
     ambulanceDAO.update(serviceID, facilityID, employeeID, service)
@@ -560,10 +539,10 @@ export const actions: Actions = {
 
     const serviceInfo = await bloodBankDAO.getInformation(serviceID);
 
-    const defPhoneNumber     : String = serviceInfo.phoneNumber
+    const defPhoneNumber     : String | undefined = serviceInfo.phoneNumber
     const defOpeningTime     : String = dateToTimeMapping(serviceInfo.openingTime)
     const defClosingTime     : String = dateToTimeMapping(serviceInfo.closingTime)
-    const defPricePerUnit    : Number = serviceInfo.pricePerUnit
+    const defPricePerUnit    : Number = serviceInfo.basePricePerUnit
     const defTurnaroundTimeD : Number = serviceInfo.turnaroundTimeD
     const defTurnaroundTimeH : Number = serviceInfo.turnaroundTimeH
     const defA_P  : boolean = serviceInfo.bloodTypeAvailability.A_P
@@ -574,17 +553,23 @@ export const actions: Actions = {
     const defO_N  : boolean = serviceInfo.bloodTypeAvailability.O_N
     const defAB_P : boolean = serviceInfo.bloodTypeAvailability.AB_P
     const defAB_N : boolean = serviceInfo.bloodTypeAvailability.AB_N
+    
+    const defDivisionName: string | undefined = serviceInfo.division?.name
+    const defDivisionID: string | undefined = serviceInfo.division?.divisionID
 
     let phoneNumber: string
     let openingTime: Date
     let closingTime: Date
-    let pricePerUnit: number
+    let basePricePerUnit: number
     let turnaroundTimeD: number
     let turnaroundTimeH: number
+    
+    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
+    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
-      pricePerUnit = validateFloat(data.get('price'), "Price Per Unit");
+      basePricePerUnit = validateFloat(data.get('price'), "Price Per Unit");
 
       let OCTime = validateOperatingHours(data.get('opening'), data.get('closing'))
       openingTime = OCTime.openingTime
@@ -625,16 +610,16 @@ export const actions: Actions = {
       phoneNumber,
       openingTime,
       closingTime,
-      pricePerUnit,
+      basePricePerUnit,
       turnaroundTimeD,
       turnaroundTimeH,
-      bloodTypeAvailability,
+      bloodTypeAvailability
     }
 
     if (defPhoneNumber == phoneNumber &&
         defOpeningTime == dateToTimeMapping(openingTime) &&
         defClosingTime == dateToTimeMapping(closingTime) &&
-        defPricePerUnit == pricePerUnit &&
+        defPricePerUnit == basePricePerUnit &&
         defTurnaroundTimeD == turnaroundTimeD &&
         defTurnaroundTimeH == turnaroundTimeH &&
         defA_P  == A_P &&
@@ -644,7 +629,9 @@ export const actions: Actions = {
         defO_P  == O_P &&
         defO_N  == O_N &&
         defAB_P == AB_P &&
-        defAB_N == AB_N
+        defAB_N == AB_N &&
+        defDivisionID == divisionID && 
+        defDivisionName == divisionName 
       ) {
       return fail(422, { 
           error: "No changes made",
@@ -653,6 +640,9 @@ export const actions: Actions = {
         });
     }
 
+    if (divisionID && divisionName) {
+      service.division = {divisionID : divisionID, name: divisionName}
+    }
 
     bloodBankDAO.update(serviceID, facilityID, employeeID, service)
 
@@ -683,7 +673,7 @@ export const actions: Actions = {
 
     const serviceInfo = await eRDAO.getInformation(serviceID);
 
-    const defPhoneNumber          : String = serviceInfo.phoneNumber;
+    const defPhoneNumber          : String | undefined = serviceInfo.phoneNumber;
     const defLoad                 : Load   = serviceInfo.load;
     const defAvailableBeds        : Number = serviceInfo.availableBeds;
     const defNonUrgentPatients    : Number = serviceInfo.nonUrgentPatients;
@@ -692,6 +682,9 @@ export const actions: Actions = {
     const defUrgentQueueLength    : Number = serviceInfo.urgentQueueLength;
     const defCriticalPatients     : Number = serviceInfo.criticalPatients;
     const defCriticalQueueLength  : Number = serviceInfo.criticalQueueLength;
+    
+    const defDivisionName: string | undefined = serviceInfo.division?.name
+    const defDivisionID: string | undefined = serviceInfo.division?.divisionID
 
     let phoneNumber: string
     const load: Load = data.get('load') as Load
@@ -703,16 +696,23 @@ export const actions: Actions = {
     let criticalPatients: number
     let criticalQueueLength: number
 
+    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
+    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
+      
       availableBeds = validateInteger(data.get('availableBeds'), "Available Beds");
+      
       nonUrgentPatients = validateInteger(data.get('nonUrgentPatients'), "Non Urgent Patients");
       nonUrgentQueueLength = validateInteger(data.get('nonUrgentQueueLength'), "Non Urgent Queue Length");
+      
       urgentPatients = validateInteger(data.get('urgentPatients'), "Urgent Patients");
       urgentQueueLength = validateInteger(data.get('urgentQueueLength'), "Urgent Queue Length");
+      
       criticalPatients = validateInteger(data.get('criticalPatients'), "Critical Patients");
       criticalQueueLength = validateInteger(data.get('criticalQueueLength'), "Critical Queue Length");
+
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
@@ -731,7 +731,7 @@ export const actions: Actions = {
       urgentPatients       ,
       urgentQueueLength    ,
       criticalPatients     ,
-      criticalQueueLength  ,
+      criticalQueueLength  
     }
 
     if (defPhoneNumber          == phoneNumber &&
@@ -742,13 +742,18 @@ export const actions: Actions = {
         defUrgentPatients       == urgentPatients &&
         defUrgentQueueLength    == urgentQueueLength &&
         defCriticalPatients     == criticalPatients &&
-        defCriticalQueueLength  == criticalQueueLength
+        defCriticalQueueLength  == criticalQueueLength &&
+        defDivisionID           == divisionID && 
+        defDivisionName         == divisionName 
       ) {
       return fail(422, { 
         error: "No changes made",
         description: "button",
         success: false  
       });
+    }
+    if (divisionID && divisionName) {
+      service.division = {divisionID : divisionID, name: divisionName}
     }
 
     eRDAO.update(serviceID, facilityID, employeeID, service)
@@ -780,7 +785,7 @@ export const actions: Actions = {
 
     const serviceInfo = await iCUDAO.getInformation(serviceID);
 
-    const defPhoneNumber: String = serviceInfo.phoneNumber
+    const defPhoneNumber: String | undefined = serviceInfo.phoneNumber
     const defBaseRate: Number = serviceInfo.baseRate
     const defLoad: Load = serviceInfo.load
     const defAvailableBeds: Number = serviceInfo.availableBeds
@@ -788,7 +793,9 @@ export const actions: Actions = {
     const defNeurologicalSupport: boolean = serviceInfo.neurologicalSupport
     const defRenalSupport: boolean = serviceInfo.renalSupport
     const defRespiratorySupport: boolean = serviceInfo.respiratorySupport
-
+    
+    const defDivisionName: string | undefined = serviceInfo.division?.name
+    const defDivisionID: string | undefined = serviceInfo.division?.divisionID
 
     let phoneNumber: string
     let baseRate: number
@@ -798,33 +805,19 @@ export const actions: Actions = {
     let neurologicalSupport: boolean
     let renalSupport: boolean
     let respiratorySupport: boolean
+    
+    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
+    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "phoneNumber",
-        success: false
-      });
-    }
-
-    try {
       baseRate = validateFloat(data.get('price'), "Base Rate");
-    } catch (error) {
-      return fail(422, {
-        error: (error as Error).message,
-        description: "price",
-        success: false
-      });
-    }
-
-    try {
       availableBeds = validateInteger(data.get('availableBeds'), "Available Beds");
+
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
-        description: "availableBeds",
+        description: "validation",
         success: false
       });
     }
@@ -842,23 +835,28 @@ export const actions: Actions = {
       cardiacSupport      ,
       neurologicalSupport ,
       renalSupport        ,
-      respiratorySupport  ,
+      respiratorySupport  
     }
 
-    if (defPhoneNumber         == phoneNumber &&
-        defBaseRate            == baseRate &&
-        defLoad                == load &&
-        defAvailableBeds       == availableBeds &&
-        defCardiacSupport      == cardiacSupport &&
-        defNeurologicalSupport == neurologicalSupport &&
-        defRenalSupport        == renalSupport &&
-        defRespiratorySupport  == respiratorySupport
+    if (defPhoneNumber          == phoneNumber &&
+        defBaseRate             == baseRate &&
+        defLoad                 == load &&
+        defAvailableBeds        == availableBeds &&
+        defCardiacSupport       == cardiacSupport &&
+        defNeurologicalSupport  == neurologicalSupport &&
+        defRenalSupport         == renalSupport &&
+        defRespiratorySupport   == respiratorySupport &&
+        defDivisionID           == divisionID && 
+        defDivisionName         == divisionName
       ) {
       return fail(422, { 
         error: "No changes made",
         description: "button",
         success: false  
       });
+    }
+    if (divisionID && divisionName) {
+      service.division = {divisionID : divisionID, name: divisionName}
     }
 
     iCUDAO.update(serviceID, facilityID, employeeID, service)
@@ -890,20 +888,27 @@ export const actions: Actions = {
 
     const serviceInfo = await outpatientDAO.getInformation(serviceID);
 
-    const defPrice: Number = serviceInfo.price
+    const type: string = serviceInfo.type
+    const defPrice: Number = serviceInfo.basePrice
     const defCompletionTimeD: Number = serviceInfo.completionTimeD
     const defCompletionTimeH: Number = serviceInfo.completionTimeH
     const defIsAvailable: boolean = serviceInfo.isAvailable
     const defAcceptsWalkIns: boolean = serviceInfo.acceptsWalkIns
+    
+    const defDivisionName: string | undefined = serviceInfo.division?.name
+    const defDivisionID: string | undefined = serviceInfo.division?.divisionID
 
-    let price: number
+    let basePrice: number
     let completionTimeD: number
     let completionTimeH: number
     const isAvailable: boolean = (data.get('isAvailable') ?? '') === 'on'
     const acceptsWalkIns: boolean = (data.get('acceptsWalkIns') ?? '') === 'on'
+    
+    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
+    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
 
     try {
-      price = validateFloat(data.get('price'), "Base Rate");
+      basePrice = validateFloat(data.get('price'), "Base Rate");
       let TTime = validateCompletionTime(data.get('completionDays'), data.get('completionHours'), "Completion")
       completionTimeD = TTime.days
       completionTimeH = TTime.hours
@@ -915,24 +920,30 @@ export const actions: Actions = {
     }
 
     const service: OutpatientServiceDTO = {
-      price                 ,
+      type,
+      basePrice             ,
       completionTimeD       ,
       completionTimeH       ,
       isAvailable           ,
       acceptsWalkIns        ,
     }
 
-    if (defPrice == price &&
+    if (defPrice == basePrice &&
         defCompletionTimeD == completionTimeD &&
         defCompletionTimeH == completionTimeH &&
         defIsAvailable == isAvailable &&
-        defAcceptsWalkIns == acceptsWalkIns
+        defAcceptsWalkIns == acceptsWalkIns &&
+        defDivisionID == divisionID && 
+        defDivisionName == divisionName
       ) {
       return fail(422, { 
         error: "No changes made",
         description: "button",
         success: false  
       });
+    }
+    if (divisionID && divisionName) {
+      service.division = {divisionID : divisionID, name: divisionName}
     }
 
     outpatientDAO.update(serviceID, facilityID, employeeID, service)

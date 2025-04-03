@@ -1,14 +1,19 @@
-import type { Actions, PageServerLoad } from "./$types";
-import { BloodBankServiceDAO } from '$lib/server/BloodBankDAO';
-import { FacilityDAO } from '$lib/server/FacilityDAO';
-import { AddressDAO } from '$lib/server/AddressDAO';
-import { ServicesDAO } from '$lib/server/ServicesDAO';
 import { fail, redirect } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
+
+import { 
+  BloodBankServiceDAO,
+  FacilityDAO,
+  AddressDAO,
+  ServicesDAO,
+  GeographyDAO,
+} from '$lib';
 
 export const load: PageServerLoad = async ({ params }) => {
   const bloodBankDAO = new BloodBankServiceDAO();
   const facilityDAO = new FacilityDAO();
   const addressDAO = new AddressDAO();
+  const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO();
   const { serviceID } = params;
 
@@ -26,7 +31,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
     
     console.log("Fetching facility details for facilityID:", service.facilityID);
-    let facility = await facilityDAO.getGeneralInformation(service.facilityID);
+    let facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
       console.error("Facility details not found for facilityID:", service.facilityID);
       throw new Error("Facility details not found.");
@@ -38,10 +43,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
     if (address) {
       const [region, province, city, barangay] = await Promise.all([
-        addressDAO.getNameOfRegion(address.regionID),
-        addressDAO.getNameOfProvince(address.pOrCID),
-        addressDAO.getNameOfCOrM(address.cOrMID),
-        addressDAO.getNameOfBrgy(address.brgyID),
+        geographyDAO.getNameOfRegion(address.regionID),
+        geographyDAO.getNameOfProvince(address.pOrCID),
+        geographyDAO.getNameOfCOrM(address.cOrMID),
+        geographyDAO.getNameOfBrgy(address.brgyID),
       ]);
 
       fullAddress = {
@@ -57,11 +62,11 @@ export const load: PageServerLoad = async ({ params }) => {
 
     return {
       facilityName        : facility.name,
-      facilityAddress     : fullAddress,
+      facilityAddress     : fullAddress ?? null,
       phoneNumber        : bloodBankService.phoneNumber ?? null,
       openingTime        : bloodBankService.openingTime ?? null,
       closingTime        : bloodBankService.closingTime ?? null,
-      pricePerUnit       : bloodBankService.pricePerUnit ?? null,
+      pricePerUnit       : bloodBankService.basePricePerUnit ?? null,
       turnaroundTimeD    : bloodBankService.turnaroundTimeD ?? null,
       turnaroundTimeH    : bloodBankService.turnaroundTimeH ?? null,
       bloodTypeAvailability: bloodBankService.bloodTypeAvailability ?? null,

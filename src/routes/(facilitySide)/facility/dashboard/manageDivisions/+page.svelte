@@ -9,6 +9,7 @@
   import DeleteDivisionRestricted from "./DeleteDivisionRestricted.svelte";
   import AddDivision from './AddDivision.svelte';
   import EditDivision from './EditDivision.svelte';
+    import { pagingQueryHandler } from '$lib/postHandlers';
 
   let { data, form }: PageProps = $props();
 
@@ -27,58 +28,34 @@
   let error = $state('')
   let errorLoc = $state('')
 
-  let queryMode = $state(false)
+  let isInQueryMode = $state(false)
 
-  async function getPage(change: number,) {
-    let body;
-    let dest;
-
+  async function getPage(change: number) {
     try {
+      const rv = await pagingQueryHandler({page: "divisions", query, isInQueryMode, currentPage, change, totalPages});
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageDivisions/searchDivisionsHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageDivisions/divisionPagingHandler"
+      if (errorLoc !== "query") {
+        divisions =  rv.list
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
+        
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        divisions = rv.divisions
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "division"){
-        error = rv.error
-        errorLoc = "division"
-        divisions = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
     }
   }
 
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter")
+    {
+      isInQueryMode = true
+      currentPage = 1
+      getPage(0)
+    }
+  }
+  
 </script>
 
 {#if currPopUp === "delete"}
@@ -100,16 +77,15 @@
     bind:divisions={divisions}
     bind:linkableServices={linkableServices}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
-<!-- {:else if currPopUp === "editDivision"}
+{:else if currPopUp === "editDivision"}
   <EditDivision 
-    { firstname }
-    { middlename }
-    { lastname }
     { form }
     bind:currPopUp={currPopUp}
     divisionID={selectedDivisionID}
-  /> -->
+  />
 {/if}
 
 <!-- Header -->
@@ -142,6 +118,7 @@
         type="text"
         placeholder="search"
         bind:value={query}
+        onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
       {#if query.length > 0}
@@ -149,7 +126,7 @@
           query = ""
           error = ""
           errorLoc = ""
-          queryMode = false
+          isInQueryMode = false
           currentPage = 1
           getPage(0)
         }}>
@@ -157,7 +134,7 @@
         </button>
       {/if}
       <button onclick={() => {
-        queryMode = true
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>

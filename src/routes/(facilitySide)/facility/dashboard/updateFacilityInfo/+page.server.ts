@@ -14,7 +14,6 @@ import type { PageServerLoad,
 import { v4 as uuidv4 } from 'uuid';
 
 import { type GeneralInformationFacilityDTO,
-         AddressDAO,
          FacilityDAO,
          validateEmail, 
          validatePhone, 
@@ -22,7 +21,8 @@ import { type GeneralInformationFacilityDTO,
          validateLink, 
          validateFacilityName, 
          validateImage,
-         providers,  
+         providers,
+         GeographyDAO,  
       } from '$lib';
 
 let defPhoto: string
@@ -52,16 +52,16 @@ export const load: PageServerLoad = async ({ cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  let facilityDAO = new FacilityDAO();
-  const addressDAO = new AddressDAO();
+  const facilityDAO = new FacilityDAO();
+  const geographyDAO = new GeographyDAO();
 
   try {
-    let facilityInfo = await facilityDAO.getGeneralInformation(facilityID);
+    let facilityInfo = await facilityDAO.getInformation(facilityID);
 
     defPhoto = facilityInfo.photo
     defName = facilityInfo.name
     defPhoneNumber = facilityInfo.phoneNumber
-    defEmail = facilityInfo.email
+    defEmail = facilityInfo.email ?? ""
     defBookingSystem = facilityInfo.bookingSystem ?? ""
     defFacilityType = facilityInfo.facilityType
     defOwnership = facilityInfo.ownership
@@ -74,10 +74,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
     defStreet = facilityInfo.address.street
 
     return {
-        regions: await addressDAO.getRegions(),
-        provinces: await addressDAO.getProvinceOfRegion(facilityInfo.address.regionID),
-        corms: await addressDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
-        brgys: await addressDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
+        regions: await geographyDAO.getRegions(),
+        provinces: await geographyDAO.getProvinceOfRegion(facilityInfo.address.regionID),
+        corms: await geographyDAO.getCOrMOfProvince(facilityInfo.address.pOrCID),
+        brgys: await geographyDAO.getBrgyOfCOrM(facilityInfo.address.cOrMID),
 
         facilityName: defName,
 
@@ -214,7 +214,8 @@ export const actions = {
         defCOrMID == address.cOrMID &&
         defBrgyID == address.brgyID &&
         defStreet == address.street &&
-        defAcceptedProviders.toString() == acceptedProviders.toString()) {
+        defAcceptedProviders.toString() == acceptedProviders.toString()
+      ) {
       return fail(422, { 
         error: "No changes made",
         description: "button",
@@ -222,7 +223,7 @@ export const actions = {
       });
     }
 
-    await facilityDAO.updateGeneralInformation(facilityID, genInfo);
+    await facilityDAO.update(facilityID, genInfo);
 
     return { success: true };
   }

@@ -1,4 +1,4 @@
-// @ts-nocheck comment at the top of a file
+// @ts-nocheck
 
 import { prisma } from "./prisma";
 
@@ -6,20 +6,50 @@ import type { Prisma } from "@prisma/client";
 
 import { Action }  from "@prisma/client";
 
-import { UpdateLogDAO } from "./UpdateLogDAO";
-
-import type { ServiceDTO, 
-              PaginatedServiceDTO 
-            } from "./DTOs";
-
-import type { ServiceResultsDTO } from "./DTOs";
-
 import type { Service } from '@prisma/client';
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
+import { paginate, loadMore } from "./dataLayerUtility";
+
+import { UpdateLogDAO } from "./UpdateLogDAO";
+
+import type { ServiceDTO,
+              LoadMoreResultsDTO,
+              PaginatedResultsDTO 
+            } from "./DTOs";
+
+//
+
+const serviceBaseSelect = {
+  serviceID : true,
+  type      : true,
+  createdAt : true,
+  updatedAt : true,
+};
+
+const serviceDivsSelect = {
+  division: {
+    select: {
+      divisionID : true,
+      name       : true,
+    }
+  }
+};
+
+function serviceSelect(includeDivs = false) {
+  return includeDivs ? { ...serviceBaseSelect, ...serviceDivsSelect } : serviceBaseSelect;
+}
+
+const baseServiceSearchSelect = {
+  serviceID : true,
+  type      : true,
+}
+
+let updateLogDAO: UpdateLogDAO = new UpdateLogDAO(); // could inject this but whatever lol
 
 export class ServicesDAO {
-  async getByID(serviceID: string): Promise<Service | null> {
+  // generics
+
+  async getByID(serviceID: string): Promise<Service> {
     try {
       const service = await prisma.service.findUnique({
         where: {
@@ -28,9 +58,10 @@ export class ServicesDAO {
       });
 
       if (!service) {
-        console.warn("No Service found with the specified ID.");
-        return null;
+        throw new Error("No Service found with the specified ID.");
       }
+
+      console.log(`Service ${serviceID}: `, service);
 
       return service;
     } catch (error) {
@@ -39,26 +70,70 @@ export class ServicesDAO {
     }
   }
 
-  // unsure of output format. are these all needed or kahit ID lang. (ifl ID lang)
-
   async getByFacility(facilityID: string): Promise<ServiceDTO[]> {
     try {
       const services = await prisma.service.findMany({
         where: {
           facilityID
         },
-        select: {
-          serviceID : true,
-          type      : true,
-          createdAt : true,
-          updatedAt : true,
-        }
+        select: serviceSelect(true)
       });
+
+      console.log(`Result of "services" query for Facility ${facilityID}: `, services);
+
+      console.log(`Services of Facility ${facilityID}: `);
 
       return services;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Services of the facility.");
+      throw new Error("Could not get Services of the Facility.");
+    }
+  }
+
+  async getByDivision(divisionID: string): Promise<ServiceDTO[]> {
+    try {
+      const services = await prisma.service.findMany({
+        where: {
+          divisionID
+        },
+        select: serviceSelect()
+      });
+
+      console.log(`Result of "services" query for Division ${divisionID}: `, services);
+
+      console.log(`Services of Division ${divisionID}: `);
+
+      return services;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Services of the Division.");
+    }
+  }
+
+  //
+
+  async reconnectDivision(serviceID: string, divisionID: string): Promise<void> {
+    try {
+      const division = await prisma.service.update({
+        where: { 
+          serviceID 
+        },
+        data: {
+          division: {
+            connect: { 
+              divisionID 
+            }
+          }
+        },
+        select: {
+          divisionID: true
+        }
+      });
+
+      console.log(`Updated Division of Service: `, division);
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not connect Admin to Divisions.");
     }
   }
 
@@ -70,7 +145,8 @@ export class ServicesDAO {
             serviceID 
           },
           select: { 
-            type: true 
+            type       : true,
+            divisionID : true, 
           }
         });
 
@@ -78,13 +154,18 @@ export class ServicesDAO {
           throw new Error("Service not found.");
         }
   
-        await updateLogDAO.createUpdateLog(
-          { entity: service.type, action: Action.DELETE },
+        await updateLogDAO.create(
+          {
+            entity: service.type,
+            action: Action.DELETE,
+
+            ...(service.divisionID && { divisionID: service.divisionID })
+          },
           facilityID,
           employeeID,
           tx
         );
-  
+
         await prisma.service.delete({
           where: {
             serviceID
@@ -97,86 +178,123 @@ export class ServicesDAO {
     }
   }
 
-  /*
-  async getCreatableServicesByFacility(facilityID: string): 
-  Promise<{ creatableServiceTypes: string[], creatableOutpatientServices: ServiceType[]}> {
+  async getFacility(serviceID: string): Promise<{ facilityID: string, name: string }> {
     try {
-      const services = await this.getServicesByFacility(facilityID);
-
-      let creatableServiceTypes:       string[]      = []; // removed "None" kasi cop-out solution lang sya ryt,,,
-      let creatableOutpatientServices: ServiceType[] = []; // removed "None" kasi cop-out solution lang sya ryt,,,
-
-      for (const [key, value] of Object.entries(services)) {
-        if ((value === null) && (key in this.serviceMapping)) {
-          creatableServiceTypes.push(this.serviceMapping[key]);
+      const service = await prisma.service.findUnique({
+        where: {
+          serviceID
+        },
+        select: {
+          facility: {
+            select: {
+              facilityID : true,
+              name       : true,
+            }
+          }
         }
+      });
+
+      if (!service) {
+        throw new Error("No Service found.");
       }
 
-      let existingOutpatientServiceTypes: ServiceType[] = services.outpatientServices.map(service => service.serviceType);
-
-      for (let serviceType of OutpatientServiceTypes) {              // serviceTypes to be imported
-        if (!existingOutpatientServiceTypes.includes(serviceType)) {
-          creatableOutpatientServices.push(serviceType);
-        }
-      }
-
-      if (creatableOutpatientServices.length > 0) {
-        creatableServiceTypes.push("Outpatient");
-      }
-
-      return { creatableServiceTypes, creatableOutpatientServices };
+      return service.facility;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get creatable services.");
+      throw new Error("Could not get Facility of Service.");
     }
   }
 
-  async getCreatableServicesByFacility(facilityID: string): Promise<string[]> {
+  async getDivision(serviceID: string): Promise<{ divisionID: string, name: string }> {
     try {
-      const services = await this.getServicesByFacility(facilityID);
-
-      let creatableServiceTypes: string[] = [];
-
-      for (const [key, value] of Object.entries(services)) {
-        if ((value === null) && (key in this.serviceMapping)) {
-          creatableServiceTypes.push(this.serviceMapping[key]);
+      const service = await prisma.service.findUnique({
+        where: {
+          serviceID
+        },
+        select: {
+          division: {
+            select: {
+              divisionID : true,
+              name       : true,
+            }
+          }
         }
+      });
+
+      if (!service) {
+        throw new Error("No Service found.");
       }
 
-      let existingOutpatientServiceTypes: ServiceType[] = services.outpatientServices.map(service => service.serviceType);
-
-      for (let serviceType of OutpatientServiceTypes) {              // serviceTypes to be imported
-        if (!existingOutpatientServiceTypes.includes(serviceType)) {
-          creatableServiceTypes.push(serviceType);
-        }
+      if (!service.division) {
+        throw new Error("Division not found.");
       }
 
-      return creatableServiceTypes;
+      const { divisionID, name } = service.division;
+
+      if ((!divisionID) || (!name)) {
+        throw new Error("Incomplete Division details.");
+      }
+
+      return { divisionID, name };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get creatable services.");
+      throw new Error("Could not get Division of Service.");
     }
   }
-  */
 
-  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: ServiceResultsDTO[], hasMore: boolean }> {
+  async getCreatableServices(facilityID: string): Promise<{ types: string[], outpatients: string[] }> {
+    try {
+      const services = (await this.getByFacility(facilityID)).map((service) => service.type);
+
+      let types       = new Set<string>();
+      let outpatients = new Set<string>();
+
+      let hasOutpatient = false;
+
+      for (const type of services) {
+        if (["Ambulance", "Blood Bank", "Emergency Room", "Intensive Care Unit"].includes(type)) {
+          types.add(type);
+        }
+
+        else {
+          if (!hasOutpatient) {
+            types.add("Outpatient");
+
+            hasOutpatient = true;
+          }
+
+          outpatients.add(type);
+        }
+      }
+
+      return {
+        types       : Array.from(types),
+        outpatients : Array.from(outpatients),
+      };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get creatable Services.");
+    }
+  }
+}
+
+export class PatientServiceListDAO {
+  async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO> { // to refine for location-based search
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
 
-      const services = await prisma.service.findMany({
-        where: { 
+      return await loadMore({
+        model: prisma.service,
+        where: {
+          ...filters,
           type: { 
             contains : query, mode : "insensitive"
-          } 
-        },
-        orderBy: {
-          updatedAt: "desc"
+          }
         },
         select: {
-          serviceID : true,
-          type      : true,
+          ...baseServiceSearchSelect,
           facility  : {
             select: {
               facilityID : true,
@@ -184,135 +302,174 @@ export class ServicesDAO {
             }
           },
         },
-        skip: offset,
-        take: numberToFetch + 1
+        orderBy: { 
+          updatedAt: "desc" 
+        },
+        offset,
+        numberToFetch,
+        mapping: ({ serviceID, type, facility: { facilityID, name } }: any) => ({
+          serviceID,
+          type,
+          facilityID,
+          name,
+        })        
       });
-
-      const results = services.map(({ serviceID, type, facility }) => ({facilityID: facility.facilityID, name: facility.name, serviceID, type}));
-
-      return {
-        results: results.slice(0, numberToFetch),
-        hasMore: services.length > numberToFetch,
-      };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not search for Facilities with Services whose name matches the query.");
+      throw new Error("Could not search for Facilities with Services that match the search query.");
     }
   }
 
-  async patientSearchByFacility(query: string, numberToFetch: number, offset: number, facilityID: string): Promise<{ results: ServiceDTO[], hasMore: boolean }> {
+  async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
+    try {
+      return await loadMore({
+        model: prisma.service,
+        where: { 
+          facilityID
+        },
+        select: baseServiceSearchSelect,
+        orderBy,
+        offset,
+        numberToFetch
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get load more Services within the entire Facility.");
+    }
+  }
+
+  async patientSearchServicesByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
 
-      const services = await prisma.service.findMany({
-        where: {
+      return await loadMore({
+        model: prisma.service,
+        where: { 
           facilityID,
           type: { 
-            contains : query, mode : "insensitive"
+            contains: query, mode: "insensitive" 
           } 
+        },
+        select: baseServiceSearchSelect,
+        orderBy,
+        offset,
+        numberToFetch
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Services within the entire Facility that match the search query.");
+    }
+  }
+}
+
+export class FacilityServiceListDAO {
+  async getServiceListPreview(facilityID: string, numberToFetch: number): Promise<string[]> {
+    try {
+      const services = await prisma.service.findMany({
+        where: {
+          facilityID
+        },
+        select: {
+          type: true
         },
         orderBy: {
           updatedAt: "desc"
         },
-        select: {
-          serviceID : true,
-          type      : true,
-          createdAt : true,
-          updatedAt : true,
-        },
-        take: numberToFetch + 1,
-        skip: offset
-      });
+        take: numberToFetch
+      })
 
-      return {
-        results: services.slice(0, numberToFetch),
-        hasMore: services.length > numberToFetch,
-      };
+      return services.map((service) => service.type);
     } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not search for Services within the facility whose name matches the query.");
+      console.error("Details:", error);
+      throw new Error("Could not get Services preview.");
     }
-  }
+  } 
 
-  async getPaginatedServicesByFacility(facilityID: string, page: number, pageSize: number): Promise<PaginatedServiceDTO> {
+  async getPaginatedServicesByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
-      const [services, totalServices] = await Promise.all([
-        prisma.service.findMany({
-          where: {
-            facilityID
-          },
-          select: {
-            serviceID : true,
-            type      : true,
-            createdAt : true,
-            updatedAt : true,
-          },
-          orderBy: {
-            updatedAt: "desc"
-          },
-          skip: (Math.max(1, page) - 1) * pageSize,
-          take: pageSize
-        }),
-        prisma.service.count({ 
-          where: { 
-            facilityID 
-          }
-        })
-      ]);
-  
-      const totalPages = Math.max(1, Math.ceil(totalServices / pageSize)); // only needed for admins, etc.
-
-      return { services, totalPages, currentPage: page };
+      return await paginate({
+        model: prisma.service,
+        where: {
+          facilityID
+        },
+        select: serviceSelect(true),
+        orderBy,
+        page,
+        pageSize
+      });
     } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get paginated Services within the entire facility.");
+      console.error("Details:", error);
+      throw new Error("Could not get paginated Services within the entire Facility.");
     }
-  }
+  } 
 
-  async employeeSearchServicesByFacility(facilityID: string, query: string, page: number, pageSize: number): Promise<PaginatedServiceDTO> {
+  async employeeSearchServicesByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
       if (!(query.trim())) {
-        return { services: [], totalPages: 1, currentPage: page };
+        return { results: [], totalPages: 1, currentPage: page };
       }
 
-      const [services, totalServices] = await Promise.all([
-        prisma.service.findMany({
-          where: {
-            facilityID,
-            type: { 
-              contains: query, mode: "insensitive" 
-            }
-          },
-          select: {
-            serviceID : true,
-            type      : true,
-            createdAt : true,
-            updatedAt : true,
-          },
-          orderBy: {
-            updatedAt: "desc"
-          },
-          skip: (Math.max(1, page) - 1) * pageSize,
-          take: pageSize
-        }),
-        prisma.service.count({ 
-          where: { 
-            facilityID,
-            type: { 
-              contains: query, mode: "insensitive" 
-            }
+      return await paginate({
+        model: prisma.service,
+        where: {
+          facilityID,
+          type: { 
+            contains: query, mode: "insensitive" 
           }
-        })
-      ]);
-  
-      const totalPages = Math.max(1, Math.ceil(totalServices / pageSize)); // only needed for admins, etc.
-
-      return { services, totalPages, currentPage: page };
+        },
+        select: serviceSelect(true),
+        orderBy,
+        page,
+        pageSize
+      });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not search paginated Services within the entire facility.");
+      throw new Error("Could not get paginated Services within the entire Facility that match the search query.");
+    }
+  }
+
+  async getPaginatedServicesByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      return await paginate({
+        model: prisma.service,
+        where: {
+          divisionID
+        },
+        select: serviceSelect(),
+        orderBy,
+        page,
+        pageSize
+      });
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("Could not get paginated Services within the Division.");
+    }
+  }
+
+  async employeeSearchServicesByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      if (!(query.trim())) {
+        return { results: [], totalPages: 1, currentPage: page };
+      }
+
+      return await paginate({
+        model: prisma.service,
+        where: {
+          divisionID,
+          type: { 
+            contains: query, mode: "insensitive" 
+          }
+        },
+        select: serviceSelect(),
+        orderBy,
+        page,
+        pageSize
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get paginated Services within the Division that match the search query.");
     }
   }
 }

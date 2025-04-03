@@ -1,7 +1,5 @@
 import { prisma } from "./prisma";
 
-import type { Prisma } from "@prisma/client";
-
 import { Role } from "@prisma/client";
 
 import type { Employee } from '@prisma/client';
@@ -13,25 +11,30 @@ import bcrypt from "bcryptjs";
 // TO ADD: UPDATE PHOTO
 
 export class EmployeeDAO {
-  async getByID(employeeID: string): Promise<Employee | null> {
+  // generics
+
+  async getByID(employeeID: string): Promise<Employee> {
     try {
-      const admin = await prisma.employee.findUnique({
+      const employee = await prisma.employee.findUnique({
         where: { 
           employeeID
         }
       });
   
-      if (!admin) {
-        console.warn("No Employee with the specified ID found in the facility.");
-        return null;
+      if (!employee) {
+        throw new Error("No Employee with the specified ID found in the facility.");
       }
-  
-      return admin;
+
+      console.log(`Employee ${employeeID}: `, employee);
+
+      return employee;
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not get Employee.");
     }
   }
+
+  //
 
   async getRole(employeeID: string): Promise<Role> {
     try {
@@ -69,7 +72,7 @@ export class EmployeeDAO {
       });
 
       if (!password) {
-        throw new Error("Could not get Employee role.");
+        throw new Error("Could not get Employee password.");
       }
 
       return password.password;
@@ -98,16 +101,16 @@ export class EmployeeDAO {
     }
   }
 
-  async updatePhoto(employeeID: string, photoUrl: string): Promise<void> {
+  /*
+  async updatePhoto(employeeID: string, <INSERT PARAMETERS>): Promise<void> {
     try {
-      await prisma.employee.update({
-        where: { employeeID },
-        data: { photo: photoUrl },
-      });
+      
+    can we make a helper function that this method calls to prevent redundancy ? i intend to add an update photo method din sa facilityDAO
+
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update Employee photo.");
     }
   }
-
+  */
 }

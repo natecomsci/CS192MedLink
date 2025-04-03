@@ -1,11 +1,10 @@
 <script lang="ts">
-    import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib/server/DTOs';
+    import type { Provider } from '@prisma/client';
     import type { PageProps } from './$types';
-
     import { enhance } from '$app/forms';
 
+    import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib';
     import { facilityType, providers } from '$lib/projectArrays';
-    import type { Provider } from '@prisma/client';
 
     let enableCities = $state(true);
     let enableBarangays = $state(true);

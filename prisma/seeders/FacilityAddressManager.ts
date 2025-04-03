@@ -1,18 +1,18 @@
 import { PrismaClient } from "@prisma/client";
 
-import { FacilityType, Ownership, Role } from "@prisma/client";
+import { FacilityType, Ownership, Provider, Role } from "@prisma/client";
 
 import { faker } from "@faker-js/faker";
 
 import bcrypt from "bcryptjs";
 
-import { AddressDAO } from "../../src/lib/server//AddressDAO"
+import { GeographyDAO } from "../../src/lib/server/GeographyDAO"
 
-import { AddressDTO } from "../../src/lib/server//DTOs"
+import { AddressDTO } from "../../src/lib/server/DTOs"
 
 const prisma = new PrismaClient();
 
-let addressDAO: AddressDAO = new AddressDAO();
+let geographyDAO: GeographyDAO = new GeographyDAO();
 
 function getRandomItem<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]
@@ -21,112 +21,76 @@ function getRandomItem<T>(array: T[]): T {
 export async function seedFacility() {
   let salt = await bcrypt.genSalt(10);
   let hashedPassword: string = await bcrypt.hash("password", salt);
-
-  // test facility n divisions
-
-  await prisma.facility.upsert({
-    where  : { 
-      facilityID : "paul" 
-    },
-    update : {},
-    create : {
-      facilityID   : "paul",
-      name         : "Paul's Mental Facility",
-      photo        : "https://placehold.co/600x400/png?text=PaulsMentalFacility",
-      email        : "paul@weng.com",
-      phoneNumber  : "0912 345 6789",
-      facilityType : FacilityType.MENTAL_HEALTH_FACILITY,
-      ownership    : Ownership.PRIVATE,
-    },
-  });
-
-  await prisma.employee.upsert({
-    where  : { 
-      employeeID : "paul" 
-    },
-    update : {},
-    create : {
-      employeeID : "paul",
-      password   : hashedPassword,
-      role       : Role.MANAGER,
-      fname      : faker.person.firstName(faker.person.sexType()),
-      lname      : faker.person.lastName(),
-      facilityID : "paul",
-    }
-  });
-
-  // test facility y divisions
-
-  await prisma.facility.upsert({
-    where  : { 
-      facilityID : "paulwithdivisions" 
-    },
-    update : {},
-    create : {
-      facilityID   : "paulwithdivisions",
-      name         : "Paul's Mental Facility Pro",
-      photo        : "https://placehold.co/600x400/png?text=PaulsMentalFacilityPro",
-      email        : "paul@gnew.com",
-      phoneNumber  : "0998 765 4321",
-      facilityType : FacilityType.MENTAL_HEALTH_FACILITY,
-      ownership    : Ownership.PRIVATE,
-    },
-  });
-
-  await prisma.employee.upsert({
-    where  : { 
-      employeeID : "paulwithdivisions" 
-    },
-    update : {},
-    create : {
-      employeeID : "paulwithdivisions",
-      password   : hashedPassword,
-      role       : Role.MANAGER,
-      fname      : faker.person.firstName(faker.person.sexType()),
-      lname      : faker.person.lastName(),
-      facilityID : "paulwithdivisions",
-    }
-  });
-
-  // 5 facilities
-
-  for (let i = 1; i <= 5; i++) {
-    // facility
   
+  const test = [
+    {
+      facilityID : "cs192",
+      name       : "Paul's Mental Facility",
+      email      : "paul@weng.com",
+      phone      : "0912 345 6789",
+    },
+    {
+      facilityID : "cs192withdivisions",
+      name       : "Paul's Mental Facility Pro",
+      email      : "paul@gnew.com",
+      phone      : "0998 765 4321",
+    },
+    ...Array.from({ length: 5 }, (_, i) => ({
+      facilityID : (i + 1).toString(),
+      name       : `Facility ${i + 1}`,
+      email      : `facility${i + 1}@medlink.com`,
+      phone      : `0917 100 000${(i + 1)}`,
+    })),
+  ];
+  
+  const facilitiesWithDivisions = new Set(["cs192withdivisions", "2", "4"]);
+  
+  for (const { facilityID, name, email, phone } of test) {
+    const hasDivisions = facilitiesWithDivisions.has(facilityID);
+  
+    const openingTime = faker.date.future();
+    const closingTime = faker.date.between({
+      from : openingTime, 
+      to   : new Date(new Date(openingTime).setHours(new Date(openingTime).getHours() + 12))
+    });
+    const insurances = [Provider.MEDICARE, Provider.MAXICARE, Provider.INTELLICARE, Provider.PHILHEALTH]
+
     await prisma.facility.upsert({
-      where  : { 
-        facilityID : i.toString() 
+      where: { 
+        facilityID 
       },
-      update : {},
-      create : {
-        facilityID   : i.toString(),
-        name         : `Facility ${i}`,
-        photo        : `https://placehold.co/600x400/png?text=Facility+${i}`,
-        email        : `facility${i}@medlink.com`,
-        phoneNumber  : `0917${100000 + i}`,
-        facilityType : FacilityType.HOSPITAL,
-        ownership    : Ownership.PRIVATE,
+      update: {},
+      create: {
+        facilityID: facilityID,
+        name,
+        photo: `https://placehold.co/600x400/png?text=${encodeURIComponent(name)}`,
+        email,
+        phoneNumber       : phone,
+        facilityType      : faker.helpers.arrayElement([FacilityType.HOSPITAL, FacilityType.CLINIC, FacilityType.HEALTH_CENTER, FacilityType.MENTAL_HEALTH_FACILITY, FacilityType.FERTILITY_CLINIC]),
+        ownership         : faker.helpers.arrayElement([Ownership.PUBLIC, Ownership.PRIVATE]),
+        bookingSystem     : faker.internet.url(),
+        acceptedProviders : [faker.helpers.arrayElement(insurances)],
+
+        ...(hasDivisions ? {} : { openingTime, closingTime }),
       },
     });
-
-    // manager
   
     await prisma.employee.upsert({
-      where  : { 
-        employeeID : i.toString() 
+      where: { 
+        employeeID: facilityID 
       },
-      update : {},
-      create : {
-        employeeID : i.toString(),
+      update: {},
+      create: {
+        employeeID : facilityID,
         password   : hashedPassword,
         role       : Role.MANAGER,
         fname      : faker.person.firstName(faker.person.sexType()),
         lname      : faker.person.lastName(),
-        facilityID : i.toString(),
-      }
+        facilityID : facilityID,
+      },
     });
   }
-
+  
   // address
 
   const facilities = await prisma.facility.findMany({
@@ -144,9 +108,9 @@ export async function seedFacility() {
     while (attempts < 50) { // can adjust
       attempts;
   
-      const region = getRandomItem(await addressDAO.getRegions());
+      const region = getRandomItem(await geographyDAO.getRegions());
 
-      const provinces = await addressDAO.getProvinceOfRegion(region.regionID);
+      const provinces = await geographyDAO.getProvinceOfRegion(region.regionID);
   
       if (provinces.length === 0) {
         continue
@@ -154,7 +118,7 @@ export async function seedFacility() {
   
       const province = getRandomItem(provinces);
   
-      const cOrMs = await addressDAO.getCOrMOfProvince(province.pOrCID);
+      const cOrMs = await geographyDAO.getCOrMOfProvince(province.pOrCID);
   
       if (cOrMs.length === 0) {
         continue
@@ -162,7 +126,7 @@ export async function seedFacility() {
   
       const cOrM = getRandomItem(cOrMs);
   
-      const brgys = await addressDAO.getBrgyOfCOrM(cOrM.cOrMID);
+      const brgys = await geographyDAO.getBrgyOfCOrM(cOrM.cOrMID);
   
       if (brgys.length === 0) {
         continue

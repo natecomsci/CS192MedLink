@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
   import { dateToTimeMapping } from "$lib/Mappings";
+  import { pagingQueryHandler } from "$lib/postHandlers";
+    import { Role } from "@prisma/client";
 
   let { data }: PageProps = $props();
 
@@ -13,58 +15,33 @@
   let error = $state('')
   let errorLoc = $state('')
 
-  let queryMode = $state(false)
+  let isInQueryMode = $state(false)
 
   async function getPage(change: number) {
-    let body;
-    let dest;
-
     try {
+      const rv = await pagingQueryHandler({page: "logs", query, isInQueryMode, currentPage, change, totalPages});
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./dashboard/searchControlHistoryHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./dashboard"
+      if (errorLoc !== "query") {
+        updateLogs =  rv.list
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
+        
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        updateLogs = rv.updateLogs
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "logs"){
-        error = rv.error
-        errorLoc = "logs"
-        updateLogs = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
     }
   }
 
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter")
+    {
+      isInQueryMode = true
+      currentPage = 1
+      getPage(0)
+    }
+  }
 </script>
   <div class="h-full flex flex-col">
   <!-- Sticky Header -->
@@ -81,6 +58,7 @@
         type="text"
         placeholder="search"
         bind:value={query}
+        onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
       {#if query.length > 0}
@@ -88,7 +66,7 @@
           query = ""
           error = ""
           errorLoc = ""
-          queryMode = false
+          isInQueryMode = false
           currentPage = 1
           getPage(0)
         }}>
@@ -96,7 +74,7 @@
         </button>
       {/if}
       <button onclick={() => {
-        queryMode = true
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>
@@ -120,7 +98,7 @@
     {#if errorLoc == "logs"}
       {error}
     {/if}
-    {#each updateLogs as { entity, action, employeeID, createdAt }}
+    {#each updateLogs as { role, entity, action, employeeID, createdAt }}
       <!-- history item -->
     <div class="py-2 -b mb-4 ">
         <div class="history-item justify-between  -green-200">
@@ -130,7 +108,7 @@
         
             <!-- Left Content: Admin & Message -->
             <div class="info">
-              <span class="admin">Admin {employeeID}</span>
+              <span class="admin">{role === Role.MANAGER ? "Manager" : "Admin"} {employeeID}</span>
               <span class="message">{action} {entity}</span>
             </div>
           </div>
@@ -164,13 +142,13 @@
     padding: 0;
   }
 
-  .profile-circle {
+  /*.profile-circle {
     width: 63px;
     height: 63px;
     background: #d9d9d9;
     -radius: 50%;
     flex-shrink: 0;
-  }
+  }*/
 
   .info {
     display: flex;

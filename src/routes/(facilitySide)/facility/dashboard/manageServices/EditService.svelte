@@ -8,7 +8,28 @@
   import EditICUService from './EditICUService.svelte';
   import EditOPService from './EditOPService.svelte';
 
-  let { data, form, serviceType, serviceID, currPopUp = $bindable(), services = $bindable() }: {data: PageData, form: ActionData, serviceType: String, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
+  let { data, 
+        form, 
+        serviceType, 
+        serviceID, 
+        currPopUp = $bindable(), 
+        services = $bindable(),
+        serviceDivisionName = $bindable(),
+        serviceDivisionID = $bindable(),
+      }:{ data: PageData, 
+          form: ActionData, 
+          serviceType: String, 
+          serviceID: String, 
+          currPopUp: String, 
+          services: ServiceDTO[],
+          serviceDivisionName: String,
+          serviceDivisionID: String,
+        } = $props();
+
+  let formName;
+
+  let selectedDivisionID = $state(serviceDivisionID)
+  let selectedDivisionName = $state(serviceDivisionName)
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -69,6 +90,7 @@
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
+
               {:else}
                 <EditOPService
                   { form }
@@ -78,6 +100,28 @@
                 />
               {/if}
           </label>
+          <input form="editService" type="text" class="hidden" name="divisionID" value={selectedDivisionID} />
+          <input form="editService" type="text" class="hidden" name="divisionName" value={selectedDivisionName} />
+
+          {#if data.hasDivisions}
+            <label>
+              Divisions
+
+              {#each (data.divisions ?? []) as division}
+              {division.name}
+                <input 
+                  type="radio" 
+                  name="divSelect" 
+                  bind:group={selectedDivisionID}
+                  value={() => {
+                    selectedDivisionName = division.name
+                    return division.divisionID
+                  }}
+                  class="input-box w-30"
+                >
+              {/each}
+            </label>
+          {/if}
         </div>
       </div>
     </div>

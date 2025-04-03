@@ -1,7 +1,15 @@
 <script lang="ts">
   import Logo from '$lib/images/Logo.png';
-  import type { ServiceDTO } from "$lib/server/DTOs";
   import type { PageProps } from "./$types";
+  import type { ServiceDTO } from "$lib";
+
+  // PopUps
+  import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
+  import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
+  import AddService from './AddService.svelte';
+  import EditService from './EditService.svelte';
+  
+  import { pagingQueryHandler } from '$lib/postHandlers';
 
   let { data, form }: PageProps = $props();
 
@@ -9,14 +17,11 @@
   let currentPage: number = $state(data.currentPage)
   let totalPages = $state(data.totalPages)
 
-  // PopUps
-  import DeleteServiceConfirm from "./DeleteServiceConfirm.svelte";
-  import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
-  import AddService from './AddService.svelte';
-  import EditService from './EditService.svelte';
-
   let selectedServiceType: String = $state('');
   let selectedServiceID: String = $state('');
+
+  let selectedDivisionID: String = $state('');
+  let selectedDivisionName: String = $state('');
 
   let currPopUp: String = $state("")
 
@@ -25,67 +30,44 @@
   let error = $state('')
   let errorLoc = $state('')
 
-  let queryMode = $state(false)
+  let isInQueryMode = $state(false)
 
   async function getPage(change: number) {
-    let body;
-    let dest;
-
     try {
+      const rv = await pagingQueryHandler({page: "services", query, isInQueryMode, currentPage, change, totalPages});
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageServices/searchServicesHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageServices/servicePagingHandler"
+      if (errorLoc !== "query") {
+        services =  rv.list
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
+        
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        services = rv.services
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "services"){
-        error = rv.error
-        errorLoc = "services"
-        services = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
     }
   }
 
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter")
+    {
+      isInQueryMode = true
+      currentPage = 1
+      getPage(0)
+    }
+  }
 </script>
 
 {#if currPopUp === "delete"}
   <DeleteServiceConfirm
+    {form}
     serviceID={selectedServiceID}
     serviceType={selectedServiceType}
-    {form}
     bind:services={services}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 
 {:else if currPopUp === "deleteRestricted"}
@@ -99,6 +81,8 @@
     { form }
     bind:services={services}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 {:else if currPopUp === "editService"}
   <EditService 
@@ -108,6 +92,8 @@
     bind:currPopUp={currPopUp}
     serviceType={selectedServiceType}
     serviceID={selectedServiceID}
+    serviceDivisionName={selectedDivisionID}
+    serviceDivisionID={selectedDivisionName}
   />
 {/if}
 
@@ -141,6 +127,7 @@
         type="text"
         placeholder="search"
         bind:value={query}
+        onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
       {#if query.length > 0}
@@ -148,7 +135,7 @@
           query = ""
           error = ""
           errorLoc = ""
-          queryMode = false
+          isInQueryMode = false
           currentPage = 1
           getPage(0)
         }}>
@@ -156,7 +143,7 @@
         </button>
       {/if}
       <button onclick={() => {
-        queryMode = true
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>
@@ -177,19 +164,25 @@
       {#if errorLoc == "services"}
         {error}
       {/if}
-      {#each services as  { type, serviceID, divisionID }}
+      {#each services as  { type, serviceID, division }}
         <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <!-- Left Side: Text Content -->
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{type}</h3>
-            {#if divisionID}
-              <p class="text-purple-600 px-4">Division: {divisionID}</p>
+            {#if division?.name}
+              <p class="text-purple-600 px-4">Division: {division?.name}</p>
             {/if}
           </div>
         
           <!-- Right Side: Icons -->
           <div class="flex items-center space-x-3 pr-4">
-            <button onclick={() => {currPopUp='editService', selectedServiceType=type, selectedServiceID=serviceID}} class="inline-flex items-center" data-sveltekit-reload>
+            <button onclick={() => {
+              currPopUp='editService' 
+              selectedServiceType=type
+              selectedServiceID=serviceID
+              selectedDivisionID=division?.divisionID ?? ''
+              selectedDivisionName=division?.name ?? ''
+            }} class="inline-flex items-center" data-sveltekit-reload>
               <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
@@ -199,7 +192,7 @@
               class="inline-flex items-center" 
               onclick={() => {selectedServiceID = serviceID,
                               selectedServiceType = type,
-                              currPopUp = services.length > 1 ? 'delete' : 'deleteRestricted'}
+                              currPopUp = (services.length > 1 || totalPages !== 1) ? 'delete' : 'deleteRestricted'}
                               } 
                 data-sveltekit-reload
             >

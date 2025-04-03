@@ -1,12 +1,12 @@
 <script lang="ts">
   import type { PageProps } from './$types';
-  import { enhance } from '$app/forms';
   import { goto } from '$app/navigation';
+  import type { ServiceDTO } from '$lib';
 
   let { data, form }: PageProps = $props(); // Extract data
-  let services = data.services; 
-  let query = ""; // Removed $state, unnecessary in Svelte
-  let facilityName = data.facilityName;
+  let services = $state(data.services ?? []);
+  let query = $state("");
+  let facilityName = $state(data.facilityName ?? "");
 
   function searchServices() {
     if (query.trim() !== "") {
@@ -14,7 +14,7 @@
     }
   }
 
-  function viewServiceDetails(service) {
+  function viewServiceDetails(service: ServiceDTO) {
     if (service.type === "Ambulance") {
       goto(`/serviceInfo/Ambulance/${service.serviceID}`);
     } else if (service.type === "Blood Bank") {

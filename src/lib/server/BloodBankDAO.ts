@@ -4,11 +4,14 @@ import type { Prisma } from "@prisma/client";
 
 import { Action }  from "@prisma/client";
 
+import { otherServiceInfo } from "./dataLayerUtility";
+
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { BloodTypeMappingDTO, 
               BloodBankServiceDTO,
-              CreateBloodBankServiceDTO 
+              CreateBloodBankServiceDTO,
+              UpdateBloodBankServiceDTO, 
             } from "./DTOs";
 
 let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
@@ -45,33 +48,34 @@ export class BloodTypeMappingDAO {
   }
 
   async createBloodTypeMapping(serviceID: string, tx: Prisma.TransactionClient): Promise<void> {
-    await tx.bloodTypeMapping.create({
-      data: {  
-        BloodBankService: {
-          connect: {
-            serviceID
+    try {
+      await tx.bloodTypeMapping.create({
+        data: {  
+          BloodBankService: {
+            connect: {
+              serviceID
+            }
           }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not create BloodTypeMapping.");
+    }
   }
 
   async updateBloodTypeMapping(serviceID: string, data: BloodTypeMappingDTO, tx: Prisma.TransactionClient): Promise<void> {
-    await tx.bloodTypeMapping.update({
-      where: { 
-        serviceID 
-      },
-      data: {
-        A_P  : data.A_P,
-        A_N  : data.A_N,
-        B_P  : data.B_P,
-        B_N  : data.B_N,
-        O_P  : data.O_P,
-        O_N  : data.O_N,
-        AB_P : data.AB_P,
-        AB_N : data.AB_N,
-      }
-    });
+    try {
+      await tx.bloodTypeMapping.update({
+        where: { 
+          serviceID 
+        },
+        data
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not update BloodTypeMapping.");
+    }
   }
 }
 
@@ -80,8 +84,8 @@ let bloodTypeMappingDAO: BloodTypeMappingDAO = new BloodTypeMappingDAO();
 export class BloodBankServiceDAO {
   async create(facilityID: string, employeeID: string, data: CreateBloodBankServiceDTO): Promise<string> {
     try {
-      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, ...bloodBankData } = data;
+      return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { divisionID, note, ...bloodBankData } = data;
   
         const service = await tx.service.create({
           data: {
@@ -91,6 +95,10 @@ export class BloodBankServiceDAO {
                 facilityID 
               } 
             },
+
+            ...((note !== undefined) && {
+              note
+            }),
 
             ...((divisionID !== undefined) && {
               division: {
@@ -115,10 +123,11 @@ export class BloodBankServiceDAO {
   
         await bloodTypeMappingDAO.createBloodTypeMapping(service.serviceID, tx);
   
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Blood Bank",
             action: Action.CREATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,
@@ -128,11 +137,9 @@ export class BloodBankServiceDAO {
 
         return service.serviceID;
       });
-  
-      return serviceID;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create AmbulanceService.");
+      throw new Error("Could not create BloodBankService.");
     }
   }
 
@@ -143,14 +150,7 @@ export class BloodBankServiceDAO {
           where: { 
             serviceID 
           },
-          include: { 
-            service: { 
-              select: { 
-                divisionID : true, 
-                updatedAt  : true, 
-              } 
-            } 
-          }
+          include: otherServiceInfo
         }),
         bloodTypeMappingDAO.getBloodTypeMapping(serviceID)
       ]);
@@ -163,19 +163,24 @@ export class BloodBankServiceDAO {
         throw new Error("Missing needed BloodTypeAvailability data.");
       }
 
-      const { divisionID, updatedAt } = service.service;
+      const { note, division, updatedAt } = service.service;
 
       return {
-        phoneNumber           : service.phoneNumber,
-        openingTime           : service.openingTime,
-        closingTime           : service.closingTime,
-        pricePerUnit          : service.pricePerUnit,
+        basePricePerUnit      : service.basePricePerUnit,
         turnaroundTimeD       : service.turnaroundTimeD,
         turnaroundTimeH       : service.turnaroundTimeH,
         bloodTypeAvailability : bloodTypeAvailability,
         updatedAt,
 
-        ...(divisionID ? { divisionID } : {}),
+        ...(service.phoneNumber ? { phoneNumber: service.phoneNumber } : {}),
+
+        ...(service.openingTime ? { openingTime: service.openingTime } : {}),
+
+        ...(service.closingTime ? { closingTime: service.closingTime } : {}),
+
+        ...(note ? { note } : {}),
+
+        ...(division ? { division } : {})
       }; 
 
     } catch (error) {
@@ -184,10 +189,10 @@ export class BloodBankServiceDAO {
     }
   }
 
-  async update(serviceID: string, facilityID: string, employeeID: string, data: BloodBankServiceDTO): Promise<void> {
+  async update(serviceID: string, facilityID: string, employeeID: string, data: UpdateBloodBankServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, bloodTypeAvailability, ...bloodBankData } = data;
+        const { divisionID, note, bloodTypeAvailability, ...bloodBankData } = data;
 
         await tx.bloodBankService.update({
           where: { 
@@ -206,6 +211,10 @@ export class BloodBankServiceDAO {
 
         const serviceUpdateData = {
           updatedAt,
+          ...((note !== undefined) && {
+            note
+          }),
+
           ...((divisionID !== undefined) && {
             division: { 
               connect: { 
@@ -234,10 +243,11 @@ export class BloodBankServiceDAO {
           }
         });
 
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Blood Bank",
             action: Action.UPDATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,

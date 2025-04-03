@@ -1,10 +1,23 @@
 <script lang="ts">
   import type { ActionData, PageData } from './$types';
   import { enhance } from '$app/forms';
-  import { redirect } from '@sveltejs/kit';
-  import type { AdminDTO } from '$lib';
 
-  let { data, form, currPopUp = $bindable(), admins = $bindable()}: { data: PageData, form: ActionData, currPopUp: String, admins: AdminDTO[] } = $props();
+  import type { AdminDTO } from '$lib';
+  import { pagingQueryHandler } from '$lib/postHandlers';
+
+  let { data, 
+        form, 
+        currPopUp = $bindable(), 
+        admins = $bindable(),
+        currentPage = $bindable(),
+        totalPages = $bindable(),
+      }:{ data: PageData, 
+          form: ActionData, 
+          currPopUp: String, 
+          admins: AdminDTO[],
+          currentPage: number, 
+          totalPages: number,
+        } = $props();
 
   let firstName = $state("");
   let middleName =$state("") ;
@@ -24,25 +37,20 @@
   let showDropdown = $state(false);
 
   async function getNewAdmins() {
-    const body = JSON.stringify({currPage: 1, change: 0});
-
     try {
-      const response = await fetch("./manageAdmins/adminPagingHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
+      const rv = await pagingQueryHandler({
+        page: 'admins',
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
       });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      admins = await response.json();
-      
+      admins =  rv.list
+      currentPage = 1
+      totalPages = rv.totalPages
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log((error as Error).message)
     }
   }
 
@@ -158,11 +166,10 @@
 </form>
 
 <style>
-  .selected {
+  /*.selected {
       background-color: #9044C4;
       color: white;
-  }
-
+  }*/
 
   .fade-mask {
       display: block;

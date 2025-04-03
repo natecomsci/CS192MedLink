@@ -1,33 +1,40 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-import { 
-        FacilityDAO, 
-        facilityDivisionsPageSize, 
+import {
         DivisionDAO, 
+        ServicesDAO, 
+        
+        FacilityDivisionListDAO,
+        facilityDivisionsPageSize, 
+
+        AmbulanceServiceDAO,
+        BloodBankServiceDAO,
+        ERServiceDAO,
+        ICUServiceDAO,
+        OutpatientServiceDAO,
+
         validatePhone, 
         validateOperatingHours, 
-        ServicesDAO, 
-        type OPServiceType, 
-        type ServiceDTO, 
-        specializedServiceType, 
-        OPServiceTypes, 
         validateFloat,
         validateCoverageRadius,
-        type CreateAmbulanceServiceDTO,
-        AmbulanceServiceDAO,
         validateCompletionTime,
+        validateFacilityName,
+
+        type OPServiceType, 
+        OPServiceTypes, 
+        specializedServiceType, 
+
+        type ServiceDTO, 
+        type Create_UpdateDivisionDTO, 
+        type MultiServiceDivisionsDTO,
+
+        type CreateAmbulanceServiceDTO,
         type CreateBloodBankServiceDTO,
-        BloodBankServiceDAO,
         type CreateERServiceDTO,
-        ERServiceDAO,
         type CreateICUServiceDTO,
-        ICUServiceDAO,
         type CreateOutpatientServiceDTO,
-        OutpatientServiceDAO,
-        validateFacilityName
       } from '$lib';
-import type { Create_UpdateDivisionDTO, MultiServiceDivisionsDTO } from '$lib/server/DTOs';
 
 const divisionDAO = new DivisionDAO();
 
@@ -46,10 +53,11 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (hasDivisions === 'true' ? false : true) {
     throw redirect(303, '/facility/dashboard')
   }
-  
-  const paginatedDivisions = await divisionDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize)
 
-  const linkableServices = await divisionDAO.getMultiServiceDivisions(facilityID);
+  const facilityDivisionsListDAO = new FacilityDivisionListDAO()
+  const paginatedDivisions = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize, { updatedAt: "desc" })
+    
+  const linkableServices = await facilityDivisionsListDAO.getMultiServiceDivisions(facilityID);
 
   const servicesDAO = new ServicesDAO();
 
@@ -66,7 +74,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   existingServices = linkableServices
 
   return {
-    divisions: paginatedDivisions.divisions,
+    divisions: paginatedDivisions.results,
     totalPages: paginatedDivisions.totalPages,
     currentPage: 1,
     linkableServices,
@@ -248,13 +256,13 @@ export const actions = {
     }
 
     try {
-      const divisionID = await divisionDAO.create(facilityID, division)
+      const divisionID = await divisionDAO.create(facilityID, employeeID, division)
       if (newService) {
         const serviceID = await newService.dao.create(facilityID, employeeID, newService.service)
         servicesToAttach.push(serviceID)
       }
 
-      divisionDAO.connectServicesToDivision(divisionID, servicesToAttach)
+      divisionDAO.connectServices(divisionID, servicesToAttach)
       
     } catch (error) {
       return fail(422, {
@@ -270,28 +278,77 @@ export const actions = {
   },
 
   editDivision: async ({ cookies, request }) => {
-    // const facilityID = cookies.get('facilityID');
+    const facilityID = cookies.get('facilityID');
+    const employeeID = cookies.get('employeeID');
 
-    // if (!facilityID) {
-    //   throw redirect(303, '/facility');
-    // }
+    if (!facilityID || !employeeID) {
+      throw redirect(303, '/facility');
+    }
 
-    // const data = await request.formData();
+    const data = await request.formData();
 
-    // const divisionID = data.get("divisionID") as string;
+    const divisionID = data.get('divisionID') as string;
 
-    // // const adminInfo = await adminDAO.getInformation(adminID);
+    const division = await divisionDAO.getInformation(divisionID)
 
-    // const firstName = data.get('fname');
-    // const middleName = data.get('mname');
-    // const lastName = data.get('lname');
-    // const pass = data.get('password');
+    if (!division) {
+      return fail(422, {
+        error: "No division found",
+        description: "validation",
+        success: false
+      });
+    }
 
-    // let fname: string  
-    // let mname: string | undefined
-    // let lname: string   
-    // let password: string   
+    let defName: string = division.name
+    let defPhoneNumber: string = division.phoneNumber
+    let defOpeningTime: Date = division.openingTime
+    let defClosingTime: Date = division.closingTime
 
+    let name: string
+    let phoneNumber: string
+    let openingTime: Date
+    let closingTime: Date
+
+    const divisionName = data.get('name');
+    const phone = data.get('phoneNumber');
+    const open = data.get('opening');
+    const close = data.get('closing');
+
+
+    try {
+      name = validateFacilityName(divisionName)
+      phoneNumber = validatePhone(phone)
+      const OPHours = validateOperatingHours(open, close)
+      openingTime = OPHours.openingTime
+      closingTime = OPHours.closingTime
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "validation",
+        success: false
+      });
+    }
+
+    if (defName == name &&
+        defPhoneNumber == phoneNumber&&
+        defOpeningTime == openingTime && 
+        defClosingTime.toString() == closingTime.toString()
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
+    }
+
+    const div = {
+      name,
+      phoneNumber,
+      openingTime,
+      closingTime,
+    }
+
+    divisionDAO.update(divisionID, facilityID, employeeID, div)
   },
 } satisfies Actions;
 
@@ -318,7 +375,7 @@ function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
   return availableOPServices;
 }
 
-function validateService({ data }: {data: FormData}) {
+function validateService({ data }: {data: FormData}): any {
   const serviceType = data.get('serviceType');
 
   const phone    = data.get('phoneNumber');
@@ -382,13 +439,13 @@ function validateService({ data }: {data: FormData}) {
       let phoneNumber: string
       let openingTime: Date
       let closingTime: Date
-      let pricePerUnit: number
+      let basePricePerUnit: number
       let turnaroundTimeD: number
       let turnaroundTimeH: number
 
       try {
         phoneNumber = validatePhone(phone);
-        pricePerUnit = validateFloat(rates, "Price Per Unit");
+        basePricePerUnit = validateFloat(rates, "Price Per Unit");
 
         let OCTime = validateOperatingHours(open, close)
         openingTime = OCTime.openingTime
@@ -405,7 +462,7 @@ function validateService({ data }: {data: FormData}) {
         phoneNumber,
         openingTime,
         closingTime,
-        pricePerUnit,
+        basePricePerUnit,
         turnaroundTimeD,
         turnaroundTimeH
       }
@@ -452,7 +509,7 @@ function validateService({ data }: {data: FormData}) {
     }
 
     case "Outpatient": {
-      let price: number
+      let basePrice: number
       let completionTimeD: number
       let completionTimeH: number
 
@@ -460,7 +517,7 @@ function validateService({ data }: {data: FormData}) {
       const acceptsWalkIns    = walkins === 'on';
 
       try {
-        price = validateFloat(rates, "Price");
+        basePrice = validateFloat(rates, "Price");
       
         let CTime = validateCompletionTime(compTD, compTH, "Completion")
         completionTimeD = CTime.days
@@ -470,8 +527,8 @@ function validateService({ data }: {data: FormData}) {
       }
 
       const service: CreateOutpatientServiceDTO = {
-        serviceType: OPserviceType,
-        price,
+        type: OPserviceType,
+        basePrice,
         completionTimeD,
         completionTimeH,
         acceptsWalkIns

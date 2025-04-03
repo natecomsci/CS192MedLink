@@ -9,8 +9,24 @@
   import ERService from './AddERService.svelte';
   import ICUService from './AddICUService.svelte';
   import OutpatientService from './AddOutpatientService.svelte';
+    import { pagingQueryHandler } from '$lib/postHandlers';
 
-  let { data, form, currPopUp = $bindable(), divisions = $bindable(), linkableServices = $bindable() }: { data:PageData, form: ActionData, currPopUp: String, divisions:DivisionDTO[], linkableServices: MultiServiceDivisionsDTO[] } = $props();
+  let { data, 
+        form, 
+        currPopUp = $bindable(), 
+        divisions = $bindable(), 
+        linkableServices = $bindable(),
+        currentPage = $bindable(),
+        totalPages = $bindable(),
+        }: { 
+          data:PageData, 
+          form: ActionData, 
+          currPopUp: String, 
+          divisions:DivisionDTO[], 
+          linkableServices: MultiServiceDivisionsDTO[],
+          currentPage: number, 
+          totalPages: number, 
+        } = $props();
 
   let selectedLinkableServices: Record<string, string[]> = {};
 
@@ -22,29 +38,23 @@
 
   let showDropdown = $state(false)
 
-  async function getLinkableServices() {
-    const body = JSON.stringify({});
-
+  async function getNewDivisions() {
     try {
-      const response = await fetch("./manageDivisions/getLinkableServicesHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
+      const rv = await pagingQueryHandler({
+        page: 'divisions',
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
       });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      linkableServices = await response.json();
-      
+      divisions =  rv.list
+      currentPage = 1
+      totalPages = rv.totalPages
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log((error as Error).message)
     }
   }
-  getLinkableServices()
 
 </script>
  
@@ -53,7 +63,15 @@
     <form 
       method="POST" 
       action="?/addDivision"
-      use:enhance
+      use:enhance={() => {
+        return async ({ update }) => {
+          await update({invalidateAll:true});
+          if (form?.success) {
+              currPopUp = ''
+              getNewDivisions()
+          }
+        };
+      }}
       class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl p-2 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     >
       <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">

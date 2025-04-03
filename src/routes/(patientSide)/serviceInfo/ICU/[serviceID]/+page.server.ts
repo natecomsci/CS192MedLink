@@ -1,14 +1,20 @@
-import type { Actions, PageServerLoad } from "./$types";
-import { ICUServiceDAO } from '$lib/server/ICUDAO';
-import { FacilityDAO } from '$lib/server/FacilityDAO';
-import { ServicesDAO } from '$lib/server/ServicesDAO';
-import { AddressDAO } from '$lib/server/AddressDAO';
 import { fail, redirect } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
+
+import { 
+  ICUServiceDAO,
+  FacilityDAO,
+  AddressDAO,
+  ServicesDAO,
+  GeographyDAO,
+} from '$lib';
+
 
 export const load: PageServerLoad = async ({ params }) => {
   const icuDAO = new ICUServiceDAO();
   const facilityDAO = new FacilityDAO();
   const servicesDAO = new ServicesDAO();
+  const geographyDAO = new GeographyDAO();
   const addressDAO = new AddressDAO();
   const { serviceID } = params;
 
@@ -33,7 +39,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
     
     console.log("Fetching facility details for facilityID:", service.facilityID);
-    let facility = await facilityDAO.getGeneralInformation(service.facilityID);
+    let facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
       console.error("Facility details not found for facilityID:", service.facilityID);
       throw new Error("Facility details not found.");
@@ -45,10 +51,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
     if (address) {
       const [region, province, city, barangay] = await Promise.all([
-        addressDAO.getNameOfRegion(address.regionID),
-        addressDAO.getNameOfProvince(address.pOrCID),
-        addressDAO.getNameOfCOrM(address.cOrMID),
-        addressDAO.getNameOfBrgy(address.brgyID),
+        geographyDAO.getNameOfRegion(address.regionID),
+        geographyDAO.getNameOfProvince(address.pOrCID),
+        geographyDAO.getNameOfCOrM(address.cOrMID),
+        geographyDAO.getNameOfBrgy(address.brgyID),
       ]);
 
       fullAddress = {
@@ -72,7 +78,7 @@ export const load: PageServerLoad = async ({ params }) => {
       renalSupport        : icuService.renalSupport,
       respiratorySupport  : icuService.respiratorySupport,
       updatedAt           : icuService.updatedAt,
-      ...(icuService.divisionID ? { divisionID: icuService.divisionID } : {}),
+      ...(icuService.division?.divisionID ? { divisionID: icuService.division?.divisionID } : {}),
     };
   } catch (error) {
     console.error("Error loading ICU or facility details:", error);

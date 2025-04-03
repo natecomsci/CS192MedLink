@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { FacilityType, Ownership, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 import { faker } from "@faker-js/faker";
 
@@ -56,4 +56,3 @@ export async function seedAdmin() {
     }
   }
 }
-

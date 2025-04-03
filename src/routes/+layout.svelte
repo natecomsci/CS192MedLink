@@ -8,7 +8,7 @@
   let { data, children } = $props()
   let { session, supabase } = $derived(data)
 
-  const debugMode = true;
+  const debugMode = false;
 
   onMount(() => {
     const { data } = supabase.auth.onAuthStateChange((_, newSession) => {

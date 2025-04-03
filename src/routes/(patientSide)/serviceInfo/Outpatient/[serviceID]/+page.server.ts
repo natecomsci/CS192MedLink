@@ -1,15 +1,20 @@
-import type { Actions, PageServerLoad } from "./$types";
-import { OutpatientServiceDAO } from '$lib/server/OutpatientDAO';
-import { FacilityDAO } from '$lib/server/FacilityDAO';
-import { ServicesDAO } from '$lib/server/ServicesDAO';
-import { AddressDAO } from '$lib/server/AddressDAO';
 import { fail, redirect } from "@sveltejs/kit";
+import type { PageServerLoad } from "./$types";
+
+import { 
+  OutpatientServiceDAO,
+  FacilityDAO,
+  AddressDAO,
+  ServicesDAO,
+  GeographyDAO,
+} from '$lib';
 
 export const load: PageServerLoad = async ({ params }) => {
   const outpatientDAO = new OutpatientServiceDAO();
   const facilityDAO = new FacilityDAO();
   const servicesDAO = new ServicesDAO();
   const addressDAO = new AddressDAO();
+  const geographyDAO = new GeographyDAO();
   const { serviceID } = params;
 
   if (!serviceID) {
@@ -33,7 +38,7 @@ export const load: PageServerLoad = async ({ params }) => {
     }
     
     console.log("Fetching facility details for facilityID:", service.facilityID);
-    let facility = await facilityDAO.getGeneralInformation(service.facilityID);
+    let facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
       console.error("Facility details not found for facilityID:", service.facilityID);
       throw new Error("Facility details not found.");
@@ -45,10 +50,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
     if (address) {
       const [region, province, city, barangay] = await Promise.all([
-        addressDAO.getNameOfRegion(address.regionID),
-        addressDAO.getNameOfProvince(address.pOrCID),
-        addressDAO.getNameOfCOrM(address.cOrMID),
-        addressDAO.getNameOfBrgy(address.brgyID),
+        geographyDAO.getNameOfRegion(address.regionID),
+        geographyDAO.getNameOfProvince(address.pOrCID),
+        geographyDAO.getNameOfCOrM(address.cOrMID),
+        geographyDAO.getNameOfBrgy(address.brgyID),
       ]);
 
       formattedAddress = [
@@ -63,12 +68,13 @@ export const load: PageServerLoad = async ({ params }) => {
     return {
       facilityName    : facility.name,
       facilityAddress : formattedAddress,
-      price           : outpatientService.price,
+      price           : outpatientService.basePrice,
       completionTimeD : outpatientService.completionTimeD,
       completionTimeH : outpatientService.completionTimeH,
       isAvailable     : outpatientService.isAvailable,
       acceptsWalkIns  : outpatientService.acceptsWalkIns,
-      ...(outpatientService.divisionID ? { divisionID: outpatientService.divisionID } : {}),
+      ...(outpatientService.division?.divisionID ? { divisionID: outpatientService.division?.divisionID } : {}),
+
     };
   } catch (error) {
     console.error("Error loading outpatient or facility details:", error);

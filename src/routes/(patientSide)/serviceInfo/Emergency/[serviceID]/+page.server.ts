@@ -1,14 +1,19 @@
-import type { Actions, PageServerLoad } from "./$types";
-import { ERServiceDAO } from '$lib/server/ERDAO';
-import { FacilityDAO } from '$lib/server/FacilityDAO';
 import { fail, redirect } from "@sveltejs/kit";
-import { AddressDAO } from '$lib/server/AddressDAO';
-import { ServicesDAO } from '$lib/server/ServicesDAO';
+import type { PageServerLoad } from "./$types";
+
+import { 
+  ERServiceDAO,
+  FacilityDAO,
+  AddressDAO,
+  ServicesDAO,
+  GeographyDAO,
+} from '$lib';
 
 export const load: PageServerLoad = async ({ params }) => {
   const ERDAO = new ERServiceDAO();
   const facilityDAO = new FacilityDAO();
   const addressDAO = new AddressDAO();
+  const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO();
   
   const { serviceID } = params;
@@ -26,7 +31,7 @@ export const load: PageServerLoad = async ({ params }) => {
       throw new Error("Service or facilityID not found.");
     }
 
-    let facilityname = await facilityDAO.getGeneralInformation(facility.facilityID);
+    let facilityname = await facilityDAO.getInformation(facility.facilityID);
     if (!facilityname || !facilityname.name) {
       console.error("Facility details not found for facilityID:", facility.facilityID);
       throw new Error("Facility details not found.");
@@ -37,10 +42,10 @@ export const load: PageServerLoad = async ({ params }) => {
 
     if (address) {
       const [region, province, city, barangay] = await Promise.all([
-        addressDAO.getNameOfRegion(address.regionID),
-        addressDAO.getNameOfProvince(address.pOrCID),
-        addressDAO.getNameOfCOrM(address.cOrMID),
-        addressDAO.getNameOfBrgy(address.brgyID),
+        geographyDAO.getNameOfRegion(address.regionID),
+        geographyDAO.getNameOfProvince(address.pOrCID),
+        geographyDAO.getNameOfCOrM(address.cOrMID),
+        geographyDAO.getNameOfBrgy(address.brgyID),
       ]);
 
       fullAddress = {

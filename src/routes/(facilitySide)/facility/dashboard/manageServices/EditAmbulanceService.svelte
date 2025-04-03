@@ -2,9 +2,20 @@
   import type { ActionData } from "./$types";
   import { enhance } from '$app/forms';
   
-  import { availability } from "$lib/projectArrays";
-    import type { ServiceDTO } from "$lib";
-  let { form, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
+  import type { ServiceDTO } from '$lib'
+
+  import { pagingQueryHandler } from '$lib/postHandlers';
+  import { availability } from '$lib/projectArrays'
+  
+  let { form, 
+        serviceID, 
+        currPopUp = $bindable(), 
+        services = $bindable(),
+      }:{ form: ActionData, 
+          serviceID: String, 
+          currPopUp: String, 
+          services: ServiceDTO[],
+        } = $props();
 
   let phoneNumber: string = $state('')
   let openingTime: Date = $state(new Date())
@@ -18,7 +29,7 @@
     const body = JSON.stringify({serviceID, serviceType:"Ambulance"});
 
     try {
-      const response = await fetch("./manageServices/serviceInfoHandler", {
+      const response = await fetch("./manageServices/serviceInfo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -31,7 +42,6 @@
       }
 
       const rv = await response.json();
-      console.log(rv)
 
       phoneNumber = rv.phoneNumber
       openingTime = rv.openingTime
@@ -47,27 +57,19 @@
   }
   getData()
 
-  async function getNewServicePage() {
-   
-    const body = JSON.stringify({currPage: 1, change: 0});
-
+  async function getNewService() {
     try {
-      const response = await fetch("./manageServices/servicePagingHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
+      const rv = await pagingQueryHandler({
+        page: 'services',
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
       });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      services = await response.json();
-      
+      services =  rv.list
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log((error as Error).message)
     }
   }
 
@@ -81,7 +83,7 @@
             await update({invalidateAll:true});
             if (form?.success) {
                 currPopUp = ''
-                getNewServicePage()
+                getNewService()
             }
         };
     }}

@@ -1,8 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
 import type { Actions } from './$types';
-import { FacilityDAO } from '$lib/server/FacilityDAO';
-import { EmployeeDAO } from '$lib';
+import { FacilityDAO, EmployeeDAO } from '$lib';
 
 export const actions = {
   signIn: async ({ request, cookies }) => {
@@ -22,7 +21,7 @@ export const actions = {
     const password = data.get('password') as string;
     
     if (!employeeID) {
-      return fail(400, 
+      return fail(409, 
         { 
           error: 'Missing Employee ID',
           description: 'ID',
@@ -32,7 +31,7 @@ export const actions = {
     }
 
     if (!password) {
-      return fail(400, 
+      return fail(409, 
         { 
           error: 'Missing Password',
           description: 'pass',
@@ -45,7 +44,7 @@ export const actions = {
     const employee = await employeeDAO.getByID(employeeID)
 
     if (!employee) {
-      return fail(400, 
+      return fail(409, 
         { 
           error: 'Employee ID not found',
           description: 'ID',
@@ -56,7 +55,7 @@ export const actions = {
 
     const passwordMatch = await bcrypt.compare(password, employee.password);
     if (!passwordMatch) {
-      return fail(400, 
+      return fail(409, 
         { 
           error: 'Incorrect ID-password pair',
           description: 'ID',

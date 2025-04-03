@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Role } from '@prisma/client';
   import type { PageProps } from './$types';
   
   import Logo from '$lib/images/Logo.png';
@@ -8,7 +9,6 @@
   import ControlHistory from './ControlHistory.svelte';
   import Services from './Services.svelte';
   import Divisions from './Divisions.svelte';
-    import { Role } from '@prisma/client';
 
   let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
 
@@ -40,7 +40,6 @@
 </header>
 
 <div class="border border-transparent flex h-screen p-10 bg-gray-100">
-  <!-- Left Side: Control History -->
   <!-- <div class="border w-1/2 py-5"> -->
     <div class="w-1/2 p-5 bg-white shadow-lg rounded-lg">
       <ControlHistory {data} {form}/>
@@ -54,7 +53,7 @@
     {/if}
     <div class="flex gap-4 h-full">
       <Services {mainServicesShown}/>
-      {#if data.hasDivisions}
+      {#if data.hasDivisions && data.role === Role.MANAGER}
         <Divisions divisions={data.divisions}/>
       {/if}
     </div>

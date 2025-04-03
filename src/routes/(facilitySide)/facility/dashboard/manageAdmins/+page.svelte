@@ -3,6 +3,12 @@
   import type { PageProps } from "./$types";
 
   import type { AdminDTO } from '$lib';
+  import { pagingQueryHandler } from '$lib/postHandlers';
+
+  // PopUps
+  import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
+  import AddAdmin from './AddAdmin.svelte';
+  import EditAdmin from './EditAdmin.svelte';
   
   let { data, form }: PageProps = $props();
 
@@ -10,69 +16,38 @@
   let currentPage: number = $state(data.currentPage)
   let totalPages = $state(data.totalPages)
 
-  // PopUps
-  import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
-  import AddAdmin from './AddAdmin.svelte';
-  import EditAdmin from './EditAdmin.svelte';
+  let currPopUp: String = $state("")
 
   let selectedAdminID: String = $state('');
 
-  let currPopUp: String = $state("")
-
   let query = $state('')
-
   let error = $state('')
   let errorLoc = $state('')
-
-  let queryMode = $state(false)
+  let isInQueryMode = $state(false)
 
   async function getPage(change: number) {
-    let body;
-    let dest;
-
     try {
+      const rv = await pagingQueryHandler({page: "admins", query, isInQueryMode, currentPage, change, totalPages});
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageAdmins/searchAdminsHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageAdmins/adminPagingHandler"
+      if (errorLoc !== "query") {
+        admins =  rv.list
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
+        
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        admins = rv.admins
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "admins"){
-        error = rv.error
-        errorLoc = "admins"
-        admins = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter")
+    {
+      isInQueryMode = true
+      currentPage = 1
+      getPage(0)
     }
   }
 </script>
@@ -81,9 +56,11 @@
   <DeleteAdminConfirm
     {data}
     {form}
+    adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
-    adminID={selectedAdminID}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 
 {:else if currPopUp === "addAdmin"}
@@ -92,14 +69,18 @@
     {form}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 {:else if currPopUp === "editAdmin"}
   <EditAdmin
     {data}
     {form}
+    adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
-    adminID={selectedAdminID}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 {/if}
 
@@ -133,22 +114,23 @@
         type="text"
         placeholder="search"
         bind:value={query}
+        onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
-      {#if query.length > 0}
+      {#if query.length > 0 || isInQueryMode}
         <button onclick={() => {
             query = ""
             error = ""
             errorLoc = ""
-            queryMode = false
+            isInQueryMode = false
             currentPage = 1
             getPage(0)
         }}>
-          x
+          Clear
         </button>
       {/if}
       <button onclick={() => {
-        queryMode = true
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>
@@ -178,12 +160,16 @@
             <div class="info">
                 <h3 class="name">{admin.mname ? admin.fname + ' ' + admin.mname + ' ' + admin.lname : admin.fname + ' ' + admin.lname}</h3>
                 <!-- <p class="id">{admin.employeeID}</p> -->
-                <p class="departments">
+                {#if data.hasDivisions}
+                  <p class="departments">
                     {#each (admin.divisions ?? []) as division, i}
-                        <span class="dept">{division}</span>
-                        {#if i < (admin.divisions ?? []).length - 1}|{/if}
+                      <span class="dept">
+                        {division.name}
+                        {#if i < (admin.divisions ?? []).length - 1} | {/if}
+                      </span>
                     {/each}
-                </p>
+                  </p>
+                {/if}
             </div>
 
             <!-- Actions (Edit & Delete) -->
@@ -201,8 +187,9 @@
             <button 
               type="button" 
               class="inline-flex items-center" 
-              onclick={() => {selectedAdminID = admin.employeeID,
-                              currPopUp = admins.length > 1 ? 'delete' : 'deleteRestricted'}
+              onclick={() => {
+                selectedAdminID = admin.employeeID
+                currPopUp = admins.length > 1 ? 'delete' : 'deleteRestricted'}
                               } 
                 data-sveltekit-reload
             >
@@ -238,13 +225,13 @@
         gap: 15px;
     }
 
-    .profile-pic {
+/*    .profile-pic {
         width: 80px;
         height: 80px;
         border-radius: 50%;
         object-fit: cover;
         background: gray;
-    }
+    }*/
 
     .info {
         flex-grow: 1;
@@ -256,10 +243,10 @@
         color: #4a148c;
     }
 
-    .id {
+/*    .id {
         font-size: 0.9rem;
         color: #7b1fa2;
-    }
+    }*/
 
     .departments {
         font-size: 0.9rem;
@@ -267,7 +254,7 @@
         font-style: italic;
     }
 
-    .actions {
+/*    .actions {
         display: flex;
         gap: 10px;
     }
@@ -293,5 +280,5 @@
 
     .delete:hover {
         opacity: 0.7;
-    }
+    }*/
 </style>
