@@ -112,70 +112,6 @@ export class ServicesDAO {
 
   //
 
-  async getFacility(serviceID: string): Promise<{ facilityID: string, name: string }> {
-    try {
-      const service = await prisma.service.findUnique({
-        where: {
-          serviceID
-        },
-        select: {
-          facility: {
-            select: {
-              facilityID : true,
-              name       : true,
-            }
-          }
-        }
-      });
-
-      if (!service) {
-        throw new Error("No Service found.");
-      }
-
-      return service.facility;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get Facility of Service.");
-    }
-  }
-
-  async getDivision(serviceID: string): Promise<{ divisionID: string, name: string }> {
-    try {
-      const service = await prisma.service.findUnique({
-        where: {
-          serviceID
-        },
-        select: {
-          division: {
-            select: {
-              divisionID : true,
-              name       : true,
-            }
-          }
-        }
-      });
-
-      if (!service) {
-        throw new Error("No Service found.");
-      }
-
-      if (!service.division) {
-        throw new Error("Division not found.");
-      }
-
-      const { divisionID, name } = service.division;
-
-      if ((!divisionID) || (!name)) {
-        throw new Error("Incomplete Division details.");
-      }
-
-      return { divisionID, name };
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get Division of Service.");
-    }
-  }
-
   async reconnectDivision(serviceID: string, divisionID: string): Promise<void> {
     try {
       const division = await prisma.service.update({
@@ -239,6 +175,70 @@ export class ServicesDAO {
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not delete Service.");
+    }
+  }
+
+  async getFacility(serviceID: string): Promise<{ facilityID: string, name: string }> {
+    try {
+      const service = await prisma.service.findUnique({
+        where: {
+          serviceID
+        },
+        select: {
+          facility: {
+            select: {
+              facilityID : true,
+              name       : true,
+            }
+          }
+        }
+      });
+
+      if (!service) {
+        throw new Error("No Service found.");
+      }
+
+      return service.facility;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Facility of Service.");
+    }
+  }
+
+  async getDivision(serviceID: string): Promise<{ divisionID: string, name: string }> {
+    try {
+      const service = await prisma.service.findUnique({
+        where: {
+          serviceID
+        },
+        select: {
+          division: {
+            select: {
+              divisionID : true,
+              name       : true,
+            }
+          }
+        }
+      });
+
+      if (!service) {
+        throw new Error("No Service found.");
+      }
+
+      if (!service.division) {
+        throw new Error("Division not found.");
+      }
+
+      const { divisionID, name } = service.division;
+
+      if ((!divisionID) || (!name)) {
+        throw new Error("Incomplete Division details.");
+      }
+
+      return { divisionID, name };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("Could not get Division of Service.");
     }
   }
 

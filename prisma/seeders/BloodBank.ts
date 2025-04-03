@@ -15,14 +15,7 @@ const facilityDAO = new FacilityDAO();
 const updateLogDAO = new UpdateLogDAO();
 
 export async function seedBloodBankService() {
-  const facilityIDs = ["cs192withdivisions", "2", "4"];
-
   const facilities = await prisma.facility.findMany({
-    where: {
-      facilityID: { 
-        in: facilityIDs 
-      }
-    },
     include: {
       divisions: true,
       employees: {
@@ -37,7 +30,8 @@ export async function seedBloodBankService() {
   });
 
   let i = 0;
-  let miscellaneous = 0; // Track how many services have opening/closing times and notes
+  let miscellaneous = 0;
+  let divisionIndex = 0;
 
   for (const facility of facilities) {
     const serviceID = `bloodbank-${facility.facilityID}`;
@@ -77,7 +71,9 @@ export async function seedBloodBankService() {
               type       : "Blood Bank",
               note,
 
-              ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+              ...(hasDivision && { 
+                divisionID: facility.divisions[divisionIndex % facility.divisions.length].divisionID 
+              })
             }
           },
           phoneNumber,
@@ -119,6 +115,10 @@ export async function seedBloodBankService() {
         );
       }
     });
+
+    if (hasDivision) {
+      divisionIndex++;
+    }
 
     i++;
   }

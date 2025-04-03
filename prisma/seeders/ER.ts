@@ -31,6 +31,7 @@ export async function seedERService() {
 
   let i = 0;
   let miscellaneous = 0;
+  let divisionIndex = 0;
 
   for (const facility of facilities) {
     const serviceID = `er-${facility.facilityID}`;
@@ -70,7 +71,9 @@ export async function seedERService() {
               type       : "Emergency Room",
               note,
 
-              ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+              ...(hasDivision && { 
+                divisionID: facility.divisions[divisionIndex % facility.divisions.length].divisionID 
+              })
             }
           },
           phoneNumber,
@@ -104,6 +107,10 @@ export async function seedERService() {
         );
       }
     });
+
+    if (hasDivision) {
+      divisionIndex++;
+    }
 
     i++;
   }

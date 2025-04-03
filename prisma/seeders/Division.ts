@@ -15,7 +15,9 @@ export async function seedDivision() {
 
   const facilities = await prisma.facility.findMany({
     where: {
-      facilityID: { in: facilityIDs }
+      facilityID: { 
+        in: facilityIDs 
+      }
     },
     include: {
       employees: {

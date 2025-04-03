@@ -31,6 +31,7 @@ export async function seedICUService() {
 
   let i = 0;
   let miscellaneous = 0;
+  let divisionIndex = 0;
 
   for (const facility of facilities) {
     const serviceID = `icu-${facility.facilityID}`;
@@ -70,7 +71,9 @@ export async function seedICUService() {
               type       : "Intensive Care Unit",
               note,
 
-              ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+              ...(hasDivision && { 
+                divisionID: facility.divisions[divisionIndex % facility.divisions.length].divisionID 
+              })
             }
           },
           phoneNumber,
@@ -103,6 +106,10 @@ export async function seedICUService() {
         );
       }
     });
+
+    if (hasDivision) {
+      divisionIndex++;
+    }
 
     i++;
   }

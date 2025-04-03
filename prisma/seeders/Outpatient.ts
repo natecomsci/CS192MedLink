@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { Load, Action } from "@prisma/client";
+import { Action } from "@prisma/client";
 
 import { faker } from "@faker-js/faker";
 
@@ -57,8 +57,8 @@ export async function seedOutpatientService() {
     }
   });
 
-  let i = 0;
   let miscellaneous = 0;
+  let divisionIndex = 0;
 
   for (const facility of facilities) {
     const selectedTypes = faker.helpers.arrayElements(types, 15);
@@ -92,7 +92,9 @@ export async function seedOutpatientService() {
                 type,
                 note,
 
-                ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+                ...(hasDivision && { 
+                  divisionID: facility.divisions[divisionIndex % facility.divisions.length].divisionID 
+                })
               }
             },
             basePrice       : faker.number.float({ min: 100, max: 5000, fractionDigits: 2 }),
@@ -120,6 +122,10 @@ export async function seedOutpatientService() {
           );
         }
       });
+    }
+
+    if (hasDivision) {
+      divisionIndex++;
     }
   }
 }

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { FacilityType, Ownership, Role } from "@prisma/client";
+import { FacilityType, Ownership, Provider, Role } from "@prisma/client";
 
 import { faker } from "@faker-js/faker";
 
@@ -39,7 +39,7 @@ export async function seedFacility() {
       facilityID : (i + 1).toString(),
       name       : `Facility ${i + 1}`,
       email      : `facility${i + 1}@medlink.com`,
-      phone      : `0917${100000 + (i + 1)}`,
+      phone      : `0917 100 000${(i + 1)}`,
     })),
   ];
   
@@ -53,6 +53,7 @@ export async function seedFacility() {
       from : openingTime, 
       to   : new Date(new Date(openingTime).setHours(new Date(openingTime).getHours() + 12))
     });
+    const insurances = [Provider.MEDICARE, Provider.MAXICARE, Provider.INTELLICARE, Provider.PHILHEALTH]
 
     await prisma.facility.upsert({
       where: { 
@@ -64,25 +65,28 @@ export async function seedFacility() {
         name,
         photo: `https://placehold.co/600x400/png?text=${encodeURIComponent(name)}`,
         email,
-        phoneNumber   : phone,
-        facilityType  : faker.helpers.arrayElement([FacilityType.HOSPITAL, FacilityType.CLINIC, FacilityType.HEALTH_CENTER, FacilityType.MENTAL_HEALTH_FACILITY, FacilityType.FERTILITY_CLINIC]),
-        ownership     : faker.helpers.arrayElement([Ownership.PUBLIC, Ownership.PRIVATE]),
-        bookingSystem : faker.internet.url(),
+        phoneNumber       : phone,
+        facilityType      : faker.helpers.arrayElement([FacilityType.HOSPITAL, FacilityType.CLINIC, FacilityType.HEALTH_CENTER, FacilityType.MENTAL_HEALTH_FACILITY, FacilityType.FERTILITY_CLINIC]),
+        ownership         : faker.helpers.arrayElement([Ownership.PUBLIC, Ownership.PRIVATE]),
+        bookingSystem     : faker.internet.url(),
+        acceptedProviders : [faker.helpers.arrayElement(insurances)],
 
         ...(hasDivisions ? {} : { openingTime, closingTime }),
       },
     });
   
     await prisma.employee.upsert({
-      where: { employeeID: facilityID },
+      where: { 
+        employeeID: facilityID 
+      },
       update: {},
       create: {
-        employeeID: facilityID,
-        password: hashedPassword,
-        role: Role.MANAGER,
-        fname: faker.person.firstName(faker.person.sexType()),
-        lname: faker.person.lastName(),
-        facilityID: facilityID,
+        employeeID : facilityID,
+        password   : hashedPassword,
+        role       : Role.MANAGER,
+        fname      : faker.person.firstName(faker.person.sexType()),
+        lname      : faker.person.lastName(),
+        facilityID : facilityID,
       },
     });
   }
