@@ -63,7 +63,24 @@
         {/if}
       </div>
     </div>
-
+     <hr class="my-4 border-gray-300"> <!-- Line -->   
+  <!-- View Facility Page Button -->
+  <div class="text-center my-4">
+    <div class="flex justify-center mt-2">
+      {#if availability}
+      <a 
+        href={"/facilityInfo/" + (data.facilityID ?? '') + "/serviceInfo" + "/Ambulance/ "+ (data.serviceID ?? '') + "/callAnAmbulance"} 
+        class="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2"
+      >
+        ✔ Request an Ambulance
+      </a>
+      {:else}
+        <span class="bg-red-500 text-white px-4 py-2 rounded-full flex items-center gap-2">
+          ✖ Unable to Request an Ambulanace
+        </span>
+      {/if}
+    </div>
+  </div>
     <hr class="my-4 border-gray-300"> <!-- Line -->
 
     <!-- Location -->

@@ -64,6 +64,7 @@ export const load: PageServerLoad = async ({ params }) => {
       maxCoverageRadius : ambulanceService.maxCoverageRadius ?? null,
       availability      : ambulanceService.availability ?? null,
       updatedAt         : ambulanceService.updatedAt ?? null,
+      serviceID,
       facilityID
     };
   } catch (error) {
