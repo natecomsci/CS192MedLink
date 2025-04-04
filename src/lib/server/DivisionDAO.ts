@@ -23,6 +23,7 @@ import type { DivisionDTO,
 const divisionBaseSelect = {
   divisionID : true,
   name       : true,
+  phoneNumber: true,
 }
 
 const divisionCrUpSelect = {

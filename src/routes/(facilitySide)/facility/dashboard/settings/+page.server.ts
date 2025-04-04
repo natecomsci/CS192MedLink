@@ -37,6 +37,7 @@ export const actions = {
     signOut: async ({ cookies }) => {
         // Delete cookies for facility ID and services
         cookies.delete('facilityID', { path: '/' });
+        cookies.delete('facilityName', { path: '/' });
         cookies.delete('employeeID', { path: '/' });
         cookies.delete('role', { path: '/' });
         cookies.delete('hasAdmins', { path: '/' });

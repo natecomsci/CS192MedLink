@@ -64,10 +64,12 @@ export const actions = {
     }
 
     const facilityDAO = new FacilityDAO()
+    const facilityName = (await facilityDAO.getInformation(employee.facilityID)).name
     const hasAdmins = await facilityDAO.facilityHasAdmins(employee.facilityID)
     const hasDivisions = await facilityDAO.facilityHasDivisions(employee.facilityID)
 
     cookies.set('facilityID', employee.facilityID, {path: '/'});
+    cookies.set('facilityName', facilityName, {path: '/'});
     cookies.set('employeeID', employee.employeeID, {path: '/'});
     cookies.set('role', employee.role, {path: '/'});
     cookies.set('hasAdmins', String(hasAdmins), {path: '/'});
