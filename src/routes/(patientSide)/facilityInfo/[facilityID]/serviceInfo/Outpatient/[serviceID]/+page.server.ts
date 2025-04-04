@@ -65,6 +65,7 @@ export const load: PageServerLoad = async ({ params }) => {
       completionTimeH : outpatientService.completionTimeH,
       isAvailable     : outpatientService.isAvailable,
       acceptsWalkIns  : outpatientService.acceptsWalkIns,
+      updatedAt       : outpatientService.updatedAt,
       ...(outpatientService.division?.divisionID ? { divisionID: outpatientService.division?.divisionID } : {}),
       facilityID
 

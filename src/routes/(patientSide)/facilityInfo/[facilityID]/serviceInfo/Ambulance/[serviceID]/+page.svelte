@@ -12,6 +12,7 @@
   let mileageRate       = $state(data.mileageRate);
   let maxCoverageRadius = $state(data.maxCoverageRadius);
   let availability      = $state(data.availability);
+  let updatedAt         = $state(data.updatedAt);
 
   // Rereplace ito? Dagdag ni elle
   let service = "Ambulance"
@@ -122,7 +123,7 @@
     </div>
 
     <hr class="mt-4 border-gray-300">
-    <p class="mt-2 text-sm text-gray-500">Updated at: A days, B Hours, and C Minutes Ago</p>
+    <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p>  
   </div>
   <!-- View Facility Page Button -->
   <div class="flex bg-white pb-10 pt-5  justify-center">

@@ -53,8 +53,8 @@ export const load: PageServerLoad = async ({ params }) => {
     }
 
     return {
-      facilityName       : facility.name,
-      facilityAddress    : fullAddress,
+      facilityName      : facility.name,
+      facilityAddress   : fullAddress,
       phoneNumber       : ambulanceService.phoneNumber ?? null,
       openingTime       : ambulanceService.openingTime ?? null,
       closingTime       : ambulanceService.closingTime ?? null,
@@ -63,6 +63,7 @@ export const load: PageServerLoad = async ({ params }) => {
       mileageRate       : ambulanceService.mileageRate ?? null,
       maxCoverageRadius : ambulanceService.maxCoverageRadius ?? null,
       availability      : ambulanceService.availability ?? null,
+      updatedAt         : ambulanceService.updatedAt ?? null,
       facilityID
     };
   } catch (error) {

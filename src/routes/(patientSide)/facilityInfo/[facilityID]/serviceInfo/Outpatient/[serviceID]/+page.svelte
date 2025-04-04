@@ -4,12 +4,13 @@
 
   let facilityName        = $state(data.facilityName);
   let facilityAddress     = $state(data.facilityAddress) ;
-  let price              = $state(data.price);
+  let price               = $state(data.price);
   let completionTimeD     = $state(data.completionTimeD);
   let completionTimeH     = $state(data.completionTimeH);
   let isAvailable         = $state(data.isAvailable);
   let acceptsWalkIns      = $state(data.acceptsWalkIns);
   let divisionID          = $state(data.divisionID);
+  let updatedAt           = $state(data.updatedAt);
 
   // Rereplace ito? Dagdag ni elle
   let service = "Outpatient Service Details"
@@ -100,7 +101,7 @@
     </div>
 
     <hr class="mt-4 border-gray-300">
-    <p class="mt-2 text-sm text-gray-500">Updated at: A days, B Hours, and C Minutes Ago</p>
+   <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p>
   </div>
   <!-- View Facility Page Button -->
   <div class="flex bg-white pb-10 pt-5  justify-center">
