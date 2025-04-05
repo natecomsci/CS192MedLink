@@ -43,36 +43,28 @@
       <p class="text-red-600 mt-2">{form.error}</p>
     {/if}
 
-    <div class="grid grid-cols-2 p-10">
-      <div class="p-5">
-        <a href="/search/Ambulance"
-          class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-500 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-        >
-          Ambulance
-        </a>
-      </div>
-      <div class="p-5">
-      <a href="/search/Blood%20Bank"
-        class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-500 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-      >
-        Blood Bank
+    <div class="grid grid-cols-2 gap-4 p-6 w-full max-w-md">
+      <a href="/search/Ambulance" class="flex flex-col items-center justify-center bg-white border border-[#9E8BA9] rounded-xl shadow-md p-4 hover:shadow-lg transition">
+        <img src="/ambulance_icon.svg" alt="Ambulance Icon" class="w-8 h-8 mb-2" />
+        <span class="text-sm font-medium text-[#5B2F74]">Ambulance</span>
       </a>
-      </div>
-      <div class="p-5">
-      <a href="/search/Intensive%20Care%20Unit"
-        class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-500 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-      >
-        Intensive Care Unit
+
+      <a href="/search/Blood%20Bank" class="flex flex-col items-center justify-center bg-white border border-[#9E8BA9] rounded-xl shadow-md p-4 hover:shadow-lg transition">
+        <img src="bloodbank_icon.svg" alt="Blood Bank Icon" class="w-8 h-8 mb-2" />
+        <span class="text-sm font-medium text-[#5B2F74]">Blood Bank</span>
       </a>
-      </div>
-      <div class="p-5">
-      <a href="/search/Emergency%20Room"
-        class="focus:outline-none text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 mb-2 dark:bg-purple-500 dark:hover:bg-purple-700 dark:focus:ring-purple-900"
-      >
-        Emergency Room
+
+      <a href="/search/Intensive%20Care%20Unit" class="flex flex-col items-center justify-center bg-white border border-[#9E8BA9] rounded-xl shadow-md p-4 hover:shadow-lg transition">
+        <img src="ICU_icon.svg" alt="ICU Icon" class="w-8 h-8 mb-2" />
+        <span class="text-sm font-medium text-[#5B2F74]">ICU</span>
       </a>
-      </div>
+
+      <a href="/search/Emergency%20Room" class="flex flex-col items-center justify-center bg-white border border-[#9E8BA9] rounded-xl shadow-md p-4 hover:shadow-lg transition">
+        <img src="ER_icon.svg" alt="ER Icon" class="w-8 h-8 mb-2" />
+        <span class="text-sm font-medium text-[#5B2F74]">ER</span>
+      </a>
     </div>
+
 
     {#if showFilter}
       <p>filters here</p>

@@ -143,10 +143,12 @@
     <hr class="mt-4 border-gray-300">
     <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p>  
   </div>
+
   {#if data.fromSearch}
   <!-- View Facility Page Button -->
-  <div class="flex bg-white pb-10 pt-5  justify-center">
-    <a href={"/facilityInfo/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
+  <div class="flex justify-center pb-10 pt-5 bg-gradient-to-b from-[#BCB6BC]/0 via-[#FDFCFD]/80 to-[#FDFCFD]">
+    <a href={"/facilityInfo/"+(data.facilityID ?? '')} 
+      class="block text-center text-[#9044C4] border-2 border-[#9044C4] px-6 py-3 rounded-full font-semibold hover:bg-[#9044C4] hover:text-white transition">
       View Facility Page →
     </a>
   </div>
