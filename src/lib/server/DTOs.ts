@@ -58,10 +58,12 @@ export interface GeneralInformationFacilityDTO {
 }
 
 export interface DivisionDTO {
-  divisionID : string,
-  name       : string,
-  createdAt  : Date,
-  updatedAt  : Date,
+  divisionID  : string,
+  name        : string,
+  phoneNumber : string,
+  email?      : string,
+  createdAt   : Date,
+  updatedAt   : Date,
 }
 //
 export interface Create_UpdateDivisionDTO {

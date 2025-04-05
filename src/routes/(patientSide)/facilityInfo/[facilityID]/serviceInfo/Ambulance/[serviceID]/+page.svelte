@@ -12,6 +12,7 @@
   let mileageRate       = $state(data.mileageRate);
   let maxCoverageRadius = $state(data.maxCoverageRadius);
   let availability      = $state(data.availability);
+  let updatedAt         = $state(data.updatedAt);
 
   // Rereplace ito? Dagdag ni elle
   let service = "Ambulance"
@@ -62,30 +63,48 @@
         {/if}
       </div>
     </div>
-
-    <hr class="my-4 border-gray-300"> <!-- Line -->
-
-    <!-- Location -->
-    <div class="mt-4">
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        📍 Location
-      </p>
-        <!-- {street}<br>
-        {barangay}, {cityMunicipality}<br>
-        {province}, {region} -->
-        <!-- {facilityAddress ? `${facilityAddress.street},
-        ${facilityAddress.barangay}, ${facilityAddress.city}, 
-        ${facilityAddress.province}, ${facilityAddress.region}` : "Address not available"} -->
-      
-      <p class="text-gray-600 text-sm">
-        {@html facilityAddress 
-          ? `${facilityAddress.street} <br>
-            ${facilityAddress.barangay}, ${facilityAddress.city} <br>
-            ${facilityAddress.province}, ${facilityAddress.region}`
-          : "Address not available"}
-      </p>
+     <hr class="my-4 border-gray-300"> <!-- Line -->   
+  <!-- View Facility Page Button -->
+  <div class="text-center my-4">
+    <div class="flex justify-center mt-2">
+      {#if availability}
+      <a 
+        href={"/facilityInfo/" + (data.facilityID ?? '') + "/serviceInfo" + "/Ambulance/ "+ (data.serviceID ?? '') + "/callAnAmbulance"} 
+        class="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2"
+      >
+        ✔ Request an Ambulance
+      </a>
+      {:else}
+        <span class="bg-red-500 text-white px-4 py-2 rounded-full flex items-center gap-2">
+          ✖ Unable to Request an Ambulanace
+        </span>
+      {/if}
     </div>
-    <hr class="my-4 border-gray-300">
+  </div>
+    {#if data.fromSearch}
+    <hr class="my-4 border-gray-300"> <!-- Line -->
+      <!-- Location -->
+      <div class="mt-4">
+        <p class="text-[#9044C4] font-semibold flex items-center gap-2">
+          📍 Location
+        </p>
+          <!-- {street}<br>
+          {barangay}, {cityMunicipality}<br>
+          {province}, {region} -->
+          <!-- {facilityAddress ? `${facilityAddress.street},
+          ${facilityAddress.barangay}, ${facilityAddress.city}, 
+          ${facilityAddress.province}, ${facilityAddress.region}` : "Address not available"} -->
+        
+        <p class="text-gray-600 text-sm">
+          {@html facilityAddress 
+            ? `${facilityAddress.street} <br>
+              ${facilityAddress.barangay}, ${facilityAddress.city} <br>
+              ${facilityAddress.province}, ${facilityAddress.region}`
+            : "Address not available"}
+        </p>
+      </div>
+    {/if}
+      <hr class="my-4 border-gray-300">
 
     <!-- Contact Information -->
     <div>
@@ -122,13 +141,15 @@
     </div>
 
     <hr class="mt-4 border-gray-300">
-    <p class="mt-2 text-sm text-gray-500">Updated at: A days, B Hours, and C Minutes Ago</p>
+    <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p>  
   </div>
+  {#if data.fromSearch}
   <!-- View Facility Page Button -->
   <div class="flex bg-white pb-10 pt-5  justify-center">
     <a href={"/facilityInfo/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
       View Facility Page →
     </a>
   </div>
+  {/if}
 </div>
 

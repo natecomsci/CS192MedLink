@@ -18,6 +18,7 @@ import {
 } from '$lib';
 
 export const load: PageServerLoad = async ({ cookies }) => {
+  const facilityName = cookies.get('facilityName');
   const facilityID = cookies.get('facilityID');
   const role = cookies.get('role');
   const hasAdmins = cookies.get('hasAdmins');
@@ -61,6 +62,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     hasDivisions: hasDivisions === 'true' ? true : false,
     admins, 
     divisions,
+    facilityName,
   };
   
   return toShow

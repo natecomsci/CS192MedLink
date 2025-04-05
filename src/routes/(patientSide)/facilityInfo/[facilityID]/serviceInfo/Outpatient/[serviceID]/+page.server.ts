@@ -9,16 +9,22 @@ import {
   GeographyDAO,
 } from '$lib';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
   const outpatientDAO = new OutpatientServiceDAO();
   const facilityDAO = new FacilityDAO();
   const servicesDAO = new ServicesDAO();
   const addressDAO = new AddressDAO();
   const geographyDAO = new GeographyDAO();
-  const { facilityID, serviceID } = params;
+  let { facilityID, serviceID } = params;
+  let fromSearch = false;
+  
+  if (!serviceID || !facilityID) {
+    throw redirect(303, "/");
+  }
 
-  if (!serviceID) {
-    throw redirect(303, "/facility");
+  if (url.pathname.includes("---prev=")) {
+    fromSearch = true;
+    serviceID = serviceID.split("---prev=", 1)[0]
   }
 
   try {
@@ -65,8 +71,10 @@ export const load: PageServerLoad = async ({ params }) => {
       completionTimeH : outpatientService.completionTimeH,
       isAvailable     : outpatientService.isAvailable,
       acceptsWalkIns  : outpatientService.acceptsWalkIns,
+      updatedAt       : outpatientService.updatedAt,
       ...(outpatientService.division?.divisionID ? { divisionID: outpatientService.division?.divisionID } : {}),
-      facilityID
+      facilityID,
+      fromSearch
 
     };
   } catch (error) {

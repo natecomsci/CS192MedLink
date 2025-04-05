@@ -68,7 +68,7 @@
 
           <!-- Update Button -->
 <a
-  href="/facility/dashboard/managerSettingsUpdate/changePassword"
+  href="/facility/dashboard/settings/changePassword"
   class="w-full py-2 bg-purple-600 text-white font-semibold rounded-lg mb-3 hover:bg-purple-700"
 >
   Change Password

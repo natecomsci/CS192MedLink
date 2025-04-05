@@ -35,6 +35,7 @@ import {
         type CreateICUServiceDTO,
         type CreateOutpatientServiceDTO,
         dateToTimeMapping,
+        validateEmail,
       } from '$lib';
 
 const divisionDAO = new DivisionDAO();
@@ -154,21 +155,25 @@ export const actions = {
 
     let name: string
     let phoneNumber: string
+    let email: string | undefined
     let openingTime: Date
     let closingTime: Date
 
-
     const divisionName = data.get('name');
     const phone = data.get('phoneNumber');
+    const formEmail = data.get('email') ?? '';
     const open = data.get('opening');
     const close = data.get('closing');
 
     try {
       name = validateFacilityName(divisionName);
 
+      email = await validateEmail(formEmail)
+
+      phoneNumber = validatePhone(phone);
+
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
       for (let div of facilityDivisions) {
-        console.log(div.name, div.name === name)
         if (div.name === name) {
           return fail(422, {
             error: "Duplicate name detected",
@@ -176,9 +181,23 @@ export const actions = {
             success: false
           });
         }
-      }
 
-      phoneNumber = validatePhone(phone);
+        if (div.phoneNumber === phoneNumber) {
+          return fail(422, {
+            error: "Duplicate phone number detected",
+            description: "Division Validation",
+            success: false
+          });
+        }
+
+        if (String(email) && (div.email ?? '')) {
+          return fail(422, {
+            error: "Duplicate email detected",
+            description: "Division Validation",
+            success: false
+          });
+        }
+      }
 
       let OCTime = validateOperatingHours(open, close)
       openingTime = OCTime.openingTime
@@ -300,26 +319,34 @@ export const actions = {
 
     let defName: string = division.name
     let defPhoneNumber: string = division.phoneNumber
+    let defEmail: string = division.email ?? ''
     let defOpeningTime: String = dateToTimeMapping(division.openingTime)
     let defClosingTime: String = dateToTimeMapping(division.closingTime)
 
     let name: string
     let phoneNumber: string
+    let email: string | undefined
     let openingTime: Date
     let closingTime: Date
 
     const divisionName = data.get('name');
     const phone = data.get('phoneNumber');
+    const formEmail = data.get('email') ?? '';
     const open = data.get('opening');
     const close = data.get('closing');
-
 
     try {
       name = validateFacilityName(divisionName);
 
+      email = await validateEmail(formEmail)
+
+      phoneNumber = validatePhone(phone);
+
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
       for (let div of facilityDivisions) {
-        console.log(div.name, div.name === name)
+        if (div.divisionID == divisionID) {
+          continue;
+        }
         if (div.name === name) {
           return fail(422, {
             error: "Duplicate name detected",
@@ -327,13 +354,27 @@ export const actions = {
             success: false
           });
         }
+
+        if (div.phoneNumber === phoneNumber) {
+          return fail(422, {
+            error: "Duplicate phone number detected",
+            description: "Division Validation",
+            success: false
+          });
+        }
+
+        if (String(email) && (div.email ?? '')) {
+          return fail(422, {
+            error: "Duplicate email detected",
+            description: "Division Validation",
+            success: false
+          });
+        }
       }
 
-      phoneNumber = validatePhone(phone)
       const OPHours = validateOperatingHours(open, close)
       openingTime = OPHours.openingTime
       closingTime = OPHours.closingTime
-      //
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
@@ -345,7 +386,8 @@ export const actions = {
     if (defName == name &&
         defPhoneNumber == phoneNumber&&
         defOpeningTime == dateToTimeMapping(openingTime) && 
-        defClosingTime == dateToTimeMapping(closingTime)
+        defClosingTime == dateToTimeMapping(closingTime) && 
+        defEmail == email
       ) {
       return fail(422, { 
         error: "No changes made",

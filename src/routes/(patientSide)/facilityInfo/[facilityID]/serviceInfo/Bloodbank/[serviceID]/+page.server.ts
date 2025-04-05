@@ -9,17 +9,22 @@ import {
   GeographyDAO,
 } from '$lib';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
   const bloodBankDAO = new BloodBankServiceDAO();
   const facilityDAO = new FacilityDAO();
   const addressDAO = new AddressDAO();
   const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO();
-  const { facilityID, serviceID } = params;
-  console.log('hello world')
+  let { facilityID, serviceID } = params;
+  let fromSearch = false;
 
-  if (!serviceID) {
-    throw redirect(303, "/facility");
+  if (!serviceID || !facilityID) {
+    throw redirect(303, "/");
+  }
+
+  if (url.pathname.includes("---prev=")) {
+    fromSearch = true;
+    serviceID = serviceID.split("---prev=", 1)[0]
   }
 
   try {
@@ -72,6 +77,7 @@ export const load: PageServerLoad = async ({ params }) => {
       turnaroundTimeH    : bloodBankService.turnaroundTimeH ?? null,
       bloodTypeAvailability: bloodBankService.bloodTypeAvailability ?? null,
       updatedAt          : bloodBankService.updatedAt ?? null,
+      fromSearch
     };
   } catch (error) {
     console.error("Error loading service details:", error);

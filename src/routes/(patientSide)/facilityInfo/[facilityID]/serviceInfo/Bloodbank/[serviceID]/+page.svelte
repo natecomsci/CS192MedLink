@@ -1,6 +1,5 @@
 <script lang="ts">
-  import type { PageProps } from './$types';
-  let { data }: PageProps = $props();
+  let { data } = $props();
 
   let facilityName       = $state(data.facilityName);
   let facilityAddress    = $state(data.facilityAddress);
