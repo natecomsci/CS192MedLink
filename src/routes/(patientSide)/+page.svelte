@@ -36,19 +36,20 @@
     <p class="text-gray-500 text-center mt-2">Connecting you to healthcare,<br>One search at a time...</p>
 
     <!-- Search Input -->
-    <div class="relative mt-4 flex items-center gap-2 p-2 rounded-full border border-gray-300 bg-white shadow-sm w-3/4">
-      <input
-        type="text"
-        name="query"
-        value=""
-        placeholder="Search services..."
-        class="flex-1 p-2 text-gray-700 bg-transparent outline-none"
-      />
-      <button type="submit" class="p-2 text-gray-500">
-        <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
-      </button>
-    </div>
-
+    <!-- <div> -->
+      <div class="relative mt-4 flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-white shadow-sm xl:w-3/4 sm:w-full md:w-full">
+        <input
+          type="text"
+          name="query"
+          value=""
+          placeholder="Search services..."
+          class="flex-1 p-2 text-gray-700 bg-transparent outline-none"
+        />
+        <button type="submit" class="p-2 text-gray-500">
+          <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
+        </button>
+      </div>
+    <!-- </div> -->
 <!-- 
     <button 
       type="button"
