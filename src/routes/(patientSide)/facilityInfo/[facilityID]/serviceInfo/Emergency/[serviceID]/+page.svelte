@@ -75,6 +75,7 @@
       </table>
     </div>
 
+    {#if data.fromSearch}
     <hr class="my-4 border-gray-300"> <!-- Line -->
     <!-- Location -->
     <div class="mt-4">
@@ -103,9 +104,9 @@
         <strong>Hours:</strong> 
       </p>
     </div>
-
+    {/if}
     <hr class="my-4 border-gray-300"> <!-- Line -->
-
+    
     <!-- Details -->
     <div>
       <p class="text-[#9044C4] font-semibold flex items-center gap-2">

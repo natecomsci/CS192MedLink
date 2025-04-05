@@ -49,6 +49,7 @@
         {/if}
       </div>
     </div>
+    {#if data.fromSearch}
     <hr class="my-4 border-gray-300"> <!-- Line -->
     <!-- Location -->
     <div class="mt-4">
@@ -61,6 +62,7 @@
         {province}, {region}
       </p>
     </div>
+    {/if}
 
   
 

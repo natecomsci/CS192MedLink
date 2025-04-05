@@ -84,7 +84,7 @@
 
       </table>
     </div>
-
+    {#if data.fromSearch}
     <hr class="my-4 border-gray-300"> <!-- Line -->
     
     <!-- Location -->
@@ -114,7 +114,7 @@
         <strong>Hours:</strong> 
       </p>
     </div>
-
+    {/if}
     <hr class="my-4 border-gray-300"> <!-- Line -->
 
     <!-- Details -->

@@ -64,15 +64,15 @@ export const actions = {
     let url
 
     if (serviceType === "Ambulance") {
-      url = "Ambulance/"+serviceID;
+      url = "Ambulance/"+serviceID+"---prev=search";
     } else if (serviceType === "Blood Bank") {
-      url = "Bloodbank/"+serviceID;
+      url = "Bloodbank/"+serviceID+"---prev=search";
     } else if (serviceType === "Emergency Room") {
-      url = "Emergency/"+serviceID;
+      url = "Emergency/"+serviceID+"---prev=search";
     } else if (serviceType === "Intensive Care Unit") {
-      url = "ICU/"+serviceID;
+      url = "ICU/"+serviceID+"---prev=search";
     } else {
-      url = "Outpatient/"+serviceID;
+      url = "Outpatient/"+serviceID+"---prev=search";
     }
 
     throw redirect(303, "/facilityInfo/"+facilityID+"/serviceInfo/"+url);

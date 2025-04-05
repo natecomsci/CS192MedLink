@@ -81,29 +81,30 @@
       {/if}
     </div>
   </div>
+    {#if data.fromSearch}
     <hr class="my-4 border-gray-300"> <!-- Line -->
-
-    <!-- Location -->
-    <div class="mt-4">
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        📍 Location
-      </p>
-        <!-- {street}<br>
-        {barangay}, {cityMunicipality}<br>
-        {province}, {region} -->
-        <!-- {facilityAddress ? `${facilityAddress.street},
-        ${facilityAddress.barangay}, ${facilityAddress.city}, 
-        ${facilityAddress.province}, ${facilityAddress.region}` : "Address not available"} -->
-      
-      <p class="text-gray-600 text-sm">
-        {@html facilityAddress 
-          ? `${facilityAddress.street} <br>
-            ${facilityAddress.barangay}, ${facilityAddress.city} <br>
-            ${facilityAddress.province}, ${facilityAddress.region}`
-          : "Address not available"}
-      </p>
-    </div>
-    <hr class="my-4 border-gray-300">
+      <!-- Location -->
+      <div class="mt-4">
+        <p class="text-[#9044C4] font-semibold flex items-center gap-2">
+          📍 Location
+        </p>
+          <!-- {street}<br>
+          {barangay}, {cityMunicipality}<br>
+          {province}, {region} -->
+          <!-- {facilityAddress ? `${facilityAddress.street},
+          ${facilityAddress.barangay}, ${facilityAddress.city}, 
+          ${facilityAddress.province}, ${facilityAddress.region}` : "Address not available"} -->
+        
+        <p class="text-gray-600 text-sm">
+          {@html facilityAddress 
+            ? `${facilityAddress.street} <br>
+              ${facilityAddress.barangay}, ${facilityAddress.city} <br>
+              ${facilityAddress.province}, ${facilityAddress.region}`
+            : "Address not available"}
+        </p>
+      </div>
+    {/if}
+      <hr class="my-4 border-gray-300">
 
     <!-- Contact Information -->
     <div>

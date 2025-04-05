@@ -9,16 +9,22 @@ import {
   GeographyDAO,
 } from '$lib';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
   const ERDAO = new ERServiceDAO();
   const facilityDAO = new FacilityDAO();
   const addressDAO = new AddressDAO();
   const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO();
-  const { facilityID, serviceID } = params;
+  let { facilityID, serviceID } = params;
+  let fromSearch = false;
+  
+  if (!serviceID || !facilityID) {
+    throw redirect(303, "/");
+  }
 
-  if (!serviceID) {
-    throw redirect(303, "/facility");
+  if (url.pathname.includes("---prev=")) {
+    fromSearch = true;
+    serviceID = serviceID.split("---prev=", 1)[0]
   }
 
   try {
@@ -67,7 +73,8 @@ export const load: PageServerLoad = async ({ params }) => {
       criticalPatients: service.criticalPatients ?? null,
       criticalQueueLength: service.criticalQueueLength ?? null,
       updatedAt: service.updatedAt ?? null,
-      facilityID
+      facilityID,
+      fromSearch
     };
   } catch (error) {
     return fail(500, { description: "Could not get service information." });
