@@ -64,10 +64,25 @@ export const load: PageServerLoad = async ({ params, url }) => {
       };
     }
 
+    let phoneNumber
+    // let openingTime
+    // let closingTime
+
+    if (!icuService.phoneNumber) {
+      const address = await facilityDAO.getInformation(service.facilityID)
+      phoneNumber = address.phoneNumber
+      // openingTime = address.openingTime
+      // closingTime = address.closingTime
+    } else {
+      phoneNumber = icuService.phoneNumber
+      // openingTime = icuService.openingTime
+      // closingTime = icuService.closingTime
+    }
+
     return {
       facilityName        : facility.name,
       facilityAddress     : fullAddress,
-      phoneNumber         : icuService.phoneNumber,
+      phoneNumber         ,
       baseRate            : icuService.baseRate,
       load                : icuService.load,
       availableBeds       : icuService.availableBeds,

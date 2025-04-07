@@ -72,7 +72,7 @@
     <button 
       class="bg-[#9044C4] rounded-lg px-6 py-3 text-white font-semibold shadow-md hover:bg-gray-600 transition"
       >
-      Load more...
+      Load More
     </button>
   </div>
 

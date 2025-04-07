@@ -159,7 +159,7 @@
   {#if data.fromSearch}
   <!-- View Facility Page Button -->
   <div class="flex justify-center pb-10 pt-5 bg-gradient-to-b from-[#BCB6BC]/0 via-[#FDFCFD]/80 to-[#FDFCFD]">
-    <a href={"/facilityInfo/"+(data ?? '')} 
+    <a href={"/facilityInfo/"+(data.facilityID ?? '')} 
       class="block text-center text-[#9044C4] border-2 border-[#9044C4] px-6 py-3 rounded-full font-semibold hover:bg-[#9044C4] hover:text-white transition">
       View Facility Page →
     </a>

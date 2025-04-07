@@ -211,20 +211,16 @@ export const actions = {
       });
     }
 
-    const serviceType = data.get("serviceType");
-
+    let newServices = []
     let newService
 
-    if (serviceType) {
+    for (let i = 0; ; i++) {
       try {
-        newService = validateService({data})
+        newService = validateService(data, i)
         if (!newService) {
-          return fail(422, {
-            error: "Service Type not allowed",
-            description: "Service Validation",
-            success: false
-          });
+          break;
         }
+        newServices.push(newService)
       } catch (error) {
         return fail(422, {
             error: (error as Error).message,
@@ -258,7 +254,7 @@ export const actions = {
       count = 0 
     }
 
-    if (!serviceType && (servicesToAttach.length === 0)) {
+    if ((newServices.length === 0) && (servicesToAttach.length === 0)) {
       return fail(422, {
           error: "New division must have at least 1 service",
           description: "Service Validation",
@@ -275,7 +271,7 @@ export const actions = {
 
     try {
       const divisionID = await divisionDAO.create(facilityID, employeeID, division)
-      if (newService) {
+      for (newService of newServices) {
         const serviceID = await newService.dao.create(facilityID, employeeID, newService.service)
         servicesToAttach.push(serviceID)
       }
@@ -289,6 +285,8 @@ export const actions = {
           success: false
         });
     }
+
+    console.log(newServices)
 
     return {
       success: true
@@ -430,24 +428,27 @@ function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
   return availableOPServices;
 }
 
-function validateService({ data }: {data: FormData}): any {
-  const serviceType = data.get('serviceType');
+function validateService(data: FormData, i: number): any {
+  const serviceType = data.get('serviceType'+String(i));
+  if (!serviceType) {
+    return
+  }
+  const phone    = data.get('phoneNumber'+String(i));
+  const open     = data.get('opening'+String(i));
+  const close    = data.get('closing'+String(i));
+  const rates    = data.get('price'+String(i));
 
-  const phone    = data.get('phoneNumber');
-  const open     = data.get('opening');
-  const close    = data.get('closing');
-  const rates    = data.get('price');
-  const minCover = data.get('minCoverageRadius');
-  const mileRate = data.get('mileageRate');
-  const maxCover = data.get('maxCoverageRadius');
+  const minCover = data.get('minCoverageRadius'+String(i));
+  const mileRate = data.get('mileageRate'+String(i));
+  const maxCover = data.get('maxCoverageRadius'+String(i));
 
-  const turnTD  = data.get('turnaroundDays');
-  const turnTH  = data.get('turnaroundHours');
+  const turnTD  = data.get('turnaroundDays'+String(i));
+  const turnTH  = data.get('turnaroundHours'+String(i));
 
-  const OPType  = data.get('OPserviceType');
-  const compTD  = data.get('completionDays');
-  const compTH  = data.get('completionHours');
-  const walkins = data.get('acceptWalkins');
+  const OPType  = data.get('OPserviceType'+String(i));
+  const compTD  = data.get('completionDays'+String(i));
+  const compTH  = data.get('completionHours'+String(i));
+  const walkins = data.get('acceptWalkins'+String(i));
   
   switch (serviceType){
     case "Ambulance": {

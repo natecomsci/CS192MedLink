@@ -56,7 +56,7 @@
 
       <input
         type="text"
-        placeholder="search"
+        placeholder="Search"
         bind:value={query}
         onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
@@ -77,18 +77,20 @@
         isInQueryMode = true
         currentPage = 1
         getPage(0)
-      }}>
+        }}
+        class="border-black"
+      >
         Search
       </button>
       {#if errorLoc == "query"}
         {error}
       {/if}
       <!-- Ensures "View By:" stays in one line -->
-      <span class="whitespace-nowrap">View By:</span>
+      <!-- <span class="whitespace-nowrap">View By:</span>
 
       <select class="p-4 py-0 border-2 border-gray-500 rounded-3xl h-10">
         <option>Default</option>
-      </select>
+      </select> -->
     </div>
 
   </div>
@@ -98,7 +100,7 @@
     {#if errorLoc == "logs"}
       {error}
     {/if}
-    {#each updateLogs as { role, entity, action, employeeID, createdAt }}
+    {#each updateLogs as { role, entity, action, employee, createdAt }}
       <!-- history item -->
     <div class="py-2 -b mb-4 ">
         <div class="history-item justify-between  -green-200">
@@ -108,8 +110,11 @@
         
             <!-- Left Content: Admin & Message -->
             <div class="info">
-              <span class="admin">{role === Role.MANAGER ? "Manager" : "Admin"} {employeeID}</span>
-              <span class="message">{action} {entity}</span>
+              <span class="message">{
+                String(action).charAt(0).toUpperCase() + String(action).toLowerCase().slice(1) + "d"
+
+              } {entity}</span>
+              <span class="admin"> {employee.fname} {employee.lname}</span>
             </div>
           </div>
         
@@ -157,7 +162,7 @@
     width:px;
   }
 
-  .admin {
+  .message {
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
     font-size: 20px;
@@ -165,7 +170,7 @@
     letter-spacing: -0.02em;
   }
 
-  .message {
+  .admin {
     font-family: 'DM Sans', sans-serif;
     font-style: italic;
     font-weight: 600;

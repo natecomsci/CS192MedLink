@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { PageData } from './$types';
-    // let { i, data }: { i: number, data: PageData} = $props();
-    let { data }: { data: PageData} = $props();
+    let { i, data }: { i: number, data: PageData} = $props();
     const OPServices: String[] = data.availableOPServices ?? [];
 </script>
 
@@ -11,7 +10,7 @@
         <label>
             <span class="text-label">OP Service Type</span>
             <select 
-                name="OPserviceType"
+                name="OPserviceType{i}"
                 class="input-box"
                  
               >
@@ -31,7 +30,7 @@
 
                 <input 
                     type="number" 
-                    name="completionDays"
+                    name="completionDays{i}"
                     class="input-box w-30"
                     placeholder="Days" 
                      />
@@ -39,7 +38,7 @@
             
                 <input 
                 type="number" 
-                name="completionHours"
+                name="completionHours{i}"
                 class="input-box w-30"
                 placeholder="Hours" 
                 
@@ -56,7 +55,7 @@
         <label class="flex items-center gap-2">
             <span class="text-label">Accepts Walk-ins</span>
             <input 
-                name="acceptWalkins" 
+                name="acceptWalkins{i}" 
                 type="checkbox"
                 class="w-5 h-5 rounded border-2 border-gray-400 
                     accent-purple-500 cursor-pointer"
@@ -71,7 +70,7 @@
         <label >
             <span class="text-label">Base Price</span>
             <input 
-                name="price"
+                name="price{i}"
                 type="number" 
                 class="input-box"
                 placeholder="Price"

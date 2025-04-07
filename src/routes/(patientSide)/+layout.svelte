@@ -3,9 +3,8 @@
   import "../app.css";
 </script>
 
-<main class="space-y-8 bg-teal-100">
-    {@render children()}
-</main>
+
+{@render children()}
 
 
 <!-- add repeating elements for all  pages here -->

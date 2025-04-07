@@ -66,7 +66,7 @@ export const actions = {
     if (serviceType === "Ambulance") {
       url = "Ambulance/"+serviceID+"---prev=search";
     } else if (serviceType === "Blood Bank") {
-      url = "Bloodbank/"+serviceID+"---prev=search";
+      url = "BloodBank/"+serviceID+"---prev=search";
     } else if (serviceType === "Emergency Room") {
       url = "Emergency/"+serviceID+"---prev=search";
     } else if (serviceType === "Intensive Care Unit") {

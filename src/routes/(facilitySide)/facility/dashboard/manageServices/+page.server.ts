@@ -14,7 +14,7 @@ import type { AmbulanceServiceDTO,
               CreateOutpatientServiceDTO, 
               ERServiceDTO, 
               ICUServiceDTO, 
-              OutpatientServiceDTO, 
+              UpdateOutpatientServiceDTO, 
               ServiceDTO,
               OPServiceType,
               DivisionDTO,
@@ -888,7 +888,6 @@ export const actions: Actions = {
 
     const serviceInfo = await outpatientDAO.getInformation(serviceID);
 
-    const type: string = serviceInfo.type
     const defPrice: Number = serviceInfo.basePrice
     const defCompletionTimeD: Number = serviceInfo.completionTimeD
     const defCompletionTimeH: Number = serviceInfo.completionTimeH
@@ -919,8 +918,7 @@ export const actions: Actions = {
       });
     }
 
-    const service: OutpatientServiceDTO = {
-      type,
+    const service: UpdateOutpatientServiceDTO = {
       basePrice             ,
       completionTimeD       ,
       completionTimeH       ,
@@ -943,7 +941,8 @@ export const actions: Actions = {
       });
     }
     if (divisionID && divisionName) {
-      service.division = {divisionID : divisionID, name: divisionName}
+      // service.division = {divisionID : divisionID, name: divisionName}
+      service.divisionID = divisionID
     }
 
     outpatientDAO.update(serviceID, facilityID, employeeID, service)

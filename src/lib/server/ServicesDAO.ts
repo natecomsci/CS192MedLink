@@ -79,10 +79,6 @@ export class ServicesDAO {
         select: serviceSelect(true)
       });
 
-      console.log(`Result of "services" query for Facility ${facilityID}: `, services);
-
-      console.log(`Services of Facility ${facilityID}: `);
-
       return services;
     } catch (error) {
       console.error("Details: ", error);

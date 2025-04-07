@@ -3,30 +3,29 @@
   import { enhance } from '$app/forms';
 
   import type { DivisionDTO, MultiServiceDivisionsDTO } from '$lib';
+  import { pagingQueryHandler } from '$lib/postHandlers';
 
   import AmbulanceService from './AddAmbulanceService.svelte';
   import BloodBankService from './AddBloodBankService.svelte';
   import ERService from './AddERService.svelte';
   import ICUService from './AddICUService.svelte';
   import OutpatientService from './AddOutpatientService.svelte';
-    import { pagingQueryHandler } from '$lib/postHandlers';
 
   let { data, 
         form, 
-        currPopUp = $bindable(), 
-        divisions = $bindable(), 
+        currPopUp = $bindable(),
+        divisions = $bindable(),
         linkableServices = $bindable(),
         currentPage = $bindable(),
         totalPages = $bindable(),
-        }: { 
-          data:PageData, 
-          form: ActionData, 
-          currPopUp: String, 
-          divisions:DivisionDTO[], 
-          linkableServices: MultiServiceDivisionsDTO[],
-          currentPage: number, 
-          totalPages: number, 
-        } = $props();
+        }:{ data:PageData, 
+            form: ActionData, 
+            currPopUp: String, 
+            divisions:DivisionDTO[], 
+            linkableServices: MultiServiceDivisionsDTO[],
+            currentPage: number, 
+            totalPages: number, 
+          } = $props();
 
   let selectedLinkableServices: Record<string, string[]> = {};
 
@@ -34,9 +33,10 @@
     selectedLinkableServices[divisionID] = []
   }
 
-  let serviceType = $state('');
-
+  // let serviceType = $state('');
   let showDropdown = $state(false)
+  let newServicesCount = $state(0)
+  let newServiceTypes: string[] = $state([])
 
   async function getNewDivisions() {
     try {
@@ -55,9 +55,8 @@
       console.log((error as Error).message)
     }
   }
-
 </script>
- 
+
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
   <div class="max-w-3/4 rounded-lg  overflow-hidden ">
     <form 
@@ -119,6 +118,16 @@
                   >
                 </div>
               </label>
+
+              <label class="flex flex-col">
+                <span class="text-label">Email</span>
+                <input 
+                  class="input-box w-full" 
+                  type="email" 
+                  name="email" 
+                  placeholder="Email"
+                >
+              </label>
           </div>
 
           <button 
@@ -153,53 +162,63 @@
               {/each} 
             </div>
           {/if} 
-
-          <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
-            <div class="w-1/3 bg-white p-6 flex flex-col  ">
-              <div class="flex items-center gap-5">
-                <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Add a Service</h1>
+          <div class="flex items-center gap-5">
+            <button class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {
+              newServicesCount++
+              newServiceTypes.push('')
+            }}>Add a Service</button>
+          </div>
+          {#each {length: newServicesCount}, i}
+            <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
+              <div class="w-1/3 bg-white p-6 flex flex-col  ">
+                <label class="mt-5">
+                  <span class="text-label">Select a Service</span>
+                  <select name="serviceType{i}" bind:value={newServiceTypes[i]} class="border-2 border-[#D9D9D9] p-2 rounded w-full">
+                    {#each (data.availableServices ?? []) as service}
+                      <option 
+                        value={service} 
+                        onclick={() => newServiceTypes[i] = (service as string)}
+                      >{service}</option>
+                    {/each}
+                  </select>
+                </label>
               </div>
 
-              <label class="mt-5">
-                <span class="text-label">Select a Service</span>
-                <select name="serviceType" bind:value={serviceType} class="border-2 border-[#D9D9D9] p-2 rounded w-full">
-                  {#each (data.availableServices ?? []) as service}
-                    <option 
-                      value={service} 
-                      onclick={() => serviceType = (service as string)}
-                    >{service}</option>
-                  {/each}
-                </select>
-              </label>
+              <div class="w-[2px] bg-gray-300"></div>
+
+              <div class="flex-1 p-6 overflow-y-auto"> 
+                  <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{newServiceTypes[i]}</h2>
+                  <label class="grid grid-cols-1">
+                    {#if form?.error}
+                        <p class="error">{form.error}</p>
+                    {/if}
+                    {#if newServiceTypes[i] === "Ambulance"}
+                      <AmbulanceService {i}/>
+                    {:else if newServiceTypes[i] === "Blood Bank"}
+                      <BloodBankService {i}/>
+                    {:else if newServiceTypes[i] === "Emergency Room"}
+                      <ERService {i}/>
+                    {:else if newServiceTypes[i] === "Intensive Care Unit"}
+                      <ICUService {i}/>
+                    {:else if newServiceTypes[i] === "Outpatient"}
+                      <OutpatientService {data} {i}/>
+                    {/if}
+                  </label>
+              </div>
             </div>
+          {/each}
 
-            <div class="w-[2px] bg-gray-300"></div>
+          {#if newServicesCount > 0}
+            <button type="button" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => newServicesCount--}
+            >
+                Delete Service
+            </button>
+          {/if}
 
-            <div class="flex-1 p-6 overflow-y-auto  "> 
-                <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{serviceType}</h2>
-                <label class="grid grid-cols-1">
-                  {#if form?.error}
-                      <p class="error">{form.error}</p>
-                  {/if}
-                  {#if serviceType === "Ambulance"}
-                    <AmbulanceService />
-                  {:else if serviceType === "Blood Bank"}
-                    <BloodBankService />
-                  {:else if serviceType === "Emergency Room"}
-                    <ERService />
-                  {:else if serviceType === "Intensive Care Unit"}
-                    <ICUService />
-                  {:else if serviceType === "Outpatient"}
-                    <OutpatientService {data} />
-                  {/if}
-                </label>
-            </div>
-          </div>
-
-          <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" >
+          <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700"
+          >
               Add Division
           </button>
-
         </div>
       </div>
     </form>

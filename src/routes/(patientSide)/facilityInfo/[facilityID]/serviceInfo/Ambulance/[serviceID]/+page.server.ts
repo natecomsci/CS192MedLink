@@ -32,6 +32,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
     if (!service || !service.facilityID) {
       throw new Error("Service or facilityID not found.");
     }
+
+    let phoneNumber
+    let openingTime
+    let closingTime
     
     let facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
@@ -58,18 +62,29 @@ export const load: PageServerLoad = async ({ params, url }) => {
       };
     }
 
+    if (!ambulanceService.phoneNumber) {
+      const address = await facilityDAO.getInformation(service.facilityID)
+      phoneNumber = address.phoneNumber
+      openingTime = address.openingTime
+      closingTime = address.closingTime
+    } else {
+      phoneNumber = ambulanceService.phoneNumber
+      openingTime = ambulanceService.openingTime
+      closingTime = ambulanceService.closingTime
+    }
+
     return {
       facilityName      : facility.name,
       facilityAddress   : fullAddress,
-      phoneNumber       : ambulanceService.phoneNumber ?? null,
-      openingTime       : ambulanceService.openingTime ?? null,
-      closingTime       : ambulanceService.closingTime ?? null,
-      baseRate          : ambulanceService.baseRate ?? null,
-      minCoverageRadius : ambulanceService.minCoverageRadius ?? null,
-      mileageRate       : ambulanceService.mileageRate ?? null,
-      maxCoverageRadius : ambulanceService.maxCoverageRadius ?? null,
-      availability      : ambulanceService.availability ?? null,
-      updatedAt         : ambulanceService.updatedAt ?? null,
+      phoneNumber       ,
+      openingTime       ,
+      closingTime       ,
+      baseRate          : ambulanceService.baseRate,
+      minCoverageRadius : ambulanceService.minCoverageRadius,
+      mileageRate       : ambulanceService.mileageRate,
+      maxCoverageRadius : ambulanceService.maxCoverageRadius,
+      availability      : ambulanceService.availability,
+      updatedAt         : ambulanceService.updatedAt,
       serviceID,
       facilityID,
       fromSearch

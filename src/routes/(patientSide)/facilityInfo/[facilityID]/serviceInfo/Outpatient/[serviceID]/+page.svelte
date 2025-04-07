@@ -13,8 +13,8 @@
   let updatedAt           = $state(data.updatedAt);
 
   // Rereplace ito? Dagdag ni elle
-  let service = "Outpatient Service Details"
-  let addressParts = facilityAddress?.split(",").map(part => part.trim());
+  let service           = data.serviceName+" Details"
+  let addressParts      = facilityAddress?.split(",").map(part => part.trim());
   let street            = addressParts ? addressParts[0] : "N/A";
   let barangay          = addressParts ? addressParts[1] : "N/A";
   let cityMunicipality  = addressParts ? addressParts[2] : "N/A";

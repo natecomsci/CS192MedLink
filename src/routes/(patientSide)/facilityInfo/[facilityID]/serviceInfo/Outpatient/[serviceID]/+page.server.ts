@@ -74,7 +74,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
       updatedAt       : outpatientService.updatedAt,
       ...(outpatientService.division?.divisionID ? { divisionID: outpatientService.division?.divisionID } : {}),
       facilityID,
-      fromSearch
+      fromSearch,
+      serviceName: outpatientService.type,
 
     };
   } catch (error) {

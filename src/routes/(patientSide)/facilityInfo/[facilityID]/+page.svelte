@@ -74,7 +74,7 @@
       {#if bookingSystem}
         <div class="mt-4">
           <h2 class="text-purple-600 font-medium">Booking System Link</h2>
-          <p class="text-sm text-purple-700 underline">🔗{bookingSystem}</p>
+          <p class="text-sm text-purple-700">🔗 {bookingSystem}</p>
         </div>
       {/if}
 
@@ -96,15 +96,17 @@
       <!-- What The Facility Offers -->
       <div class="">
         <h2 class="text-purple-600 font-medium">What The Facility Offers</h2>
-        <form method="POST" action="?/viewServices" class="mt-2">
-          <button type="submit" class="w-full flex justify-between items-center bg-gray-200 p-3 rounded-lg">
-              Divisions 
-          </button>
-        </form>
+        {#if data.hasDivisions}
+          <form method="POST" action="?/viewServices" class="mt-2">
+            <button type="submit" class="w-full flex justify-between items-center bg-gray-200 p-3 rounded-lg">
+                Divisions 
+            </button>
+          </form>
+        {/if}
 
         <form method="POST" action="?/viewServices" class="mt-2">
           <button type="submit" class="w-full flex justify-between items-center bg-gray-200 p-3 rounded-lg">
-                Services Offered
+                Services
           </button>
         </form>
 

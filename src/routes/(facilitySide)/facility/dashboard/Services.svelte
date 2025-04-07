@@ -18,11 +18,21 @@
   <div class="mt-4">
     {#each mainServicesShown as { type, division }}
       <div class="py-2 border-b border-transparent">
-        <p class="font-bold">{type} Information</p>
+        <p class="service">{type}</p>
         {#if division?.name}
-          <p class="text-gray-500 italic">{division?.name} Division</p>
+          <p class="text-gray-500 italic">{division?.name}</p>
         {/if}
       </div>
     {/each}
   </div>
 </div>
+
+<style>
+  .service {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    color: #565656;
+    letter-spacing: -0.02em;
+  }
+</style>

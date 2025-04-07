@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { Availability } from '@prisma/client';
   import type { PageProps } from './$types';
   let { data }: PageProps = $props();
 
@@ -52,7 +53,7 @@
     <div class="text-center my-4">
       <p class="text-[#9044C4] font-semibold">Availability Status</p>
       <div class="flex justify-center mt-2">
-        {#if availability}
+        {#if availability == Availability.AVAILABLE}
           <span class="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2">
             ✔ Available
           </span>

@@ -28,7 +28,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
   }
 
   try {
-    let service = await ERDAO.getInformation(serviceID);
+    let eRService = await ERDAO.getInformation(serviceID);
+    let service = await servicesDAO.getByID(serviceID);
 
     let facility = await servicesDAO.getByID(serviceID);
     if (!facility || !facility.facilityID) {
@@ -60,19 +61,34 @@ export const load: PageServerLoad = async ({ params, url }) => {
       };
     }
 
+    let phoneNumber
+    // let openingTime
+    // let closingTime
+
+    if (!eRService.phoneNumber) {
+      const address = await facilityDAO.getInformation(service.facilityID)
+      phoneNumber = address.phoneNumber
+      // openingTime = address.openingTime
+      // closingTime = address.closingTime
+    } else {
+      phoneNumber = eRService.phoneNumber
+      // openingTime = eRService.openingTime
+      // closingTime = eRService.closingTime
+    }
+
     return {
       facilityName: facilityname.name ?? "Unknown Facility",
       facilityAddress: fullAddress,
-      phoneNumber: service.phoneNumber ?? null,
-      load: service.load ?? null,
-      availableBeds: service.availableBeds ?? null,
-      nonUrgentPatients: service.nonUrgentPatients ?? null,
-      nonUrgentQueueLength: service.nonUrgentQueueLength ?? null,
-      urgentPatients: service.urgentPatients ?? null,
-      urgentQueueLength: service.urgentQueueLength ?? null,
-      criticalPatients: service.criticalPatients ?? null,
-      criticalQueueLength: service.criticalQueueLength ?? null,
-      updatedAt: service.updatedAt ?? null,
+      phoneNumber ,
+      load: eRService.load ?? null,
+      availableBeds: eRService.availableBeds ?? null,
+      nonUrgentPatients: eRService.nonUrgentPatients ?? null,
+      nonUrgentQueueLength: eRService.nonUrgentQueueLength ?? null,
+      urgentPatients: eRService.urgentPatients ?? null,
+      urgentQueueLength: eRService.urgentQueueLength ?? null,
+      criticalPatients: eRService.criticalPatients ?? null,
+      criticalQueueLength: eRService.criticalQueueLength ?? null,
+      updatedAt: eRService.updatedAt ?? null,
       facilityID,
       fromSearch
     };

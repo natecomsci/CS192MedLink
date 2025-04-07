@@ -64,19 +64,33 @@ export const load: PageServerLoad = async ({ params, url }) => {
       };
     }
 
-    console.log("Fetched Service Data:", service);
+    let phoneNumber
+    let openingTime
+    let closingTime
+
+    if (!bloodBankService.phoneNumber) {
+      const address = await facilityDAO.getInformation(service.facilityID)
+      phoneNumber = address.phoneNumber
+      openingTime = address.openingTime
+      closingTime = address.closingTime
+    } else {
+      phoneNumber = bloodBankService.phoneNumber
+      openingTime = bloodBankService.openingTime
+      closingTime = bloodBankService.closingTime
+    }
 
     return {
       facilityName        : facility.name,
       facilityAddress     : fullAddress ?? null,
-      phoneNumber        : bloodBankService.phoneNumber ?? null,
-      openingTime        : bloodBankService.openingTime ?? null,
-      closingTime        : bloodBankService.closingTime ?? null,
+      phoneNumber       ,
+      openingTime       ,
+      closingTime       ,
       pricePerUnit       : bloodBankService.basePricePerUnit ?? null,
       turnaroundTimeD    : bloodBankService.turnaroundTimeD ?? null,
       turnaroundTimeH    : bloodBankService.turnaroundTimeH ?? null,
       bloodTypeAvailability: bloodBankService.bloodTypeAvailability ?? null,
       updatedAt          : bloodBankService.updatedAt ?? null,
+      facilityID,
       fromSearch
     };
   } catch (error) {

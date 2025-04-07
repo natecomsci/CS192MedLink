@@ -23,7 +23,7 @@
     <h1 class="mt-15 mb-5 font-['DM_Sans'] text-[60px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
       Med<span class="text-[#9044C4]">Link</span>
     </h1>
-    <p class="text-gray-500 text-center mt-2">Connecting you to healthcare,<br>One search at a time...</p>
+    <p class="text-gray-500 text-center mt-2">Connecting you to healthcare,<br>one search at a time.</p>
 
     <!-- <div> -->
       <div class="relative mt-4 flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-white shadow-sm xl:w-3/4 sm:w-full md:w-full">
@@ -31,7 +31,7 @@
           type="text"
           name="query"
           value=""
-          placeholder="Search services..."
+          placeholder="Search for Services"
           class="flex-1 p-2 text-gray-700 bg-transparent outline-none"
         />
         <button type="submit" class="p-2 text-gray-500">

@@ -58,6 +58,7 @@ import type {
         AdminDTO,
 
         Create_UpdateDivisionDTO,
+        UpdateOutpatientServiceDTO,
         DivisionDTO,
         MultiServiceDivisionsDTO,
 
@@ -127,6 +128,7 @@ export type {
   AdminDTO,
 
   Create_UpdateDivisionDTO,
+  UpdateOutpatientServiceDTO,
   DivisionDTO,
   MultiServiceDivisionsDTO,
 

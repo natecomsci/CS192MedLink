@@ -3,10 +3,11 @@ import type { Actions, PageServerLoad } from "./$types";
 
 import { FacilityDAO, GeographyDAO } from '$lib';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, cookies }) => {
   const facilityDAO = new FacilityDAO();
   const geographyDAO = new GeographyDAO();
   const { facilityID } = params;
+  const hasDivisions = cookies.get('hasDivisions'); 
 
   if (!facilityID) {
     throw redirect(303, "/facility"); // Redirect if no facility ID is found
@@ -51,6 +52,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
       bookingSystem: facilityInfo.bookingSystem ?? "",
       providers: facilityInfo.acceptedProviders,
+      hasDivisions
     };
   } catch (error) {
     return fail(500, {
