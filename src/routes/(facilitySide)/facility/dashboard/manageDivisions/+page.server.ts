@@ -249,7 +249,7 @@ export const actions = {
           });
         }
 
-        if (String(email) && (div.email ?? '')) {
+        if (String(email) === (div.email ?? '')) {
           return fail(422, {
             error: "Duplicate email detected",
             description: "Division Validation",
