@@ -37,9 +37,9 @@
   </div>
 </header>
 
-<div class=" border-transparent flex h-[calc(100vh-100px)] p-10 bg-gray-100 overflow-hidden gap-5">
+<div class=" border-transparent flex h-[calc(100vh-75px)] p-10 bg-gray-100 overflow-hidden gap-5">
   <!-- <div class="border w-1/2 py-5"> -->
-  <div class="w-1/2 p-5 bg-white shadow-lg rounded-lg ">
+  <div class="w-1/2 bg-white shadow-lg rounded-lg ">
     <ControlHistory {data} {form}/>
   </div>
   <!-- </div> -->

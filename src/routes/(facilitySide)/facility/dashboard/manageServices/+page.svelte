@@ -165,7 +165,7 @@
 
     <hr class="mt-4 border-gray-300 w-2/3">
     <!-- Scrollable List Container -->
-    <div class="space-y-3 mt-4 w-2/3 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
+    <div class="space-y-3 mt-4 w-2/3 pl-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
       {#if errorLoc == "services"}
         {error}
       {/if}

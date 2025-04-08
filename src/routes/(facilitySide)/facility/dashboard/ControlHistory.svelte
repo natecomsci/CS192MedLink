@@ -42,10 +42,15 @@
       getPage(0)
     }
   }
+
+  // ===================================
+  let perPage = 10;
+  let options = [10, 20, 50];
 </script>
-  <div class="h-full flex flex-col">
+
+<div class=" h-full p-4 flex flex-col">
   <!-- Sticky Header -->
-  <div class="flex items-center  border-green-400 pl-4 sticky bg-white z-10">
+  <div class="border-b border-[#DBD8DF] flex items-center pl-2 pb-2 sticky bg-white z-10">
 
     <span class=" text-[30px] font-bold text-lg text-[#9044C4] whitespace-nowrap pr-4">
       Control History
@@ -128,13 +133,57 @@
     {/each}
   </div>
 
-  <!-- Pagination -->
+  
+<!-- PAGINATIONNNNNNN -->
+<div class="flex items-center mx-auto justify-center gap-4 mt-4 w-2/3">
+  <div class="flex items-center space-x-2">
+    <!-- Double Left-->
+    <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
 
-  <div class="p-4 -t -[#DBD8DF] flex justify-between items-center">
-    <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => getPage(-1)}>« Prev</button>
-    <span class="text-purple-700 font-semibold">{currentPage} of {totalPages}</span>
-    <button type="button" class="p-2 bg-purple-300 rounded" onclick={() => getPage(1)}>Next »</button>
-  </div>
+    <!-- Single Left -->
+    <button 
+      type="button"
+      class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
+      onclick={() => getPage(-1)}
+      disabled={currentPage === 1} >
+      ‹
+    </button>
+
+    <!-- Current Page -->
+    <div class="flex items-center justify-center space-x-2">
+      <span class="bg-purple-400 p-2 w-8 h-8 hover:bg-purple-700 rounded-md text-white font-semibold flex items-center justify-center">{currentPage}</span>
+      <span class="text-gray-700 font-medium">of {totalPages}</span>
+    </div>
+
+    <!-- Single Right -->
+    <button 
+      type="button"
+      class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" 
+      onclick={() => getPage(1)} 
+      disabled={currentPage === totalPages}>
+      ›
+    </button>
+
+    <!-- Double Right -->
+    <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
+
+    <!-- View Dropdown -->
+    <div class="ml-4 flex items-center">
+      <label class="text-gray-700 font-medium gap-2">
+        View
+        <select
+          bind:value={perPage}
+          class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+        >
+          {#each options as option}
+            <option value={option}>{option}</option>
+          {/each}
+        </select>
+      </label>
+    </div>
+  </div>  
+</div>
+
 </div>
 
 <style>

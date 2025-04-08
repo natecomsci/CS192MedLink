@@ -9,8 +9,9 @@
   import DeleteDivisionRestricted from "./DeleteDivisionRestricted.svelte";
   import AddDivision from './AddDivision.svelte';
   import EditDivision from './EditDivision.svelte';
-    import { pagingQueryHandler } from '$lib/postHandlers';
+  import { pagingQueryHandler } from '$lib/postHandlers';
 
+  import TestModal from "./TestModal.svelte"
   let { data, form }: PageProps = $props();
 
   let divisions: DivisionDTO[] = $state(data.divisions ?? [])
@@ -63,6 +64,9 @@
 </script>
 
 {#if currPopUp === "delete"}
+  <!-- <TestModal>
+
+  </TestModal> -->
   <DeleteDivisionConfirm
     { form }
     bind:currPopUp={currPopUp}
@@ -158,8 +162,9 @@
     </div>
 
     <hr class="mt-4 border-gray-300 w-2/3">
+    
     <!-- Scrollable List Container -->
-    <div class="space-y-3 mt-4 w-2/3 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
+    <div class="space-y-3 mt-4 w-2/3 pl-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
       {#if errorLoc == "division"}
         {error}
       {/if}

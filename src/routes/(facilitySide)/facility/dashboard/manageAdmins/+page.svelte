@@ -50,6 +50,10 @@
       getPage(0)
     }
   }
+
+  // ===================================
+  let perPage = 10;
+  let options = [10, 20, 50];
 </script>
 
 {#if currPopUp === "delete"}
@@ -85,7 +89,7 @@
 {/if}
 
 <!-- Header -->
-<header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
+<header class="flex items-center justify-between p-3 shadow-sm border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
     <a href="/facility/dashboard" data-sveltekit-reload>
@@ -107,7 +111,7 @@
   </div>
 </header>
 
-<div class="p-6 bg-gray-50 max-h-screen border">
+<div class="p-6 bg-gray-50 max-h-screen h-[calc(100vh-50px)]">
     <!-- View and Search -->
     <div class="w-2/3 flex items-center gap-10">
       <input
@@ -146,8 +150,9 @@
       </select>
     </div>
 
+    <hr class="mt-4 border-gray-300 w-2/3">
     <!-- Scrollable List Container -->
-    <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
+    <div class="space-y-3 mt-4 w-2/3 pl-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
       {#if errorLoc == "admins"}
         {error}
       {/if}
@@ -200,11 +205,55 @@
         </div>
       {/each}
     </div>
-    <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(-1)}>⟨ Previous</button>
-      <span class="font-medium">Page {currentPage} of {totalPages}</span>
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(1)}>Next ⟩</button>
-    </div>
+
+
+  <!-- PAGINATIONNNNNNN -->
+  <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
+    <div class="flex items-center space-x-2">
+      <!-- Double Left-->
+      <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
+
+      <!-- Single Left -->
+      <button 
+        type="button"
+        class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
+        onclick={() => getPage(-1)}
+        disabled={currentPage === 1} >
+        ‹
+      </button>
+
+      <!-- Current Page -->
+      <span class="bg-purple-400 p-2 w-8 h-8 hover:bg-purple-700 rounded-md text-white font-semibold flex items-center justify-center">{currentPage}</span>
+      <span class="text-gray-700 font-medium">of {totalPages}</span>
+
+      <!-- Single Right -->
+      <button 
+        type="button"
+        class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" 
+        onclick={() => getPage(1)} 
+        disabled={currentPage === totalPages}>
+        ›
+      </button>
+
+      <!-- Double Right -->
+      <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
+
+      <!-- View Dropdown -->
+      <div class="ml-4 flex items-center">
+        <label class="text-gray-700 font-medium gap-2">
+          View
+          <select
+            bind:value={perPage}
+            class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+          >
+            {#each options as option}
+              <option value={option}>{option}</option>
+            {/each}
+          </select>
+        </label>
+      </div>
+    </div>  
+  </div>
 
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addAdmin'}}>
     <span class="text-xl">+</span>
