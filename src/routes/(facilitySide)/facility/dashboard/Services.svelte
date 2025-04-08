@@ -10,9 +10,12 @@
     <h2 class="text-[30px] text-[#9044C4] font-bold">Services</h2>
     <a 
       href="./dashboard/manageServices" 
-      class="text-purple-500 text-sm hover:text-purple-400 transition-colors duration-200"
+      class="flex items-center text-purple-500 text-m hover:text-purple-400 gap-2 transition-colors duration-200"
       data-sveltekit-reload
-    >✏️ Manage Services</a>
+      >
+        <img src="/dashedit_icon.svg" alt="Edit" class="w- h-7">      
+        Manage Services
+    </a>
   </div>
 
   <div class="mt-4">

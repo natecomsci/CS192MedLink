@@ -37,19 +37,19 @@
   </div>
 </header>
 
-<div class="border border-transparent flex h-screen p-10 bg-gray-100">
+<div class=" border-transparent flex h-[calc(100vh-100px)] p-10 bg-gray-100 overflow-hidden gap-5">
   <!-- <div class="border w-1/2 py-5"> -->
-    <div class="w-1/2 p-5 bg-white shadow-lg rounded-lg">
-      <ControlHistory {data} {form}/>
-    </div>
+  <div class="w-1/2 p-5 bg-white shadow-lg rounded-lg ">
+    <ControlHistory {data} {form}/>
+  </div>
   <!-- </div> -->
 
   <!-- Right Side: Admins, Services, Divisions -->
-  <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
+  <div class=" h-full w-1/2 flex flex-col gap-4 py-0">
     {#if data.role == Role.MANAGER}
       <Admins admins={data.admins} />
     {/if}
-    <div class="flex gap-4 h-full">
+    <div class="flex gap-5 h-full">
       <Services {mainServicesShown}/>
       {#if data.hasDivisions && data.role === Role.MANAGER}
         <Divisions divisions={data.divisions}/>
@@ -57,3 +57,5 @@
     </div>
   </div>
 </div>
+
+

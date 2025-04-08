@@ -45,7 +45,7 @@
           value=''
           placeholder="Password" 
           autocomplete="new-password"
-          class="w-full px-4 py-3 border-2 border-[#D9D9D9] rounded-md focus:ring-2 focus:ring-purple-400"
+          class="w-full px-4 py-3 border-2 border-[#D9D9D9] appearance-none rounded-md focus:ring-2 focus:ring-purple-400"
         >
         <button 
           type="button" 
