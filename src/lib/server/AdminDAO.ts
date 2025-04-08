@@ -188,7 +188,7 @@ export class AdminDAO {
         select: adminSelect(true)
       });
 
-      console.log(`Updated Admin ${admin.employeeID}: `, admin);
+      console.log(`Updated Admin ${adminID}: `, admin);
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("No database connection.");
@@ -306,6 +306,8 @@ export class AdminDAO {
     }
   }
 }
+
+let adminDAO: AdminDAO = new AdminDAO();
 
 export class FacilityAdminListDAO {
   private static adminSearchWhere(query: string) {
@@ -458,6 +460,24 @@ export class FacilityAdminListDAO {
     }
   }
 
+  async getSingleDivisionAdmins(facilityID: string): Promise<AdminDTO[]> {
+    try {
+      const admins = await adminDAO.getByFacility(facilityID);
+  
+      const singleDivisionAdmins = admins.filter(
+        (admin) =>
+          (Array.isArray(admin.divisions)) && (admin.divisions.length === 1)
+      );
+  
+      console.log(`Fetched Admins of Facility ${facilityID} with only one Division.`);
+  
+      return singleDivisionAdmins;
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("No database connection.");
+    }
+  }
+
   async getPaginatedSingleDivisionAdmins(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
       const paginatedAdmins = await this.getPaginatedAdminsByFacility(facilityID, page, pageSize, orderBy);
@@ -472,7 +492,7 @@ export class FacilityAdminListDAO {
         Math.ceil(singleDivisionAdmins.length / pageSize)
       );
 
-      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins with only one division": `);
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins with only one Division": `);
 
       return { results: singleDivisionAdmins, totalPages, currentPage: page };
     } catch (error) {
