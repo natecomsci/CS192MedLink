@@ -77,7 +77,7 @@
 
         <div class=" bg-white p-6 flex flex-col gap-3 overflow-y-auto">
           <div class="flex items-center gap-5">
-            <button onclick={() => currPopUp = ''}  type="button">
+            <button onclick={() => currPopUp = ''} type="button">
               <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
             </button>
             <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Create a Division</h1>
@@ -163,7 +163,7 @@
             </div>
           {/if} 
           <div class="flex items-center gap-5">
-            <button class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {
+            <button type="button" class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {
               newServicesCount++
               newServiceTypes.push('')
             }}>Add a Service</button>

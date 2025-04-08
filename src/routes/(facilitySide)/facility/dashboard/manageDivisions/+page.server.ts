@@ -36,9 +36,15 @@ import {
         type CreateOutpatientServiceDTO,
         dateToTimeMapping,
         validateEmail,
+        EmployeeDAO,
+        FacilityAdminListDAO,
+        type Create_UpdateAdminDTO,
+        AdminDAO,
       } from '$lib';
+import bcrypt from 'bcryptjs';
 
 const divisionDAO = new DivisionDAO();
+const servicesDAO = new ServicesDAO();
 
 let existingServices: MultiServiceDivisionsDTO[]
 
@@ -59,9 +65,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const facilityDivisionsListDAO = new FacilityDivisionListDAO()
   const paginatedDivisions = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize, { updatedAt: "desc" })
     
-  const linkableServices = await facilityDivisionsListDAO.getMultiServiceDivisions(facilityID);
-
-  const servicesDAO = new ServicesDAO();
+  const linkableServices = await facilityDivisionsListDAO.getMultiServiceDivisions(facilityID);  
 
   const services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
@@ -87,60 +91,114 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 export const actions = {
   deleteDivision: async ({ request, cookies }) => {
-    // const facilityID = cookies.get('facilityID');
+    const facilityID = cookies.get('facilityID');
+    const employeeID = cookies.get('employeeID');
 
-    // if (!facilityID) {
-    //   throw redirect(303, '/facility');
-    // }
+    if (!facilityID || !employeeID) {
+      throw redirect(303, '/facility');
+    }
 
-    // const data = await request.formData();
+    try {
+      let data = await request.formData();
 
-    // const divisionID = data.get("divisionID") as string;
-    // const password = data.get("password") as string;
+      const divisionID = data.get('divisionID') as string;
 
-    // if (!divisionID || !password) {
-    //   return fail(422, { 
-    //     error: "Division ID and password are required",
-    //     description: "missing params",
-    //     success: false  
-    //   });
-    // }
+      let serviceTransfers: Record<string, string[]> = {}
 
-    // try {
-    //   // // Fetch facility data from DB
-    //   // const facility = await facilityDAO.getByID(facilityID);
-    //   // if (!facility) {
-    //   //   console.error(`Facility with ID ${facilityID} not found.`);
-    //   //   return fail(404, { 
-    //   //     error: "Facility not found",
-    //   //     description: "not_found",
-    //   //     success: false  
-    //   //   });
-    //   // }
+      // services
+      const divisionServices = await servicesDAO.getByDivision(divisionID)
+      for (let { serviceID } of divisionServices) {
+        let newDivision = (data.get(serviceID) ?? '') as string
+        if (newDivision === '') {
+          return fail(422, {
+            error: "All services in the division must be transferred or deleted",
+            description: "Division Validation",
+            success: false
+          });
+        }
+        if (serviceTransfers[newDivision]){
+          serviceTransfers.newDivision = [serviceID]
+        } else {
+          serviceTransfers.newDivision.push(serviceID)
+        }
+      }
 
-    //   // // Verify password
-    //   // const passwordMatch = await bcrypt.compare(password, facility.password);
-    //   // if (!passwordMatch) {
-    //   //   return fail(400, { 
-    //   //     error: 'Incorrect ID-password pair',
-    //   //     description: 'pass',
-    //   //     success: false
-    //   //   });
-    //   // }
+      // admins
+      let adminTransfers: Record<string, Create_UpdateAdminDTO>= {}
+      const facilityAdminListDAO = new FacilityAdminListDAO()
 
-    //   // divisionDAO.delete(divisionID)
+      let facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      const divisionAdmins = await facilityAdminListDAO.getSingleDivisionAdmins(divisionID)
 
-    // } catch (error) {
-    //   return fail(500, { 
-    //     error: "Failed to delete division",
-    //     description: "database",
-    //     success: false  
-    //   });
-    // }
+      for (let div of facilityDivisions) {
+        if (divisionID === div.divisionID) {
+          continue
+        }
+        for (let { fname, mname, lname, employeeID } of divisionAdmins) {
+          let adminDivision = ((data.get(employeeID+div.divisionID) ?? '') as string)
+          if (!adminDivision) {
+            continue
+          }
+          if (adminTransfers[employeeID]){
+            adminTransfers.adminID = {fname, mname, lname, divisionIDs: [div.divisionID]}
+          } else {
+            adminTransfers.adminID.divisionIDs?.push(div.divisionID)
+          }
+        }
+      }
 
-    // return {
-    //   success: true
-    // }
+      const employeeDAO = new EmployeeDAO()
+      
+      const password = data.get("password") as string;
+
+      const employee = await employeeDAO.getByID(employeeID);
+
+      if (!employee) {
+        console.error(`Employee with ID ${employeeID} not found.`);
+        return fail(404, { 
+          error: "Employee not found",
+          description: "not_found",
+          success: false  
+        });
+      }
+
+      const passwordMatch = await bcrypt.compare(password, employee.password);
+      if (!passwordMatch) {
+        return fail(400, { 
+          error: 'Incorrect ID-password pair',
+          description: 'pass',
+          success: false
+        });
+      }
+
+      for (const [divisionID, serviceList] of Object.entries(serviceTransfers)) {
+        if (divisionID === "delete") {
+          for (let serviceID of serviceList) {
+            await servicesDAO.delete(serviceID, facilityID, employeeID);
+          }
+        } else {
+          divisionDAO.connectServices(divisionID, serviceList)
+        }
+      }
+
+      const adminDAO = new AdminDAO()
+
+      for (const [employeeID, updateAdminDTO] of Object.entries(adminTransfers)) {
+        adminDAO.update(employeeID, updateAdminDTO)
+      }
+
+      divisionDAO.delete(divisionID, facilityID, employeeID)
+      return {
+        success: true
+      }
+      
+    } catch (error) {
+      return fail(500, { 
+        error: "Failed to delete division",
+        description: "database",
+        success: false  
+      });
+    }
   },
   
   addDivision: async ({ cookies, request }) => {
@@ -169,35 +227,51 @@ export const actions = {
       name = validateFacilityName(divisionName);
 
       email = await validateEmail(formEmail)
+      if (email === '') {
+        email = undefined
+      }
 
       phoneNumber = validatePhone(phone);
 
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      let count = 0
       for (let div of facilityDivisions) {
         if (div.name === name) {
+          count ++ 
+        }
+        if (count > 1) {
           return fail(422, {
             error: "Duplicate name detected",
             description: "Division Validation",
             success: false
           });
         }
+      }
 
-        if (div.phoneNumber === phoneNumber) {
+      const allDivisions = await divisionDAO.getAllUniques()
+      const allEmails = allDivisions.emails
+      const allPhones = allDivisions.phoneNumbers
+
+      for (let otherPhone of allPhones) {
+        if (otherPhone === phoneNumber) {
           return fail(422, {
             error: "Duplicate phone number detected",
             description: "Division Validation",
             success: false
           });
         }
+      }
 
-        if (String(email) && (div.email ?? '')) {
+      for (let otherEmail of allEmails) {
+        if (email === otherEmail) {
           return fail(422, {
             error: "Duplicate email detected",
             description: "Division Validation",
             success: false
           });
-        }
+        } 
       }
+
 
       let OCTime = validateOperatingHours(open, close)
       openingTime = OCTime.openingTime
@@ -265,6 +339,7 @@ export const actions = {
     const division: Create_UpdateDivisionDTO = {
       name,
       phoneNumber,
+      email,
       openingTime,
       closingTime,
     }
@@ -285,8 +360,6 @@ export const actions = {
           success: false
         });
     }
-
-    console.log(newServices)
 
     return {
       success: true
@@ -337,37 +410,49 @@ export const actions = {
       name = validateFacilityName(divisionName);
 
       email = await validateEmail(formEmail)
+      if (email === '') {
+        email = undefined
+      }
 
       phoneNumber = validatePhone(phone);
 
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      let count = 0
       for (let div of facilityDivisions) {
-        if (div.divisionID == divisionID) {
-          continue;
-        }
         if (div.name === name) {
+          count ++ 
+        }
+        if (count > 1) {
           return fail(422, {
             error: "Duplicate name detected",
             description: "Division Validation",
             success: false
           });
         }
+      }
 
-        if (div.phoneNumber === phoneNumber) {
+      const allDivisions = await divisionDAO.getAllUniques()
+      const allEmails = allDivisions.emails
+      const allPhones = allDivisions.phoneNumbers
+
+      for (let otherPhone of allPhones) {
+        if (otherPhone === phoneNumber) {
           return fail(422, {
             error: "Duplicate phone number detected",
             description: "Division Validation",
             success: false
           });
         }
+      }
 
-        if (String(email) && (div.email ?? '')) {
+      for (let otherEmail of allEmails) {
+        if (email === otherEmail) {
           return fail(422, {
             error: "Duplicate email detected",
             description: "Division Validation",
             success: false
           });
-        }
+        } 
       }
 
       const OPHours = validateOperatingHours(open, close)
@@ -397,6 +482,7 @@ export const actions = {
     const div = {
       name,
       phoneNumber,
+      email,
       openingTime,
       closingTime,
     }

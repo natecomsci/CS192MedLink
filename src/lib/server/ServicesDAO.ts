@@ -4,11 +4,11 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import { Action }  from "@prisma/client";
+import { Role, Action }  from "@prisma/client";
 
 import type { Service } from '@prisma/client';
 
-import { paginate, loadMore } from "./dataLayerUtility";
+import { paginate, loadMore, getEmployeeScopedWhereClause } from "./dataLayerUtility";
 
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
@@ -399,15 +399,15 @@ export class FacilityServiceListDAO {
     }
   } 
 
-  async getPaginatedServicesByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedServicesByFacility(facilityID: string, employeeID: string, role: Role, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
       console.log(`Page ${page} of the list of Facility ${facilityID}'s Services: `);
 
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role);
+
       return await paginate({
         model: prisma.service,
-        where: {
-          facilityID
-        },
+        where,
         select: serviceSelect(true),
         orderBy,
         page,
@@ -419,22 +419,19 @@ export class FacilityServiceListDAO {
     }
   } 
 
-  async employeeSearchServicesByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchServicesByFacility(facilityID: string, employeeID: string, role: Role, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
 
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role, query, "type");
+
       console.log(`Page ${page} of the list of Facility ${facilityID}'s Services whose name matches the search query "${query}": `);
 
       return await paginate({
         model: prisma.service,
-        where: {
-          facilityID,
-          type: { 
-            contains: query, mode: "insensitive" 
-          }
-        },
+        where,
         select: serviceSelect(true),
         orderBy,
         page,

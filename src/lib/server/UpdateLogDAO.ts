@@ -2,7 +2,9 @@ import { prisma } from "./prisma";
 
 import { Prisma } from "@prisma/client";
 
-import { paginate } from "./dataLayerUtility";
+import { Role } from "@prisma/client";
+
+import { paginate, getEmployeeScopedWhereClause } from "./dataLayerUtility";
 
 import type { CreateUpdateLogDTO, 
               PaginatedResultsDTO 
@@ -57,15 +59,15 @@ export class UpdateLogDAO {
     }
   }  
 
-  async getPaginatedUpdateLogsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedUpdateLogsByFacility(facilityID: string, employeeID: string, role: Role, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role);
+
       console.log(`Page ${page} of the list of Facility ${facilityID}'s Update Logs: `);
 
       return await paginate({
         model: prisma.updateLog,
-        where: {
-          facilityID
-        },
+        where,
         select: updateLogSelect,
         orderBy,
         page,
@@ -77,22 +79,19 @@ export class UpdateLogDAO {
     }
   } 
 
-  async employeeSearchUpdateLogsByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchUpdateLogsByFacility(facilityID: string, employeeID: string, role: Role, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
 
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role, query, "entity");
+
       console.log(`Page ${page} of the list of Facility ${facilityID}'s Update Logs whose name matches the search query "${query}": `);
 
       return await paginate({
         model: prisma.updateLog,
-        where: {
-          facilityID,
-          entity: { 
-            contains: query, mode: "insensitive" 
-          }
-        },
+        where,
         select: updateLogSelect,
         orderBy,
         page,

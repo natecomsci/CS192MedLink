@@ -1,45 +1,142 @@
-<script lang="ts">
-  import type { ServiceResultsDTO } from '$lib';
+  <script lang="ts">
+    import type { ServiceResultsDTO } from '$lib';
+    
+    // Enums for filters
+  const Provider = [
+    'INTELLICARE',
+    'ASIACARE',
+    'AVEGA',
+    'CAREWELL',
+    'one_COOPHEALTH',
+    'DYNAMIC_CARE_CORPORATION',
+    'EASTWEST_HEALTHCARE',
+    'FORTICARE',
+    'GETWELL',
+    'HC_and_D',
+    'HEALTHFIRST',
+    'HMI',
+    'HPPI',
+    'IWC',
+    'ICARE',
+    'KAISER',
+    'LIFE_and_HEALTH',
+    'MAXICARE',
+    'MEDICARD',
+    'MEDICARE',
+    'MEDOCARE',
+    'METROCARE',
+    'OMHSI',
+    'PACIFIC_CROSS',
+    'PHILHEALTH',
+    'VALUCARE',
+    'WELLCARE'
+  ];
 
-  let { data, form } = $props();
+  const FacilityType = [
+    'BARANGAY_HEALTH_CENTER',
+    'CLINIC',
+    'HEALTH_CENTER',
+    'HOSPITAL',
+    'INFIRMARY',
+    'POLYCLINIC',
+    'PRIMARY_CARE_CLINIC',
+    'CARDIOLOGY_CLINIC',
+    'DENTAL_CLINIC',
+    'DERMATOLOGY_CLINIC',
+    'ENDOCRINOLOGY_CLINIC',
+    'ENT_CLINIC',
+    'FERTILITY_CLINIC',
+    'GASTROENTEROLOGY_CLINIC',
+    'IMMUNOLOGY_CENTER',
+    'INFECTIOUS_DISEASE_CENTER',
+    'MATERNITY_CENTER',
+    'NEPHROLOGY_CLINIC',
+    'NEUROLOGY_CLINIC',
+    'ONCOLOGY_CENTER',
+    'OPHTHALMOLOGY_CLINIC',
+    'ORTHOPEDIC_CLINIC',
+    'PEDIATRIC_CLINIC',
+    'PULMONOLOGY_CLINIC',
+    'RHEUMATOLOGY_CLINIC',
+    'UROLOGY_CLINIC',
+    'DIAGNOSTIC_LAB',
+    'GENETIC_TESTING_LAB',
+    'PATHOLOGY_LAB',
+    'RADIOLOGY_CENTER',
+    'BURN_CENTER',
+    'CRITICAL_CARE_CENTER',
+    'EMERGENCY_CENTER',
+    'POISON_CONTROL_CENTER',
+    'TRAUMA_CENTER',
+    'URGENT_CARE_CENTER',
+    'BLOOD_BANK',
+    'DIALYSIS_CENTER',
+    'MENTAL_HEALTH_FACILITY',
+    'PAIN_MANAGEMENT_CLINIC',
+    'REHABILITATION_CENTER',
+    'SLEEP_CENTER',
+    'SUBSTANCE_ABUSE_CENTER',
+    'TRANSPLANT_CENTER',
+    'ALTERNATIVE_MEDICINE_CENTER',
+    'HERBAL_MEDICINE_CENTER',
+    'PHYSICAL_THERAPY_CENTER',
+    'AMBULATORY_CARE_CENTER',
+    'SURGICAL_CENTER',
+    'AMBULANCE_SERVICE'
+  ];
 
-  const patientSearchPageSize = data.patientSearchPageSize ?? 5;
+  const Ownership = [
+    'PUBLIC',
+    'PRIVATE'
+  ];
 
-  let services: ServiceResultsDTO[] = $state(data.services ?? [])
 
-  let currOffset: number = $state(5)
-  let hasMore: boolean = $state(data.moreServices ?? false)
+    let { data, form } = $props();
 
-  async function loadMode(query: string) {
-    if (!hasMore) {
-      return
-    } 
-    const body = JSON.stringify({currOffset, query});
+    const patientSearchPageSize = data.patientSearchPageSize ?? 5;
 
-    try {
-      const response = await fetch("./loadMoreHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
+    let services: ServiceResultsDTO[] = $state(data.services ?? [])
 
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
+    let currOffset: number = $state(5)
+    let hasMore: boolean = $state(data.moreServices ?? false)
+  
+    // Filters
+  let selectedProvider: string = $state("");
+  let selectedFacilityType: string = $state("");
+  let selectedOwnership: string =  $state("");
+  let selectedProviders: string[] = [];
+
+  
+    async function loadMode(query: string) {
+      if (!hasMore) {
+        return
+      } 
+      const body = JSON.stringify({currOffset, query});
+
+      try {
+        const response = await fetch("./loadMoreHandler", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Response status: ${response.status}`);
+        }
+
+        const rv = await response.json();
+        services = [...services, ...rv.results];
+        currOffset = currOffset + patientSearchPageSize;
+        hasMore = rv.hasMore;
+        
+      } catch (error) {
+        throw new Error(`Response status: ${error}`);
       }
-
-      const rv = await response.json();
-      services = [...services, ...rv.results];
-      currOffset = currOffset + patientSearchPageSize;
-      hasMore = rv.hasMore;
-      
-    } catch (error) {
-      throw new Error(`Response status: ${error}`);
     }
-  }
 
-</script>
+  </script>
 
 <div class="max-w-md mx-auto p-4 bg-[#FDFCFD]">
   <form 
@@ -62,10 +159,48 @@
         <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
       </button>
     </div>
+
+    <!-- Ownership selection (Dropdown) -->
+    <div class="mt-4">
+      <label for="ownership">Ownership:</label>
+      <select id="ownership" name="selectedOwnership" class="border p-2 rounded w-full">
+        <option value="">Select Ownership</option>
+        {#each Ownership as ownership}
+          <option value={ownership}>{ownership}</option>
+        {/each}
+      </select>
+    </div>
+
+    <!-- Provider selection (Dropdown) -->
+    <div class="mt-4">
+      <label for= "provider">Provider:</label>
+      <select name="selectedProvider" id = "provider" class="border p-2 rounded w-full">
+        <option value="">Select Provider</option>
+        {#each Provider as provider}
+          <option value={provider}>{provider}</option>
+        {/each}
+      </select>
+    </div>
+
+    <!-- Facility Type selection (Dropdown) -->
+    <div class="mt-4">
+      <label for= "facilityType">Facility Type:</label>
+      <select name=selectedFacilityType id = "facilityType" class="border p-2 rounded w-full">
+        <option value="">Select Facility Type</option>
+        {#each FacilityType as facilityType}
+          <option value={facilityType}>{facilityType}</option>
+        {/each}
+      </select>
+    </div>
+
+    <!-- Additional filters like booking system, etc. can go here. -->
+
   </form>
+  
   {#if form?.error}
     <p class="error">{form.error}</p>
   {/if}
+  
   {#if services.length > 0}
     <div class="mt-3">
       {#each services as service}
@@ -73,16 +208,11 @@
           <div class="w-full">
             <div class="flex justify-between items-center">
               <p class="font-bold text-purple-900">{service.name}</p>
-              <form
-                method="POST"
-                action="?/viewDetails"
-              >
+              <form method="POST" action="?/viewDetails">
                 <input type="hidden" name="facilityID" value={service.facilityID} />
                 <input type="hidden" name="serviceID" value={service.serviceID} />
                 <input type="hidden" name="serviceType" value={service.type} />
-
-                <button
-                  class="text-gray-700 hover:bg-gray-200 rounded-full transition">
+                <button class="text-gray-700 hover:bg-gray-200 rounded-full transition">
                   <img src="/plus_icon.svg" alt="Add" class="w-5 h-5" />
                 </button>
               </form>
