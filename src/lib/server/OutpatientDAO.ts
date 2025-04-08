@@ -42,7 +42,7 @@ export class OutpatientServiceDAO {
           }
         });
 
-        await tx.outpatientService.create({
+        const outpatientService = await tx.outpatientService.create({
           data: {
             ...outpatientData,
             service: { 
@@ -65,11 +65,13 @@ export class OutpatientServiceDAO {
           tx
         );
 
+        console.log(`Created Outpatient Service ${service.serviceID}: `, {service, outpatientService});
+
         return service.serviceID;
       });  
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create OutpatientService.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -98,10 +100,12 @@ export class OutpatientServiceDAO {
       });
   
       if (!service) {
-        throw new Error("Missing needed OutpatientService data.");
+        throw new Error(`No Outpatient Service linked to ID ${serviceID} found.`);
       }
 
       const { note, division, updatedAt, type } = service.service;
+
+      console.log(`Fetched information of Outpatient Service ${serviceID}: `);
 
       return {
         type,
@@ -119,7 +123,7 @@ export class OutpatientServiceDAO {
 
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for OutpatientService.");
+      throw new Error("No database connection.");
     }
   }  
 
@@ -128,7 +132,7 @@ export class OutpatientServiceDAO {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, note, ...outpatientData } = data;
 
-        await tx.outpatientService.update({
+        const outpatientService = await tx.outpatientService.update({
           where: { 
             serviceID 
           },
@@ -174,10 +178,6 @@ export class OutpatientServiceDAO {
           }
         });
 
-        if (!service) {
-          throw new Error("OutpatientService not found.");
-        }
-
         await updateLogDAO.create(
           {
             entity: service.type,
@@ -189,10 +189,12 @@ export class OutpatientServiceDAO {
           employeeID,
           tx
         );
+
+        console.log(`Updated Outpatient Service ${serviceID}: `, outpatientService);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update OutpatientService.");
+      throw new Error("No database connection.");
     }
   }
 }

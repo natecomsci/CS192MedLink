@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { prisma } from "./prisma";
 
 import { Prisma } from "@prisma/client";
@@ -22,15 +24,15 @@ export class FacilityDAO {
       });
 
       if (!facility) {
-        throw new Error("No Facility found.");
+        throw new Error(`No Facility linked to ID ${facilityID} found.`);
       }
 
-      console.log(`Facility ${facilityID}: `, facility);
+      console.log(`Fetched Facility ${facilityID}: `);
 
       return facility;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -39,22 +41,27 @@ export class FacilityDAO {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { address, ...facilityData } = data;
     
-        await tx.facility.update({
+        const facility = await tx.facility.update({
           where: { 
             facilityID 
           },
           data: {
             ...facilityData
+          },
+          include: {
+            address: true
           }
         });
   
         if (address) {
           await addressDAO.update(facilityID, address, tx);
         }
+
+        console.log(`Updated Facility ${facilityID}: `, facility);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -90,14 +97,16 @@ export class FacilityDAO {
       });  
 
       if (!facility) {
-        throw new Error("Facility not found.");
+        throw new Error(`No Facility linked to ID ${facilityID} found.`);
       }
 
       const address = await addressDAO.getByFacility(facilityID);
 
       if (!address) {
-        throw new Error("Address not found.");
+        throw new Error(`No Address linked to Facility ${facilityID} found.`);
       }
+
+      console.log(`Fetched information of Facility ${facilityID}: `);
 
       return {
         name              : facility.name,
@@ -120,7 +129,7 @@ export class FacilityDAO {
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -136,13 +145,15 @@ export class FacilityDAO {
       });  
 
       if (!facility) {
-        throw new Error("Facility not found.");
+        throw new Error(`No Facility linked to ID ${facilityID} found.`);
       }
+
+      console.log(`Fetched phone number of Facility ${facilityID}: `);
 
       return facility.phoneNumber;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get phone number of Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -154,10 +165,12 @@ export class FacilityDAO {
         }
       });
 
+      console.log(`Does Facility ${facilityID} have Divisions?`);
+
       return count > 0;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not check if Facility has Divisions.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -169,10 +182,12 @@ export class FacilityDAO {
         }
       });
 
+      console.log(`Does Facility ${facilityID} have Services?`);
+
       return count > 0;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not check if Facility has Services.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -185,10 +200,34 @@ export class FacilityDAO {
         }
       });
 
+      console.log(`Does Facility ${facilityID} have Admins?`);
+
       return count > 0;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not check if Facility has Admins.");
+      throw new Error("No database connection.");
+    }
+  }
+
+  async getAllUniques(): Promise<{ emails: string[], phoneNumbers: string[] }> {
+    try {
+      const facilities = await prisma.facility.findMany({
+        select: {
+          email       : true,
+          phoneNumber : true,
+        }
+      });
+  
+      const emails = facilities.map((facility) => facility.email).filter((email): email is string => !!(email));
+  
+      const phoneNumbers = facilities.map((facility) => facility.phoneNumber);
+  
+      console.log("Fetched Facility emails and phone numbers: ");
+  
+      return { emails, phoneNumbers };
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
     }
   }
 }

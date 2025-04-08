@@ -17,7 +17,7 @@ import type { BloodTypeMappingDTO,
 let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
             
 export class BloodTypeMappingDAO {
-  async getBloodTypeMapping(serviceID: string): Promise<BloodTypeMappingDTO | null> {
+  async getBloodTypeMapping(serviceID: string): Promise<BloodTypeMappingDTO> {
     try {
       const bloodTypeMapping = await prisma.bloodTypeMapping.findUnique({
         where: { 
@@ -36,20 +36,19 @@ export class BloodTypeMappingDAO {
       });
   
       if (!bloodTypeMapping) {
-        console.warn("No BloodTypeMapping found in the facility.");
-        return null;
+        throw new Error(`No Blood Type Mapping linked to Service ${serviceID} found.`);
       }
   
       return bloodTypeMapping;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get BloodTypeMapping.");
+      throw new Error("No database connection.");
     }
   }
 
   async createBloodTypeMapping(serviceID: string, tx: Prisma.TransactionClient): Promise<void> {
     try {
-      await tx.bloodTypeMapping.create({
+      const mapping = await tx.bloodTypeMapping.create({
         data: {  
           BloodBankService: {
             connect: {
@@ -58,23 +57,27 @@ export class BloodTypeMappingDAO {
           }
         }
       });
+
+      console.log(`Created Blood Type Mapping ${mapping.serviceID}: `, mapping);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create BloodTypeMapping.");
+      throw new Error("No database connection.");
     }
   }
 
   async updateBloodTypeMapping(serviceID: string, data: BloodTypeMappingDTO, tx: Prisma.TransactionClient): Promise<void> {
     try {
-      await tx.bloodTypeMapping.update({
+      const mapping = await tx.bloodTypeMapping.update({
         where: { 
           serviceID 
         },
         data
       });
+
+      console.log(`Updated Blood Type Mapping ${serviceID}: `, mapping);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update BloodTypeMapping.");
+      throw new Error("No database connection.");
     }
   }
 }
@@ -110,7 +113,7 @@ export class BloodBankServiceDAO {
           }
         });
 
-        await tx.bloodBankService.create({
+        const bloodBankService = await tx.bloodBankService.create({
           data: {
             ...bloodBankData,
             service: { 
@@ -135,11 +138,13 @@ export class BloodBankServiceDAO {
           tx
         );
 
+        console.log(`Created Blood Bank Service ${service.serviceID}: `, {service, bloodBankService});
+
         return service.serviceID;
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create BloodBankService.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -156,14 +161,16 @@ export class BloodBankServiceDAO {
       ]);
 
       if (!service) {
-        throw new Error("Missing needed BloodBankService data.");
+        throw new Error(`No Service linked to ID ${serviceID} found.`);
       }
     
       if (!bloodTypeAvailability) {
-        throw new Error("Missing needed BloodTypeAvailability data.");
+        throw new Error(`No Blood Type Mapping linked to Service ${serviceID} found.`);
       }
 
       const { note, division, updatedAt } = service.service;
+
+      console.log(`Fetched information of Blood Bank Service ${serviceID}: `);
 
       return {
         basePricePerUnit      : service.basePricePerUnit,
@@ -185,7 +192,7 @@ export class BloodBankServiceDAO {
 
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for BloodBankService.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -194,7 +201,7 @@ export class BloodBankServiceDAO {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, note, bloodTypeAvailability, ...bloodBankData } = data;
 
-        await tx.bloodBankService.update({
+        const bloodBankService = await tx.bloodBankService.update({
           where: { 
             serviceID 
           },
@@ -254,10 +261,12 @@ export class BloodBankServiceDAO {
           employeeID,
           tx
         );
+
+        console.log(`Updated Blood Bank Service ${serviceID}: `, bloodBankService);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update BloodBankService.");
+      throw new Error("No database connection.");
     }
   }
 }

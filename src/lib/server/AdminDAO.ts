@@ -30,7 +30,7 @@ const adminDivsSelect = {
     select: { 
       divisionID : true,
       name       : true,
-    } 
+    }
   }
 };
 
@@ -76,12 +76,12 @@ export class AdminDAO {
 
       console.log(`Result of "admins" query for Facility ${facilityID}: `, admins);
 
-      console.log(`Admins of Facility ${facilityID}: `);
+      console.log(`Fetched Admins of Facility ${facilityID}: `);
 
       return admins.map((admin) => (mapAdminToDTO(admin)));
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Admins of the Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -101,12 +101,12 @@ export class AdminDAO {
 
       console.log(`Result of "admins" query for Division ${divisionID}: `, admins);
 
-      console.log(`Admins of Division ${divisionID}: `);
+      console.log(`Fetched Admins of Division ${divisionID}: `);
 
       return admins.map((admin) => (mapAdminToDTO(admin)));
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Admins of the Division.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -131,11 +131,12 @@ export class AdminDAO {
             divisions: {
               connect: divisionIDs.map((divisionID) => ({ divisionID }))
             }
-          }),          
-        }
+          })
+        },
+        select: adminSelect(true)
       });
 
-      console.log(`Created Admin: `, admin);
+      console.log(`Created Admin ${admin.employeeID}: `, admin);
 
       console.log(`Initial Admin details: `);
 
@@ -151,7 +152,7 @@ export class AdminDAO {
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create Admin.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -171,24 +172,26 @@ export class AdminDAO {
 
       const adminUpdateData = {
         ...adminData,
+
         ...(divisionIDs && {
           divisions: {
             set: divisionIDs.map((divisionID) => ({ divisionID })) // resets relations; may be inefficient but whatever
           }
-        }),  
+        })  
       };
 
       const admin = await prisma.employee.update({
         where: { 
           employeeID: adminID 
         },
-        data: adminUpdateData
+        data: adminUpdateData,
+        select: adminSelect(true)
       });
-      
-      console.log(`Updated Admin: `, admin);
+
+      console.log(`Updated Admin ${admin.employeeID}: `, admin);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update Admin.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -196,9 +199,9 @@ export class AdminDAO {
 
   async reconnectDivision(adminID: string, divisionIDs: string[]): Promise<void> {
     try {
-      const admin = await prisma.employee.update({
+      const divisions = await prisma.employee.update({
         where: { 
-          employeeID: adminID 
+          employeeID: adminID
         },
         data: {
           divisions: {
@@ -208,10 +211,10 @@ export class AdminDAO {
         select: adminDivsSelect
       });
 
-      console.log(`Updated Divisions of Admin: `, admin.divisions.map((division) => division.divisionID));
+      console.log(`Updated Divisions of Admin ${adminID}: `, divisions.divisions);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not connect Admin to Divisions.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -222,9 +225,11 @@ export class AdminDAO {
           employeeID : adminID
         }
       });
+
+      console.log(`Deletion of Admin ${adminID} successful.`);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not delete Admin.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -238,34 +243,43 @@ export class AdminDAO {
       });
   
       if (!admin) {
-        throw new Error("Admin not found.");
+        throw new Error(`No Admin linked to ID ${adminID} found.`);
       }
+
+      console.log(`Fetched information of Admin ${adminID}: `);
 
       return mapAdminToDTO(admin);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for Admin.");
+      throw new Error("No database connection.");
     }
   }
 
   // for role-based view access
 
-  async getDivisions(adminID: string): Promise<FacilityDivisionResultsDTO[]> { 
-    const divisions = await prisma.employee.findUnique({
-      where: { 
-        employeeID: adminID 
-      },
-      select: adminDivsSelect
-    });
-  
-    if (!divisions) {
-      throw new Error("No Admin with the specified ID found.");
+  async getDivisions(adminID: string): Promise<FacilityDivisionResultsDTO[]> {
+    try { 
+      const divisions = await prisma.employee.findUnique({
+        where: { 
+          employeeID: adminID 
+        },
+        select: adminDivsSelect
+      });
+    
+      if (!divisions) {
+        throw new Error(`No Divisions linked to ID ${adminID} found.`);
+      }
+
+      console.log(`Fetched Divisions of Admin ${adminID}: `);
+
+      return divisions.divisions.map(({ divisionID, name }: any) => ({
+        divisionID,
+        name
+      }));
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
     }
-  
-    return divisions.divisions.map(({ divisionID, name }: any) => ({
-      divisionID,
-      name
-    }));
   }
 
   // defer to business logic and just use updatepassword of employeedao
@@ -282,11 +296,13 @@ export class AdminDAO {
           password: hashedPassword
         }
       });
-      
+
+      console.log(`New password of Admin ${adminID}: `);
+
       return password;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not reset Admin password.");
+      throw new Error("No database connection.");
     }
   }
 }
@@ -319,6 +335,8 @@ export class FacilityAdminListDAO {
         take: numberToFetch
       })
 
+      console.log(`Fetched Admins preview of Facility ${facilityID}: `);
+
       return admins.map((admin) => ({
         photo : admin.photo,
         fname : admin.fname,
@@ -330,12 +348,14 @@ export class FacilityAdminListDAO {
         }));
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get Admins preview.");
+      throw new Error("No database connection.");
     }
   }
 
   async getPaginatedAdminsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins: `);
+
       return await paginate({
         model: prisma.employee,
         where: {
@@ -350,7 +370,7 @@ export class FacilityAdminListDAO {
       });
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get paginated Admins within the entire Facility.");
+      throw new Error("No database connection.");
     }
   }  
 
@@ -359,6 +379,8 @@ export class FacilityAdminListDAO {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
+
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins whose name matches the search query "${query}": `);
 
       return await paginate({
         model: prisma.employee,
@@ -375,12 +397,14 @@ export class FacilityAdminListDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated Admins within the entire Facility that match the search query.");
+      throw new Error("No database connection.");
     }
   }
 
   async getPaginatedAdminsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
+      console.log(`Page ${page} of the list of Division ${divisionID}'s Admins: `);
+
       return await paginate({
         model: prisma.employee,
         where: {
@@ -399,7 +423,7 @@ export class FacilityAdminListDAO {
       });
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get paginated Admins within the Division.");
+      throw new Error("No database connection.");
     }
   }  
 
@@ -408,6 +432,8 @@ export class FacilityAdminListDAO {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
+
+      console.log(`Page ${page} of the list of Division ${divisionID}'s Admins whose name matches the search query "${query}": `);
 
       return await paginate({
         model: prisma.employee,
@@ -428,7 +454,7 @@ export class FacilityAdminListDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated Admins within the Division that match the search query.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -445,11 +471,13 @@ export class FacilityAdminListDAO {
         1,
         Math.ceil(singleDivisionAdmins.length / pageSize)
       );
-  
+
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins with only one division": `);
+
       return { results: singleDivisionAdmins, totalPages, currentPage: page };
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get paginated Admins related to only one Division.");
+      throw new Error("No database connection.");
     }
   }
 }

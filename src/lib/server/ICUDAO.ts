@@ -45,7 +45,7 @@ export class ICUServiceDAO {
           }
         });
 
-        await tx.iCUService.create({
+        const iCUService = await tx.iCUService.create({
           data: {
             ...iCUData,
             service: { 
@@ -68,11 +68,13 @@ export class ICUServiceDAO {
           tx
         );
 
+        console.log(`Created ICU Service ${service.serviceID}: `, {service, iCUService});
+
         return service.serviceID;
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create ICU Service.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -86,10 +88,12 @@ export class ICUServiceDAO {
       });
   
       if (!service) {
-        throw new Error("Missing needed ICUService data.");
+        throw new Error(`No ICU Service linked to ID ${serviceID} found.`);
       }
 
       const { note, division, updatedAt } = service.service;
+
+      console.log(`Fetched information of ICU Service ${serviceID}: `);
 
       return {
         load                : service.load,
@@ -114,7 +118,7 @@ export class ICUServiceDAO {
 
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for ICUService.");
+      throw new Error("No database connection.");
     }
   }  
 
@@ -123,7 +127,7 @@ export class ICUServiceDAO {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, note, ...iCUData } = data;
 
-        await tx.iCUService.update({
+        const iCUService = await tx.iCUService.update({
           where: { 
             serviceID 
           },
@@ -179,10 +183,12 @@ export class ICUServiceDAO {
           employeeID,
           tx
         );
+
+        console.log(`Updated ICU Service ${serviceID}: `, iCUService);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update ICUService.");
+      throw new Error("No database connection.");
     }
   }
 }

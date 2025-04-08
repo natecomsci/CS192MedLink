@@ -45,7 +45,7 @@ export class ERServiceDAO {
           }
         });
 
-        await tx.eRService.create({
+        const eRService = await tx.eRService.create({
           data: {
             ...eRData,
             service: { 
@@ -68,11 +68,13 @@ export class ERServiceDAO {
           tx
         );
 
+        console.log(`Created ER Service ${service.serviceID}: `, {service, eRService});
+
         return service.serviceID;
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create AmbulanceService.");
+      throw new Error("No database connection.");
     }
   } 
 
@@ -86,11 +88,13 @@ export class ERServiceDAO {
       });
   
       if (!service) {
-        throw new Error("Missing needed ERService data.");
+        throw new Error(`No ER Service linked to ID ${serviceID} found.`);
       }
 
       const { note, division, updatedAt } = service.service;
-  
+
+      console.log(`Fetched information of ER Service ${serviceID}: `);
+
       return {
         load                 : service.load,
         availableBeds        : service.availableBeds,
@@ -114,7 +118,7 @@ export class ERServiceDAO {
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for ERService.");
+      throw new Error("No database connection.");
     }
   }  
 
@@ -123,7 +127,7 @@ export class ERServiceDAO {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, note, ...eRData } = data;
 
-        await tx.eRService.update({
+        const eRService = await tx.eRService.update({
           where: { 
             serviceID 
           },
@@ -179,10 +183,12 @@ export class ERServiceDAO {
           employeeID,
           tx
         );
+
+        console.log(`Updated ER Service ${serviceID}: `, eRService);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update ERService.");
+      throw new Error("No database connection.");
     }
   }
 }

@@ -24,36 +24,43 @@ const updateLogSelect = {
 
 export class UpdateLogDAO {
   async create(data: CreateUpdateLogDTO, facilityID: string, employeeID: string, tx: Prisma.TransactionClient): Promise<void> {
-    const { divisionID, ...rest } = data;
+    try {
+      const { divisionID, ...rest } = data;
 
-    const updateLog = await tx.updateLog.create({
-      data: {
-        ...rest,
-        facility : {
-          connect: {
-            facilityID
-          },
-        },
-        employee : {
-          connect: {
-            employeeID
-          }
-        },
-        ...(divisionID && {
-          division: {
+      const updateLog = await tx.updateLog.create({
+        data: {
+          ...rest,
+          facility : {
             connect: {
-              divisionID
+              facilityID
+            },
+          },
+          employee : {
+            connect: {
+              employeeID
             }
-          }
-        })
-      }
-    });
+          },
+          ...(divisionID && {
+            division: {
+              connect: {
+                divisionID
+              }
+            }
+          })
+        }
+      });
 
-    console.log(`Created Update Log: `, updateLog);
-  }
+      console.log(`Created Update Log ${updateLog.updateLogID}: `, updateLog);
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("No database connection.");
+    }
+  }  
 
   async getPaginatedUpdateLogsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Update Logs: `);
+
       return await paginate({
         model: prisma.updateLog,
         where: {
@@ -66,7 +73,7 @@ export class UpdateLogDAO {
       });
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get paginated Update Logs within the entire Facility.");
+      throw new Error("No database connection.");
     }
   } 
 
@@ -75,6 +82,8 @@ export class UpdateLogDAO {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
+
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Update Logs whose name matches the search query "${query}": `);
 
       return await paginate({
         model: prisma.updateLog,
@@ -91,12 +100,14 @@ export class UpdateLogDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated Update Logs within the entire Facility that match the search query.");
+      throw new Error("No database connection.");
     }
   }
 
   async getPaginatedUpdateLogsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
+      console.log(`Page ${page} of the list of Division ${divisionID}'s Update Logs: `);
+
       return await paginate({
         model: prisma.updateLog,
         where: {
@@ -109,7 +120,7 @@ export class UpdateLogDAO {
       });
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get paginated Update Logs within the entire Facility.");
+      throw new Error("No database connection.");
     }
   } 
 
@@ -118,6 +129,8 @@ export class UpdateLogDAO {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
+
+      console.log(`Page ${page} of the list of Division ${divisionID}'s Update Logs whose name matches the search query "${query}": `);
 
       return await paginate({
         model: prisma.updateLog,
@@ -134,7 +147,7 @@ export class UpdateLogDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated Update Logs within the entire Facility that match the search query.");
+      throw new Error("No database connection.");
     }
   }
 }

@@ -58,15 +58,15 @@ export class ServicesDAO {
       });
 
       if (!service) {
-        throw new Error("No Service found with the specified ID.");
+        throw new Error(`No Service linked to ID ${serviceID} found.`);
       }
 
-      console.log(`Service ${serviceID}: `, service);
+      console.log(`Fetched Service ${serviceID}: `);
 
       return service;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Service.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -79,10 +79,12 @@ export class ServicesDAO {
         select: serviceSelect(true)
       });
 
+      console.log(`Fetched Services of Facility ${facilityID}: `);
+
       return services;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Services of the Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -95,14 +97,12 @@ export class ServicesDAO {
         select: serviceSelect()
       });
 
-      console.log(`Result of "services" query for Division ${divisionID}: `, services);
-
-      console.log(`Services of Division ${divisionID}: `);
+      console.log(`Fetched Services of Division ${divisionID}: `);
 
       return services;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Services of the Division.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -126,10 +126,10 @@ export class ServicesDAO {
         }
       });
 
-      console.log(`Updated Division of Service: `, division);
+      console.log(`Updated Division of Service ${serviceID}: `, division);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not connect Admin to Divisions.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -147,7 +147,7 @@ export class ServicesDAO {
         });
 
         if (!service) {
-          throw new Error("Service not found.");
+          throw new Error(`No Service linked to ID ${serviceID} found.`);
         }
   
         await updateLogDAO.create(
@@ -167,10 +167,12 @@ export class ServicesDAO {
             serviceID
           }
         });
+
+        console.log(`Deletion of Service ${serviceID} successful.`);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not delete Service.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -191,13 +193,15 @@ export class ServicesDAO {
       });
 
       if (!service) {
-        throw new Error("No Service found.");
+        throw new Error(`No Service linked to ID ${serviceID} found.`);
       }
+
+      console.log(`Fetched Facility of Service ${serviceID}: `);
 
       return service.facility;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Facility of Service.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -218,23 +222,25 @@ export class ServicesDAO {
       });
 
       if (!service) {
-        throw new Error("No Service found.");
+        throw new Error(`No Service linked to ID ${serviceID} found.`);
       }
 
       if (!service.division) {
-        throw new Error("Division not found.");
+        throw new Error(`No Division linked to Service ${serviceID} found.`);
       }
 
       const { divisionID, name } = service.division;
 
-      if ((!divisionID) || (!name)) {
+      if (!divisionID || !name) {
         throw new Error("Incomplete Division details.");
       }
+
+      console.log(`Fetched Division of Service ${serviceID}: `);
 
       return { divisionID, name };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Division of Service.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -263,13 +269,15 @@ export class ServicesDAO {
         }
       }
 
+      console.log(`Fetched creatable Service types of Facility ${facilityID}: `);
+
       return {
         types       : Array.from(types),
         outpatients : Array.from(outpatients),
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get creatable Services.");
+      throw new Error("No database connection.");
     }
   }
 }
@@ -280,6 +288,8 @@ export class PatientServiceListDAO {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
+
+      console.log(`Fetched load more list of Services with offset ${offset} whose name matches the search query "${query}": `);
 
       return await loadMore({
         model: prisma.service,
@@ -312,12 +322,14 @@ export class PatientServiceListDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not search for Facilities with Services that match the search query.");
+      throw new Error("No database connection.");
     }
   }
 
   async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
     try {
+      console.log(`Fetched load more list of Facility ${facilityID}'s Services with offset ${offset}: `);
+
       return await loadMore({
         model: prisma.service,
         where: { 
@@ -330,7 +342,7 @@ export class PatientServiceListDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get load more Services within the entire Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -339,6 +351,8 @@ export class PatientServiceListDAO {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
+
+      console.log(`Fetched load more list of Facility ${facilityID}'s Services with offset ${offset} whose name matches the search query "${query}": `);
 
       return await loadMore({
         model: prisma.service,
@@ -355,7 +369,7 @@ export class PatientServiceListDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Services within the entire Facility that match the search query.");
+      throw new Error("No database connection.");
     }
   }
 }
@@ -376,15 +390,19 @@ export class FacilityServiceListDAO {
         take: numberToFetch
       })
 
+      console.log(`Fetched Services preview of Facility ${facilityID}: `);
+
       return services.map((service) => service.type);
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get Services preview.");
+      throw new Error("No database connection.");
     }
   } 
 
   async getPaginatedServicesByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Services: `);
+
       return await paginate({
         model: prisma.service,
         where: {
@@ -397,7 +415,7 @@ export class FacilityServiceListDAO {
       });
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get paginated Services within the entire Facility.");
+      throw new Error("No database connection.");
     }
   } 
 
@@ -406,6 +424,8 @@ export class FacilityServiceListDAO {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
+
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Services whose name matches the search query "${query}": `);
 
       return await paginate({
         model: prisma.service,
@@ -422,12 +442,14 @@ export class FacilityServiceListDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated Services within the entire Facility that match the search query.");
+      throw new Error("No database connection.");
     }
   }
 
   async getPaginatedServicesByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
+      console.log(`Page ${page} of the list of Division ${divisionID}'s Services: `);
+
       return await paginate({
         model: prisma.service,
         where: {
@@ -440,7 +462,7 @@ export class FacilityServiceListDAO {
       });
     } catch (error) {
       console.error("Details:", error);
-      throw new Error("Could not get paginated Services within the Division.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -449,6 +471,8 @@ export class FacilityServiceListDAO {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
+
+      console.log(`Page ${page} of the list of Division ${divisionID}'s Services whose name matches the search query "${query}": `);
 
       return await paginate({
         model: prisma.service,
@@ -465,7 +489,7 @@ export class FacilityServiceListDAO {
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated Services within the Division that match the search query.");
+      throw new Error("No database connection.");
     }
   }
 }

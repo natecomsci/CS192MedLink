@@ -14,24 +14,21 @@ export class OperatingHoursDAO {
       });
 
       if (!hours) {
-        throw new Error("No Operating Hours found.");
+        throw new Error(`No Operating Hours linked to Facility ${facilityID} found.`);
       }
 
       const { openingTime, closingTime } = hours;
 
-      if ((!openingTime) || (!closingTime)) {
+      if (!openingTime || !closingTime) {
         throw new Error("Incomplete Operating Hour details.");
       }
 
-      console.log(`Operating Hours of Facility ${facilityID}: `, {
-        openingTime,
-        closingTime,
-      });
+      console.log(`Fetched Operating Hours of Facility ${facilityID}: `);
 
       return { openingTime, closingTime };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Operating Hours of the Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -48,24 +45,21 @@ export class OperatingHoursDAO {
       });
 
       if (!hours) {
-        throw new Error("No Operating Hours found.");
+        throw new Error(`No Operating Hours linked to Division ${divisionID} found.`);
       }
 
       const { openingTime, closingTime } = hours;
 
-      if ((!openingTime) || (!closingTime)) {
+      if (!openingTime || !closingTime) {
         throw new Error("Incomplete Operating Hour details.");
       }
 
-      console.log(`Operating Hours of Division ${divisionID}: `, {
-        openingTime,
-        closingTime,
-      });
+      console.log(`Fetched Operating Hours of Division ${divisionID}: `);
 
       return { openingTime, closingTime };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Operating Hours of the Division.");
+      throw new Error("No database connection.");
     }
   }
 }

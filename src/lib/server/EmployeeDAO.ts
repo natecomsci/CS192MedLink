@@ -22,15 +22,15 @@ export class EmployeeDAO {
       });
   
       if (!employee) {
-        throw new Error("No Employee with the specified ID found in the facility.");
+        throw new Error(`No Employee linked to ID ${employeeID} found.`);
       }
 
-      console.log(`Employee ${employeeID}: `, employee);
+      console.log(`Fetched Employee ${employeeID}: `);
 
       return employee;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Employee.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -38,7 +38,7 @@ export class EmployeeDAO {
 
   async getRole(employeeID: string): Promise<Role> {
     try {
-      const role = await prisma.employee.findUnique({
+      const employee = await prisma.employee.findUnique({
         where: { 
           employeeID
         },
@@ -47,14 +47,14 @@ export class EmployeeDAO {
         }
       });
 
-      if (!role) {
-        throw new Error("Could not get Employee role.");
+      if (!employee) {
+        throw new Error(`No Employee linked to ID ${employeeID} found.`);
       }
 
-      return role.role;
+      return employee.role;
     } catch (error) {
-        console.error("Details: ", error);
-        throw new Error("Could not get Employee role.");
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
     }
   }
 
@@ -62,7 +62,7 @@ export class EmployeeDAO {
 
   async getPassword(employeeID: string): Promise<string> {
     try {
-      const password = await prisma.employee.findUnique({
+      const employee = await prisma.employee.findUnique({
         where: { 
           employeeID
         },
@@ -71,14 +71,14 @@ export class EmployeeDAO {
         }
       });
 
-      if (!password) {
-        throw new Error("Could not get Employee password.");
+      if (!employee) {
+        throw new Error(`No Employee linked to ID ${employeeID} found.`);
       }
 
-      return password.password;
+      return employee.password;
     } catch (error) {
-        console.error("Details: ", error);
-        throw new Error("Could not get Employee password.");
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
     }
   }
 
@@ -87,7 +87,7 @@ export class EmployeeDAO {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword: string = await bcrypt.hash(password, salt);
 
-      await prisma.employee.update({
+      const employee = await prisma.employee.update({
         where: { 
           employeeID 
         },
@@ -95,9 +95,11 @@ export class EmployeeDAO {
           password: hashedPassword
         }
       });
+
+      console.log(`New password of Employee ${employeeID}: `, employee.password);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update Employee password.");
+      throw new Error("No database connection.");
     }
   }
 

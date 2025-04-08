@@ -17,10 +17,12 @@ export class GeographyDAO {
         }
       });
 
+      console.log(`Regions: `)
+
       return regions;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Regions.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -36,13 +38,15 @@ export class GeographyDAO {
       });
 
       if (!object) {
-        throw new Error("No Region found.");
+        throw new Error(`No Region linked to ID ${regionID} found.`);
       }
+
+      console.log(`Region name: `)
 
       return object.name;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get name of the Region.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -59,10 +63,12 @@ export class GeographyDAO {
         }
       });
 
+      console.log(`Provinces of ${await this.getNameOfRegion(regionID)}: `)
+
       return pOrCs;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Provinces under the Region.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -78,13 +84,15 @@ export class GeographyDAO {
       });
 
       if (!object) {
-        throw new Error("No Province found.");
+        throw new Error(`No Province linked to ID ${pOrCID} found.`);
       }
+
+      console.log(`Province name: `)
 
       return object.name;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get name of the Province.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -101,10 +109,12 @@ export class GeographyDAO {
         }
       });
 
+      console.log(`Cities or Municipalities of ${await this.getNameOfProvince(pOrCID)}: `)
+
       return cOrMs;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Cities or Municipalities under the Province.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -120,13 +130,15 @@ export class GeographyDAO {
       });
 
       if (!object) {
-        throw new Error("No COrM found.");
+        throw new Error(`No City or Municipality linked to ID ${cOrMID} found.`);
       }
+
+      console.log(`City or Municipality name: `)
 
       return object.name;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get name of the City or Municipality.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -143,10 +155,12 @@ export class GeographyDAO {
         }
       });
 
+      console.log(`Barangays of ${await this.getNameOfCOrM(cOrMID)}: `)
+
       return brgys;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Barangays under the City or Municipality.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -162,13 +176,15 @@ export class GeographyDAO {
       });
 
       if (!object) {
-        throw new Error("No Barangay found.");
+        throw new Error(`No Barangay linked to ID ${brgyID} found.`);
       }
+
+      console.log(`Barangay name: `)
 
       return object.name;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get name of the Barangay.");
+      throw new Error("No database connection.");
     }
   }
 }

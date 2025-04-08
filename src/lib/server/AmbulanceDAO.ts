@@ -44,7 +44,7 @@ export class AmbulanceServiceDAO {
           }
         });
 
-        await tx.ambulanceService.create({
+        const ambulanceService = await tx.ambulanceService.create({
           data: {
             ...ambulanceData,
             service: { 
@@ -67,11 +67,13 @@ export class AmbulanceServiceDAO {
           tx
         );
 
+        console.log(`Created Ambulance Service ${service.serviceID}: `, {service, ambulanceService});
+
         return service.serviceID;
       });
       } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create AmbulanceService.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -85,11 +87,13 @@ export class AmbulanceServiceDAO {
       });
 
       if (!service) {
-        throw new Error("Missing needed AmbulanceService data.");
+        throw new Error(`No Ambulance Service linked to ID ${serviceID} found.`);
       }
 
       const { note, division, updatedAt } = service.service;
-      
+
+      console.log(`Fetched information of Ambulance Service ${serviceID}: `);
+
       return {
         availability      : service.availability,
         baseRate          : service.baseRate,
@@ -110,7 +114,7 @@ export class AmbulanceServiceDAO {
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for AmbulanceService.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -119,7 +123,7 @@ export class AmbulanceServiceDAO {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { divisionID, note, ...ambulanceData } = data;
 
-        await tx.ambulanceService.update({
+        const ambulanceService = await tx.ambulanceService.update({
           where: { 
             serviceID 
           },
@@ -175,10 +179,12 @@ export class AmbulanceServiceDAO {
           employeeID,
           tx
         );
+
+        console.log(`Updated Ambulance Service ${serviceID}: `, ambulanceService);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update AmbulanceService.");
+      throw new Error("No database connection.");
     }
   }
 }

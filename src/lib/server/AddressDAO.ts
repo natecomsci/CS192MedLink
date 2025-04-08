@@ -21,13 +21,15 @@ export class AddressDAO {
       });
 
       if (!address) {
-        throw new Error("No Address found linked with a Facility with the specified ID.");
+        throw new Error(`No Address linked to Facility ${facilityID} found.`);
       }
+
+      console.log(`Fetched Address of Facility ${facilityID}: `);
 
       return address;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Address of the Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -40,9 +42,10 @@ export class AddressDAO {
         data
       });
 
+      console.log(`Updated Address of Facility ${facilityID}: `, address);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update Address.");
+      throw new Error("No database connection.");
     }
   }
 }
