@@ -36,9 +36,13 @@ import {
         type CreateOutpatientServiceDTO,
         dateToTimeMapping,
         validateEmail,
+        EmployeeDAO,
+        AdminDAO,
       } from '$lib';
+import bcrypt from 'bcryptjs';
 
 const divisionDAO = new DivisionDAO();
+const servicesDAO = new ServicesDAO();
 
 let existingServices: MultiServiceDivisionsDTO[]
 
@@ -59,9 +63,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const facilityDivisionsListDAO = new FacilityDivisionListDAO()
   const paginatedDivisions = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize, { updatedAt: "desc" })
     
-  const linkableServices = await facilityDivisionsListDAO.getMultiServiceDivisions(facilityID);
-
-  const servicesDAO = new ServicesDAO();
+  const linkableServices = await facilityDivisionsListDAO.getMultiServiceDivisions(facilityID);  
 
   const services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
@@ -87,60 +89,106 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 export const actions = {
   deleteDivision: async ({ request, cookies }) => {
-    // const facilityID = cookies.get('facilityID');
+    const facilityID = cookies.get('facilityID');
+    const employeeID = cookies.get('employeeID');
 
-    // if (!facilityID) {
-    //   throw redirect(303, '/facility');
-    // }
+    if (!facilityID || !employeeID) {
+      throw redirect(303, '/facility');
+    }
 
-    // const data = await request.formData();
+    let data = await request.formData();
 
-    // const divisionID = data.get("divisionID") as string;
-    // const password = data.get("password") as string;
+    const divisionID = data.get('divisionID') as string;
 
-    // if (!divisionID || !password) {
-    //   return fail(422, { 
-    //     error: "Division ID and password are required",
-    //     description: "missing params",
-    //     success: false  
-    //   });
-    // }
+    let serviceTransfers: Record<string, string[]>= {}
 
-    // try {
-    //   // // Fetch facility data from DB
-    //   // const facility = await facilityDAO.getByID(facilityID);
-    //   // if (!facility) {
-    //   //   console.error(`Facility with ID ${facilityID} not found.`);
-    //   //   return fail(404, { 
-    //   //     error: "Facility not found",
-    //   //     description: "not_found",
-    //   //     success: false  
-    //   //   });
-    //   // }
+    // services
+    const divisionServices = await servicesDAO.getByDivision(divisionID)
+    for (let { serviceID } of divisionServices) {
+      let newDivision = (data.get(serviceID) ?? '') as string
+      if (newDivision === '') {
+        return fail(422, {
+          error: "All services in the division must be transferred or deleted",
+          description: "Division Validation",
+          success: false
+        });
+      }
+      if (serviceTransfers[newDivision]){
+        serviceTransfers.newDivision = [serviceID]
+      } else {
+        serviceTransfers.newDivision.push(serviceID)
+      }
+    }
 
-    //   // // Verify password
-    //   // const passwordMatch = await bcrypt.compare(password, facility.password);
-    //   // if (!passwordMatch) {
-    //   //   return fail(400, { 
-    //   //     error: 'Incorrect ID-password pair',
-    //   //     description: 'pass',
+    // admins
+    // const adminDAO = new AdminDAO()
+    // const divisionAdmins = await adminDAO.getByDivision(divisionID)
+    // for (let { employeeID } of divisionAdmins) {
+    //   for (let )
+    //   let newDivision = (data.get(employeeID) ?? '') as string
+    //   // if (newDivision === '') {
+    //   //   return fail(422, {
+    //   //     error: "All admins in the division must be transferred or deleted",
+    //   //     description: "Division Validation",
     //   //     success: false
     //   //   });
     //   // }
-
-    //   // divisionDAO.delete(divisionID)
-
-    // } catch (error) {
-    //   return fail(500, { 
-    //     error: "Failed to delete division",
-    //     description: "database",
-    //     success: false  
-    //   });
+    //   if (transfers[newDivision]){
+    //     transfers.newDivision = [serviceID]
+    //   } else {
+    //     transfers.newDivision.push(serviceID)
+    //   }
     // }
 
-    // return {
-    //   success: true
-    // }
+
+    const employeeDAO = new EmployeeDAO()
+    
+    const password = data.get("password") as string; // Get password from confirmation
+
+    try {
+      const employee = await employeeDAO.getByID(employeeID);
+
+      if (!employee) {
+        console.error(`Facility with ID ${employeeID} not found.`);
+        return fail(404, { 
+          error: "Facility not found",
+          description: "not_found",
+          success: false  
+        });
+      }
+
+      // Verify password
+      const passwordMatch = await bcrypt.compare(password, employee.password);
+      if (!passwordMatch) {
+        return fail(400, { 
+          error: 'Incorrect ID-password pair',
+          description: 'pass',
+          success: false
+        });
+      }
+
+      for (const [divisionID, serviceList] of Object.entries(serviceTransfers)) {
+        if (divisionID === "delete") {
+          for (let serviceID of serviceList) {
+            await servicesDAO.delete(serviceID, facilityID, employeeID);
+          }
+        } else {
+          divisionDAO.connectServices(divisionID, serviceList)
+        }
+        console.log(`${divisionID} ${serviceList}`);
+      }
+
+      return {
+        success: true
+      }
+      
+    } catch (error) {
+      return fail(500, { 
+        error: "Failed to delete service",
+        description: "database",
+        success: false  
+      });
+    }
   },
   
   addDivision: async ({ cookies, request }) => {
