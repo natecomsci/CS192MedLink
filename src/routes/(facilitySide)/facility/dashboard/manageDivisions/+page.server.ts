@@ -37,6 +37,9 @@ import {
         dateToTimeMapping,
         validateEmail,
         EmployeeDAO,
+        FacilityAdminListDAO,
+        type AdminDTO,
+        type Create_UpdateAdminDTO,
         AdminDAO,
       } from '$lib';
 import bcrypt from 'bcryptjs';
@@ -96,68 +99,70 @@ export const actions = {
       throw redirect(303, '/facility');
     }
 
-    let data = await request.formData();
-
-    const divisionID = data.get('divisionID') as string;
-
-    let serviceTransfers: Record<string, string[]>= {}
-
-    // services
-    const divisionServices = await servicesDAO.getByDivision(divisionID)
-    for (let { serviceID } of divisionServices) {
-      let newDivision = (data.get(serviceID) ?? '') as string
-      if (newDivision === '') {
-        return fail(422, {
-          error: "All services in the division must be transferred or deleted",
-          description: "Division Validation",
-          success: false
-        });
-      }
-      if (serviceTransfers[newDivision]){
-        serviceTransfers.newDivision = [serviceID]
-      } else {
-        serviceTransfers.newDivision.push(serviceID)
-      }
-    }
-
-    // admins
-    // const adminDAO = new AdminDAO()
-    // const divisionAdmins = await adminDAO.getByDivision(divisionID)
-    // for (let { employeeID } of divisionAdmins) {
-    //   for (let )
-    //   let newDivision = (data.get(employeeID) ?? '') as string
-    //   // if (newDivision === '') {
-    //   //   return fail(422, {
-    //   //     error: "All admins in the division must be transferred or deleted",
-    //   //     description: "Division Validation",
-    //   //     success: false
-    //   //   });
-    //   // }
-    //   if (transfers[newDivision]){
-    //     transfers.newDivision = [serviceID]
-    //   } else {
-    //     transfers.newDivision.push(serviceID)
-    //   }
-    // }
-
-
-    const employeeDAO = new EmployeeDAO()
-    
-    const password = data.get("password") as string; // Get password from confirmation
-
     try {
+      let data = await request.formData();
+
+      const divisionID = data.get('divisionID') as string;
+
+      let serviceTransfers: Record<string, string[]> = {}
+
+      // services
+      const divisionServices = await servicesDAO.getByDivision(divisionID)
+      for (let { serviceID } of divisionServices) {
+        let newDivision = (data.get(serviceID) ?? '') as string
+        if (newDivision === '') {
+          return fail(422, {
+            error: "All services in the division must be transferred or deleted",
+            description: "Division Validation",
+            success: false
+          });
+        }
+        if (serviceTransfers[newDivision]){
+          serviceTransfers.newDivision = [serviceID]
+        } else {
+          serviceTransfers.newDivision.push(serviceID)
+        }
+      }
+
+      // admins
+      let adminTransfers: Record<string, Create_UpdateAdminDTO>= {}
+      const facilityAdminListDAO = new FacilityAdminListDAO()
+
+      let facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      const divisionAdmins = await facilityAdminListDAO.getSingleDivisionAdmins(divisionID)
+
+      for (let div of facilityDivisions) {
+        if (divisionID === div.divisionID) {
+          continue
+        }
+        for (let { fname, mname, lname, employeeID } of divisionAdmins) {
+          let adminDivision = ((data.get(employeeID+div.divisionID) ?? '') as string)
+          if (!adminDivision) {
+            continue
+          }
+          if (adminTransfers[employeeID]){
+            adminTransfers.adminID = {fname, mname, lname, divisionIDs: [div.divisionID]}
+          } else {
+            adminTransfers.adminID.divisionIDs?.push(div.divisionID)
+          }
+        }
+      }
+
+      const employeeDAO = new EmployeeDAO()
+      
+      const password = data.get("password") as string;
+
       const employee = await employeeDAO.getByID(employeeID);
 
       if (!employee) {
-        console.error(`Facility with ID ${employeeID} not found.`);
+        console.error(`Employee with ID ${employeeID} not found.`);
         return fail(404, { 
-          error: "Facility not found",
+          error: "Employee not found",
           description: "not_found",
           success: false  
         });
       }
 
-      // Verify password
       const passwordMatch = await bcrypt.compare(password, employee.password);
       if (!passwordMatch) {
         return fail(400, { 
@@ -175,16 +180,22 @@ export const actions = {
         } else {
           divisionDAO.connectServices(divisionID, serviceList)
         }
-        console.log(`${divisionID} ${serviceList}`);
       }
 
+      const adminDAO = new AdminDAO()
+
+      for (const [employeeID, updateAdminDTO] of Object.entries(adminTransfers)) {
+        adminDAO.update(employeeID, updateAdminDTO)
+      }
+
+      divisionDAO.delete(divisionID, facilityID, employeeID)
       return {
         success: true
       }
       
     } catch (error) {
       return fail(500, { 
-        error: "Failed to delete service",
+        error: "Failed to delete division",
         description: "database",
         success: false  
       });
