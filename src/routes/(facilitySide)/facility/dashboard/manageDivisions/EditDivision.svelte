@@ -44,7 +44,7 @@
       const rv = await response.json();
 
       divisionName = rv.name
-      // email = rv.email
+      divisionEmail = rv.email ?? ''
       phoneNumber = rv.phoneNumber
       openingTime = rv.openingTime
       closingTime = rv.closingTime
