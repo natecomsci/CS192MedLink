@@ -283,48 +283,72 @@ export class ServicesDAO {
 }
 
 export class PatientServiceListDAO {
-  async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO> { // to refine for location-based search
-    try {
-      if (!(query.trim())) {
-        return { results: [], hasMore: false };
-      }
+async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO> {
+  try {
+    if (!(query.trim())) {
+      return { results: [], hasMore: false };
+    }
 
-      console.log(`Fetched load more list of Services with offset ${offset} whose name matches the search query "${query}": `);
+    console.log(`Fetched load more list of Services with offset ${offset} whose name matches the search query "${query}": `);
 
-      return await loadMore({
-        model: prisma.service,
-        where: {
-          ...filters,
-          type: { 
-            contains : query, mode : "insensitive"
+    // Build the dynamic 'where' filter
+    const whereConditions: any = {
+      type: {
+        contains: query,
+        mode: "insensitive"
+      },
+      facility: {},
+    };
+
+    // Apply filters to the 'where' condition
+    if (filters.ownership && filters.ownership !== 'any') {
+      whereConditions.facility.ownership = filters.ownership;
+    }
+    if (filters.facilityType && filters.facilityType !== 'any') {
+      whereConditions.facility.facilityType = filters.facilityType;
+    }
+    if (filters.acceptedProviders && filters.acceptedProviders.length > 0) {
+      whereConditions.facility.acceptedProviders = {
+        hasSome: filters.acceptedProviders, // assuming acceptedProviders is a string array
+      };
+    }
+
+    // Use the 'loadMore' function to fetch the data
+    return await loadMore({
+      model: prisma.service,
+      where: whereConditions,
+      select: {
+        ...baseServiceSearchSelect,
+        facility: {
+          select: {
+            facilityID: true,
+            name: true,
+            facilityType: true,
+            ownership: true,
+            acceptedProviders: true,
           }
         },
-        select: {
-          ...baseServiceSearchSelect,
-          facility  : {
-            select: {
-              facilityID : true,
-              name       : true,
-            }
-          },
-        },
-        orderBy: { 
-          updatedAt: "desc" 
-        },
-        offset,
-        numberToFetch,
-        mapping: ({ serviceID, type, facility: { facilityID, name } }: any) => ({
-          serviceID,
-          type,
-          facilityID,
-          name,
-        })        
-      });
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("No database connection.");
-    }
+      },
+      orderBy: {
+        updatedAt: "desc"
+      },
+      offset,
+      numberToFetch,
+      mapping: ({ serviceID, type, facility }: any) => ({
+        serviceID,
+        type,
+        facilityID: facility.facilityID,
+        name: facility.name,
+        facilityType: facility.facilityType,
+        ownership: facility.ownership,
+        acceptedProviders: facility.acceptedProviders,
+      })
+    });
+  } catch (error) {
+    console.error("Details: ", error);
+    throw new Error("No database connection.");
   }
+}
 
   async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
     try {
