@@ -335,6 +335,7 @@ export const actions = {
     const division: Create_UpdateDivisionDTO = {
       name,
       phoneNumber,
+      email,
       openingTime,
       closingTime,
     }
@@ -355,8 +356,6 @@ export const actions = {
           success: false
         });
     }
-
-    console.log(newServices)
 
     return {
       success: true
@@ -475,6 +474,7 @@ export const actions = {
     const div = {
       name,
       phoneNumber,
+      email,
       openingTime,
       closingTime,
     }
