@@ -129,7 +129,9 @@
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
       {#if query.length > 0 || isInQueryMode}
-        <button onclick={() => {
+        <button 
+          type="button"
+          onclick={() => {
           query = ""
           error = ""
           errorLoc = ""
@@ -140,7 +142,9 @@
           Clear
         </button>
       {/if}
-      <button onclick={() => {
+      <button 
+        type="button"
+        onclick={() => {
         isInQueryMode = true
         currentPage = 1
         getPage(0)
@@ -172,7 +176,9 @@
         
           <div class="flex items-center space-x-3 pr-4">
             <!-- Edit Button -->
-            <button onclick={() => {
+            <button 
+              type="button"
+              onclick={() => {
                 currPopUp='editDivision'
                 selectedDivisionID=divisionID
               }} 
@@ -203,7 +209,7 @@
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
       <div class="flex items-center space-x-2">
         <!-- Double Left-->
-        <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
+        <button type="button" class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
 
         <!-- Single Left -->
         <button 
@@ -228,7 +234,7 @@
         </button>
 
         <!-- Double Right -->
-        <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
+        <button type="button" class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
 
         <!-- View Dropdown -->
         <div class="ml-4 flex items-center">
