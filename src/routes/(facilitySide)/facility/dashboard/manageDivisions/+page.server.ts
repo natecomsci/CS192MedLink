@@ -38,7 +38,6 @@ import {
         validateEmail,
         EmployeeDAO,
         FacilityAdminListDAO,
-        type AdminDTO,
         type Create_UpdateAdminDTO,
         AdminDAO,
       } from '$lib';
@@ -214,7 +213,7 @@ export const actions = {
 
     let name: string
     let phoneNumber: string
-    let email: string
+    let email: string | undefined
     let openingTime: Date
     let closingTime: Date
 
@@ -228,6 +227,9 @@ export const actions = {
       name = validateFacilityName(divisionName);
 
       email = await validateEmail(formEmail)
+      if (email === '') {
+        email = undefined
+      }
 
       phoneNumber = validatePhone(phone);
 
@@ -405,6 +407,9 @@ export const actions = {
       name = validateFacilityName(divisionName);
 
       email = await validateEmail(formEmail)
+      if (email === '') {
+        email = undefined
+      }
 
       phoneNumber = validatePhone(phone);
 
