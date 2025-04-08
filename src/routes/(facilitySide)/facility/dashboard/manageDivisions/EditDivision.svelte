@@ -127,6 +127,7 @@
               {/if}
               <input type="hidden" name="divisionID" value="{divisionID}" />
               <input type="text" name="name" value={divisionName}/>
+              <input type="text" name="email" value={divisionName}/>
               <input type="text" name="phoneNumber" value={phoneNumber}/>
               <input 
                 class="input-box w-30"

@@ -410,9 +410,6 @@ export const actions = {
 
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
       for (let div of facilityDivisions) {
-        if (div.divisionID == divisionID) {
-          continue;
-        }
         if (div.name === name) {
           return fail(422, {
             error: "Duplicate name detected",
@@ -420,22 +417,30 @@ export const actions = {
             success: false
           });
         }
+      }
 
-        if (div.phoneNumber === phoneNumber) {
+      const allDivisions = await divisionDAO.getAllUniques()
+      const allEmails = allDivisions.emails
+      const allPhones = allDivisions.phoneNumbers
+
+      for (let otherPhone of allPhones) {
+        if (otherPhone === phoneNumber) {
           return fail(422, {
             error: "Duplicate phone number detected",
             description: "Division Validation",
             success: false
           });
         }
+      }
 
-        if (String(email) && (div.email ?? '')) {
+      for (let otherEmail of allEmails) {
+        if (email === otherEmail) {
           return fail(422, {
             error: "Duplicate email detected",
             description: "Division Validation",
             success: false
           });
-        }
+        } 
       }
 
       const OPHours = validateOperatingHours(open, close)
