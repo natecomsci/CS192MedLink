@@ -234,8 +234,12 @@ export const actions = {
       phoneNumber = validatePhone(phone);
 
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      let count = 0
       for (let div of facilityDivisions) {
         if (div.name === name) {
+          count ++ 
+        }
+        if (count > 1) {
           return fail(422, {
             error: "Duplicate name detected",
             description: "Division Validation",
@@ -413,8 +417,12 @@ export const actions = {
       phoneNumber = validatePhone(phone);
 
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      let count = 0
       for (let div of facilityDivisions) {
         if (div.name === name) {
+          count ++ 
+        }
+        if (count > 1) {
           return fail(422, {
             error: "Duplicate name detected",
             description: "Division Validation",
