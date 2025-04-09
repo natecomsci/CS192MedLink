@@ -28,9 +28,9 @@ export const load: PageServerLoad = async ({ params }) => {
     });
   }
 
-  return {
+  return { // paul: ha
       services: divisions ?? [], // Ensuring services is always an array
-      error: divisions.length === 0 ? "No services found for this facility." : null,
+      error: divisions.length === 0 ? "No divisions found for this facility." : null,
       facilityName: facility.name,
       facilityID: facility?.facilityID
     };

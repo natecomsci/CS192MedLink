@@ -20,7 +20,7 @@
     <button class="mr-2">
       ⬅
     </button>
-    <h2 class="text-lg font-bold flex-1 text-center">{facilityName} Services</h2>
+    <h2 class="text-lg font-bold flex-1 text-center">{facilityName} Divisions</h2>
   </div>
 
   <!-- Search Bar -->
@@ -34,7 +34,7 @@
         type="text"
         name="query"
         value={query}
-        placeholder="Search services..."
+        placeholder="Search Divisions"
         class="flex-1 p-2 px-3 text-gray-700 bg-transparent outline-none"
       />
       {#if form?.error}
@@ -80,6 +80,6 @@
   </div>
 
 {:else}
-  <p>No services found.</p>
+  <p>No divisions found.</p>
 {/if}
 </div>
