@@ -2,7 +2,7 @@ import type { Facility } from "@prisma/client";
 import { redirect, fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-import { DivisionDAO, FacilityDAO, type DivisionDTO, type ServiceDTO } from "$lib";
+import { DivisionDAO, FacilityDAO, type DivisionDTO } from "$lib";
 
 const divisionDAO = new DivisionDAO();
 const facilityDAO = new FacilityDAO();
@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ params }) => {
   }
 
   return { // paul: ha
-      services: divisions ?? [], // Ensuring services is always an array
+      divisions: divisions ?? [], 
       error: divisions.length === 0 ? "No divisions found for this facility." : null,
       facilityName: facility.name,
       facilityID: facility?.facilityID

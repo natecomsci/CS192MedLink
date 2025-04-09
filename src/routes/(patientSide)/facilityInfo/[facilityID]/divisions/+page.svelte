@@ -3,15 +3,11 @@
   import { goto } from '$app/navigation';
 
   let { data, form }: PageProps = $props(); // Extract data
-  let services = $state(data.services ?? []);
+  let divisions = $state(data.divisions ?? []);
   let query = $state("");
   let facilityName = $state(data.facilityName ?? "");
 
-  function searchServices() {
-    if (query.trim() !== "") {
-      goto(`/servicesForSearch/${data.facilityID}/searchServicesWithinFacility/${query}`);
-    }
-  }
+
 </script>
 
 <div class=" no-scrollbar overflow-y-auto max-h-[calc(100vh-100px)] sm:max-h-[calc(100vh-150px)] max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
@@ -46,9 +42,9 @@
     </div>
   </form>
 
-{#if services.length > 0}
+{#if divisions.length > 0}
   <div class="pl-5 pr-5 pb-4 pt-3">
-  {#each services as service}
+  {#each divisions as division}
     <div class="mb-3 h-15 flex justify-between items-center pl-4 pr-4 pt-3 pb-3 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
 
       <form
@@ -56,9 +52,9 @@
       action="?/viewDetails"
       class="flex justify-between items-center w-full"
     >
-      <input type="hidden" name="divisionID" value={service.divisionID} />
-      <input type="hidden" name="divisionName" value={service.name} />
-      <p class="text-l text-[#3D1853] font-semibold">{service.name}</p>
+      <input type="hidden" name="divisionID" value={division.divisionID} />
+      <input type="hidden" name="divisionName" value={division.name} />
+      <p class="text-l text-[#3D1853] font-semibold">{division.name}</p>
       <button
         name="viewDetails"
         type="submit"
@@ -71,13 +67,7 @@
     </div>
   {/each}
   </div>
-  <div class="flex justify-center p-4">
-    <button 
-      class="bg-[#9044C4] rounded-lg px-6 py-3 text-white font-semibold shadow-md hover:bg-gray-600 transition"
-      >
-      Load More
-    </button>
-  </div>
+
 
 {:else}
   <p>No divisions found.</p>
