@@ -13,6 +13,7 @@
         services = $bindable(),
         currentPage = $bindable(),
         totalPages = $bindable(),
+        perPage
       }:{ form: ActionData, 
           serviceType: String, 
           serviceID: String, 
@@ -20,6 +21,7 @@
           services: ServiceDTO[],
           currentPage: number,
           totalPages: number,
+          perPage:number
         } = $props();
 
   async function getNewService() {
@@ -31,6 +33,7 @@
         currentPage:1,
         change:0,
         totalPages:1,
+        perPage
       });
       services =  rv.list
       currentPage = rv.currentPage

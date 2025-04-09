@@ -17,12 +17,14 @@
         services = $bindable(),
         currentPage = $bindable(),
         totalPages = $bindable(),
+        perPage
       }:{ data: PageData,
           form: ActionData, 
           currPopUp: String, 
           services: ServiceDTO[],
           currentPage: number,
           totalPages: number,
+          perPage:number
         } = $props();
 
 
@@ -38,6 +40,7 @@
         currentPage:1,
         change:0,
         totalPages:1,
+        perPage
       });
       services =  rv.list
       currentPage = 1

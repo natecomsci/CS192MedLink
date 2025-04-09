@@ -2,7 +2,6 @@
   import type { PageProps } from "./$types";
   import { dateToTimeMapping } from "$lib/Mappings";
   import { pagingQueryHandler } from "$lib/postHandlers";
-    import { Role } from "@prisma/client";
 
   let { data }: PageProps = $props();
 
@@ -17,9 +16,13 @@
 
   let isInQueryMode = $state(false)
 
+  // ===================================
+  let perPage = $state(10);
+  let options = [10, 20, 50];
+
   async function getPage(change: number) {
     try {
-      const rv = await pagingQueryHandler({page: "logs", query, isInQueryMode, currentPage, change, totalPages});
+      const rv = await pagingQueryHandler({page: "logs", query, isInQueryMode, currentPage, change, totalPages, perPage});
       error =  rv.error
       errorLoc =  rv.errorLoc
 
@@ -42,10 +45,6 @@
       getPage(0)
     }
   }
-
-  // ===================================
-  let perPage = 10;
-  let options = [10, 20, 50];
 </script>
 
 <div class=" h-full p-4 flex flex-col">
@@ -91,11 +90,11 @@
         {error}
       {/if}
       <!-- Ensures "View By:" stays in one line -->
-      <!-- <span class="whitespace-nowrap">View By:</span>
+      <span class="whitespace-nowrap">View By:</span>
 
       <select class="p-4 py-0 border-2 border-gray-500 rounded-3xl h-10">
         <option>Default</option>
-      </select> -->
+      </select>
     </div>
 
   </div>
@@ -174,6 +173,10 @@
         <select
           bind:value={perPage}
           class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+          onchange={()=>{
+            currentPage = 1
+            getPage(0)
+          }}
         >
           {#each options as option}
             <option value={option}>{option}</option>

@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { FacilityAdminListDAO, facilityAdminsPageSize } from '$lib';
+import { FacilityAdminListDAO } from '$lib';
 
 const facilityAdminDAO = new FacilityAdminListDAO()
 
@@ -10,7 +10,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const { query, currPage, change, maxPages }: { query: string, currPage: number, change: number, maxPages: number} = await request.json();
+  const { query, currPage, change, maxPages, perPage }: { query: string, currPage: number, change: number, maxPages: number, perPage:number} = await request.json();
 
   if (query.length === 0) {
     return json({ 
@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { results, currentPage, totalPages } = await facilityAdminDAO.employeeSearchAdminsByFacility(facilityID, query, newPageNumber, facilityAdminsPageSize, { updatedAt: "desc" });
+  const { results, currentPage, totalPages } = await facilityAdminDAO.employeeSearchAdminsByFacility(facilityID, query, newPageNumber, perPage, { updatedAt: "desc" });
 
   if (results.length === 0) {
     return json({ 

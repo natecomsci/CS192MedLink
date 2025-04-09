@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { FacilityDivisionListDAO, facilityDivisionsPageSize } from '$lib';
+import { FacilityDivisionListDAO } from '$lib';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -8,7 +8,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const { query, currPage, change, maxPages }: { query: string, currPage: number, change: number, maxPages: number} = await request.json();
+  const { query, currPage, change, maxPages, perPage }: { query: string, currPage: number, change: number, maxPages: number, perPage:number} = await request.json();
 
   if (query.length === 0) {
     return json({ 
@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
   const facilityDivisionListDAO = new FacilityDivisionListDAO()
 
-  const { results, currentPage, totalPages } = await facilityDivisionListDAO.employeeSearchDivisionsByFacility(facilityID, query, newPageNumber, facilityDivisionsPageSize, { updatedAt: "desc" });
+  const { results, currentPage, totalPages } = await facilityDivisionListDAO.employeeSearchDivisionsByFacility(facilityID, query, newPageNumber, perPage, { updatedAt: "desc" });
 
   if (results.length === 0) {
     return json({ 

@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { FacilityServiceListDAO, facilityServicePageSize } from '$lib';
+import { FacilityServiceListDAO } from '$lib';
 import type { Role } from '@prisma/client';
 
 const facilityService = new FacilityServiceListDAO()
@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const {currPage, change, maxPages}: {currPage: number, change: number, maxPages: number} = await request.json();
+  const {currPage, change, maxPages, perPage}: {currPage: number, change: number, maxPages: number, perPage:number} = await request.json();
 
   let newPageNumber: number
 
@@ -25,7 +25,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { results, currentPage, totalPages } = await facilityService.getPaginatedServicesByFacility(facilityID, employeeID, role as Role, newPageNumber, facilityServicePageSize, { updatedAt: "desc" })
+  const { results, currentPage, totalPages } = await facilityService.getPaginatedServicesByFacility(facilityID, employeeID, role as Role, newPageNumber, perPage, { updatedAt: "desc" })
 
   return json({list: results, currentPage, totalPages, success:true});
 };

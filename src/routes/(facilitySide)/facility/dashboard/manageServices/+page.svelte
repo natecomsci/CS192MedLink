@@ -10,6 +10,7 @@
   import EditService from './EditService.svelte';
   
   import { pagingQueryHandler } from '$lib/postHandlers';
+  import { Role } from '@prisma/client';
 
   let { data, form }: PageProps = $props();
 
@@ -32,9 +33,13 @@
 
   let isInQueryMode = $state(false)
 
+  // ===================================
+  let perPage = $state(10);
+  let options = [10, 20, 50];
+
   async function getPage(change: number) {
     try {
-      const rv = await pagingQueryHandler({page: "services", query, isInQueryMode, currentPage, change, totalPages});
+      const rv = await pagingQueryHandler({page: "services", query, isInQueryMode, currentPage, change, totalPages, perPage});
       error =  rv.error
       errorLoc =  rv.errorLoc
 
@@ -57,15 +62,12 @@
       getPage(0)
     }
   }
-
-  // ===================================
-  let perPage = 10;
-  let options = [10, 20, 50];
 </script>
 
 {#if currPopUp === "delete"}
   <DeleteServiceConfirm
     {form}
+    {perPage}
     serviceID={selectedServiceID}
     serviceType={selectedServiceType}
     bind:services={services}
@@ -83,6 +85,7 @@
   <AddService 
     { data } 
     { form }
+    {perPage}
     bind:services={services}
     bind:currPopUp={currPopUp}
     bind:currentPage={currentPage}
@@ -92,6 +95,7 @@
   <EditService 
     { data } 
     { form }
+    {perPage}
     bind:services={services}
     bind:currPopUp={currPopUp}
     serviceType={selectedServiceType}
@@ -192,6 +196,7 @@
             </button>
 
             <!-- Delete Button (Opens Modal) -->
+            {#if data.role === Role.MANAGER}
             <button 
               type="button" 
               class="inline-flex items-center" 
@@ -203,6 +208,7 @@
             >
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
+            {/if}
 
           </div>
         </div>
@@ -251,6 +257,10 @@
             <select
               bind:value={perPage}
               class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+              onchange={()=>{
+                currentPage = 1
+                getPage(0)
+              }}
             >
               {#each options as option}
                 <option value={option}>{option}</option>
@@ -261,10 +271,11 @@
       </div>  
     </div>
 
-
+  {#if data.role === Role.MANAGER}
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addService'}}>
     <span class="text-xl">+ Add service</span>
   </button>
+  {/if}
 </div>
 
 

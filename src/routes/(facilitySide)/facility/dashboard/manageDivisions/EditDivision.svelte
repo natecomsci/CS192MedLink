@@ -10,6 +10,7 @@
         divisions = $bindable(), 
         currentPage = $bindable(),
         totalPages = $bindable(),
+        perPage
         }: { 
           form: ActionData, 
           divisionID: String, 
@@ -17,6 +18,7 @@
           divisions:DivisionDTO[], 
           currentPage: number, 
           totalPages: number, 
+          perPage:number
         } = $props();
 
   let divisionName = $state('')
@@ -67,6 +69,7 @@
         currentPage:1,
         change:0,
         totalPages:1,
+        perPage
       });
       divisions =  rv.list
       currentPage = 1

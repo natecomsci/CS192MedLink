@@ -31,9 +31,13 @@
 
   let isInQueryMode = $state(false)
 
+  // ===================================
+  let perPage = $state(10);
+  let options = [10, 20, 50];
+
   async function getPage(change: number) {
     try {
-      const rv = await pagingQueryHandler({page: "divisions", query, isInQueryMode, currentPage, change, totalPages});
+      const rv = await pagingQueryHandler({page: "divisions", query, isInQueryMode, currentPage, change, totalPages, perPage});
       error =  rv.error
       errorLoc =  rv.errorLoc
 
@@ -56,11 +60,6 @@
       getPage(0)
     }
   }
-  
-  // ===================================
-  let perPage = 10;
-  let options = [10, 20, 50];
-
 </script>
 
 {#if currPopUp === "delete"}
@@ -82,6 +81,7 @@
   <AddDivision 
     { data }
     { form }
+    {perPage}
     bind:divisions={divisions}
     bind:linkableServices={linkableServices}
     bind:currPopUp={currPopUp}
@@ -91,6 +91,7 @@
 {:else if currPopUp === "editDivision"}
   <EditDivision 
     { form }
+    {perPage}
     bind:currPopUp={currPopUp}
     bind:divisions={divisions}
     bind:currentPage={currentPage}
@@ -248,6 +249,10 @@
             <select
               bind:value={perPage}
               class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+              onchange={()=>{
+                currentPage = 1
+                getPage(0)
+              }}
             >
               {#each options as option}
                 <option value={option}>{option}</option>

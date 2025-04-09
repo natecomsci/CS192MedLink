@@ -23,17 +23,6 @@
 </script>
 
 <style>
-  /* Ensuring the body takes full viewport height */
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f4f6f9;
-  }
-
   .container {
     width: 100%;
     max-width: 450px; /* Max width for the container */
@@ -122,7 +111,6 @@
       <img 
         src="https://i.ibb.co/67HcDqLc/maya.jpg" 
         alt="Map tracking your location" 
-        border="0"
       />
     </div>
   {:else}

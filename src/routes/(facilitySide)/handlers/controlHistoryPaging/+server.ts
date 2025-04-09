@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { UpdateLogDAO, facilityUpdateLogsPageSize } from '$lib';
+import { UpdateLogDAO } from '$lib';
 import type { Role } from '@prisma/client';
 
 const updateLogDAO = new UpdateLogDAO();
@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const {currPage, change, maxPages}: {currPage: number, change: number, maxPages: number} = await request.json();
+  const {currPage, change, maxPages, perPage}: {currPage: number, change: number, maxPages: number, perPage:number} = await request.json();
 
   let newPageNumber: number
 
@@ -25,7 +25,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  let { results, currentPage, totalPages } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, employeeID, role as Role, newPageNumber, facilityUpdateLogsPageSize, { createdAt: "desc" })
+  let { results, currentPage, totalPages } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, employeeID, role as Role, newPageNumber, perPage, { createdAt: "desc" })
 
   return json({list: results, currentPage, totalPages, success:true});
 };

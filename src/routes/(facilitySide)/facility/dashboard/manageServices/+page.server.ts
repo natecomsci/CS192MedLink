@@ -99,7 +99,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     hasAdmins: hasAdmins === 'true' ? true : false,
     hasDivisions: hasDivisions === 'true' ? true : false,
     divisions,
-
+    role,
   };
 };
 

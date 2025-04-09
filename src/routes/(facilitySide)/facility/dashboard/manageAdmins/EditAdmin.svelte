@@ -14,6 +14,7 @@
         admins = $bindable(),
         currentPage = $bindable(),
         totalPages = $bindable(),
+        perPage
       }:{ data: PageData, 
           form: ActionData, 
           adminID: String,
@@ -21,6 +22,7 @@
           admins: AdminDTO[],
           currentPage: number, 
           totalPages: number,
+          perPage:number
         } = $props();
 
   let firstname = $state('')
@@ -70,6 +72,7 @@
         currentPage:1,
         change:0,
         totalPages:1,
+        perPage
       });
       admins =  rv.list
       currentPage = 1

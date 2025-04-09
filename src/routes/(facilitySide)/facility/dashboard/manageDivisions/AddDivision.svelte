@@ -18,6 +18,7 @@
         linkableServices = $bindable(),
         currentPage = $bindable(),
         totalPages = $bindable(),
+        perPage
         }:{ data:PageData, 
             form: ActionData, 
             currPopUp: String, 
@@ -25,6 +26,7 @@
             linkableServices: MultiServiceDivisionsDTO[],
             currentPage: number, 
             totalPages: number, 
+            perPage: number
           } = $props();
 
   let selectedLinkableServices: Record<string, string[]> = {};
@@ -47,6 +49,7 @@
         currentPage:1,
         change:0,
         totalPages:1,
+        perPage
       });
       divisions =  rv.list
       currentPage = 1

@@ -16,6 +16,7 @@
         services = $bindable(),
         serviceDivisionName = $bindable(),
         serviceDivisionID = $bindable(),
+        perPage
       }:{ data: PageData, 
           form: ActionData, 
           serviceType: String, 
@@ -24,9 +25,8 @@
           services: ServiceDTO[],
           serviceDivisionName: String,
           serviceDivisionID: String,
+          perPage:number
         } = $props();
-
-  let formName;
 
   let selectedDivisionID = $state(serviceDivisionID)
   let selectedDivisionName = $state(serviceDivisionName)
@@ -66,6 +66,7 @@
                 <EditAmbulanceService 
                   { form }
                   { serviceID }
+                  {perPage}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
@@ -73,6 +74,7 @@
                 <EditBloodBankService
                   { form }
                   { serviceID }
+                  {perPage}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
@@ -80,6 +82,7 @@
                 <EditERService
                   { form }
                   { serviceID }
+                  {perPage}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
@@ -87,6 +90,7 @@
                 <EditICUService
                   { form }
                   { serviceID }
+                  {perPage}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
@@ -95,6 +99,7 @@
                 <EditOPService
                   { form }
                   { serviceID }
+                  {perPage}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />

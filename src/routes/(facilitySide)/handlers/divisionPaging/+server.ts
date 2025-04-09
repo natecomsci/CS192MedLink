@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { DivisionDAO, FacilityDivisionListDAO, facilityDivisionsPageSize } from '$lib';
+import { DivisionDAO, FacilityDivisionListDAO } from '$lib';
 
 let divisionDAO = new DivisionDAO();
 
@@ -10,7 +10,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const {currPage, change, maxPages}: {currPage: number, change: number, maxPages: number} = await request.json();
+  const {currPage, change, maxPages, perPage}: {currPage: number, change: number, maxPages: number, perPage:number} = await request.json();
 
   let newPageNumber: number
 
@@ -23,7 +23,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   }
 
   const facilityDivisionsListDAO = new FacilityDivisionListDAO()
-  const { results, currentPage, totalPages } = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, newPageNumber, facilityDivisionsPageSize, { updatedAt: "desc" })
+  const { results, currentPage, totalPages } = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, newPageNumber, perPage, { updatedAt: "desc" })
 
   return json({list: results, currentPage, totalPages, success:true});
 };

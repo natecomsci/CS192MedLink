@@ -25,9 +25,13 @@
   let errorLoc = $state('')
   let isInQueryMode = $state(false)
 
+  // ===================================
+  let perPage = $state(10);
+  let options = [10, 20, 50];
+
   async function getPage(change: number) {
     try {
-      const rv = await pagingQueryHandler({page: "admins", query, isInQueryMode, currentPage, change, totalPages});
+      const rv = await pagingQueryHandler({page: "admins", query, isInQueryMode, currentPage, change, totalPages, perPage});
       error =  rv.error
       errorLoc =  rv.errorLoc
 
@@ -51,15 +55,14 @@
     }
   }
 
-  // ===================================
-  let perPage = 10;
-  let options = [10, 20, 50];
+  
 </script>
 
 {#if currPopUp === "delete"}
   <DeleteAdminConfirm
     {data}
     {form}
+    {perPage}
     adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
@@ -71,6 +74,7 @@
   <AddAdmin 
     {data}
     {form}
+    {perPage}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
     bind:currentPage={currentPage}
@@ -80,6 +84,7 @@
   <EditAdmin
     {data}
     {form}
+    {perPage}
     adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
@@ -245,6 +250,10 @@
           <select
             bind:value={perPage}
             class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+            onchange={()=>{
+              currentPage = 1
+              getPage(0)
+            }}
           >
             {#each options as option}
               <option value={option}>{option}</option>

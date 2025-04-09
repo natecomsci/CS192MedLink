@@ -81,14 +81,14 @@ import {
       } from "./server/formValidators";
 
 // Global Project Variables
-export const facilityServicePageSize: number = 5
-export const patientSearchPageSize: number = 5
+export const facilityServicePageSize: number = 10
+export const patientSearchPageSize: number = 10
 
-export const facilityAdminsPageSize: number = 5
+export const facilityAdminsPageSize: number = 10
 
-export const facilityUpdateLogsPageSize: number = 5
+export const facilityUpdateLogsPageSize: number = 10
 
-export const facilityDivisionsPageSize: number = 5
+export const facilityDivisionsPageSize: number = 10
 
 export type OPServiceType = typeof OPServiceTypes[number];
 
