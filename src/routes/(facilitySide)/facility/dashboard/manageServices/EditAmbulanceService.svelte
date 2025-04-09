@@ -11,12 +11,14 @@
         serviceID, 
         currPopUp = $bindable(), 
         services = $bindable(),
-        perPage
+        perPage,
+        viewedDivisionID
       }:{ form: ActionData, 
           serviceID: String, 
           currPopUp: String, 
           services: ServiceDTO[],
-          perPage:number
+          perPage:number,
+          viewedDivisionID:string
         } = $props();
 
   let phoneNumber: string = $state('')
@@ -68,7 +70,8 @@
         currentPage:1,
         change:0,
         totalPages:1,
-        perPage
+        perPage,
+        viewedDivisionID
       });
       services =  rv.list
     } catch (error) {

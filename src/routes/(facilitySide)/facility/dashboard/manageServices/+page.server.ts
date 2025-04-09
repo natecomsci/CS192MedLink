@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import type { Availability, Load, Role } from '@prisma/client';
+import { Role, type Availability, type Load } from '@prisma/client';
 
 import type { PageServerLoad, Actions } from './$types';
 import bcrypt from 'bcryptjs';
@@ -44,7 +44,10 @@ import { facilityServicePageSize,
          EmployeeDAO,
          DivisionDAO,
          FacilityServiceListDAO,
+         FacilityDivisionListDAO,
+         AdminDAO,
        } from '$lib';
+import type { FacilityDivisionResultsDTO } from '$lib/server/DTOs';
 
 // DAOs
 const servicesDAO = new ServicesDAO();
@@ -74,7 +77,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, employeeID, role as Role, 1, facilityServicePageSize, { updatedAt: "desc" })
 
-  const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
+  // const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
 
   const services: ServiceDTO[] = await servicesDAO.getByFacility(facilityID);
   let serviceTypes: OPServiceType[] = services.map(s => s.type);
@@ -85,6 +88,17 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (availableOPServices.length !== 0) {
     availableServices.push("Outpatient")
   }
+
+  let divisions: FacilityDivisionResultsDTO[] = []
+
+  if (hasDivisions === 'true' ? true : false) {
+    if (role == Role.MANAGER){
+      divisions = await divisionDAO.getByFacility(facilityID);
+    } else {
+      const adminDAO = new AdminDAO()
+      divisions = await adminDAO.getDivisions(employeeID)
+    }
+  } 
 
   return {
     // Paginated Services

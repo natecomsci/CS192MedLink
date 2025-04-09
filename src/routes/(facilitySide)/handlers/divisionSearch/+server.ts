@@ -1,6 +1,8 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { FacilityDivisionListDAO } from '$lib';
 
+const facilityDivisionListDAO = new FacilityDivisionListDAO()
+
 export const POST: RequestHandler = async ({ request, cookies }) => {
   const facilityID = cookies.get('facilityID');
 
@@ -27,8 +29,6 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   } else {
     newPageNumber = currPage+change
   }
-
-  const facilityDivisionListDAO = new FacilityDivisionListDAO()
 
   const { results, currentPage, totalPages } = await facilityDivisionListDAO.employeeSearchDivisionsByFacility(facilityID, query, newPageNumber, perPage, { updatedAt: "desc" });
 

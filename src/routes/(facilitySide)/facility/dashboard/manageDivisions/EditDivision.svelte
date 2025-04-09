@@ -69,7 +69,8 @@
         currentPage:1,
         change:0,
         totalPages:1,
-        perPage
+        perPage,
+        viewedDivisionID: "Default"
       });
       divisions =  rv.list
       currentPage = 1

@@ -25,13 +25,15 @@
   let errorLoc = $state('')
   let isInQueryMode = $state(false)
 
+  let viewedDivisionID = $state("Default")
+
   // ===================================
   let perPage = $state(10);
   let options = [10, 20, 50];
 
   async function getPage(change: number) {
     try {
-      const rv = await pagingQueryHandler({page: "admins", query, isInQueryMode, currentPage, change, totalPages, perPage});
+      const rv = await pagingQueryHandler({page: "admins", query, isInQueryMode, currentPage, change, totalPages, perPage, viewedDivisionID});
       error =  rv.error
       errorLoc =  rv.errorLoc
 
@@ -63,6 +65,7 @@
     {data}
     {form}
     {perPage}
+    {viewedDivisionID}
     adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
@@ -75,6 +78,7 @@
     {data}
     {form}
     {perPage}
+    {viewedDivisionID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
     bind:currentPage={currentPage}
@@ -85,6 +89,7 @@
     {data}
     {form}
     {perPage}
+    {viewedDivisionID}
     adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
@@ -150,8 +155,25 @@
       {/if}
       <h1>View By:</h1>
 
-      <select class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10">
-        <option>Default</option>
+      <select 
+        bind:value={viewedDivisionID} 
+        class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10"
+        onchange={()=>{
+          console.log(viewedDivisionID)
+          query = ""
+          error = ""
+          errorLoc = ""
+          getPage(0)
+        }}
+      >
+        <option
+          value="Default"
+        >Default</option>
+        {#each data.divisions as {name, divisionID}}
+          <option
+            value={divisionID}
+          >{name}</option>
+        {/each}
       </select>
     </div>
 

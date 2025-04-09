@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const {currPage, change, maxPages, perPage}: {currPage: number, change: number, maxPages: number, perPage:number} = await request.json();
+  const {currPage, change, maxPages, perPage, viewedDivisionID}: {currPage: number, change: number, maxPages: number, perPage:number, viewedDivisionID:string} = await request.json();
 
   let newPageNumber: number
 
@@ -25,7 +25,17 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  let { results, currentPage, totalPages } = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, employeeID, role as Role, newPageNumber, perPage, { createdAt: "desc" })
+  let results, currentPage, totalPages, logs
+
+  if (viewedDivisionID === "Default"){
+    logs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, employeeID, role as Role, newPageNumber, perPage, { createdAt: "desc" })
+  } else {
+    logs= await updateLogDAO.getPaginatedUpdateLogsByDivision(viewedDivisionID, newPageNumber, perPage, { createdAt: "desc" })
+  }
+  
+  results = logs.results
+  currentPage = logs.currentPage
+  totalPages = logs.totalPages
 
   return json({list: results, currentPage, totalPages, success:true});
 };

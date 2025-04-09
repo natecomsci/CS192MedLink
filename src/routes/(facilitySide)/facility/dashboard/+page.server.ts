@@ -13,10 +13,10 @@ import {
   UpdateLogDAO, 
   FacilityDivisionListDAO,
   type AdminDTO,
-  type DivisionDTO,
+  AdminDAO,
 
 } from '$lib';
-import type { Role } from '@prisma/client';
+import { Role } from '@prisma/client';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityName = cookies.get('facilityName');
@@ -39,18 +39,24 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   let toShow
   let admins: AdminDTO[] = [];
-  let divisions: DivisionDTO[] = [];
+  let divisions = [];
 
-
-  if (hasAdmins === 'true' ? true : false) {
+  if (hasAdmins === 'true' ? true : false && role == Role.MANAGER) {
     const facilityAdminDAO = new FacilityAdminListDAO()
     const paginatedAdmins = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize, { updatedAt: "desc" })
     admins = paginatedAdmins.results
   }
-   if (hasDivisions === 'true' ? true : false) {
-    const facilityDivisionsListDAO = new FacilityDivisionListDAO()
-    const paginatedDivisions = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize, { updatedAt: "desc" })
-    divisions = paginatedDivisions.results
+  
+  if (hasDivisions === 'true' ? true : false) {
+    if (role == Role.MANAGER){
+      const facilityDivisionsListDAO = new FacilityDivisionListDAO()
+      const paginatedDivisions = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize, { updatedAt: "desc" })
+      divisions = paginatedDivisions.results
+    } else {
+      const adminDAO = new AdminDAO()
+      const paginatedDivisions = await adminDAO.getDivisions(employeeID)
+      divisions = paginatedDivisions
+    }
   } 
 
   toShow = {

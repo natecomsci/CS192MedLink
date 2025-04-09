@@ -1,5 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { FacilityAdminListDAO, type PaginatedResultsDTO } from '$lib';
+import { FacilityAdminListDAO } from '$lib';
 
 const facilityAdminDAO = new FacilityAdminListDAO()
 
@@ -10,7 +10,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const {currPage, change, maxPages, perPage}: {currPage: number, change: number, maxPages: number, perPage:number} = await request.json();
+  const {currPage, change, maxPages, perPage, viewedDivisionID}: {currPage: number, change: number, maxPages: number, perPage:number, viewedDivisionID:string} = await request.json();
 
   let newPageNumber: number
 
@@ -22,7 +22,18 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { results, currentPage, totalPages }: PaginatedResultsDTO = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, newPageNumber, perPage, { updatedAt: "desc" })
+  let results, currentPage, totalPages, admins
+
+  if (viewedDivisionID === "Default"){
+    admins = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, newPageNumber, perPage, { updatedAt: "desc" })
+  } else {
+    admins= await facilityAdminDAO.getPaginatedAdminsByDivision(viewedDivisionID, newPageNumber, perPage, { createdAt: "desc" })
+  }
+  
+  results = admins.results
+  currentPage = admins.currentPage
+  totalPages = admins.totalPages
+
 
   return json({list: results, currentPage, totalPages, success:true});
 };

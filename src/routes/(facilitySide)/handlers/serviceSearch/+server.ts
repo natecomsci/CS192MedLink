@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     throw redirect(303, '/facility');
   }
 
-  const { query, currPage, change, maxPages }: { query: string, currPage: number, change: number, maxPages: number} = await request.json();
+  const { query, currPage, change, maxPages, perPage, viewedDivisionID }: { query: string, currPage: number, change: number, maxPages: number, perPage:number, viewedDivisionID:string} = await request.json();
 
   if (query.length === 0) {
     return json({ 
@@ -33,7 +33,19 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { results, currentPage, totalPages } = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, employeeID, role as Role, query, newPageNumber, facilityServicePageSize, { updatedAt: "desc" });
+  // const { results, currentPage, totalPages } = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, employeeID, role as Role, query, newPageNumber, facilityServicePageSize, { updatedAt: "desc" });
+
+  let results, currentPage, totalPages, services
+
+  if (viewedDivisionID === "Default"){
+    services = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, employeeID, role as Role, query, newPageNumber, facilityServicePageSize, { updatedAt: "desc" });
+  } else {
+    services= await facilityServiceDAO.employeeSearchServicesByDivision(viewedDivisionID, query, newPageNumber, perPage, { createdAt: "desc" })
+  }
+  
+  results = services.results
+  currentPage = services.currentPage
+  totalPages = services.totalPages
 
   if (results.length === 0) {
     return json({ 

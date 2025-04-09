@@ -7,6 +7,7 @@ export async function pagingQueryHandler(
     change,
     totalPages,
     perPage,
+    viewedDivisionID,
   }: {
       page: string,
       query: string, 
@@ -14,7 +15,8 @@ export async function pagingQueryHandler(
       currentPage: number, 
       change: number, 
       totalPages: number,
-      perPage: number
+      perPage: number,
+      viewedDivisionID: string,
     }
     ): Promise<{
         error: string,
@@ -38,12 +40,11 @@ export async function pagingQueryHandler(
   }
 
   try {
-
+    body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages, perPage, viewedDivisionID });
+    
     if (isInQueryMode) {
-      body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages, perPage });
       dest = destList.search
     } else {
-      body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages, perPage });
       dest = destList.paging
     }
 

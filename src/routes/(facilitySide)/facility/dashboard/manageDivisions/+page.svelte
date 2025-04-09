@@ -11,7 +11,6 @@
   import EditDivision from './EditDivision.svelte';
   import { pagingQueryHandler } from '$lib/postHandlers';
 
-  import TestModal from "./TestModal.svelte"
   let { data, form }: PageProps = $props();
 
   let divisions: DivisionDTO[] = $state(data.divisions ?? [])
@@ -37,7 +36,7 @@
 
   async function getPage(change: number) {
     try {
-      const rv = await pagingQueryHandler({page: "divisions", query, isInQueryMode, currentPage, change, totalPages, perPage});
+      const rv = await pagingQueryHandler({page: "divisions", query, isInQueryMode, currentPage, change, totalPages, perPage, viewedDivisionID:"Default"});
       error =  rv.error
       errorLoc =  rv.errorLoc
 

@@ -11,21 +11,22 @@
         admins = $bindable(),
         currentPage = $bindable(),
         totalPages = $bindable(),
-        perPage
+        perPage,
+        viewedDivisionID
       }:{ data: PageData, 
           form: ActionData, 
           currPopUp: String, 
           admins: AdminDTO[],
           currentPage: number, 
           totalPages: number,
-          perPage:number
+          perPage:number,
+          viewedDivisionID:string
         } = $props();
 
   let firstName = $state("");
   let middleName =$state("") ;
   let lastName = $state("");
 
-  let divisions = $state(data.divisions ?? []);
   let selectedDivisions:string[] = $state([]);
 
   function toggleDivision(division: string) {
@@ -47,7 +48,8 @@
         currentPage:1,
         change:0,
         totalPages:1,
-        perPage
+        perPage,
+        viewedDivisionID
       });
       admins =  rv.list
       currentPage = 1

@@ -12,7 +12,8 @@
         admins = $bindable(),
         currentPage = $bindable(),
         totalPages = $bindable(),
-        perPage
+        perPage,
+        viewedDivisionID
       }:{ data: PageData, 
           form: ActionData, 
           adminID: String, 
@@ -20,7 +21,8 @@
           admins: AdminDTO[],
           currentPage: number,
           totalPages: number,
-          perPage:number
+          perPage:number,
+          viewedDivisionID:string
         } = $props();
 
   async function getNewAdmins() {
@@ -32,7 +34,8 @@
         currentPage:1,
         change:0,
         totalPages:1,
-        perPage
+        perPage,
+        viewedDivisionID
       });
       admins =  rv.list
       currentPage = 1
