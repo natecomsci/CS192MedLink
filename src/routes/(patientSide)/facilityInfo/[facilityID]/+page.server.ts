@@ -67,4 +67,10 @@ export const actions = {
     // Redirect to the facility details page
     throw redirect(303, "/facilityInfo/"+facilityID+"/services");
   },
+
+  viewDivision: async ({ params }) => {
+    const { facilityID } = params;
+    // Redirect to the facility details page
+    throw redirect(303, "/facilityInfo/"+facilityID+"/divisions");
+  },
 } satisfies Actions;

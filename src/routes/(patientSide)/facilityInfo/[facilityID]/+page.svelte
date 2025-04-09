@@ -110,6 +110,12 @@
           </button>
         </form>
 
+        <form method="POST" action="?/viewDivision" class="mt-2">
+          <button type="submit" class="w-full flex justify-between items-center bg-gray-200 p-3 rounded-lg">
+                Divisions
+          </button>
+        </form>
+
       </div>
     </div>
   </div>
