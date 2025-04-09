@@ -297,12 +297,30 @@ export const actions = {
         newServices.push(newService)
       } catch (error) {
         return fail(422, {
-            error: (error as Error).message,
+          error: (error as Error).message,
+          description: "Service Validation",
+          success: false
+        });
+      }
+    }
+
+    for (let i = 0; i < newServices.length; i++) {
+      for (let j = i+1; j < newServices.length; j++) {
+        if (newServices[i].type === newServices[j].type) {
+          return fail(422, {
+            error: "Duplicate new services found",
             description: "Service Validation",
             success: false
           });
+        }
       }
     }
+
+//     CreateAmbulanceServiceDTO
+// CreateBloodBankServiceDTO
+// CreateERServiceDTO
+// CreateICUServiceDTO
+// CreateOutpatientServiceDTO
 
     let servicesToAttach = []
     let numberOfExistingServices
@@ -574,7 +592,7 @@ function validateService(data: FormData, i: number): any {
       }
 
       const dao = new AmbulanceServiceDAO();
-      return {dao, service}
+      return {dao, service, type:"Ambulance"}
     }
 
     case "Blood Bank": {
@@ -610,7 +628,7 @@ function validateService(data: FormData, i: number): any {
       }
 
       const dao = new BloodBankServiceDAO();
-      return {dao, service}
+      return {dao, service, type:"Blood Bank"}
     }
 
     case "Emergency Room": {
@@ -627,7 +645,7 @@ function validateService(data: FormData, i: number): any {
       }
 
       const dao = new ERServiceDAO();
-      return {dao, service}
+      return {dao, service, type:"Emergency Room"}
     }
 
     case "Intensive Care Unit": {
@@ -647,7 +665,7 @@ function validateService(data: FormData, i: number): any {
       }
 
       const dao = new ICUServiceDAO();
-      return {dao, service}
+      return {dao, service, type:"Intensive Care Unit"}
     }
 
     case "Outpatient": {
@@ -677,7 +695,7 @@ function validateService(data: FormData, i: number): any {
       }
 
       const dao = new OutpatientServiceDAO();
-      return {dao, service}
+      return {dao, service, type:"Outpatient"}
     }
   }
 }
