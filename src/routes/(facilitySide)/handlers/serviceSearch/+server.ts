@@ -1,12 +1,15 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { FacilityServiceListDAO, facilityServicePageSize } from '$lib';
+import type { Role } from '@prisma/client';
 
 let facilityServiceDAO = new FacilityServiceListDAO();
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
   const facilityID = cookies.get('facilityID');
+  const employeeID = cookies.get('employeeID');
+  const role = cookies.get('role');
 
-  if (!facilityID) {
+  if (!facilityID || !role || !employeeID) {
     throw redirect(303, '/facility');
   }
 
@@ -30,7 +33,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  const { results, currentPage, totalPages } = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, query, newPageNumber, facilityServicePageSize, { updatedAt: "desc" });
+  const { results, currentPage, totalPages } = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, employeeID, role as Role, query, newPageNumber, facilityServicePageSize, { updatedAt: "desc" });
 
   if (results.length === 0) {
     return json({ 

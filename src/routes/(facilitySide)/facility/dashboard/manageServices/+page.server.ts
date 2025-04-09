@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import type { Availability, Load } from '@prisma/client';
+import type { Availability, Load, Role } from '@prisma/client';
 
 import type { PageServerLoad, Actions } from './$types';
 import bcrypt from 'bcryptjs';
@@ -59,10 +59,11 @@ const outpatientDAO = new OutpatientServiceDAO();
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
   const role = cookies.get('role');
+  const employeeID = cookies.get('employeeID');
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions || !employeeID) {
     throw redirect(303, '/facility');
   }
   
@@ -71,7 +72,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   const facilityService = new FacilityServiceListDAO()
 
-  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize, { updatedAt: "desc" })
+  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, employeeID, role as Role, 1, facilityServicePageSize, { updatedAt: "desc" })
 
   const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
 

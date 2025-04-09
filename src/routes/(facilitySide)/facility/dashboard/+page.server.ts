@@ -16,15 +16,17 @@ import {
   type DivisionDTO,
 
 } from '$lib';
+import type { Role } from '@prisma/client';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityName = cookies.get('facilityName');
   const facilityID = cookies.get('facilityID');
+  const employeeID = cookies.get('employeeID');
   const role = cookies.get('role');
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions || !employeeID) {
     throw redirect(303, '/facility');
   }
 
@@ -32,8 +34,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   const facilityService = new FacilityServiceListDAO()
 
-  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, 1, facilityServicePageSize, { updatedAt: "desc" })
-  let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, 1, facilityUpdateLogsPageSize, { createdAt: "desc" })
+  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, employeeID, role as Role, 1, facilityServicePageSize, { updatedAt: "desc" })
+  let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, employeeID, role as Role, 1, facilityUpdateLogsPageSize, { createdAt: "desc" })
 
   let toShow
   let admins: AdminDTO[] = [];

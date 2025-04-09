@@ -8,7 +8,9 @@ import { Role, Action }  from "@prisma/client";
 
 import type { Service } from '@prisma/client';
 
-import { paginate, loadMore, getEmployeeScopedWhereClause } from "./dataLayerUtility";
+import { paginate, loadMore } from "./dataLayerUtility";
+
+import { getEmployeeScopedWhereClause } from "./AdminDAO"
 
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
