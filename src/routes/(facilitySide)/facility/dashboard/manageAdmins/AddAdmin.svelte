@@ -29,6 +29,9 @@
 
   let selectedDivisions:string[] = $state([]);
 
+  let selectedDivisionID = $state("")
+  let selectedDivisionName = $state("")
+
   function toggleDivision(division: string) {
     if (selectedDivisions.includes(division)) {
       selectedDivisions = selectedDivisions.filter(d => d !== division);

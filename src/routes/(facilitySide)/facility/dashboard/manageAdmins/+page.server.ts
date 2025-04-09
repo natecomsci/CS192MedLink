@@ -162,6 +162,13 @@ export const actions: Actions = {
             divisionsHandled.push(d);
           }
         }
+        if (divisionsHandled.length === 0) {
+          return fail(422, {
+            error: "Must handle at least 1 division",
+            description: "validation",
+            success: false
+          });
+        }
         admin.divisionIDs = divisionsHandled
       }
 
@@ -237,6 +244,13 @@ export const actions: Actions = {
           if (data.get(d) === "on") {
             divisionsHandled.push(d);
           }
+        }
+        if (divisionsHandled.length === 0) {
+          return fail(422, {
+            error: "Must handle at least 1 division",
+            description: "validation",
+            success: false
+          });
         }
         admin.divisionIDs = divisionsHandled
       }

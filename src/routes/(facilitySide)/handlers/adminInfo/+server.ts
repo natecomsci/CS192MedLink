@@ -25,7 +25,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     fname,
     mname,
     lname,
-    divisions,
+    divisions: divisions?.map(({divisionID}) => {return divisionID}),
     success: true,
   })
 };
