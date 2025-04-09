@@ -22,7 +22,7 @@
 
 <h1>{divisionName}</h1>
 
-<h2>Division Information</h2>
+<h2>Contact Information and Hours</h2>
 
 <p><strong>Phone Number:</strong> {phoneNumber}</p>
 <p><strong>Email Address:</strong> {email}</p>
