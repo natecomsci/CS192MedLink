@@ -3,8 +3,7 @@ import { prisma } from "./prisma";
 import type { RegionDTO, 
               POrCDTO, 
               COrMDTO, 
-              BrgyDTO, 
-              AddressDTO 
+              BrgyDTO 
             } from "./DTOs";
 
 export class GeographyDAO {

@@ -31,7 +31,6 @@ export async function seedBloodBankService() {
 
   let i = 0;
   let miscellaneous = 0;
-  let divisionIndex = 0;
 
   for (const facility of facilities) {
     const serviceID = `bloodbank-${facility.facilityID}`;
@@ -40,6 +39,10 @@ export async function seedBloodBankService() {
 
     const employeeID = facility.employees[0]?.employeeID;
 
+    const divisionID = hasDivision
+      ? faker.helpers.arrayElement(facility.divisions).divisionID
+      : undefined;  
+
     await prisma.$transaction(async (tx) => {
       let phoneNumber = null;
       let openingTime = null;
@@ -47,7 +50,7 @@ export async function seedBloodBankService() {
       let note = null;
 
       if (miscellaneous < 3) {
-        phoneNumber = `0911 000 000${i}`;
+        phoneNumber = `0912 000 000${i}`;
         openingTime = faker.date.future();
         closingTime = faker.date.between({
           from : openingTime, 
@@ -71,9 +74,7 @@ export async function seedBloodBankService() {
               type       : "Blood Bank",
               note,
 
-              ...(hasDivision && { 
-                divisionID: facility.divisions[divisionIndex % facility.divisions.length].divisionID 
-              })
+              ...(divisionID && { divisionID })
             }
           },
           phoneNumber,
@@ -107,7 +108,8 @@ export async function seedBloodBankService() {
           {
             entity: "Blood Bank",
             action: Action.CREATE,
-            ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+
+            ...(divisionID && { divisionID })
           },
           facility.facilityID,
           employeeID,
@@ -115,10 +117,6 @@ export async function seedBloodBankService() {
         );
       }
     });
-
-    if (hasDivision) {
-      divisionIndex++;
-    }
 
     i++;
   }

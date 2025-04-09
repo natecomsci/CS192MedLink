@@ -71,7 +71,7 @@ export async function seedDivision() {
             divisionID,
             name        : `${capitalizedNoun} Division`,
             email       : `division${i}-${facility.facilityID}@medlink.com`,
-            phoneNumber : faker.phone.number(),
+            phoneNumber : `09${faker.string.numeric(2)} 000 000${i}`,
             openingTime,
             closingTime,
             facilityID  : facility.facilityID,

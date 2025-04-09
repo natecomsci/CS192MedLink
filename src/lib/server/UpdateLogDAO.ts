@@ -6,7 +6,7 @@ import { Role } from "@prisma/client";
 
 import { paginate } from "./dataLayerUtility";
 
-import { getEmployeeScopedWhereClause } from "./AdminDAO"
+import { getEmployeeScopedWhereClause } from "./EmployeeDAO";
 
 import type { CreateUpdateLogDTO, 
               PaginatedResultsDTO 

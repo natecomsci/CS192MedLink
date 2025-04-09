@@ -13,7 +13,7 @@ import type { ICUServiceDTO,
               UpdateICUServiceDTO, 
             } from "./DTOs";
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
+const updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class ICUServiceDAO {
   async create(facilityID: string, employeeID: string, data: CreateICUServiceDTO): Promise<string> {

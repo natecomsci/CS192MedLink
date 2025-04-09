@@ -2,16 +2,6 @@ import generator from "generate-password-ts";
 
 import bcrypt from "bcryptjs";
 
-import { Role } from "@prisma/client";
-
-import { FacilityDAO } from "./FacilityDAO";
-
-// import { AdminDAO } from "./AdminDAO";
-
-let facilityDAO: FacilityDAO = new FacilityDAO();
-
-// const adminDAO = new AdminDAO();
-
 export async function createAndHashPassword(): Promise<{ password: string, hashedPassword: string }> {
     const password: string = generator.generate({
       length  : 10,
@@ -135,41 +125,3 @@ export async function loadMore<T>({
     hasMore,
   };
 }
-
-// where clause utility
-
-// export async function getEmployeeScopedWhereClause(
-//   facilityID      : string,
-//   employeeID      : string,
-//   role            : Role,
-//   query?          : string,
-//   queryAttribute? : string,
-// ): Promise<any> {
-//   const baseWhere: any = {
-//     facilityID
-//   };
-
-//   if (query) {
-//     if (query.trim() && queryAttribute) {
-//       baseWhere[queryAttribute] = {
-//         contains: query, mode: "insensitive"
-//       };
-//     }
-//   }
-
-//   if (role === Role.ADMIN) {
-//     const hasDivisions = await facilityDAO.facilityHasDivisions(facilityID);
-
-//     if (hasDivisions) {
-//       const divisions = await adminDAO.getDivisions(employeeID);
-
-//       const divisionIDs = divisions.map((division) => division.divisionID);
-
-//       baseWhere.divisionID = { 
-//         in: divisionIDs
-//       };
-//     }
-//   }
-
-//   return baseWhere;
-// }

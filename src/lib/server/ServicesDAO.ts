@@ -10,7 +10,7 @@ import type { Service } from '@prisma/client';
 
 import { paginate, loadMore } from "./dataLayerUtility";
 
-import { getEmployeeScopedWhereClause } from "./AdminDAO"
+import { getEmployeeScopedWhereClause } from "./EmployeeDAO";
 
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
@@ -46,7 +46,7 @@ const baseServiceSearchSelect = {
   type      : true,
 }
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO(); // could inject this but whatever lol
+const updateLogDAO: UpdateLogDAO = new UpdateLogDAO(); // could inject this but whatever lol
 
 export class ServicesDAO {
   // generics

@@ -31,7 +31,6 @@ export async function seedERService() {
 
   let i = 0;
   let miscellaneous = 0;
-  let divisionIndex = 0;
 
   for (const facility of facilities) {
     const serviceID = `er-${facility.facilityID}`;
@@ -40,6 +39,10 @@ export async function seedERService() {
 
     const employeeID = facility.employees[0]?.employeeID;
 
+    const divisionID = hasDivision
+      ? faker.helpers.arrayElement(facility.divisions).divisionID
+      : undefined;
+
     await prisma.$transaction(async (tx) => {
       let phoneNumber = null;
       let openingTime = null;
@@ -47,7 +50,7 @@ export async function seedERService() {
       let note = null;
 
       if (miscellaneous < 3) {
-        phoneNumber = `0922 000 000${i}`;
+        phoneNumber = `0913 000 000${i}`;
         openingTime = faker.date.future();
         closingTime = faker.date.between({
           from : openingTime, 
@@ -71,9 +74,7 @@ export async function seedERService() {
               type       : "Emergency Room",
               note,
 
-              ...(hasDivision && { 
-                divisionID: facility.divisions[divisionIndex % facility.divisions.length].divisionID 
-              })
+              ...(divisionID && { divisionID })
             }
           },
           phoneNumber,
@@ -99,7 +100,8 @@ export async function seedERService() {
           {
             entity: "Emergency Room",
             action: Action.CREATE,
-            ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+
+            ...(divisionID && { divisionID })
           },
           facility.facilityID,
           employeeID,
@@ -107,10 +109,6 @@ export async function seedERService() {
         );
       }
     });
-
-    if (hasDivision) {
-      divisionIndex++;
-    }
 
     i++;
   }

@@ -35,7 +35,7 @@ export async function seedAdmin() {
         divisions.length > 0
           ? {
               divisions: {
-                connect: [{ divisionID: divisions[i % divisions.length].divisionID }]
+                connect: divisions.slice(i % divisions.length).concat(divisions).slice(0, Math.min(3, divisions.length)).map((division) => ({ divisionID: division.divisionID }))
               }
             }
           : {};

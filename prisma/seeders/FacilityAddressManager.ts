@@ -39,7 +39,7 @@ export async function seedFacility() {
       facilityID : (i + 1).toString(),
       name       : `Facility ${i + 1}`,
       email      : `facility${i + 1}@medlink.com`,
-      phone      : `0917 100 000${(i + 1)}`,
+      phone      : `0920 000 000${i}`,
     })),
   ];
   

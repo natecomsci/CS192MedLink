@@ -31,7 +31,6 @@ export async function seedICUService() {
 
   let i = 0;
   let miscellaneous = 0;
-  let divisionIndex = 0;
 
   for (const facility of facilities) {
     const serviceID = `icu-${facility.facilityID}`;
@@ -40,6 +39,10 @@ export async function seedICUService() {
 
     const employeeID = facility.employees[0]?.employeeID;
 
+    const divisionID = hasDivision
+      ? faker.helpers.arrayElement(facility.divisions).divisionID
+      : undefined;
+
     await prisma.$transaction(async (tx) => {
       let phoneNumber = null;
       let openingTime = null;
@@ -47,7 +50,7 @@ export async function seedICUService() {
       let note = null;
 
       if (miscellaneous < 3) {
-        phoneNumber = `0933 000 000${i}`;
+        phoneNumber = `0914 000 000${i}`;
         openingTime = faker.date.future();
         closingTime = faker.date.between({
           from : openingTime, 
@@ -71,9 +74,7 @@ export async function seedICUService() {
               type       : "Intensive Care Unit",
               note,
 
-              ...(hasDivision && { 
-                divisionID: facility.divisions[divisionIndex % facility.divisions.length].divisionID 
-              })
+              ...(divisionID && { divisionID })
             }
           },
           phoneNumber,
@@ -98,7 +99,8 @@ export async function seedICUService() {
           {
             entity: "Intensive Care Unit",
             action: Action.CREATE,
-            ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+
+            ...(divisionID && { divisionID })
           },
           facility.facilityID,
           employeeID,
@@ -106,10 +108,6 @@ export async function seedICUService() {
         );
       }
     });
-
-    if (hasDivision) {
-      divisionIndex++;
-    }
 
     i++;
   }

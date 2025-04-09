@@ -34,7 +34,7 @@ function divisionSelect(includeCrUp = false) {
   return includeCrUp ? { ...divisionBaseSelect, ...divisionCrUpSelect } : divisionBaseSelect;
 }
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO(); // could inject this but whatever lol
+const updateLogDAO: UpdateLogDAO = new UpdateLogDAO(); // could inject this but whatever lol
 
 export class DivisionDAO {
   // generics

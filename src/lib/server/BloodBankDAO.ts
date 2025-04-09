@@ -14,7 +14,7 @@ import type { BloodTypeMappingDTO,
               UpdateBloodBankServiceDTO, 
             } from "./DTOs";
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
+const updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
             
 export class BloodTypeMappingDAO {
   async getBloodTypeMapping(serviceID: string): Promise<BloodTypeMappingDTO> {

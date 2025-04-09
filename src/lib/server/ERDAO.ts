@@ -13,7 +13,7 @@ import type { ERServiceDTO,
               UpdateERServiceDTO, 
             } from "./DTOs";
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
+const updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class ERServiceDAO {
   async create(facilityID: string, employeeID: string, data: CreateERServiceDTO): Promise<string> {

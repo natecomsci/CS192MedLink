@@ -4,7 +4,15 @@ import { Role } from "@prisma/client";
 
 import type { Employee } from '@prisma/client';
 
+import { FacilityDAO } from "./FacilityDAO";
+
+import { AdminDAO } from "./AdminDAO";
+
 import bcrypt from "bcryptjs";
+
+const facilityDAO: FacilityDAO = new FacilityDAO();
+
+const adminDAO: AdminDAO = new AdminDAO();
 
 // DAO FOR METHODS THAT MANAGERS AND ADMINS SHARE
 
@@ -115,4 +123,42 @@ export class EmployeeDAO {
     }
   }
   */
+}
+
+// where clause utility ,, they do not like you at dataLayerUtility
+
+export async function getEmployeeScopedWhereClause(
+  facilityID      : string,
+  employeeID      : string,
+  role            : Role,
+  query?          : string,
+  queryAttribute? : string,
+): Promise<any> {
+  const baseWhere: any = {
+    facilityID
+  };
+
+  if (query) {
+    if (query.trim() && queryAttribute) {
+      baseWhere[queryAttribute] = {
+        contains: query, mode: "insensitive"
+      };
+    }
+  }
+
+  if (role === Role.ADMIN) {
+    const hasDivisions = await facilityDAO.facilityHasDivisions(facilityID);
+
+    if (hasDivisions) {
+      const divisions = await adminDAO.getDivisions(employeeID);
+
+      const divisionIDs = divisions.map((division) => division.divisionID);
+
+      baseWhere.divisionID = { 
+        in: divisionIDs
+      };
+    }
+  }
+
+  return baseWhere;
 }
