@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ActionData } from './$types';
+  import type { ActionData, PageData } from "./$types";
   import type { Load } from '@prisma/client';
   import { enhance } from '$app/forms';
   
@@ -8,18 +8,24 @@
   import { pagingQueryHandler } from '$lib/postHandlers';
   import { load } from '$lib/projectArrays'
   
-  let { form, 
+  let { data,
+        form, 
         serviceID, 
         currPopUp = $bindable(), 
         services = $bindable(),
         perPage,
-        viewedDivisionID
-      }:{ form: ActionData, 
+        viewedDivisionID,
+        serviceDivisionName = $bindable(),
+        serviceDivisionID = $bindable(),
+      }:{ data: PageData,
+          form: ActionData, 
           serviceID: String, 
           currPopUp: String, 
           services: ServiceDTO[],
           perPage:number,
-          viewedDivisionID:string
+          viewedDivisionID:string,
+          serviceDivisionName: String,
+          serviceDivisionID: String,
         } = $props();
 
 
@@ -31,6 +37,9 @@
   let neurologicalSupport: boolean = $state(false)
   let renalSupport: boolean = $state(false)
   let respiratorySupport: boolean = $state(false)
+
+  let selectedDivisionID = $state(serviceDivisionID)
+  let selectedDivisionName = $state(serviceDivisionName)
 
   async function getData() {
     const body = JSON.stringify({serviceID, serviceType:"Intensive Care Unit"});
@@ -190,6 +199,29 @@
                   </label>
               </div>
           </div>
+          
+          <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
+          <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
+
+          {#if data.hasDivisions}
+            <label>
+              Divisions
+
+              {#each (data.divisions ?? []) as division}
+              {division.name}
+                <input 
+                  type="radio" 
+                  name="divSelect" 
+                  onclick={() => {
+                    selectedDivisionID = division.divisionID
+                    selectedDivisionName = division.name
+                  }}
+                  class="input-box w-30"
+                >
+              {/each}
+            </label>
+          {/if}
+
         </div>
     </div>
 </form>

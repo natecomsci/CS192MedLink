@@ -33,7 +33,7 @@
 
   let isInQueryMode = $state(false)
 
-  let viewedDivisionID = $state('')
+  let viewedDivisionID = $state("Default")
 
   // ===================================
   let perPage = $state(10);

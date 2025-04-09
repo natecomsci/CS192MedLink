@@ -30,9 +30,6 @@
           viewedDivisionID:string
         } = $props();
 
-  let selectedDivisionID = $state(serviceDivisionID)
-  let selectedDivisionName = $state(serviceDivisionName)
-
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
   <div class=" w-11/12 max-w-3/4 rounded-lg  overflow-hidden ">
@@ -66,8 +63,11 @@
           <label class="grid grid-cols-1">
               {#if serviceType == "Ambulance"}
                 <EditAmbulanceService 
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
                   {perPage}
                   {viewedDivisionID}
                   bind:currPopUp={currPopUp}
@@ -75,8 +75,11 @@
                 />
               {:else if serviceType == "Blood Bank"}
                 <EditBloodBankService
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
                   {perPage}
                   {viewedDivisionID}
                   bind:currPopUp={currPopUp}
@@ -84,8 +87,11 @@
                 />
               {:else if serviceType == "Emergency Room"}
                 <EditERService
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
                   {perPage}
                   {viewedDivisionID}
                   bind:currPopUp={currPopUp}
@@ -93,8 +99,11 @@
                 />
               {:else if serviceType == "Intensive Care Unit"}
                 <EditICUService
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
                   {perPage}
                   {viewedDivisionID}
                   bind:currPopUp={currPopUp}
@@ -103,8 +112,11 @@
 
               {:else}
                 <EditOPService
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
                   {perPage}
                   {viewedDivisionID}
                   bind:currPopUp={currPopUp}
@@ -112,28 +124,6 @@
                 />
               {/if}
           </label>
-          <input form="editService" type="text" class="hidden" name="divisionID" value={selectedDivisionID} />
-          <input form="editService" type="text" class="hidden" name="divisionName" value={selectedDivisionName} />
-
-          {#if data.hasDivisions}
-            <label>
-              Divisions
-
-              {#each (data.divisions ?? []) as division}
-              {division.name}
-                <input 
-                  type="radio" 
-                  name="divSelect" 
-                  bind:group={selectedDivisionID}
-                  value={() => {
-                    selectedDivisionName = division.name
-                    return division.divisionID
-                  }}
-                  class="input-box w-30"
-                >
-              {/each}
-            </label>
-          {/if}
         </div>
       </div>
     </div>

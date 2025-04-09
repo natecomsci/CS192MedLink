@@ -31,7 +31,9 @@
 
 
   let serviceType: String = $state('');
-  let division: String = $state('');
+
+  let selectedDivisionID = $state("")
+  let selectedDivisionName = $state("")
 
   async function getNewService() {
     try {
@@ -119,6 +121,9 @@
                 <OutpatientService {data} {form}/>
               {/if}
             </label>
+            <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
+            <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
+
             {#if data.hasDivisions}
               <label>
                 Divisions
@@ -127,8 +132,11 @@
                 {division.name}
                   <input 
                     type="radio" 
-                    name="division"
-                    value={division.divisionID}
+                    name="divSelect" 
+                    onclick={() => {
+                      selectedDivisionID = division.divisionID
+                      selectedDivisionName = division.name
+                    }}
                     class="input-box w-30"
                   >
                 {/each}

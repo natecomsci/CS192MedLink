@@ -918,9 +918,14 @@ export const actions: Actions = {
     const isAvailable: boolean = (data.get('isAvailable') ?? '') === 'on'
     const acceptsWalkIns: boolean = (data.get('acceptsWalkIns') ?? '') === 'on'
     
-    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
-    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
+    // let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
+    let divisionName = data.get('divisionName')
+    let divisionID: string | undefined = (data.get('divisionID') === null) ? undefined : (data.get('divisionID') as string)
 
+    console.log("-----------------------------------------")
+    console.log(divisionID)
+    console.log(divisionName)
+    console.log("-----------------------------------------")
     try {
       basePrice = validateFloat(data.get('price'), "Base Rate");
       let TTime = validateCompletionTime(data.get('completionDays'), data.get('completionHours'), "Completion")
@@ -959,6 +964,9 @@ export const actions: Actions = {
       // service.division = {divisionID : divisionID, name: divisionName}
       service.divisionID = divisionID
     }
+    console.log("-----------------------------------------")
+    console.log(service)
+    console.log("-----------------------------------------")
 
     outpatientDAO.update(serviceID, facilityID, employeeID, service)
 
