@@ -3,11 +3,11 @@ import type { Actions, PageServerLoad } from "./$types";
 
 import { FacilityDAO, GeographyDAO } from '$lib';
 
-export const load: PageServerLoad = async ({ params, cookies }) => {
+export const load: PageServerLoad = async ({ params }) => {
   const facilityDAO = new FacilityDAO();
   const geographyDAO = new GeographyDAO();
   const { facilityID } = params;
-  const hasDivisions = cookies.get('hasDivisions'); 
+  const hasDivisions = await facilityDAO.facilityHasDivisions(facilityID);
 
   if (!facilityID) {
     throw redirect(303, "/facility"); // Redirect if no facility ID is found
