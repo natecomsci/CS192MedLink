@@ -11,33 +11,33 @@ export const load: PageServerLoad = async ({ params, url }) => {
   const selectedOwnership = url.searchParams.get('selectedOwnership');
   const selectedFacilityType = url.searchParams.get('selectedFacilityType');
 
-  console.log("Selected Provider:", selectedProvider);
-  console.log("Selected Facility Type:", selectedFacilityType);
-  console.log("Selected Ownership:", selectedOwnership);
-  
-  // Prepare filters object
   const filters = {
-    acceptedProviders: selectedProvider && selectedProvider !== "any" ? [selectedProvider] : [], // assuming selectedProvider can be a single value
-    ownership: selectedOwnership && selectedOwnership !== "any" ? selectedOwnership : undefined,  // will not include if "any"
-    facilityType: selectedFacilityType && selectedFacilityType !== "any" ? selectedFacilityType : undefined,  // will not include if "any"
+    acceptedProviders: selectedProvider && selectedProvider !== "any" ? [selectedProvider] : [],
+    ownership: selectedOwnership !== "any" ? selectedOwnership : undefined,
+    facilityType: selectedFacilityType !== "any" ? selectedFacilityType : undefined
   };
 
   try {
-    let byService = await patientServiceListDAO.patientSearch(query, filters, patientSearchPageSize, 0);
+    const byService = await patientServiceListDAO.patientSearch(query, filters, patientSearchPageSize, 0);
 
     return { 
       services: byService.results, 
       moreServices: byService.hasMore,
       query,
       patientSearchPageSize,
+      error: null // no error
     };
 
-  } catch (error) {
-    return fail(400, { 
-      error: 'Error in search action',
-      description: 'search',
-      success: false
-    });
+  } catch (error: any) {
+    console.error("❌ Caught error in load:", error);
+
+    return {
+      services: [],
+      moreServices: false,
+      query,
+      patientSearchPageSize,
+      error: error.message || 'An unexpected error occurred.'
+    };
   }
 };
 

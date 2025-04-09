@@ -236,3 +236,10 @@
     <p>No services found.</p>
   {/if}
 </div>
+
+
+{#if data.error}
+  <div class="text-red-600 font-semibold bg-red-100 p-4 rounded shadow-sm mb-4">
+    ⚠️ {data.error}
+  </div>
+{/if}
