@@ -296,9 +296,11 @@ export class PatientServiceListDAO {
       return await loadMore({
         model: prisma.service,
         where: {
-          ...filters,
           type: { 
             contains : query, mode : "insensitive"
+          },
+          facility: {
+            ...filters
           }
         },
         select: {
