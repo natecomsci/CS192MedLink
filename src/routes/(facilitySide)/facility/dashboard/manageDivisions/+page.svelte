@@ -62,9 +62,6 @@
 </script>
 
 {#if currPopUp === "delete"}
-  <!-- <TestModal>
-
-  </TestModal> -->
   <DeleteDivisionConfirm
     { form }
     bind:currPopUp={currPopUp}
