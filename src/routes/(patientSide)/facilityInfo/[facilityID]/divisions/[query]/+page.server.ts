@@ -1,5 +1,43 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
+<<<<<<< HEAD
+import { DivisionDAO, FacilityDAO, type DivisionDTO, type ServiceDTO } from "$lib";
+
+export const load: PageServerLoad = async ({ params, url }) => {
+  const { facilityID, query } = params;
+  const numberToFetch = 10; // Adjust as needed
+  const offset = Number(url.searchParams.get("offset")) || 0;
+
+  const patientDivisionListDAO = new DivisionDAO();
+
+  try {
+    // Return early if query is empty (same as the DAO logic)
+    if (!query.trim()) {
+      return {
+        results: [],
+        hasMore: false,
+        query,
+        facilityID
+      };
+    }
+
+    const { results, hasMore } = await patientDivisionListDAO.patientSearchDivisionsByFacility(
+      facilityID,
+      query,
+      numberToFetch,
+      offset,
+      { updatedAt: "desc" }
+    );
+
+    return {
+      results,
+      hasMore,
+      query,
+      facilityID
+    };
+  } catch (error) {
+    console.error("Error loading divisions:", error);
+=======
 
 import { PatientDivisionListDAO } from "$lib/server/DivisionDAO";
 
@@ -28,6 +66,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
     };
   } catch (error) {
     console.error("Error loading divisions:", error); // need to redirect to no database connection
+>>>>>>> 07de26c77451b90115e1035adbef2fcc8946f132
     return fail(500, {
       description: "Could not retrieve division search results."
     });
@@ -35,6 +74,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
 };
 
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> 07de26c77451b90115e1035adbef2fcc8946f132
 export const actions = {
   search: async ({ request, params }) => {
     const formData = await request.formData();
@@ -51,7 +94,11 @@ export const actions = {
 
     query = query.trim();
 
+<<<<<<< HEAD
+    throw redirect(303, "/facilityInfo/"+facilityID+"/services/"+query);
+=======
     throw redirect(303, "/facilityInfo/"+facilityID+"/divisions/"+query);
+>>>>>>> 07de26c77451b90115e1035adbef2fcc8946f132
   },
 
   viewDetails: async ({ request, params }) => {
@@ -72,4 +119,8 @@ export const actions = {
 
     throw redirect(303, "/facilityInfo/"+facilityID+"/divisionInfo/"+ divisionID);
   },
+<<<<<<< HEAD
 } satisfies Actions;
+=======
+} satisfies Actions;
+>>>>>>> 07de26c77451b90115e1035adbef2fcc8946f132

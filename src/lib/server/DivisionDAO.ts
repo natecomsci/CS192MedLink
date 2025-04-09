@@ -303,6 +303,34 @@ export class DivisionDAO {
     }
   }
 
+  async patientSearchDivisionsByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
+    try {
+      if (!(query.trim())) {
+        return { results: [], hasMore: false };
+      }
+
+      console.log(`Fetched load more list of Facility ${facilityID}'s Divisions with offset ${offset} whose name matches the search query "${query}": `);
+
+      return await loadMore({
+        model: prisma.division,
+        where: { 
+          facilityID,
+          name: { 
+            contains: query, mode: "insensitive" 
+          } 
+        },
+        select: divisionSelect(),
+        orderBy,
+        offset,
+        numberToFetch
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
+    }
+  }
+
+
   async getAllNamesByFacility(facilityID: string): Promise<string[]> {
     try {
       const divisions = await prisma.division.findMany({

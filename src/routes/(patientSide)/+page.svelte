@@ -3,8 +3,112 @@
   import type { PageProps } from './$types';
   import { enhance } from '$app/forms';
 
+
+
   let showFilter = $state(false);
   let { data, form }: PageProps = $props();
+
+  // Enums for filters
+  const Provider = [
+    'INTELLICARE',
+    'ASIACARE',
+    'AVEGA',
+    'CAREWELL',
+    'one_COOPHEALTH',
+    'DYNAMIC_CARE_CORPORATION',
+    'EASTWEST_HEALTHCARE',
+    'FORTICARE',
+    'GETWELL',
+    'HC_and_D',
+    'HEALTHFIRST',
+    'HMI',
+    'HPPI',
+    'IWC',
+    'ICARE',
+    'KAISER',
+    'LIFE_and_HEALTH',
+    'MAXICARE',
+    'MEDICARD',
+    'MEDICARE',
+    'MEDOCARE',
+    'METROCARE',
+    'OMHSI',
+    'PACIFIC_CROSS',
+    'PHILHEALTH',
+    'VALUCARE',
+    'WELLCARE'
+  ];
+
+  const FacilityType = [
+    'BARANGAY_HEALTH_CENTER',
+    'CLINIC',
+    'HEALTH_CENTER',
+    'HOSPITAL',
+    'INFIRMARY',
+    'POLYCLINIC',
+    'PRIMARY_CARE_CLINIC',
+    'CARDIOLOGY_CLINIC',
+    'DENTAL_CLINIC',
+    'DERMATOLOGY_CLINIC',
+    'ENDOCRINOLOGY_CLINIC',
+    'ENT_CLINIC',
+    'FERTILITY_CLINIC',
+    'GASTROENTEROLOGY_CLINIC',
+    'IMMUNOLOGY_CENTER',
+    'INFECTIOUS_DISEASE_CENTER',
+    'MATERNITY_CENTER',
+    'NEPHROLOGY_CLINIC',
+    'NEUROLOGY_CLINIC',
+    'ONCOLOGY_CENTER',
+    'OPHTHALMOLOGY_CLINIC',
+    'ORTHOPEDIC_CLINIC',
+    'PEDIATRIC_CLINIC',
+    'PULMONOLOGY_CLINIC',
+    'RHEUMATOLOGY_CLINIC',
+    'UROLOGY_CLINIC',
+    'DIAGNOSTIC_LAB',
+    'GENETIC_TESTING_LAB',
+    'PATHOLOGY_LAB',
+    'RADIOLOGY_CENTER',
+    'BURN_CENTER',
+    'CRITICAL_CARE_CENTER',
+    'EMERGENCY_CENTER',
+    'POISON_CONTROL_CENTER',
+    'TRAUMA_CENTER',
+    'URGENT_CARE_CENTER',
+    'BLOOD_BANK',
+    'DIALYSIS_CENTER',
+    'MENTAL_HEALTH_FACILITY',
+    'PAIN_MANAGEMENT_CLINIC',
+    'REHABILITATION_CENTER',
+    'SLEEP_CENTER',
+    'SUBSTANCE_ABUSE_CENTER',
+    'TRANSPLANT_CENTER',
+    'ALTERNATIVE_MEDICINE_CENTER',
+    'HERBAL_MEDICINE_CENTER',
+    'PHYSICAL_THERAPY_CENTER',
+    'AMBULATORY_CARE_CENTER',
+    'SURGICAL_CENTER',
+    'AMBULANCE_SERVICE'
+  ];
+
+  const Ownership = [
+    'PUBLIC',
+    'PRIVATE'
+  ];
+
+    // Filters
+  let selectedProvider: string = $state("");
+  let selectedFacilityType: string = $state("");
+  let selectedOwnership: string =  $state("");
+  let selectedProviders: string[] = [];
+
+    // Action to remove all filters
+    const removeFilters = () => {
+    selectedProvider = "";
+    selectedFacilityType = "";
+    selectedOwnership = "";
+  };
 </script>
 
 <form 
@@ -78,7 +182,47 @@
     </div>
     
     {#if showFilter}
-      <p>filters here</p>
+<!-- Ownership selection (Dropdown) -->
+<div class="mt-4">
+  <label for="ownership">Ownership:</label>
+  <select id="ownership" name="selectedOwnership" bind:value={selectedOwnership} class="border p-2 rounded w-full">
+    <option value="">Any</option> <!-- Default placeholder when no filter selected -->
+    {#each Ownership as ownership}
+      <option value={ownership}>{ownership}</option>
+    {/each}
+  </select>
+</div>
+
+<!-- Provider selection (Dropdown) -->
+<div class="mt-4">
+  <label for="provider">Provider:</label>
+  <select name="selectedProvider" id="provider" bind:value={selectedProvider} class="border p-2 rounded w-full">
+    <option value=""> Any </option> <!-- Default placeholder when no filter selected -->
+    {#each Provider as provider}
+      <option value={provider}>{provider}</option>
+    {/each}
+  </select>
+</div>
+
+<!-- Facility Type selection (Dropdown) -->
+<div class="mt-4">
+  <label for="facilityType">Facility Type:</label>
+  <select name="selectedFacilityType" id="facilityType" bind:value={selectedFacilityType} class="border p-2 rounded w-full">
+    <option value=""> Any </option> <!-- Default placeholder when no filter selected -->
+    {#each FacilityType as facilityType}
+      <option value={facilityType}>{facilityType}</option>
+    {/each}
+  </select>
+</div>
+    <!-- Additional filters like booking system, etc. can go here. -->
+
+        <!-- Remove Filters Button -->
+        <div class="mt-4">
+          <button onclick={removeFilters} class="bg-red-500 text-white p-2 rounded hover:bg-red-700">
+            Remove Filters
+          </button>
+        </div>
+  
     {/if}
   </div>
 </div>

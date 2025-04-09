@@ -1,10 +1,10 @@
 import { Provider, 
-  FacilityType,
-  Ownership, 
-  Availability, 
-  Load,
-  Role,
-  Action 
+         FacilityType,
+         Ownership, 
+         Availability, 
+         Load,
+         Role,
+         Action 
 } from '@prisma/client';
 
 // DTOs
@@ -12,334 +12,332 @@ import { Provider,
 // TO DO: ADD ? ON UPDATE DTOs
 
 export interface RegionDTO {
-regionID : number,
-name     : string,
+  regionID : number,
+  name     : string,
 }
 
 export interface POrCDTO {
-pOrCID   : number,
-name     : string,
-regionID : number,
+  pOrCID   : number,
+  name     : string,
+  regionID : number,
 }
 
 export interface COrMDTO {
-cOrMID : number,
-name   : string,
-pOrCID : number,
+  cOrMID : number,
+  name   : string,
+  pOrCID : number,
 }
 
 export interface BrgyDTO {
-brgyID : number,
-name   : string,
-cOrMID : number,
+  brgyID : number,
+  name   : string,
+  cOrMID : number,
 }
 
 export interface AddressDTO {
-regionID : number,
-pOrCID   : number,
-cOrMID   : number,
-brgyID   : number,
-street   : string,
+  regionID : number,
+  pOrCID   : number,
+  cOrMID   : number,
+  brgyID   : number,
+  street   : string,
 }
 
 //
 export interface GeneralInformationFacilityDTO {
-name              : string,
-photo             : string,
-address           : AddressDTO,
-email?            : string,
-phoneNumber       : string,
-openingTime?      : Date,
-closingTime?      : Date,
-facilityType      : FacilityType,
-ownership         : Ownership,
-bookingSystem?    : string,
-acceptedProviders : Provider[],
+  name              : string,
+  photo             : string,
+  address           : AddressDTO,
+  email?            : string,
+  phoneNumber       : string,
+  openingTime?      : Date,
+  closingTime?      : Date,
+  facilityType      : FacilityType,
+  ownership         : Ownership,
+  bookingSystem?    : string,
+  acceptedProviders : Provider[],
 }
 
 export interface DivisionDTO {
-divisionID  : string,
-name        : string,
-phoneNumber : string,
-email?      : string,
-createdAt   : Date,
-updatedAt   : Date,
+  divisionID : string,
+  name       : string,
+  createdAt  : Date,
+  updatedAt  : Date,
 }
 //
 export interface Create_UpdateDivisionDTO {
-name        : string,
-email?      : string,
-phoneNumber : string,
-openingTime : Date,
-closingTime : Date,
+  name        : string,
+  email?      : string,
+  phoneNumber : string,
+  openingTime : Date,
+  closingTime : Date,
 }
 
 export interface MultiServiceDivisionsDTO {
-divisionID : string,
-name       : string,
-services   : {
-serviceID : string, 
-type      : string,
-}[],
+  divisionID : string,
+  name       : string,
+  services   : {
+    serviceID : string, 
+    type      : string,
+  }[],
 }
 
 export interface ServiceDTO {
-serviceID : string,
-type      : string,
-division? : {
-divisionID : string,
-name       : string,
-},
-createdAt : Date,
-updatedAt : Date,
+  serviceID : string,
+  type      : string,
+  division? : {
+    divisionID : string,
+    name       : string,
+  },
+  createdAt : Date,
+  updatedAt : Date,
 }
 
 export interface CreateAmbulanceServiceDTO {
-phoneNumber?      : string,
-openingTime?      : Date,
-closingTime?      : Date,
-baseRate          : number,
-minCoverageRadius : number,
-mileageRate       : number,
-maxCoverageRadius : number,
-note?             : string,
-divisionID?       : string,
+  phoneNumber?      : string,
+  openingTime?      : Date,
+  closingTime?      : Date,
+  baseRate          : number,
+  minCoverageRadius : number,
+  mileageRate       : number,
+  maxCoverageRadius : number,
+  note?             : string,
+  divisionID?       : string,
 }
 
 export interface AmbulanceServiceDTO {
-phoneNumber?      : string,
-openingTime?      : Date,
-closingTime?      : Date,
-availability      : Availability,
-baseRate          : number,
-minCoverageRadius : number,
-mileageRate       : number,
-maxCoverageRadius : number,
-note?             : string,
-division?         : {
-divisionID : string,
-name       : string,
-},
-updatedAt?        : Date,
+  phoneNumber?      : string,
+  openingTime?      : Date,
+  closingTime?      : Date,
+  availability      : Availability,
+  baseRate          : number,
+  minCoverageRadius : number,
+  mileageRate       : number,
+  maxCoverageRadius : number,
+  note?             : string,
+  division?         : {
+    divisionID : string,
+    name       : string,
+  },
+  updatedAt?        : Date,
 }
 
 export type UpdateAmbulanceServiceDTO = Omit<AmbulanceServiceDTO, "division"> & {
-divisionID? : string
+  divisionID? : string
 };
 
 export interface BloodTypeMappingDTO {
-A_P   : boolean,
-A_N   : boolean,
-B_P   : boolean,
-B_N   : boolean,
-O_P   : boolean,
-O_N   : boolean,
-AB_P  : boolean,
-AB_N  : boolean,
+  A_P   : boolean,
+  A_N   : boolean,
+  B_P   : boolean,
+  B_N   : boolean,
+  O_P   : boolean,
+  O_N   : boolean,
+  AB_P  : boolean,
+  AB_N  : boolean,
 }
 
 export interface CreateBloodBankServiceDTO {
-phoneNumber?     : string,
-openingTime?     : Date,
-closingTime?     : Date,
-basePricePerUnit : number,
-turnaroundTimeD  : number,
-turnaroundTimeH  : number,
-note?            : string,
-divisionID?      : string,
+  phoneNumber?     : string,
+  openingTime?     : Date,
+  closingTime?     : Date,
+  basePricePerUnit : number,
+  turnaroundTimeD  : number,
+  turnaroundTimeH  : number,
+  note?            : string,
+  divisionID?      : string,
 }
 
 export interface BloodBankServiceDTO {
-phoneNumber?          : string,
-openingTime?          : Date,
-closingTime?          : Date,
-basePricePerUnit      : number,
-turnaroundTimeD       : number,
-turnaroundTimeH       : number,
-bloodTypeAvailability : BloodTypeMappingDTO,
-note?                 : string,
-division?             : {
-divisionID : string,
-name       : string,
-},
-updatedAt?            : Date,
+  phoneNumber?          : string,
+  openingTime?          : Date,
+  closingTime?          : Date,
+  basePricePerUnit      : number,
+  turnaroundTimeD       : number,
+  turnaroundTimeH       : number,
+  bloodTypeAvailability : BloodTypeMappingDTO,
+  note?                 : string,
+  division?             : {
+    divisionID : string,
+    name       : string,
+  },
+  updatedAt?            : Date,
 }
 
 export type UpdateBloodBankServiceDTO = Omit<BloodBankServiceDTO, "division"> & {
-divisionID? : string
+  divisionID? : string
 };
 
 export interface CreateERServiceDTO {
-phoneNumber? : string,
-openingTime? : Date,
-closingTime? : Date,
-note?        : string,
-divisionID?  : string,
+  phoneNumber? : string,
+  openingTime? : Date,
+  closingTime? : Date,
+  note?        : string,
+  divisionID?  : string,
 }
 
 export interface ERServiceDTO {
-phoneNumber?         : string,
-openingTime?         : Date,
-closingTime?         : Date,
-load                 : Load,
-availableBeds        : number,
-nonUrgentPatients    : number,
-nonUrgentQueueLength : number,
-urgentPatients       : number,
-urgentQueueLength    : number,
-criticalPatients     : number,
-criticalQueueLength  : number,
-note?                : string,
-division?            : {
-divisionID : string,
-name       : string,
-},
-updatedAt?           : Date,
+  phoneNumber?         : string,
+  openingTime?         : Date,
+  closingTime?         : Date,
+  load                 : Load,
+  availableBeds        : number,
+  nonUrgentPatients    : number,
+  nonUrgentQueueLength : number,
+  urgentPatients       : number,
+  urgentQueueLength    : number,
+  criticalPatients     : number,
+  criticalQueueLength  : number,
+  note?                : string,
+  division?            : {
+    divisionID : string,
+    name       : string,
+  },
+  updatedAt?           : Date,
 }
 
 export type UpdateERServiceDTO = Omit<ERServiceDTO, "division"> & {
-divisionID? : string
+  divisionID? : string
 };
 
 export interface CreateICUServiceDTO {
-phoneNumber? : string,
-openingTime? : Date,
-closingTime? : Date,
-baseRate     : number,
-note?        : string,
-divisionID?  : string,
+  phoneNumber? : string,
+  openingTime? : Date,
+  closingTime? : Date,
+  baseRate     : number,
+  note?        : string,
+  divisionID?  : string,
 }
 
 export interface ICUServiceDTO {
-phoneNumber?        : string,
-openingTime?        : Date,
-closingTime?        : Date,
-load                : Load,
-baseRate            : number,
-availableBeds       : number,
-cardiacSupport      : boolean,
-neurologicalSupport : boolean,
-renalSupport        : boolean,
-respiratorySupport  : boolean,
-note?               : string,
-division?           : {
-divisionID : string,
-name       : string,
-},
-updatedAt?          : Date,
+  phoneNumber?        : string,
+  openingTime?        : Date,
+  closingTime?        : Date,
+  load                : Load,
+  baseRate            : number,
+  availableBeds       : number,
+  cardiacSupport      : boolean,
+  neurologicalSupport : boolean,
+  renalSupport        : boolean,
+  respiratorySupport  : boolean,
+  note?               : string,
+  division?           : {
+    divisionID : string,
+    name       : string,
+  },
+  updatedAt?          : Date,
 }
 
 export type UpdateICUServiceDTO = Omit<ICUServiceDTO, "division"> & {
-divisionID? : string
+  divisionID? : string
 };
 
 export interface CreateOutpatientServiceDTO {
-type            : string,
-basePrice       : number,
-completionTimeD : number,
-completionTimeH : number,
-acceptsWalkIns  : boolean,
-note?           : string,
-divisionID?     : string,
+  type            : string,
+  basePrice       : number,
+  completionTimeD : number,
+  completionTimeH : number,
+  acceptsWalkIns  : boolean,
+  note?           : string,
+  divisionID?     : string,
 }
 
 export interface OutpatientServiceDTO {
-type            : string,
-basePrice       : number,
-completionTimeD : number,
-completionTimeH : number,
-isAvailable     : boolean,
-acceptsWalkIns  : boolean,
-note?           : string,
-division?       : {
-divisionID : string,
-name       : string,
-},
-updatedAt?      : Date,
+  type            : string,
+  basePrice       : number,
+  completionTimeD : number,
+  completionTimeH : number,
+  isAvailable     : boolean,
+  acceptsWalkIns  : boolean,
+  note?           : string,
+  division?       : {
+    divisionID : string,
+    name       : string,
+  },
+  updatedAt?      : Date,
 }
 
 export type UpdateOutpatientServiceDTO = Omit<Omit<OutpatientServiceDTO, "division">, "type"> & {
-divisionID? : string
+  divisionID? : string
 };
 
 export interface AdminDTO {
-employeeID : string,
-fname      : string,
-mname?     : string,
-lname      : string,
-divisions? : {
-divisionID : string,
-name       : string,
-}[],
-createdAt  : Date,
-updatedAt  : Date,
+  employeeID : string,
+  fname      : string,
+  mname?     : string,
+  lname      : string,
+  divisions? : {
+    divisionID : string,
+    name       : string,
+  }[],
+  createdAt  : Date,
+  updatedAt  : Date,
 }
 
 export interface Create_UpdateAdminDTO {
-fname        : string,
-mname?       : string,
-lname        : string,
-divisionIDs? : string[],
+  fname        : string,
+  mname?       : string,
+  lname        : string,
+  divisionIDs? : string[],
 }
 
 export interface InitialAdminDetailsDTO {
-adminID  : string,
-fname    : string,
-mname?   : string,
-lname    : string,
-password : string,
+  adminID  : string,
+  fname    : string,
+  mname?   : string,
+  lname    : string,
+  password : string,
 }
 
 export interface CreateUpdateLogDTO {
-entity      : string,
-action      : Action,
-divisionID? : string,
+  entity      : string,
+  action      : Action,
+  divisionID? : string,
 }
 
 export interface UpdateLogDTO {
-entity    : string,
-action    : Action,
-employee  : {
-employeeID : string,
-fname      : string,
-mname?     : string,
-lname      : string,
-role       : Role
-},
-createdAt : Date,
+  entity    : string,
+  action    : Action,
+  employee  : {
+    employeeID : string,
+    fname      : string,
+    mname?     : string,
+    lname      : string,
+    role       : Role
+  },
+  createdAt : Date,
 }
 
 export interface ServiceResultsDTO {
-facilityID : string,
-name       : string,
-serviceID  : string,
-type       : string,
+  facilityID : string,
+  name       : string,
+  serviceID  : string,
+  type       : string,
 }
 
 export interface LoadMoreResultsDTO {
-results : any[],
-hasMore : boolean,
+  results : any[],
+  hasMore : boolean,
 }
 
 export interface PaginatedResultsDTO {
-results     : any[],
-totalPages  : number,
-currentPage : number,
+  results     : any[],
+  totalPages  : number,
+  currentPage : number,
 }
 
 export interface FacilityDivisionResultsDTO {
-divisionID : string,
-name       : string,
+  divisionID : string,
+  name       : string,
 }
 
 export interface FacilityServiceResultsDTO {
-serviceID : string,
-type      : string,
+  serviceID : string,
+  type      : string,
 }
 
 export interface AdminPreviewDTO {
-photo  : string,
-fname  : string,
-mname? : string,
-lname  : string,
+  photo  : string,
+  fname  : string,
+  mname? : string,
+  lname  : string,
 }
