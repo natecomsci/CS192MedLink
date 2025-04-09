@@ -179,8 +179,9 @@ export const actions: Actions = {
   addService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !employeeID) {
+    if (!facilityID || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -236,6 +237,12 @@ export const actions: Actions = {
         }
 
         const divisionID = data.get("divisionID") as string;
+        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+          return fail(422, {
+            error: "No division selected",
+            success: false
+          });
+        }
         let service: CreateAmbulanceServiceDTO = {
             phoneNumber,
             openingTime,
@@ -286,6 +293,12 @@ export const actions: Actions = {
         }
 
         const divisionID = data.get("divisionID") as string;
+        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+          return fail(422, {
+            error: "No division selected",
+            success: false
+          });
+        }
         let service: CreateBloodBankServiceDTO = {
             phoneNumber,
             openingTime,
@@ -321,6 +334,12 @@ export const actions: Actions = {
         }
         
         const divisionID = data.get("divisionID") as string;
+        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+          return fail(422, {
+            error: "No division selected",
+            success: false
+          });
+        }
         const service: CreateERServiceDTO = {
           phoneNumber
         }
@@ -353,6 +372,12 @@ export const actions: Actions = {
         }
 
         const divisionID = data.get("divisionID") as string;
+        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+          return fail(422, {
+            error: "No division selected",
+            success: false
+          });
+        }
         let service: CreateICUServiceDTO = {
             phoneNumber,
             baseRate,
@@ -393,6 +418,12 @@ export const actions: Actions = {
         }
 
         const divisionID = data.get("divisionID") as string;
+        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+          return fail(422, {
+            error: "No division selected",
+            success: false
+          });
+        }
         let service: CreateOutpatientServiceDTO = {
             type: OPserviceType,
             basePrice,
@@ -427,7 +458,8 @@ export const actions: Actions = {
   editAmbulanceService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     const employeeID = cookies.get('employeeID');
-    if (!facilityID || !employeeID) {
+    const hasDivisions = cookies.get('hasDivisions');
+    if (!facilityID || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -469,9 +501,15 @@ export const actions: Actions = {
     let maxCoverageRadius: number
     let availability: Availability = data.get('availability') as Availability
 
-    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
-    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
+    let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
+    let divisionID: string | undefined = (data.get('divisionID') === null) ? undefined : (data.get('divisionID') as string)
 
+    if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+      return fail(422, {
+        error: "No division selected",
+        success: false
+      });
+    }
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
       baseRate = validateFloat(data.get('price'), "Base Rate");
@@ -535,7 +573,8 @@ export const actions: Actions = {
   editBloodBankService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     const employeeID = cookies.get('employeeID');
-    if (!facilityID || !employeeID) {
+    const hasDivisions = cookies.get('hasDivisions');
+    if (!facilityID || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -579,9 +618,15 @@ export const actions: Actions = {
     let turnaroundTimeD: number
     let turnaroundTimeH: number
     
-    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
-    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
+    let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
+    let divisionID: string | undefined = (data.get('divisionID') === null) ? undefined : (data.get('divisionID') as string)
 
+    if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+      return fail(422, {
+        error: "No division selected",
+        success: false
+      });
+    }
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
       basePricePerUnit = validateFloat(data.get('price'), "Price Per Unit");
@@ -669,7 +714,8 @@ export const actions: Actions = {
   editERService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     const employeeID = cookies.get('employeeID');
-    if (!facilityID || !employeeID) {
+    const hasDivisions = cookies.get('hasDivisions');
+    if (!facilityID || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -711,9 +757,15 @@ export const actions: Actions = {
     let criticalPatients: number
     let criticalQueueLength: number
 
-    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
-    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
+    let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
+    let divisionID: string | undefined = (data.get('divisionID') === null) ? undefined : (data.get('divisionID') as string)
 
+    if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+      return fail(422, {
+        error: "No division selected",
+        success: false
+      });
+    }
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
       
@@ -781,7 +833,8 @@ export const actions: Actions = {
   editICUService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     const employeeID = cookies.get('employeeID');
-    if (!facilityID || !employeeID) {
+    const hasDivisions = cookies.get('hasDivisions');
+    if (!facilityID || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -821,8 +874,15 @@ export const actions: Actions = {
     let renalSupport: boolean
     let respiratorySupport: boolean
     
-    let divisionName: string | undefined = data.get('divisionName') === null ? undefined : data.get('divisionName') as string
-    let divisionID: string | undefined = data.get('divisionID') === null ? undefined : data.get('divisionID') as string
+    let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
+    let divisionID: string | undefined = (data.get('divisionID') === null) ? undefined : (data.get('divisionID') as string)
+
+    if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+      return fail(422, {
+        error: "No division selected",
+        success: false
+      });
+    }
 
     try {
       phoneNumber = validatePhone(data.get('phoneNumber'));
@@ -884,7 +944,8 @@ export const actions: Actions = {
   editOPService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
     const employeeID = cookies.get('employeeID');
-    if (!facilityID || !employeeID) {
+    const hasDivisions = cookies.get('hasDivisions');
+    if (!facilityID || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -918,14 +979,15 @@ export const actions: Actions = {
     const isAvailable: boolean = (data.get('isAvailable') ?? '') === 'on'
     const acceptsWalkIns: boolean = (data.get('acceptsWalkIns') ?? '') === 'on'
     
-    // let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
-    let divisionName = data.get('divisionName')
+    let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
     let divisionID: string | undefined = (data.get('divisionID') === null) ? undefined : (data.get('divisionID') as string)
 
-    console.log("-----------------------------------------")
-    console.log(divisionID)
-    console.log(divisionName)
-    console.log("-----------------------------------------")
+    if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
+      return fail(422, {
+        error: "No division selected",
+        success: false
+      });
+    }
     try {
       basePrice = validateFloat(data.get('price'), "Base Rate");
       let TTime = validateCompletionTime(data.get('completionDays'), data.get('completionHours'), "Completion")
@@ -961,12 +1023,8 @@ export const actions: Actions = {
       });
     }
     if (divisionID && divisionName) {
-      // service.division = {divisionID : divisionID, name: divisionName}
       service.divisionID = divisionID
     }
-    console.log("-----------------------------------------")
-    console.log(service)
-    console.log("-----------------------------------------")
 
     outpatientDAO.update(serviceID, facilityID, employeeID, service)
 
