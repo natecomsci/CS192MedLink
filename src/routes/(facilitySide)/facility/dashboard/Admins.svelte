@@ -4,7 +4,7 @@
   let { admins }: { admins: AdminDTO[]} = $props();
 </script>
 
-<div class="bg-white shadow-lg rounded-lg p-4 h-2/7">
+<div class="bg-white shadow-lg rounded-lg p-4">
   <div class="flex justify-between items-center border-b border-[#DBD8DF] pb-2">
     <h2 class="text-[30px] text-[#9044C4] font-bold">Admins</h2>
       <a 

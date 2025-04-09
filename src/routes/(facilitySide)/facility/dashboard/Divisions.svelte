@@ -18,7 +18,7 @@
       </a>
   </div>
 
-  <div class="mt-4">
+  <div class="mt-4 overflow-y-auto flex-1 max-h-[calc(100vh-50vh)]">
     {#each divisions as {name}}
       <p class="py-2 border-b border-transparent italic">{name}</p>
     {/each}

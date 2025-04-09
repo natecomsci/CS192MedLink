@@ -51,16 +51,49 @@
 
 <div class=" h-full p-4 flex flex-col">
   <!-- Sticky Header -->
+   
   <div class="border-b border-[#DBD8DF] flex items-center pl-2 pb-2 sticky bg-white z-10">
 
     <span class=" text-[30px] font-bold text-lg text-[#9044C4] whitespace-nowrap pr-4">
       Control History
     </span>
 
-    <div class=" flex items-center gap-3 flex-grow">
-      <!-- Increased width for better alignment -->
+    <div class=" flex items-center gap-3 flex-grow ">
+      <!-- Search -->
+      <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-white shadow-sm flex-grow">
+        <input
+          type="text"
+          name="Search"
+          bind:value={query}
+          onkeydown={handleKeydown}
+          placeholder="Search"
+          class="flex-1 p-2 text-gray-700 bg-transparent outline-none"
+        />
+        {#if query.length > 0 || isInQueryMode}
+            <button onclick={() => {
+              query = ""
+              error = ""
+              errorLoc = ""
+              isInQueryMode = false
+              currentPage = 1
+              getPage(0)
+            }}>
+                <img src="/x.svg" alt="Search" class="w-4 h-4" />
+            </button>
+        {/if}
+        <button type="submit" class="text-gray-500 mr-2" 
+                onclick={() => {
+                  isInQueryMode = true
+                  currentPage = 1
+                  getPage(0)
+                  }}
+                >
+          <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
+        </button>
+      </div>
 
-      <input
+
+      <!-- <input
         type="text"
         placeholder="Search"
         bind:value={query}
@@ -76,10 +109,10 @@
           currentPage = 1
           getPage(0)
         }}>
-          Clear
+          X
         </button>
-      {/if}
-      <button onclick={() => {
+      {/if} -->
+      <!-- <button onclick={() => {
         isInQueryMode = true
         currentPage = 1
         getPage(0)
@@ -87,16 +120,16 @@
         class="border-black"
       >
         Search
-      </button>
+      </button> -->
+      
       {#if errorLoc == "query"}
         {error}
       {/if}
       <!-- Ensures "View By:" stays in one line -->
-      <span class="whitespace-nowrap">View By:</span>
-
+      <span class="whitespace-nowrap text-sm">View By :</span>
       <select 
         bind:value={viewedDivisionID} 
-        class="p-4 py-0 border-2 border-gray-500 rounded-3xl h-10"
+        class="pl-2 text-sm border border-gray-300 rounded-full h-10 w-1/7 shadow-sm"
         onchange={()=>{
           console.log(viewedDivisionID)
           query = ""
