@@ -5,41 +5,48 @@ import { patientSearchPageSize, PatientServiceListDAO } from "$lib";
 
 const patientServiceListDAO = new PatientServiceListDAO()
 
-export const load: PageServerLoad = async ({ params, url }) => {
-  const query = params.query;
-  const selectedProvider = url.searchParams.get('selectedProvider');
-  const selectedOwnership = url.searchParams.get('selectedOwnership');
-  const selectedFacilityType = url.searchParams.get('selectedFacilityType');
+  export const load: PageServerLoad = async ({ params, url }) => {
+    const query = params.query;
+    const selectedProvider = url.searchParams.get('selectedProvider') || "any"; // Default to "any"
+    const selectedOwnership = url.searchParams.get('selectedOwnership') || "any"; // Default to "any"
+    const selectedFacilityType = url.searchParams.get('selectedFacilityType') || "any"; // Default to "any"
 
-  const filters = {
-    acceptedProviders: selectedProvider && selectedProvider !== "any" ? [selectedProvider] : [],
-    ownership: selectedOwnership !== "any" ? selectedOwnership : undefined,
-    facilityType: selectedFacilityType !== "any" ? selectedFacilityType : undefined
+    const filters = {
+      acceptedProviders: selectedProvider && selectedProvider !== "any" ? [selectedProvider] : [],
+      ownership: selectedOwnership !== "any" ? selectedOwnership : undefined,
+      facilityType: selectedFacilityType !== "any" ? selectedFacilityType : undefined
+    };
+
+    try {
+      const byService = await patientServiceListDAO.patientSearch(query, filters, patientSearchPageSize, 0);
+
+      return { 
+        services: byService.results, 
+        moreServices: byService.hasMore,
+        query,
+        patientSearchPageSize,
+        selectedProvider,
+        selectedOwnership,
+        selectedFacilityType,
+        error: null
+      };
+
+    } catch (error: any) {
+      console.error("Caught error in load:", error);
+
+      return {
+        services: [],
+        moreServices: false,
+        query,
+        patientSearchPageSize,
+        selectedProvider,
+        selectedOwnership,
+        selectedFacilityType,
+        error: error.message || 'An unexpected error occurred.'
+      };
+    }
   };
 
-  try {
-    const byService = await patientServiceListDAO.patientSearch(query, filters, patientSearchPageSize, 0);
-
-    return { 
-      services: byService.results, 
-      moreServices: byService.hasMore,
-      query,
-      patientSearchPageSize,
-      error: null // no error
-    };
-
-  } catch (error: any) {
-    console.error("❌ Caught error in load:", error);
-
-    return {
-      services: [],
-      moreServices: false,
-      query,
-      patientSearchPageSize,
-      error: error.message || 'An unexpected error occurred.'
-    };
-  }
-};
 
 
 export const actions = {

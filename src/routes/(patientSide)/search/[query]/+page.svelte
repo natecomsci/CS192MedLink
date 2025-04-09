@@ -101,12 +101,19 @@
     let hasMore: boolean = $state(data.moreServices ?? false)
   
     // Filters
-  let selectedProvider: string = $state("");
-  let selectedFacilityType: string = $state("");
-  let selectedOwnership: string =  $state("");
+  let selectedProvider: string = $state(data.selectedProvider ?? "any" );
+  let selectedFacilityType: string = $state(data.selectedFacilityType ?? "any");
+  let selectedOwnership: string =  $state(data.selectedOwnership ?? "any");
   let selectedProviders: string[] = [];
 
-  
+
+    // Action to remove all filters
+    const removeFilters = () => {
+    selectedProvider = "";
+    selectedFacilityType = "";
+    selectedOwnership = "";
+  };
+
     async function loadMode(query: string) {
       if (!hasMore) {
         return
@@ -160,41 +167,46 @@
       </button>
     </div>
 
-    <!-- Ownership selection (Dropdown) -->
-    <div class="mt-4">
-      <label for="ownership">Ownership:</label>
-      <select id="ownership" name="selectedOwnership" class="border p-2 rounded w-full">
-        <option value="">Select Ownership</option>
-        {#each Ownership as ownership}
-          <option value={ownership}>{ownership}</option>
-        {/each}
-      </select>
-    </div>
+<!-- Ownership selection (Dropdown) -->
+<div class="mt-4">
+  <label for="ownership">Ownership:</label>
+  <select id="ownership" name="selectedOwnership" bind:value={selectedOwnership} class="border p-2 rounded w-full">
+    <option value="">Any</option> <!-- Default placeholder when no filter selected -->
+    {#each Ownership as ownership}
+      <option value={ownership}>{ownership}</option>
+    {/each}
+  </select>
+</div>
 
-    <!-- Provider selection (Dropdown) -->
-    <div class="mt-4">
-      <label for= "provider">Provider:</label>
-      <select name="selectedProvider" id = "provider" class="border p-2 rounded w-full">
-        <option value="">Select Provider</option>
-        {#each Provider as provider}
-          <option value={provider}>{provider}</option>
-        {/each}
-      </select>
-    </div>
+<!-- Provider selection (Dropdown) -->
+<div class="mt-4">
+  <label for="provider">Provider:</label>
+  <select name="selectedProvider" id="provider" bind:value={selectedProvider} class="border p-2 rounded w-full">
+    <option value=""> Any </option> <!-- Default placeholder when no filter selected -->
+    {#each Provider as provider}
+      <option value={provider}>{provider}</option>
+    {/each}
+  </select>
+</div>
 
-    <!-- Facility Type selection (Dropdown) -->
-    <div class="mt-4">
-      <label for= "facilityType">Facility Type:</label>
-      <select name=selectedFacilityType id = "facilityType" class="border p-2 rounded w-full">
-        <option value="">Select Facility Type</option>
-        {#each FacilityType as facilityType}
-          <option value={facilityType}>{facilityType}</option>
-        {/each}
-      </select>
-    </div>
-
+<!-- Facility Type selection (Dropdown) -->
+<div class="mt-4">
+  <label for="facilityType">Facility Type:</label>
+  <select name="selectedFacilityType" id="facilityType" bind:value={selectedFacilityType} class="border p-2 rounded w-full">
+    <option value=""> Any </option> <!-- Default placeholder when no filter selected -->
+    {#each FacilityType as facilityType}
+      <option value={facilityType}>{facilityType}</option>
+    {/each}
+  </select>
+</div>
     <!-- Additional filters like booking system, etc. can go here. -->
 
+<!-- Remove Filters Button -->
+<div class="mt-4">
+  <button onclick={removeFilters} class="bg-red-500 text-white p-2 rounded hover:bg-red-700">
+    Remove Filters
+  </button>
+</div>
   </form>
   
   {#if form?.error}

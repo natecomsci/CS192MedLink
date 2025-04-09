@@ -1,40 +1,48 @@
-import type { Facility } from "@prisma/client";
-import { redirect, fail } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-
 import { DivisionDAO, FacilityDAO, type DivisionDTO, type ServiceDTO } from "$lib";
 
-const divisionDAO = new DivisionDAO();
-const facilityDAO = new FacilityDAO();
+export const load: PageServerLoad = async ({ params, url }) => {
+  const { facilityID, query } = params;
+  const numberToFetch = 10; // Adjust as needed
+  const offset = Number(url.searchParams.get("offset")) || 0;
 
-export const load: PageServerLoad = async ({ params }) => {
-  const { facilityID } = params;
-
-  if (!facilityID) {
-    throw redirect(303, "/facility"); // Redirect if no facility ID is found
-  }
-
-  let divisions: DivisionDTO[]
-  let facility: Facility
+  const patientDivisionListDAO = new DivisionDAO();
 
   try {
-    divisions = await divisionDAO.getByFacility(facilityID);
-    facility = await facilityDAO.getByID(facilityID);
+    // Return early if query is empty (same as the DAO logic)
+    if (!query.trim()) {
+      return {
+        results: [],
+        hasMore: false,
+        query,
+        facilityID
+      };
+    }
+
+    const { results, hasMore } = await patientDivisionListDAO.patientSearchDivisionsByFacility(
+      facilityID,
+      query,
+      numberToFetch,
+      offset,
+      { updatedAt: "desc" }
+    );
+
+    return {
+      results,
+      hasMore,
+      query,
+      facilityID
+    };
   } catch (error) {
-    console.error("Error loading facility details:", error);
-    return fail(409, {
-      error: "Could not get facility information.",
-      success: false,
+    console.error("Error loading divisions:", error);
+    return fail(500, {
+      description: "Could not retrieve division search results."
     });
   }
-
-  return {
-      services: divisions ?? [], // Ensuring services is always an array
-      error: divisions.length === 0 ? "No services found for this facility." : null,
-      facilityName: facility.name,
-      facilityID: facility?.facilityID
-    };
 };
+
+
 
 export const actions = {
   search: async ({ request, params }) => {
@@ -52,7 +60,7 @@ export const actions = {
 
     query = query.trim();
 
-    throw redirect(303, "/facilityInfo/"+facilityID+"/divisions/"+query);
+    throw redirect(303, "/facilityInfo/"+facilityID+"/services/"+query);
   },
 
   viewDetails: async ({ request, params }) => {
