@@ -269,6 +269,7 @@
                 selectedDivisionID = division.divisionID
                 selectedDivisionName = division.name
               }}
+              checked={serviceDivisionID == division.divisionID}
               class="input-box w-30"
             >
           {/each}

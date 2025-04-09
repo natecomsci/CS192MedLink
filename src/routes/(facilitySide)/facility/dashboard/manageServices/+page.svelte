@@ -105,8 +105,8 @@
     bind:currPopUp={currPopUp}
     serviceType={selectedServiceType}
     serviceID={selectedServiceID}
-    serviceDivisionName={selectedDivisionID}
-    serviceDivisionID={selectedDivisionName}
+    serviceDivisionName={selectedDivisionName}
+    serviceDivisionID={selectedDivisionID}
   />
 {/if}
 
