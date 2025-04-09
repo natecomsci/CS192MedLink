@@ -34,7 +34,7 @@
         type="text"
         name="query"
         value={query}
-        placeholder="Search services..."
+        placeholder="Search Services"
         class="flex-1 p-2 px-3 text-gray-700 bg-transparent outline-none"
       />
       {#if form?.error}
@@ -68,7 +68,7 @@
     </div>
   {/each}
   </div>
-  <div class="flex justify-center p-4">
+  <div class="flex justify-center p-4"> <!-- Paul: why is this always here -->
     <button 
       class="bg-[#9044C4] rounded-lg px-6 py-3 text-white font-semibold shadow-md hover:bg-gray-600 transition"
       >

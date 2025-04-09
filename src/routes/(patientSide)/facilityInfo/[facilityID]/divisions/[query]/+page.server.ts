@@ -1,40 +1,39 @@
-import type { Facility } from "@prisma/client";
-import { redirect, fail } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-import { DivisionDAO, FacilityDAO, type DivisionDTO, type ServiceDTO } from "$lib";
+import { PatientDivisionListDAO } from "$lib/server/DivisionDAO";
 
-const divisionDAO = new DivisionDAO();
-const facilityDAO = new FacilityDAO();
-
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
   const { facilityID } = params;
+  const { query } = params;
+  const numberToFetch = 10; // Adjust as needed
+  const offset = Number(url.searchParams.get("offset")) || 0;
 
-  if (!facilityID) {
-    throw redirect(303, "/facility"); // Redirect if no facility ID is found
-  }
-
-  let divisions: DivisionDTO[]
-  let facility: Facility
+  const patientDivisionListDAO = new PatientDivisionListDAO();
 
   try {
-    divisions = await divisionDAO.getByFacility(facilityID);
-    facility = await facilityDAO.getByID(facilityID);
+    const { results, hasMore } = await patientDivisionListDAO.patientSearchDivisionsByFacility(
+      facilityID, 
+      query, 
+      numberToFetch, 
+      offset, 
+      { updatedAt: "desc" }
+    )
+
+    return {
+      results, 
+      hasMore, 
+      query, 
+      facilityID 
+    };
   } catch (error) {
-    console.error("Error loading facility details:", error);
-    return fail(409, {
-      error: "Could not get facility information.",
-      success: false,
+    console.error("Error loading divisions:", error); // need to redirect to no database connection
+    return fail(500, {
+      description: "Could not retrieve division search results."
     });
   }
-
-  return { // paul: ha
-      services: divisions ?? [], // Ensuring services is always an array
-      error: divisions.length === 0 ? "No divisions found for this facility." : null,
-      facilityName: facility.name,
-      facilityID: facility?.facilityID
-    };
 };
+
 
 export const actions = {
   search: async ({ request, params }) => {

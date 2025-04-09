@@ -96,26 +96,19 @@
       <!-- What The Facility Offers -->
       <div class="">
         <h2 class="text-purple-600 font-medium">What The Facility Offers</h2>
-        {#if data.hasDivisions}
-          <form method="POST" action="?/viewServices" class="mt-2">
-            <button type="submit" class="w-full flex justify-between items-center bg-gray-200 p-3 rounded-lg">
-                Divisions 
-            </button>
-          </form>
-        {/if}
-
         <form method="POST" action="?/viewServices" class="mt-2">
           <button type="submit" class="w-full flex justify-between items-center bg-gray-200 p-3 rounded-lg">
                 Services
           </button>
         </form>
 
-        <form method="POST" action="?/viewDivision" class="mt-2">
-          <button type="submit" class="w-full flex justify-between items-center bg-gray-200 p-3 rounded-lg">
-                Divisions
-          </button>
-        </form>
-
+        {#if data.hasDivisions}
+          <form method="POST" action="?/viewDivision" class="mt-2">
+            <button type="submit" class="w-full flex justify-between items-center bg-gray-200 p-3 rounded-lg">
+                Divisions 
+            </button>
+          </form>
+        {/if}
       </div>
     </div>
   </div>
