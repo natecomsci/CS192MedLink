@@ -292,25 +292,45 @@ export class PatientServiceListDAO {
       }
 
       console.log(`Fetched load more list of Services with offset ${offset} whose name matches the search query "${query}": `);
+  
+      const facilityFilter = {
+        ...(filters.ownership && filters.ownership !== "any"
+          ? { 
+              ownership: filters.ownership 
+            }
+          : {}),
+        ...(filters.facilityType && filters.facilityType !== "any"
+          ? { 
+              facilityType: filters.facilityType 
+            }
+          : {}),
+        ...(filters.acceptedProviders && filters.acceptedProviders.length > 0
+          ? {
+              acceptedProviders: { 
+                hasSome: filters.acceptedProviders 
+              }
+            }
+          : {})
+      };
+  
+      const where: any = {
+        type: {
+          contains: query, mode: "insensitive"
+        },
+        facility: facilityFilter
+      };
 
       return await loadMore({
         model: prisma.service,
-        where: {
-          type: { 
-            contains : query, mode : "insensitive"
-          },
-          facility: {
-            ...filters
-          }
-        },
+        where,
         select: {
           ...baseServiceSearchSelect,
-          facility  : {
+          facility: {
             select: {
               facilityID : true,
               name       : true,
             }
-          },
+          }
         },
         orderBy: { 
           updatedAt: "desc" 
@@ -321,7 +341,7 @@ export class PatientServiceListDAO {
           serviceID,
           type,
           facilityID,
-          name,
+          name
         })        
       });
     } catch (error) {
