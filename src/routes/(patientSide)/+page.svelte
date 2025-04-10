@@ -137,7 +137,7 @@
           name="query"
           value=""
           placeholder="Search for Services"
-          class="flex-1 p-2 text-gray-700 bg-transparent outline-none"
+          class="flex-1 p-2 text-gray-700 bg-transparent outline-none appearance-none"
         />
         <button type="submit" class="p-2 text-gray-500">
           <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />

@@ -112,6 +112,7 @@
           <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{divisionName}</h2>
           <div class="grid grid-cols-1">
             <form
+              class = "grid grid-cols-1"
               id="editDivision"
               method="POST" 
               action="?/editDivision"
@@ -129,23 +130,25 @@
               {#if form?.error}
                   <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
               {/if}
-              <input type="hidden" name="divisionID" value="{divisionID}" />
-              <input type="text" name="name" value={divisionName}/>
-              <input type="text" name="email" value={divisionEmail}/>
-              <input type="text" name="phoneNumber" value={phoneNumber}/>
-              <input 
-                class="input-box w-30"
-                name="opening"
-                type="time"
-                value={openingTime}
-              >
-                to
-              <input 
-                class="input-box w-30"
-                name="closing"
-                type="time"
-                value={closingTime}
-              >
+              <input type="hidden" name="divisionID" value="{divisionID}" class=" card" />
+              <input type="text" name="name" value={divisionName} class=" card"/>
+              <input type="text" name="email" value={divisionEmail} class=" card"/>
+              <input type="text" name="phoneNumber" value={phoneNumber} class=" card"/>
+              <div class="card">
+                <input 
+                  class="input-box w-30"
+                  name="opening"
+                  type="time"
+                  value={openingTime}
+                >
+                  to
+                <input 
+                  class="input-box w-30"
+                  name="closing"
+                  type="time"
+                  value={closingTime}
+                >
+              </div>
             </form>
           </div>
         </div>
