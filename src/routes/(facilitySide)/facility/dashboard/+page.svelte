@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Role } from '@prisma/client';
   import type { PageProps } from './$types';
   
   import Logo from '$lib/images/Logo.png';
@@ -8,9 +9,6 @@
   import ControlHistory from './ControlHistory.svelte';
   import Services from './Services.svelte';
   import Divisions from './Divisions.svelte';
-    import { Role } from '@prisma/client';
-
-  let hospitalName = 'Allied Care Experts Medical Center–Baypointe, Inc.';
 
   let { data, form }: PageProps = $props();
 
@@ -25,38 +23,39 @@
   </div>
 
   <div class="flex gap-3">
-      <h2 class="font-bold text-[27px] text-[#3D1853]">{hospitalName}</h2>
+      <h2 class="font-bold text-[27px] text-[#3D1853]">{data.facilityName}</h2>
       <div class="sm:flex items-center gap-4 hidden">
           <a href="./dashboard/updateFacilityInfo" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
               <p>GenInfo</p>
           </a>
       </div>
       <div class="sm:flex items-center gap-4 hidden">
-          <a href="./dashboard/managerSettingsUpdate" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
+          <a href="./dashboard/settings" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
               <p>Settings</p>
           </a>
       </div>
   </div>
 </header>
 
-<div class="border border-transparent flex h-screen p-10 bg-gray-100">
-  <!-- Left Side: Control History -->
+<div class=" border-transparent flex h-[calc(100vh-75px)] p-10 bg-gray-100 overflow-hidden gap-5">
   <!-- <div class="border w-1/2 py-5"> -->
-    <div class="w-1/2 p-5 bg-white shadow-lg rounded-lg">
-      <ControlHistory {data} {form}/>
-    </div>
+  <div class="w-1/2 bg-white shadow-lg rounded-lg ">
+    <ControlHistory {data} {form}/>
+  </div>
   <!-- </div> -->
 
   <!-- Right Side: Admins, Services, Divisions -->
-  <div class="border  border-transparent h-full w-1/2 flex flex-col gap-4 pl-5 py-0">
+  <div class=" h-full w-1/2 flex flex-col gap-4 py-0">
     {#if data.role == Role.MANAGER}
       <Admins admins={data.admins} />
     {/if}
-    <div class="flex gap-4 h-full">
+    <div class="flex gap-5 h-full">
       <Services {mainServicesShown}/>
-      {#if data.hasDivisions}
+      {#if data.hasDivisions && data.role === Role.MANAGER}
         <Divisions divisions={data.divisions}/>
       {/if}
     </div>
   </div>
 </div>
+
+

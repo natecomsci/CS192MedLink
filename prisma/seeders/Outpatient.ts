@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { Load, Action } from "@prisma/client";
+import { Action } from "@prisma/client";
 
 import { faker } from "@faker-js/faker";
 
@@ -40,7 +40,7 @@ export const types: string[] = [
     "Gastroscopy",
     "Labor & Delivery",
     "COVID-19 Vaccination",
-  ];
+];
 
 export async function seedOutpatientService() {
   const facilities = await prisma.facility.findMany({
@@ -57,17 +57,33 @@ export async function seedOutpatientService() {
     }
   });
 
+  let miscellaneous = 0;
+
   for (const facility of facilities) {
-    const selectedTypes = faker.helpers.arrayElements(types, 10);
+    const selectedTypes = faker.helpers.arrayElements(types, 20);
 
     const hasDivision = await facilityDAO.facilityHasDivisions(facility.facilityID);
 
     const employeeID = facility.employees[0]?.employeeID;
 
+    let divisionIndex = 0;
+
     for (const type of selectedTypes) {
-      const serviceID = `outpatient-${type.replace(/\s+/g, "")}-${facility.facilityID}`;
+      const serviceID = `outpatient-${type.replace(/\s+/g, "-")}-${facility.facilityID}`;
+
+      const divisionID = hasDivision
+        ? facility.divisions[divisionIndex % facility.divisions.length].divisionID
+        : undefined;
 
       await prisma.$transaction(async (tx) => {
+        let note = null;
+
+        if (miscellaneous < 3) {
+          note = faker.lorem.words({ min: 7, max: 14 });
+
+          miscellaneous++;
+        }
+
         await tx.outpatientService.upsert({
           where: { 
             serviceID 
@@ -79,11 +95,12 @@ export async function seedOutpatientService() {
                 serviceID,
                 facilityID : facility.facilityID,
                 type,
+                note,
 
-                ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+                ...(divisionID && { divisionID })
               }
             },
-            price           : faker.number.float({ min: 100, max: 5000, fractionDigits: 2 }),
+            basePrice       : faker.number.float({ min: 100, max: 5000, fractionDigits: 2 }),
             completionTimeD : faker.number.int({ min: 0, max:  2 }),
             completionTimeH : faker.number.int({ min: 0, max: 23 }),
             isAvailable     : faker.datatype.boolean(),
@@ -96,11 +113,12 @@ export async function seedOutpatientService() {
         }
 
         if (employeeID) {
-          await updateLogDAO.createUpdateLog(
+          await updateLogDAO.create(
             {
               entity: type,
               action: Action.CREATE,
-              ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+
+              ...(divisionID && { divisionID })
             },
             facility.facilityID,
             employeeID,
@@ -108,6 +126,10 @@ export async function seedOutpatientService() {
           );
         }
       });
+
+      if (hasDivision) {
+        divisionIndex++;
+      }
     }
   }
 }

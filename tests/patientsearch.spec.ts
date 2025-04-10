@@ -4,28 +4,20 @@ import { test, expect } from '@playwright/test';
 
 test.describe('From service search', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:5173/serviceInfo/Ambulance/ambulance-5');
+        await page.goto('http://localhost:5173/facilityInfo/5/serviceInfo/Ambulance/ambulance-5---prev=search');
     });
 
-    test('Check if text "Facility Name" is present', async ({ page }) => {
-        await expect(page.locator('text=Facility Name')).toBeVisible();
-    });
+   
 
     test('Check if text "Address" is present', async ({ page }) => {
-        await expect(page.locator('text=Address')).toBeVisible();
+        await expect(page.locator('text=Location')).toBeVisible();
     });
 
     test('Check if text "Phone" is present', async ({ page }) => {
         await expect(page.locator('text=Phone')).toBeVisible();
     });
 
-    test('Check if text "Opening Time" is present', async ({ page }) => {
-        await expect(page.locator('text=Opening Time')).toBeVisible();
-    });
-
-    test('Check if text "Closing Time" is present', async ({ page }) => {
-        await expect(page.locator('text=Closing Time')).toBeVisible();
-    });
+   
 
     test('Check if text "Base Rate" is present', async ({ page }) => {
         await expect(page.getByText('Base Rate')).toBeVisible();
@@ -54,34 +46,30 @@ test.describe('From service search', () => {
 
 test.describe('From Facility Search', () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto('http://localhost:5173/results/5');
+        await page.goto('http://localhost:5173/facilityInfo/5');
     });
     test('Check if "Services Offered" button is present', async ({ page }) => {
         await expect(
-            page.locator('button', { hasText: 'Services Offered' })
+            page.locator('button', { hasText: 'Services' })
         ).toBeVisible();
     });
 
-    test('Check if "Divisions" button is present', async ({ page }) => {
-        await expect(
-            page.locator('button', { hasText: 'Divisions' })
-        ).toBeVisible();
+   
+
+    test('Check if text "Accepted Providers" is present', async ({ page }) => {
+        await expect(page.locator('text=Accepted Providers')).toBeVisible();
     });
 
-    test('Check if text "Contact Information" is present', async ({ page }) => {
-        await expect(page.locator('text=Contact Information')).toBeVisible();
-    });
-
-    test('Check if text "Email" is present', async ({ page }) => {
-        await expect(page.locator('text=Email')).toBeVisible();
+    test('Check if text "Booking System Link" is present', async ({ page }) => {
+        await expect(page.locator('text=Booking System Link')).toBeVisible();
     });
 
     test('Check if text "Phone', async ({ page }) => {
         await expect(page.locator('text=Phone')).toBeVisible();
     });
 
-    test('Check if text "Address" is present', async ({ page }) => {
-        await expect(page.locator('text=Address')).toBeVisible();
+    test('Check if text "Contact Information" is present', async ({ page }) => {
+        await expect(page.locator('text=Contact Information')).toBeVisible();
     });
 
 

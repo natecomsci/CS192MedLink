@@ -1,24 +1,21 @@
-// @ts-nocheck comment at the top of a file
+// @ts-nocheck
 
 import { prisma } from "./prisma";
 
 import { Prisma } from "@prisma/client";
 
-import { Role, Provider } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 import type { Facility } from "@prisma/client";
 
-import type { AddressDTO, 
-              FacilityResultsDTO, 
-              GeneralInformationFacilityDTO 
-            } from "./DTOs";
+import type { GeneralInformationFacilityDTO } from "./DTOs";
 
 import { AddressDAO } from "./AddressDAO";
 
 const addressDAO: AddressDAO = new AddressDAO();
 
 export class FacilityDAO {
-  async getByID(facilityID: string): Promise<Facility | null> {
+  async getByID(facilityID: string): Promise<Facility> {
     try {
       const facility = await prisma.facility.findUnique({
         where: {
@@ -27,70 +24,44 @@ export class FacilityDAO {
       });
 
       if (!facility) {
-        console.warn("No Facility found.");
-        return null;
+        throw new Error(`No Facility linked to ID ${facilityID} found.`);
       }
+
+      console.log(`Fetched Facility ${facilityID}: `);
 
       return facility;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Facility.");
+      throw new Error("No database connection.");
     }
   }
 
-  async getGeneralInformation(facilityID: string): Promise<GeneralInformationFacilityDTO> {
-    try {
-      const facility = await this.getByID(facilityID);
-
-      if (!facility) {
-        throw new Error("Missing needed Facility data.");
-      }
-
-      const address = await this.getAddressByFacility(facilityID);
-
-      if (!address) {
-        throw new Error("Missing needed Address data.");
-      }
-
-      return {
-        name              : facility.name,
-        photo             : facility.photo,
-        address           : address,
-        email             : facility.email,
-        phoneNumber       : facility.phoneNumber,
-        facilityType      : facility.facilityType,
-        ownership         : facility.ownership,
-        acceptedProviders : facility.acceptedProviders,
-
-        ...(facility.bookingSystem ? { bookingSystem: facility.bookingSystem } : {}),
-      };
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get general information for Facility.");
-    }
-  }
-
-  async updateGeneralInformation(facilityID: string, data: GeneralInformationFacilityDTO): Promise<void> {
+  async update(facilityID: string, data: GeneralInformationFacilityDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { address, ...facilityData } = data;
     
-        await tx.facility.update({
+        const facility = await tx.facility.update({
           where: { 
             facilityID 
           },
           data: {
             ...facilityData
+          },
+          include: {
+            address: true
           }
         });
   
         if (address) {
-          await addressDAO.updateAddress(facilityID, address, tx);
+          await addressDAO.update(facilityID, address, tx);
         }
+
+        console.log(`Updated Facility ${facilityID}: `, facility);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update general information for Facility.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -105,45 +76,101 @@ export class FacilityDAO {
   }
   */
 
-  async getAddressByFacility(facilityID: string): Promise<AddressDTO | null> {
+  async getInformation(facilityID: string): Promise<GeneralInformationFacilityDTO> {
     try {
-      const address = await prisma.address.findUnique({
+      const facility = await prisma.facility.findUnique({
         where: { 
           facilityID 
         },
         select: {
-          regionID : true,
-          pOrCID   : true,
-          cOrMID   : true,
-          brgyID   : true,
-          street   : true,
+          name              : true,
+          photo             : true,
+          email             : true,
+          phoneNumber       : true,
+          openingTime       : true,
+          closingTime       : true,
+          facilityType      : true,
+          ownership         : true,
+          bookingSystem     : true,
+          acceptedProviders : true,
         }
-      });
-  
-      if (!address) {
-        console.warn("No Address found.");
-        return null;
+      });  
+
+      if (!facility) {
+        throw new Error(`No Facility linked to ID ${facilityID} found.`);
       }
 
-      return address;
+      const address = await addressDAO.getByFacility(facilityID);
+
+      if (!address) {
+        throw new Error(`No Address linked to Facility ${facilityID} found.`);
+      }
+
+      console.log(`Fetched information of Facility ${facilityID}: `);
+
+      return {
+        name              : facility.name,
+        photo             : facility.photo,
+        address           : address,
+        phoneNumber       : facility.phoneNumber,
+        facilityType      : facility.facilityType,
+        ownership         : facility.ownership,
+        acceptedProviders : facility.acceptedProviders,
+
+        ...(facility.email ? { email: facility.email } : {}),
+
+        ...(facility.openingTime ? { openingTime: facility.openingTime } : {}),
+
+        ...(facility.closingTime ? { closingTime: facility.closingTime } : {}),
+
+        ...(facility.bookingSystem
+          ? { bookingSystem: facility.bookingSystem }
+          : {}),
+      };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Address.");
+      throw new Error("No database connection.");
     }
   }
 
-  async getInsurancesByFacility(facilityID: string): Promise<Provider[]> {
+  async getPhoneNumber(facilityID: string): Promise<string> {
     try {
-      const facility = await this.getByID(facilityID);
+      const facility = await prisma.facility.findUnique({
+        where: { 
+          facilityID 
+        },
+        select: {
+          phoneNumber : true
+        }
+      });  
 
       if (!facility) {
-        throw new Error("Missing needed Facility data.");
+        throw new Error(`No Facility linked to ID ${facilityID} found.`);
       }
 
-      return facility.acceptedProviders;
+      console.log(`Fetched phone number of Facility ${facilityID}: `);
+
+      return facility.phoneNumber;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get accepted providers.");
+      throw new Error("No database connection.");
+    }
+  }
+
+  async facilityHasDivisions(facilityID: string): Promise<boolean> {
+    try {
+      const count = await prisma.division.count({
+        where: {
+          facilityID
+        }
+      });
+
+      console.log(`Does Facility ${facilityID} have Divisions?`);
+
+      return count > 0;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
     }
   }
 
@@ -155,10 +182,12 @@ export class FacilityDAO {
         }
       });
 
+      console.log(`Does Facility ${facilityID} have Services?`);
+
       return count > 0;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not check if Facility has Services.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -171,89 +200,34 @@ export class FacilityDAO {
         }
       });
 
-      return count > 0;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not check if Facility has Admins.");
-    }
-  }
-
-  async facilityHasDivisions(facilityID: string): Promise<boolean> {
-    try {
-      const count = await prisma.division.count({
-        where: {
-          facilityID
-        }
-      });
+      console.log(`Does Facility ${facilityID} have Admins?`);
 
       return count > 0;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not check if Facility has Divisions.");
-    }
-  }
-  
-  async getFacilityByServiceID(serviceID: string) { // no return type
-    try {
-      return await prisma.facility.findFirst({
-        where: {
-          services: { 
-            some: { 
-              serviceID 
-            } 
-          }
-        },
-        select: {
-          facilityID : true,
-          name       : true,
-          address    : true,
-        }
-      });
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get Facility by serviceID.");
+      throw new Error("No database connection.");
     }
   }
 
-  async patientSearch(query: string, numberToFetch: number, offset: number): Promise<{ results: FacilityResultsDTO[], hasMore: boolean }> {
+  async getAllUniques(): Promise<{ emails: string[], phoneNumbers: string[] }> {
     try {
-      if (!(query.trim())) {
-        return { results: [], hasMore: false };
-      }
-  
       const facilities = await prisma.facility.findMany({
-        where: { 
-          name: { 
-            contains : query, mode : "insensitive"
-          } 
-        },
-        orderBy: {
-          updatedAt: "desc"
-        },
         select: {
-          facilityID : true,
-          name       : true,
-          address    : {
-            select: {
-              regionID : true,
-              pOrCID   : true,
-              cOrMID   : true,
-              brgyID   : true,
-              street   : true,
-            }
-          }
-        },
-        skip: offset,
-        take: numberToFetch + 1
+          email       : true,
+          phoneNumber : true,
+        }
       });
   
-      return {
-        results: facilities.slice(0, numberToFetch),
-        hasMore: facilities.length > numberToFetch,
-      };
+      const emails = facilities.map((facility) => facility.email).filter((email): email is string => !!(email));
+  
+      const phoneNumbers = facilities.map((facility) => facility.phoneNumber);
+  
+      console.log("Fetched Facility emails and phone numbers: ");
+  
+      return { emails, phoneNumbers };
     } catch (error) {
-      console.error("Search Error: ", error);
-      throw new Error("Could not search Facilities.");
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
     }
   }
 }

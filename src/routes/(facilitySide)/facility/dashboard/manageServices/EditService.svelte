@@ -8,7 +8,27 @@
   import EditICUService from './EditICUService.svelte';
   import EditOPService from './EditOPService.svelte';
 
-  let { data, form, serviceType, serviceID, currPopUp = $bindable(), services = $bindable() }: {data: PageData, form: ActionData, serviceType: String, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
+  let { data, 
+        form, 
+        serviceType, 
+        serviceID, 
+        currPopUp = $bindable(), 
+        services = $bindable(),
+        serviceDivisionName = $bindable(),
+        serviceDivisionID = $bindable(),
+        perPage,
+        viewedDivisionID
+      }:{ data: PageData, 
+          form: ActionData, 
+          serviceType: String, 
+          serviceID: String, 
+          currPopUp: String, 
+          services: ServiceDTO[],
+          serviceDivisionName: String,
+          serviceDivisionID: String,
+          perPage:number,
+          viewedDivisionID:string
+        } = $props();
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -43,36 +63,62 @@
           <label class="grid grid-cols-1">
               {#if serviceType == "Ambulance"}
                 <EditAmbulanceService 
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
+                  {perPage}
+                  {viewedDivisionID}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
               {:else if serviceType == "Blood Bank"}
                 <EditBloodBankService
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
+                  {perPage}
+                  {viewedDivisionID}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
               {:else if serviceType == "Emergency Room"}
                 <EditERService
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
+                  {perPage}
+                  {viewedDivisionID}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
               {:else if serviceType == "Intensive Care Unit"}
                 <EditICUService
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
+                  {perPage}
+                  {viewedDivisionID}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />
+
               {:else}
                 <EditOPService
+                  { data }
                   { form }
                   { serviceID }
+                  { serviceDivisionName }
+                  { serviceDivisionID }
+                  {perPage}
+                  {viewedDivisionID}
                   bind:currPopUp={currPopUp}
                   bind:services={services}
                 />

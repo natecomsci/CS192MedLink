@@ -1,11 +1,33 @@
 <script lang="ts">
-  import type { ActionData } from './$types';
+  import type { ActionData, PageData } from "./$types";
+  import type { Load } from '@prisma/client';
   import { enhance } from '$app/forms';
+  
+  import type { ServiceDTO } from '$lib'
 
-  import { load } from '$lib/projectArrays';
-    import type { Load } from '@prisma/client';
-    import type { ServiceDTO } from '$lib';
-  let { form, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
+  import { pagingQueryHandler } from '$lib/postHandlers';
+  import { load } from '$lib/projectArrays'
+  
+  let { data,
+        form, 
+        serviceID, 
+        currPopUp = $bindable(), 
+        services = $bindable(),
+        perPage,
+        viewedDivisionID,
+        serviceDivisionName = $bindable(),
+        serviceDivisionID = $bindable(),
+      }:{ data: PageData,
+          form: ActionData, 
+          serviceID: String, 
+          currPopUp: String, 
+          services: ServiceDTO[],
+          perPage:number,
+          viewedDivisionID:string,
+          serviceDivisionName: String,
+          serviceDivisionID: String,
+        } = $props();
+
 
   let phoneNumber: String = $state('')
   let baseRate: Number = $state(0)
@@ -16,11 +38,14 @@
   let renalSupport: boolean = $state(false)
   let respiratorySupport: boolean = $state(false)
 
+  let selectedDivisionID = $state(serviceDivisionID)
+  let selectedDivisionName = $state(serviceDivisionName)
+
   async function getData() {
     const body = JSON.stringify({serviceID, serviceType:"Intensive Care Unit"});
 
     try {
-      const response = await fetch("./manageServices/serviceInfoHandler", {
+      const response = await fetch("./manageServices/serviceInfo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,7 +58,6 @@
       }
 
       const rv = await response.json();
-      console.log(rv)
 
       phoneNumber = rv.phoneNumber
       baseRate = rv.baseRate
@@ -51,29 +75,24 @@
   }
   getData()
 
-  async function getNewServicePage() {
-   
-    const body = JSON.stringify({currPage: 1, change: 0});
-
+  async function getNewService() {
     try {
-      const response = await fetch("./manageServices/servicePagingHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
+      const rv = await pagingQueryHandler({
+        page: 'services',
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
+        perPage,
+        viewedDivisionID
       });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      services = await response.json();
-      
+      services =  rv.list
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log((error as Error).message)
     }
   }
+
 
 </script>
 
@@ -85,7 +104,7 @@
             await update({invalidateAll:true});
             if (form?.success) {
                 currPopUp = ''
-                getNewServicePage()
+                getNewService()
             }
         };
     }}
@@ -180,6 +199,30 @@
                   </label>
               </div>
           </div>
+          
+          <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
+          <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
+
+          {#if data.hasDivisions}
+            <label>
+              Divisions
+
+              {#each (data.divisions ?? []) as division}
+              {division.name}
+                <input 
+                  type="radio" 
+                  name="divSelect" 
+                  onclick={() => {
+                    selectedDivisionID = division.divisionID
+                    selectedDivisionName = division.name
+                  }}
+                  checked={serviceDivisionID == division.divisionID}
+                  class="input-box w-30"
+                >
+              {/each}
+            </label>
+          {/if}
+
         </div>
     </div>
 </form>

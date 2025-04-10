@@ -9,13 +9,16 @@
   <div class="flex justify-between items-center border-b border-[#DBD8DF] pb-2">
     <h2 class="text-[30px] text-[#9044C4] font-bold">Divisions</h2>
     <a 
-      href="./dashboard/manageDivisions" 
-      class="text-purple-500 text-sm hover:text-purple-400 transition-colors duration-200"
-      data-sveltekit-reload
-    >✏️ Manage Divisions</a>
+        href="./dashboard/manageDivisions" 
+        class="flex items-center text-purple-500 text-m hover:text-purple-400 gap-2 transition-colors duration-200"
+        data-sveltekit-reload
+      >
+        <img src="/dashedit_icon.svg" alt="Edit" class="w- h-7">      
+        Manage Divisions
+      </a>
   </div>
 
-  <div class="mt-4">
+  <div class="mt-4 overflow-y-auto flex-1 max-h-[calc(100vh-50vh)]">
     {#each divisions as {name}}
       <p class="py-2 border-b border-transparent italic">{name}</p>
     {/each}

@@ -4,19 +4,22 @@ import type { Prisma } from "@prisma/client";
 
 import { Action }  from "@prisma/client";
 
+import { otherServiceInfo } from "./dataLayerUtility";
+
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { AmbulanceServiceDTO, 
-              CreateAmbulanceServiceDTO 
+              CreateAmbulanceServiceDTO,
+              UpdateAmbulanceServiceDTO, 
             } from "./DTOs";
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
+const updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class AmbulanceServiceDAO {
   async create(facilityID: string, employeeID: string, data: CreateAmbulanceServiceDTO): Promise<string> {
     try {
-      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, ...ambulanceData } = data;
+      return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { divisionID, note, ...ambulanceData } = data;
   
         const service = await tx.service.create({
           data: {
@@ -26,6 +29,10 @@ export class AmbulanceServiceDAO {
                 facilityID 
               } 
             },
+
+            ...((note !== undefined) && {
+              note
+            }),
 
             ...((divisionID !== undefined) && {
               division: {
@@ -37,7 +44,7 @@ export class AmbulanceServiceDAO {
           }
         });
 
-        await tx.ambulanceService.create({
+        const ambulanceService = await tx.ambulanceService.create({
           data: {
             ...ambulanceData,
             service: { 
@@ -48,10 +55,11 @@ export class AmbulanceServiceDAO {
           }
         });
 
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Ambulance",
             action: Action.CREATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,
@@ -59,13 +67,13 @@ export class AmbulanceServiceDAO {
           tx
         );
 
+        console.log(`Created Ambulance Service ${service.serviceID}: `, {service, ambulanceService});
+
         return service.serviceID;
       });
-  
-      return serviceID;
-    } catch (error) {
+      } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create AmbulanceService.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -75,48 +83,47 @@ export class AmbulanceServiceDAO {
         where: { 
           serviceID 
         },
-        include: { 
-          service: { 
-            select: { 
-              divisionID : true, 
-              updatedAt  : true, 
-            } 
-          } 
-        }
+        include: otherServiceInfo
       });
 
       if (!service) {
-        throw new Error("Missing needed AmbulanceService data.");
+        throw new Error(`No Ambulance Service linked to ID ${serviceID} found.`);
       }
 
-      const { divisionID, updatedAt } = service.service;
+      const { note, division, updatedAt } = service.service;
+
+      console.log(`Fetched information of Ambulance Service ${serviceID}: `);
 
       return {
-        phoneNumber       : service.phoneNumber,
-        openingTime       : service.openingTime,
-        closingTime       : service.closingTime,
+        availability      : service.availability,
         baseRate          : service.baseRate,
         minCoverageRadius : service.minCoverageRadius,
         mileageRate       : service.mileageRate,
         maxCoverageRadius : service.maxCoverageRadius,
-        availability      : service.availability,
         updatedAt,
 
-        ...(divisionID ? { divisionID } : {}),
-      };      
+        ...(service.phoneNumber ? { phoneNumber: service.phoneNumber } : {}),
 
+        ...(service.openingTime ? { openingTime: service.openingTime } : {}),
+
+        ...(service.closingTime ? { closingTime: service.closingTime } : {}),
+
+        ...(note ? { note } : {}),
+
+        ...(division ? { division } : {})
+      };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for AmbulanceService.");
+      throw new Error("No database connection.");
     }
   }
 
-  async update(serviceID: string, facilityID: string, employeeID: string, data: AmbulanceServiceDTO): Promise<void> {
+  async update(serviceID: string, facilityID: string, employeeID: string, data: UpdateAmbulanceServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, ...ambulanceData } = data;
+        const { divisionID, note, ...ambulanceData } = data;
 
-        await tx.ambulanceService.update({
+        const ambulanceService = await tx.ambulanceService.update({
           where: { 
             serviceID 
           },
@@ -129,6 +136,10 @@ export class AmbulanceServiceDAO {
 
         const serviceUpdateData = {
           updatedAt,
+          ...((note !== undefined) && {
+            note
+          }),
+
           ...((divisionID !== undefined) && {
             division: { 
               connect: { 
@@ -157,20 +168,23 @@ export class AmbulanceServiceDAO {
           }
         });
 
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Ambulance",
             action: Action.UPDATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,
           employeeID,
           tx
         );
+
+        console.log(`Updated Ambulance Service ${serviceID}: `, ambulanceService);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update AmbulanceService.");
+      throw new Error("No database connection.");
     }
   }
 }

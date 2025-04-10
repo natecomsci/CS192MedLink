@@ -1,41 +1,52 @@
 import { prisma } from "./prisma";
 
-import type { Prisma } from "@prisma/client";
-
 import { Role } from "@prisma/client";
 
 import type { Employee } from '@prisma/client';
 
+import { FacilityDAO } from "./FacilityDAO";
+
+import { AdminDAO } from "./AdminDAO";
+
 import bcrypt from "bcryptjs";
+
+const facilityDAO: FacilityDAO = new FacilityDAO();
+
+const adminDAO: AdminDAO = new AdminDAO();
 
 // DAO FOR METHODS THAT MANAGERS AND ADMINS SHARE
 
 // TO ADD: UPDATE PHOTO
 
 export class EmployeeDAO {
-  async getByID(employeeID: string): Promise<Employee | null> {
+  // generics
+
+  async getByID(employeeID: string): Promise<Employee> {
     try {
-      const admin = await prisma.employee.findUnique({
+      const employee = await prisma.employee.findUnique({
         where: { 
           employeeID
         }
       });
   
-      if (!admin) {
-        console.warn("No Employee with the specified ID found in the facility.");
-        return null;
+      if (!employee) {
+        throw new Error(`No Employee linked to ID ${employeeID} found.`);
       }
-  
-      return admin;
+
+      console.log(`Fetched Employee ${employeeID}: `);
+
+      return employee;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Employee.");
+      throw new Error("No database connection.");
     }
   }
 
+  //
+
   async getRole(employeeID: string): Promise<Role> {
     try {
-      const role = await prisma.employee.findUnique({
+      const employee = await prisma.employee.findUnique({
         where: { 
           employeeID
         },
@@ -44,14 +55,14 @@ export class EmployeeDAO {
         }
       });
 
-      if (!role) {
-        throw new Error("Could not get Employee role.");
+      if (!employee) {
+        throw new Error(`No Employee linked to ID ${employeeID} found.`);
       }
 
-      return role.role;
+      return employee.role;
     } catch (error) {
-        console.error("Details: ", error);
-        throw new Error("Could not get Employee role.");
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
     }
   }
 
@@ -59,7 +70,7 @@ export class EmployeeDAO {
 
   async getPassword(employeeID: string): Promise<string> {
     try {
-      const password = await prisma.employee.findUnique({
+      const employee = await prisma.employee.findUnique({
         where: { 
           employeeID
         },
@@ -68,14 +79,14 @@ export class EmployeeDAO {
         }
       });
 
-      if (!password) {
-        throw new Error("Could not get Employee role.");
+      if (!employee) {
+        throw new Error(`No Employee linked to ID ${employeeID} found.`);
       }
 
-      return password.password;
+      return employee.password;
     } catch (error) {
-        console.error("Details: ", error);
-        throw new Error("Could not get Employee password.");
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
     }
   }
 
@@ -84,7 +95,7 @@ export class EmployeeDAO {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword: string = await bcrypt.hash(password, salt);
 
-      await prisma.employee.update({
+      const employee = await prisma.employee.update({
         where: { 
           employeeID 
         },
@@ -92,22 +103,62 @@ export class EmployeeDAO {
           password: hashedPassword
         }
       });
+
+      console.log(`New password of Employee ${employeeID}: `, employee.password);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update Employee password.");
+      throw new Error("No database connection.");
     }
   }
 
-  async updatePhoto(employeeID: string, photoUrl: string): Promise<void> {
+  /*
+  async updatePhoto(employeeID: string, <INSERT PARAMETERS>): Promise<void> {
     try {
-      await prisma.employee.update({
-        where: { employeeID },
-        data: { photo: photoUrl },
-      });
+      
+    can we make a helper function that this method calls to prevent redundancy ? i intend to add an update photo method din sa facilityDAO
+
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("Could not update Employee photo.");
     }
   }
+  */
+}
 
+// where clause utility ,, they do not like you at dataLayerUtility
+
+export async function getEmployeeScopedWhereClause(
+  facilityID      : string,
+  employeeID      : string,
+  role            : Role,
+  query?          : string,
+  queryAttribute? : string,
+): Promise<any> {
+  const baseWhere: any = {
+    facilityID
+  };
+
+  if (query) {
+    if (query.trim() && queryAttribute) {
+      baseWhere[queryAttribute] = {
+        contains: query, mode: "insensitive"
+      };
+    }
+  }
+
+  if (role === Role.ADMIN) {
+    const hasDivisions = await facilityDAO.facilityHasDivisions(facilityID);
+
+    if (hasDivisions) {
+      const divisions = await adminDAO.getDivisions(employeeID);
+
+      const divisionIDs = divisions.map((division) => division.divisionID);
+
+      baseWhere.divisionID = { 
+        in: divisionIDs
+      };
+    }
+  }
+
+  return baseWhere;
 }

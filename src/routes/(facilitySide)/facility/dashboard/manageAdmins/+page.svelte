@@ -3,6 +3,12 @@
   import type { PageProps } from "./$types";
 
   import type { AdminDTO } from '$lib';
+  import { pagingQueryHandler } from '$lib/postHandlers';
+
+  // PopUps
+  import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
+  import AddAdmin from './AddAdmin.svelte';
+  import EditAdmin from './EditAdmin.svelte';
   
   let { data, form }: PageProps = $props();
 
@@ -10,101 +16,90 @@
   let currentPage: number = $state(data.currentPage)
   let totalPages = $state(data.totalPages)
 
-  // PopUps
-  import DeleteAdminConfirm from "./DeleteAdminConfirm.svelte";
-  import AddAdmin from './AddAdmin.svelte';
-  import EditAdmin from './EditAdmin.svelte';
+  let currPopUp: String = $state("")
 
   let selectedAdminID: String = $state('');
 
-  let currPopUp: String = $state("")
-
   let query = $state('')
-
   let error = $state('')
   let errorLoc = $state('')
+  let isInQueryMode = $state(false)
 
-  let queryMode = $state(false)
+  let viewedDivisionID = $state("Default")
+
+  // ===================================
+  let perPage = $state(10);
+  let options = [10, 20, 50];
 
   async function getPage(change: number) {
-    let body;
-    let dest;
-
     try {
+      const rv = await pagingQueryHandler({page: "admins", query, isInQueryMode, currentPage, change, totalPages, perPage, viewedDivisionID});
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageAdmins/searchAdminsHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageAdmins/adminPagingHandler"
+      if (errorLoc !== "query") {
+        admins =  rv.list
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
+        
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        admins = rv.admins
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "admins"){
-        error = rv.error
-        errorLoc = "admins"
-        admins = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
     }
   }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter")
+    {
+      isInQueryMode = true
+      currentPage = 1
+      getPage(0)
+    }
+  }
+
+  
 </script>
 
 {#if currPopUp === "delete"}
   <DeleteAdminConfirm
     {data}
     {form}
+    {perPage}
+    {viewedDivisionID}
+    adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
-    adminID={selectedAdminID}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 
 {:else if currPopUp === "addAdmin"}
   <AddAdmin 
     {data}
     {form}
+    {perPage}
+    {viewedDivisionID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 {:else if currPopUp === "editAdmin"}
   <EditAdmin
     {data}
     {form}
+    {perPage}
+    {viewedDivisionID}
+    adminID={selectedAdminID}
     bind:admins={admins}
     bind:currPopUp={currPopUp}
-    adminID={selectedAdminID}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
 {/if}
 
 <!-- Header -->
-<header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
+<header class="flex items-center justify-between p-3 shadow-sm border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
     <a href="/facility/dashboard" data-sveltekit-reload>
@@ -126,29 +121,30 @@
   </div>
 </header>
 
-<div class="p-6 bg-gray-50 max-h-screen border">
+<div class="p-6 bg-gray-50 max-h-screen h-[calc(100vh-50px)]">
     <!-- View and Search -->
     <div class="w-2/3 flex items-center gap-10">
       <input
         type="text"
         placeholder="search"
         bind:value={query}
+        onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
-      {#if query.length > 0}
+      {#if query.length > 0 || isInQueryMode}
         <button onclick={() => {
             query = ""
             error = ""
             errorLoc = ""
-            queryMode = false
+            isInQueryMode = false
             currentPage = 1
             getPage(0)
         }}>
-          x
+          Clear
         </button>
       {/if}
       <button onclick={() => {
-        queryMode = true
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>
@@ -159,13 +155,31 @@
       {/if}
       <h1>View By:</h1>
 
-      <select class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10">
-        <option>Default</option>
+      <select 
+        bind:value={viewedDivisionID} 
+        class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10"
+        onchange={()=>{
+          console.log(viewedDivisionID)
+          query = ""
+          error = ""
+          errorLoc = ""
+          getPage(0)
+        }}
+      >
+        <option
+          value="Default"
+        >Default</option>
+        {#each data.divisions as {name, divisionID}}
+          <option
+            value={divisionID}
+          >{name}</option>
+        {/each}
       </select>
     </div>
 
+    <hr class="mt-4 border-gray-300 w-2/3">
     <!-- Scrollable List Container -->
-    <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
+    <div class="space-y-3 mt-4 w-2/3 pl-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
       {#if errorLoc == "admins"}
         {error}
       {/if}
@@ -178,12 +192,16 @@
             <div class="info">
                 <h3 class="name">{admin.mname ? admin.fname + ' ' + admin.mname + ' ' + admin.lname : admin.fname + ' ' + admin.lname}</h3>
                 <!-- <p class="id">{admin.employeeID}</p> -->
-                <p class="departments">
+                {#if data.hasDivisions}
+                  <p class="departments">
                     {#each (admin.divisions ?? []) as division, i}
-                        <span class="dept">{division}</span>
-                        {#if i < (admin.divisions ?? []).length - 1}|{/if}
+                      <span class="dept">
+                        {division.name}
+                        {#if i < (admin.divisions ?? []).length - 1} | {/if}
+                      </span>
                     {/each}
-                </p>
+                  </p>
+                {/if}
             </div>
 
             <!-- Actions (Edit & Delete) -->
@@ -201,8 +219,9 @@
             <button 
               type="button" 
               class="inline-flex items-center" 
-              onclick={() => {selectedAdminID = admin.employeeID,
-                              currPopUp = admins.length > 1 ? 'delete' : 'deleteRestricted'}
+              onclick={() => {
+                selectedAdminID = admin.employeeID
+                currPopUp = admins.length > 1 ? 'delete' : 'deleteRestricted'}
                               } 
                 data-sveltekit-reload
             >
@@ -213,11 +232,59 @@
         </div>
       {/each}
     </div>
-    <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(-1)}>⟨ Previous</button>
-      <span class="font-medium">Page {currentPage} of {totalPages}</span>
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(1)}>Next ⟩</button>
-    </div>
+
+
+  <!-- PAGINATIONNNNNNN -->
+  <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
+    <div class="flex items-center space-x-2">
+      <!-- Double Left-->
+      <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
+
+      <!-- Single Left -->
+      <button 
+        type="button"
+        class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
+        onclick={() => getPage(-1)}
+        disabled={currentPage === 1} >
+        ‹
+      </button>
+
+      <!-- Current Page -->
+      <span class="bg-purple-400 p-2 w-8 h-8 hover:bg-purple-700 rounded-md text-white font-semibold flex items-center justify-center">{currentPage}</span>
+      <span class="text-gray-700 font-medium">of {totalPages}</span>
+
+      <!-- Single Right -->
+      <button 
+        type="button"
+        class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" 
+        onclick={() => getPage(1)} 
+        disabled={currentPage === totalPages}>
+        ›
+      </button>
+
+      <!-- Double Right -->
+      <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
+
+      <!-- View Dropdown -->
+      <div class="ml-4 flex items-center">
+        <label class="text-gray-700 font-medium gap-2">
+          View
+          <select
+            bind:value={perPage}
+            class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+            onchange={()=>{
+              currentPage = 1
+              getPage(0)
+            }}
+          >
+            {#each options as option}
+              <option value={option}>{option}</option>
+            {/each}
+          </select>
+        </label>
+      </div>
+    </div>  
+  </div>
 
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addAdmin'}}>
     <span class="text-xl">+</span>
@@ -238,13 +305,13 @@
         gap: 15px;
     }
 
-    .profile-pic {
+/*    .profile-pic {
         width: 80px;
         height: 80px;
         border-radius: 50%;
         object-fit: cover;
         background: gray;
-    }
+    }*/
 
     .info {
         flex-grow: 1;
@@ -256,10 +323,10 @@
         color: #4a148c;
     }
 
-    .id {
+/*    .id {
         font-size: 0.9rem;
         color: #7b1fa2;
-    }
+    }*/
 
     .departments {
         font-size: 0.9rem;
@@ -267,7 +334,7 @@
         font-style: italic;
     }
 
-    .actions {
+/*    .actions {
         display: flex;
         gap: 10px;
     }
@@ -293,5 +360,5 @@
 
     .delete:hover {
         opacity: 0.7;
-    }
+    }*/
 </style>

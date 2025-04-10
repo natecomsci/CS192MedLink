@@ -1,9 +1,30 @@
 <script lang="ts">
-  import type { ActionData } from './$types';
+  import type { ActionData, PageData } from "./$types";
   import { enhance } from '$app/forms';
-    import type { ServiceDTO } from '$lib';
+
+  import type { ServiceDTO } from '$lib';
+  
+  import { pagingQueryHandler } from '$lib/postHandlers';
       
-  let { form, serviceID, currPopUp = $bindable(), services = $bindable()}: {form: ActionData, serviceID: String, currPopUp: String, services: ServiceDTO[]} = $props();
+  let { data,
+        form, 
+        serviceID, 
+        currPopUp = $bindable(), 
+        services = $bindable(),
+        perPage,
+        viewedDivisionID,
+        serviceDivisionName = $bindable(),
+        serviceDivisionID = $bindable(),
+      }:{ data: PageData,
+          form: ActionData, 
+          serviceID: String, 
+          currPopUp: String, 
+          services: ServiceDTO[],
+          perPage:number,
+          viewedDivisionID:string,
+          serviceDivisionName: String,
+          serviceDivisionID: String,
+        } = $props();
 
   let phoneNumber     : String = $state('')
   let openingTime     : String = $state('')
@@ -20,11 +41,14 @@
   let AB_P : boolean = $state(false)
   let AB_N : boolean = $state(false)
 
+  let selectedDivisionID = $state(serviceDivisionID)
+  let selectedDivisionName = $state(serviceDivisionName)
+
   async function getData() {
     const body = JSON.stringify({serviceID, serviceType:"Blood Bank"});
 
     try {
-      const response = await fetch("./manageServices/serviceInfoHandler", {
+      const response = await fetch("./manageServices/serviceInfo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,7 +61,6 @@
       }
 
       const rv = await response.json();
-      console.log(rv)
 
       phoneNumber = rv.phoneNumber
       openingTime = rv.openingTime
@@ -60,27 +83,21 @@
   }
   getData()
 
-  async function getNewServicePage() {
-   
-    const body = JSON.stringify({currPage: 1, change: 0});
-
+  async function getNewService() {
     try {
-      const response = await fetch("./manageServices/servicePagingHandler", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
+      const rv = await pagingQueryHandler({
+        page: 'services',
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
+        perPage,
+        viewedDivisionID
       });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      services = await response.json();
-      
+      services =  rv.list
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log((error as Error).message)
     }
   }
 
@@ -94,7 +111,7 @@
             await update({invalidateAll:true});
             if (form?.success) {
                 currPopUp = ''
-                getNewServicePage()
+                getNewService()
             }
         };
     }}
@@ -170,7 +187,7 @@
                           class="input-box w-30" 
                           placeholder="Days" 
                           value={turnaroundTimeD} 
-                          
+
                       />
                       Days
                   
@@ -223,5 +240,28 @@
               </label>
           </div>
       </div>
+      
+      <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
+      <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
+
+      {#if data.hasDivisions}
+        <label>
+          Divisions
+
+          {#each (data.divisions ?? []) as division}
+          {division.name}
+            <input 
+              type="radio" 
+              name="divSelect" 
+              onclick={() => {
+                selectedDivisionID = division.divisionID
+                selectedDivisionName = division.name
+              }}
+              checked={serviceDivisionID == division.divisionID}
+              class="input-box w-30"
+            >
+          {/each}
+        </label>
+      {/if}
   </div>
 </form>

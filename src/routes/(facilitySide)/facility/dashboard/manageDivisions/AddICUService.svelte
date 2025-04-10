@@ -1,5 +1,5 @@
 <script lang="ts">
-    // let { i }: { i:number } = $props();
+    let { i }: { i:number } = $props();
 </script>
 
 <div class="container">
@@ -9,7 +9,7 @@
             <span class="text-label">Phone No.</span>
             <input 
                 class="input-box" 
-                name="phoneNumber"
+                name="phoneNumber{i}"
                 type="tel"
                 value="+63 9"
                  
@@ -22,7 +22,7 @@
         <label>
             <span class="text-label">Base Price</span>
             <input 
-                name="price" 
+                name="price{i}" 
                 type="number" 
                 class="input-box" 
                 placeholder="Price" 

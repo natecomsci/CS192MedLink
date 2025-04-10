@@ -1,101 +1,120 @@
-// @ts-nocheck comment at the top of a file
+// @ts-nocheck
 
 import { prisma } from "./prisma";
 
-import type { Prisma } from "@prisma/client";
-
 import { Role } from "@prisma/client";
+
+import { createAndHashPassword, paginate } from "./dataLayerUtility";
 
 import type { AdminDTO,
               Create_UpdateAdminDTO, 
               InitialAdminDetailsDTO,
-              PaginatedAdminDTO
+              FacilityDivisionResultsDTO,
+              AdminPreviewDTO,
+              PaginatedResultsDTO
             } from "./DTOs";
 
-import generator from "generate-password-ts";
+//
 
-import bcrypt from "bcryptjs";
+const adminBaseSelect = {
+  employeeID : true,
+  fname      : true,
+  mname      : true,
+  lname      : true,
+  createdAt  : true,
+  updatedAt  : true,
+};
 
-export class AdminDAO {
-  async getByID(adminID: string): Promise<Admin | null> {
-    try {
-      const division = await prisma.admin.findUnique({
-        where: {
-          adminID
-        }
-      });
-
-      if (!division) {
-        console.warn("No Division found with the specified ID.");
-        return null;
-      }
-
-      return division;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get Admin.");
+const adminDivsSelect = {
+  divisions  : { 
+    select: { 
+      divisionID : true,
+      name       : true,
     }
   }
+};
 
-  // unsure of output format. are these all needed or kahit ID lang. (ifl ID lang)
+function adminSelect(includeDivs = false) {
+  return includeDivs ? { ...adminBaseSelect, ...adminDivsSelect } : adminBaseSelect;
+}
+
+function mapAdminToDTO(admin: any): AdminDTO {
+  return {
+    employeeID : admin.employeeID,
+    fname      : admin.fname,
+    lname      : admin.lname,
+    createdAt  : admin.createdAt,
+    updatedAt  : admin.updatedAt,
+
+    ...(admin.mname ? { mname: admin.mname } : {}),
+
+    ...(admin.divisions && admin.divisions.length > 0
+      ? {
+          divisions: admin.divisions.map(({ divisionID, name }: any) => ({
+            divisionID,
+            name
+          })),
+        }
+      : {})
+  };
+}
+
+//
+
+export class AdminDAO {
+  // generics
 
   async getByFacility(facilityID: string): Promise<AdminDTO[]> {
     try {
-      const admins = await prisma.admin.findMany({
+      const admins = await prisma.employee.findMany({
         where: {
           facilityID,
           role: Role.ADMIN
         },
-        select: {
-          employeeID : true,
-          fname      : true,
-          mname      : true,
-          lname      : true,
-          divisions  : { 
-            select: { 
-              divisionID: true 
-            } 
-          },
-          createdAt  : true,
-          updatedAt  : true,
-        }
+        select: adminSelect(true)
       });
 
-      return admins.map((admin) => ({
-        employeeID : admin.employeeID,
-        fname      : admin.fname,
-        lname      : admin.lname,
-        createdAt  : admin.createdAt,
-        updatedAt  : admin.updatedAt,
+      console.log(`Result of "admins" query for Facility ${facilityID}: `, admins);
 
-        ...(admin.mname ? { mname: admin.mname } : {}),
-        ...(admin.divisions
-          ? admin.divisions.map((division) => division.divisionID)
-          : {}),
-      }));
+      console.log(`Fetched Admins of Facility ${facilityID}: `);
+
+      return admins.map((admin) => (mapAdminToDTO(admin)));
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get Admins of the facility.");
+      throw new Error("No database connection.");
     }
   }
 
-  async createAndHashPassword(): Promise<{ password: string, hashedPassword: string }> {
-      const password: string = generator.generate({
-        length  : 10,
-        numbers : true,
+  async getByDivision(divisionID: string): Promise<AdminDTO[]> {
+    try {
+      const admins = await prisma.employee.findMany({
+        where: {
+          role: Role.ADMIN,
+          divisions: {
+            some: {
+              divisionID
+            }
+          }
+        },
+        select: adminSelect()
       });
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword: string = await bcrypt.hash(password, salt);
+      console.log(`Result of "admins" query for Division ${divisionID}: `, admins);
 
-      return { password, hashedPassword };
+      console.log(`Fetched Admins of Division ${divisionID}: `);
+
+      return admins.map((admin) => (mapAdminToDTO(admin)));
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
+    }
   }
 
   async create(facilityID: string, data: Create_UpdateAdminDTO): Promise<InitialAdminDetailsDTO> {
     try {
-      const { divisions, ...adminData } = data;
+      const { divisionIDs, ...adminData } = data;
 
-      const { password, hashedPassword } = await this.createAndHashPassword();
+      const { password, hashedPassword } = await createAndHashPassword(); // should be in business logic but whatever
 
       const admin = await prisma.employee.create({
         data: {
@@ -108,13 +127,18 @@ export class AdminDAO {
             } 
           },
 
-          ...((divisions !== undefined) && {
+          ...(divisionIDs && {
             divisions: {
-              connect: divisions.map((divisionID) => ({ divisionID }))
+              connect: divisionIDs.map((divisionID) => ({ divisionID }))
             }
-          }),          
-        }
+          })
+        },
+        select: adminSelect(true)
       });
+
+      console.log(`Created Admin ${admin.employeeID}: `, admin);
+
+      console.log(`Initial Admin details: `);
 
       return {
         adminID  : admin.employeeID,
@@ -122,103 +146,75 @@ export class AdminDAO {
         lname    : admin.lname,
         password : password,
 
-        ...(admin.mname ? { mname: admin.mname } : {}),
-      };
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not create Admin.");
-    }
-  }
-
-  async getInformation(employeeID: string): Promise<AdminDTO> {
-    try {
-      const admin = await prisma.employee.findUnique({
-        where: {
-          employeeID
-        },
-        select: {
-          employeeID : true,
-          fname      : true,
-          mname      : true,
-          lname      : true,
-          divisions  : {
-            select: {
-              divisionID: true
-            }
-          },
-          createdAt  : true,
-          updatedAt  : true,
-          role       : true,
-        }
-      });
-  
-      if (!admin || admin.role !== Role.ADMIN) {
-        throw new Error("Admin not found.");
-      }
-  
-      return {
-        employeeID : admin.employeeID,
-        fname      : admin.fname,
-        lname      : admin.lname,
-        createdAt  : admin.createdAt,
-        updatedAt  : admin.updatedAt,
-  
-        ...(admin.mname ? { mname: admin.mname } : {}),
-        ...(admin.divisions.length > 0
-          ? {
-              divisions: admin.divisions.map((division) => division.divisionID),
-            }
+        ...(admin.mname 
+          ? { mname: admin.mname } 
           : {}),
       };
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for Admin.");
+      throw new Error("No database connection.");
     }
   }
+
+  /*
+  Pass Divisions in the following manner:
+
+  Old Divisions:              [div1, div2]
+
+  Updating to keep only div1: [div1]
+
+  Note: You must still include any unchanged Divisions in the array. Omitting a division implies it should be removed.
+  */
 
   async update(adminID: string, data: Create_UpdateAdminDTO): Promise<void> {
     try {
-      const { divisions, ...adminData } = data;
+      const { divisionIDs, ...adminData } = data;
 
       const adminUpdateData = {
         ...adminData,
-        ...((divisions !== undefined) && {
+
+        ...(divisionIDs && {
           divisions: {
-            connect: divisions.map((divisionID) => ({ divisionID }))
+            set: divisionIDs.map((divisionID) => ({ divisionID })) // resets relations; may be inefficient but whatever
           }
-        }),  
+        })  
       };
 
-      await prisma.employee.update({
+      const admin = await prisma.employee.update({
         where: { 
           employeeID: adminID 
         },
-        data: adminUpdateData
+        data: adminUpdateData,
+        select: adminSelect(true)
       });
-      
+
+      console.log(`Updated Admin ${adminID}: `, admin);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update Admin.");
+      throw new Error("No database connection.");
     }
   }
 
-  async resetPassword(adminID: string): Promise<string> {
-    try {
-      const { password, hashedPassword } = await this.createAndHashPassword();
+  // unneeded if we re-put ? sa Create_UpdatedAdminDTO actually you can just use update
 
-      await prisma.employee.update({
+  async reconnectDivision(adminID: string, divisionIDs: string[]): Promise<void> {
+    try {
+      const divisions = await prisma.employee.update({
         where: { 
-          employeeID: adminID 
+          employeeID: adminID
         },
         data: {
-          password: hashedPassword
-        }
+          divisions: {
+            set: divisionIDs.map((divisionID) => ({ divisionID }))
+          }
+        },
+        select: adminDivsSelect
       });
-      
-      return password;
+
+      console.log(`Updated Divisions of Admin ${adminID}: `, divisions.divisions);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not reset Admin password.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -229,136 +225,279 @@ export class AdminDAO {
           employeeID : adminID
         }
       });
+
+      console.log(`Deletion of Admin ${adminID} successful.`);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not delete Admin.");
+      throw new Error("No database connection.");
     }
   }
 
-  async getPaginatedAdminsByFacility(facilityID: string, page: number, pageSize: number): Promise<PaginatedAdminDTO> {
+  async getInformation(adminID: string): Promise<AdminDTO> {
     try {
-      const [admins, totalAdmins] = await Promise.all([
-        prisma.employee.findMany({
-          where: {
-            facilityID,
-            role: Role.ADMIN
-          },
-          select: {
-            employeeID : true,
-            fname      : true,
-            mname      : true,
-            lname      : true,
-            divisions  : { 
-              select: { 
-                divisionID: true 
-              } 
-            },
-            createdAt  : true,
-            updatedAt  : true,
-          },
-          orderBy: {
-            updatedAt: "desc"
-          },
-          skip: (Math.max(1, page) - 1) * pageSize,
-          take: pageSize
-        }),
-        prisma.employee.count({ 
-          where: { 
-            facilityID,
-            role: Role.ADMIN
-          }
-        })
-      ]);
+      const admin = await prisma.employee.findUnique({
+        where: {
+          employeeID: adminID
+        },
+        select: adminSelect(true)
+      });
   
-      const totalPages = Math.max(1, Math.ceil((totalAdmins) / pageSize));
-
-      return {
-        admins: admins.map((admin) => ({
-          employeeID : admin.employeeID,
-          fname      : admin.fname,
-          lname      : admin.lname,
-          createdAt  : admin.createdAt,
-          updatedAt  : admin.updatedAt,
-
-          ...(admin.mname ? { mname: admin.mname } : {}),
-          ...(admin.divisions
-            ? admin.divisions.map((division) => division.divisionID)
-            : {}),
-        })),
-        totalPages,
-        currentPage: page
-      };
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("Could not get paginated admins within the entire facility.");
-    }
-  }
-
-  async employeeSearchAdminsByFacility(facilityID: string, query: string, page: number, pageSize: number): Promise<PaginatedAdminDTO> {
-    try {
-      if (!(query.trim())) {
-        return { admins: [], totalPages: 1, currentPage: page };
+      if (!admin) {
+        throw new Error(`No Admin linked to ID ${adminID} found.`);
       }
 
-      const [admins, totalAdmins] = await Promise.all([
-        prisma.employee.findMany({
-          where: {
-            facilityID,
-            role: Role.ADMIN,
-            OR: [
-              { fname: { contains: query, mode: "insensitive" } },
-              { mname: { contains: query, mode: "insensitive" } },
-              { lname: { contains: query, mode: "insensitive" } },
-            ]
-          },
-          select: {
-            employeeID : true,
-            fname      : true,
-            mname      : true,
-            lname      : true,
-            divisions  : { 
-              select: { 
-                divisionID: true 
-              } 
-            },
-            createdAt  : true,
-            updatedAt  : true,
-          },
-          orderBy: {
-            updatedAt: "desc"
-          },
-          skip: (Math.max(1, page) - 1) * pageSize,
-          take: pageSize
-        }),
-        prisma.employee.count({ 
-          where: { 
-            facilityID,
-            role: Role.ADMIN
-          }
-        })
-      ]);
-  
-      const totalPages = Math.max(1, Math.ceil((totalAdmins) / pageSize));
+      console.log(`Fetched information of Admin ${adminID}: `);
 
-      return {
-        admins: admins.map((admin) => ({
-          employeeID : admin.employeeID,
-          fname      : admin.fname,
-          lname      : admin.lname,
-          createdAt  : admin.createdAt,
-          updatedAt  : admin.updatedAt,
-
-          ...(admin.mname ? { mname: admin.mname } : {}),
-          ...(admin.divisions
-            ? admin.divisions.map((division) => division.divisionID)
-            : {}),
-        })),
-        totalPages,
-        currentPage: page
-      };
+      return mapAdminToDTO(admin);
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get paginated services within the entire facility.");
+      throw new Error("No database connection.");
+    }
+  }
+
+  // for role-based view access
+
+  async getDivisions(adminID: string): Promise<FacilityDivisionResultsDTO[]> {
+    try { 
+      const divisions = await prisma.employee.findUnique({
+        where: { 
+          employeeID: adminID 
+        },
+        select: adminDivsSelect
+      });
+    
+      if (!divisions) {
+        throw new Error(`No Divisions linked to ID ${adminID} found.`);
+      }
+
+      console.log(`Fetched Divisions of Admin ${adminID}: `);
+
+      return divisions.divisions.map(({ divisionID, name }: any) => ({
+        divisionID,
+        name
+      }));
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
+    }
+  }
+
+  // defer to business logic and just use updatepassword of employeedao
+
+  async resetPassword(adminID: string): Promise<string> {
+    try {
+      const { password, hashedPassword } = await createAndHashPassword();
+
+      await prisma.employee.update({
+        where: { 
+          employeeID: adminID 
+        },
+        data: {
+          password: hashedPassword
+        }
+      });
+
+      console.log(`New password of Admin ${adminID}: `);
+
+      return password;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
+    }
+  }
+}
+
+const adminDAO: AdminDAO = new AdminDAO();
+
+export class FacilityAdminListDAO {
+  private static adminSearchWhere(query: string) {
+    return [
+      { fname: { contains: query, mode: "insensitive" } },
+      { mname: { contains: query, mode: "insensitive" } },
+      { lname: { contains: query, mode: "insensitive" } },
+    ];
+  }
+
+  async getAdminListPreview(facilityID: string, numberToFetch: number): Promise<AdminPreviewDTO[]> {
+    try {
+      const admins = await prisma.employee.findMany({
+        where: {
+          facilityID,
+          role: Role.ADMIN
+        },
+        select: {
+          photo : true,
+          fname : true,
+          mname : true,
+          lname : true,
+        },
+        orderBy: {
+          updatedAt: "desc"
+        },
+        take: numberToFetch
+      })
+
+      console.log(`Fetched Admins preview of Facility ${facilityID}: `);
+
+      return admins.map((admin) => ({
+        photo : admin.photo,
+        fname : admin.fname,
+        lname : admin.lname,
+    
+        ...(admin.mname
+          ? { mname: admin.mname }
+          : {}),
+        }));
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("No database connection.");
+    }
+  }
+
+  async getPaginatedAdminsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins: `);
+
+      return await paginate({
+        model: prisma.employee,
+        where: {
+          facilityID,
+          role: Role.ADMIN
+        },
+        select: adminSelect(true),
+        orderBy,
+        page,
+        pageSize,
+        mapping: mapAdminToDTO
+      });
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("No database connection.");
+    }
+  }  
+
+  async employeeSearchAdminsByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      if (!(query.trim())) {
+        return { results: [], totalPages: 1, currentPage: page };
+      }
+
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins whose name matches the search query "${query}": `);
+
+      return await paginate({
+        model: prisma.employee,
+        where: {
+          facilityID,
+          role: Role.ADMIN,
+          OR: FacilityAdminListDAO.adminSearchWhere(query)
+        },
+        select: adminSelect(true),
+        orderBy,
+        page,
+        pageSize,
+        mapping: mapAdminToDTO
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
+    }
+  }
+
+  async getPaginatedAdminsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      console.log(`Page ${page} of the list of Division ${divisionID}'s Admins: `);
+
+      return await paginate({
+        model: prisma.employee,
+        where: {
+          role: Role.ADMIN,
+          divisions: {
+            some: {
+              divisionID
+            }
+          }
+        },
+        select: adminSelect(),
+        orderBy,
+        page,
+        pageSize,
+        mapping: mapAdminToDTO
+      });
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("No database connection.");
+    }
+  }  
+
+  async employeeSearchAdminsByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      if (!(query.trim())) {
+        return { results: [], totalPages: 1, currentPage: page };
+      }
+
+      console.log(`Page ${page} of the list of Division ${divisionID}'s Admins whose name matches the search query "${query}": `);
+
+      return await paginate({
+        model: prisma.employee,
+        where: {
+          role: Role.ADMIN,
+          divisions: {
+            some: {
+              divisionID
+            }
+          },
+          OR: FacilityAdminListDAO.adminSearchWhere(query)
+        },
+        select: adminSelect(true),
+        orderBy,
+        page,
+        pageSize,
+        mapping: mapAdminToDTO
+      });
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
+    }
+  }
+
+  async getSingleDivisionAdmins(facilityID: string): Promise<AdminDTO[]> {
+    try {
+      const admins = await adminDAO.getByFacility(facilityID);
+  
+      const singleDivisionAdmins = admins.filter(
+        (admin) =>
+          (Array.isArray(admin.divisions)) && (admin.divisions.length === 1)
+      );
+  
+      console.log(`Fetched Admins of Facility ${facilityID} with only one Division.`);
+  
+      return singleDivisionAdmins;
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("No database connection.");
+    }
+  }
+
+  async getPaginatedSingleDivisionAdmins(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+    try {
+      const paginatedAdmins = await this.getPaginatedAdminsByFacility(facilityID, page, pageSize, orderBy);
+
+      const singleDivisionAdmins = paginatedAdmins.results.filter(
+        (admin) =>
+          (Array.isArray(admin.divisions)) && (admin.divisions.length === 1)
+      );
+
+      const totalPages = Math.max(
+        1,
+        Math.ceil(singleDivisionAdmins.length / pageSize)
+      );
+
+      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins with only one Division": `);
+
+      return { results: singleDivisionAdmins, totalPages, currentPage: page };
+    } catch (error) {
+      console.error("Details:", error);
+      throw new Error("No database connection.");
     }
   }
 }

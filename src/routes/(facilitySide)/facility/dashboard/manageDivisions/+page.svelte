@@ -9,6 +9,7 @@
   import DeleteDivisionRestricted from "./DeleteDivisionRestricted.svelte";
   import AddDivision from './AddDivision.svelte';
   import EditDivision from './EditDivision.svelte';
+  import { pagingQueryHandler } from '$lib/postHandlers';
 
   let { data, form }: PageProps = $props();
 
@@ -27,58 +28,37 @@
   let error = $state('')
   let errorLoc = $state('')
 
-  let queryMode = $state(false)
+  let isInQueryMode = $state(false)
 
-  async function getPage(change: number,) {
-    let body;
-    let dest;
+  // ===================================
+  let perPage = $state(10);
+  let options = [10, 20, 50];
 
+  async function getPage(change: number) {
     try {
+      const rv = await pagingQueryHandler({page: "divisions", query, isInQueryMode, currentPage, change, totalPages, perPage, viewedDivisionID:"Default"});
+      error =  rv.error
+      errorLoc =  rv.errorLoc
 
-      if (queryMode) {
-        body = JSON.stringify({ query, currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageDivisions/searchDivisionsHandler"
-      } else {
-        body = JSON.stringify({ currPage: currentPage, change, maxPages: totalPages });
-        dest = "./manageDivisions/divisionPagingHandler"
+      if (errorLoc !== "query") {
+        divisions =  rv.list
+        totalPages =  rv.totalPages
+        currentPage =  rv.currentPage
+        
       }
-
-      const response = await fetch(dest, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
-
-      const rv = await response.json();
-
-      if (rv.success) {
-        error = ''
-        errorLoc = ''
-        divisions = rv.divisions
-        totalPages = rv.totalPages
-        currentPage = rv.currentPage
-      } else if (rv.description === "division"){
-        error = rv.error
-        errorLoc = "division"
-        divisions = []
-        totalPages = 1
-        currentPage = 1
-      } else {
-        error = rv.error
-        errorLoc = "query"
-      }
-      
     } catch (error) {
-      throw new Error(`Response status: ${error}`);
+      console.log(error)
     }
   }
 
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === "Enter")
+    {
+      isInQueryMode = true
+      currentPage = 1
+      getPage(0)
+    }
+  }
 </script>
 
 {#if currPopUp === "delete"}
@@ -97,23 +77,27 @@
   <AddDivision 
     { data }
     { form }
+    {perPage}
     bind:divisions={divisions}
     bind:linkableServices={linkableServices}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
   />
-<!-- {:else if currPopUp === "editDivision"}
+{:else if currPopUp === "editDivision"}
   <EditDivision 
-    { firstname }
-    { middlename }
-    { lastname }
     { form }
+    {perPage}
     bind:currPopUp={currPopUp}
+    bind:divisions={divisions}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
     divisionID={selectedDivisionID}
-  /> -->
+  />
 {/if}
 
 <!-- Header -->
-<header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
+<header class="flex items-center justify-between p-3 top-0 duration-200 sticky z-[10] px-6 bg-white shadow-sm ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
     <a href="/facility/dashboard" data-sveltekit-reload>
@@ -135,29 +119,34 @@
   </div>
 </header>
 
-<div class="p-6 bg-gray-50 max-h-screen border">
+<div class="p-6 bg-gray-50 h-[calc(100vh-50px)]">
     <!-- View and Search -->
     <div class="w-2/3 flex items-center gap-10">
       <input
         type="text"
         placeholder="search"
         bind:value={query}
+        onkeydown={handleKeydown}
         class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
       />
-      {#if query.length > 0}
-        <button onclick={() => {
+      {#if query.length > 0 || isInQueryMode}
+        <button 
+          type="button"
+          onclick={() => {
           query = ""
           error = ""
           errorLoc = ""
-          queryMode = false
+          isInQueryMode = false
           currentPage = 1
           getPage(0)
         }}>
-          x
+          Clear
         </button>
       {/if}
-      <button onclick={() => {
-        queryMode = true
+      <button 
+        type="button"
+        onclick={() => {
+        isInQueryMode = true
         currentPage = 1
         getPage(0)
       }}>
@@ -173,8 +162,10 @@
       </select>
     </div>
 
+    <hr class="mt-4 border-gray-300 w-2/3">
+    
     <!-- Scrollable List Container -->
-    <div class="space-y-3 mt-4 w-2/3 border  h-[calc(100vh-300px)] overflow-y-auto pr-8 pt-5">
+    <div class="space-y-3 mt-4 w-2/3 pl-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
       {#if errorLoc == "division"}
         {error}
       {/if}
@@ -187,8 +178,12 @@
         
           <div class="flex items-center space-x-3 pr-4">
             <!-- Edit Button -->
-            <button onclick={() => {
-                currPopUp='editDivision'}} 
+            <button 
+              type="button"
+              onclick={() => {
+                currPopUp='editDivision'
+                selectedDivisionID=divisionID
+              }} 
               class="inline-flex items-center" data-sveltekit-reload
             >
             <img src="/edit_icon.svg" alt="Edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
@@ -197,8 +192,10 @@
             <button 
               type="button" 
               class="inline-flex items-center" 
-              onclick={() => {currPopUp = divisions.length > 1 ? 'delete' : 'deleteRestricted'}
-                              } 
+              onclick={() => {
+                currPopUp = divisions.length > 1 ? 'delete' : 'deleteRestricted'
+                selectedDivisionID=divisionID
+              }} 
                 data-sveltekit-reload
             >
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
@@ -210,18 +207,66 @@
     {#if form?.description === "pass"}
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
+
+
+    <!-- PAGINATIONNNNNNN -->
     <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(-1)}>⟨ Previous</button>
-      <span class="font-medium">Page {currentPage} of {totalPages}</span>
-      <button type="button" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" onclick={() => getPage(1)}>Next ⟩</button>
+      <div class="flex items-center space-x-2">
+        <!-- Double Left-->
+        <button type="button" class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
+
+        <!-- Single Left -->
+        <button 
+          type="button"
+          class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
+          onclick={() => getPage(-1)}
+          disabled={currentPage === 1} >
+          ‹
+        </button>
+
+        <!-- Current Page -->
+        <span class="bg-purple-400 p-2 w-8 h-8 hover:bg-purple-700 rounded-md text-white font-semibold flex items-center justify-center">{currentPage}</span>
+        <span class="text-gray-700 font-medium">of {totalPages}</span>
+
+        <!-- Single Right -->
+        <button 
+          type="button"
+          class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" 
+          onclick={() => getPage(1)} 
+          disabled={currentPage === totalPages}>
+          ›
+        </button>
+
+        <!-- Double Right -->
+        <button type="button" class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
+
+        <!-- View Dropdown -->
+        <div class="ml-4 flex items-center">
+          <label class="text-gray-700 font-medium gap-2">
+            View
+            <select
+              bind:value={perPage}
+              class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+              onchange={()=>{
+                currentPage = 1
+                getPage(0)
+              }}
+            >
+              {#each options as option}
+                <option value={option}>{option}</option>
+              {/each}
+            </select>
+          </label>
+        </div>
+      </div>  
     </div>
 
+
+  <!-- Add Division -->
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addDivision'}}>
     <span class="text-xl">+ Add Division</span>
   </button>
 </div>
-
-
 
 <style>
   ::-webkit-scrollbar {

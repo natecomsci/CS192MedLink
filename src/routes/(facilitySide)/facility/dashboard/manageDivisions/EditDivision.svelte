@@ -1,22 +1,84 @@
 <script lang="ts">
-    import { enhance } from '$app/forms';
+  import { enhance } from '$app/forms';
   import type { PageData, ActionData } from './$types';
+  import { pagingQueryHandler } from '$lib/postHandlers';
+    import type { DivisionDTO } from '$lib';
 
-  let { divisionName, 
-        phoneNumber, 
-        openingTime, 
-        closingTime, 
-        form, 
+  let { form, 
         divisionID, 
-        currPopUp = $bindable()}: 
-          { divisionName: String, 
-            phoneNumber: String, 
-            openingTime: String, 
-            closingTime:String, 
-            form: ActionData, 
-            divisionID: String, 
-            currPopUp: String
-          } = $props();
+        currPopUp = $bindable(),
+        divisions = $bindable(), 
+        currentPage = $bindable(),
+        totalPages = $bindable(),
+        perPage
+        }: { 
+          form: ActionData, 
+          divisionID: String, 
+          currPopUp: String,
+          divisions:DivisionDTO[], 
+          currentPage: number, 
+          totalPages: number, 
+          perPage:number
+        } = $props();
+
+  let divisionName = $state('')
+  let divisionEmail = $state('')
+  let phoneNumber = $state('')
+  let openingTime = $state('')
+  let closingTime = $state('')
+
+  async function getData() {
+    const body = JSON.stringify({divisionID});
+
+    try {
+      const response = await fetch("./manageDivisions/divisionInfo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+
+      divisionName = rv.name
+      divisionEmail = rv.email ?? ''
+      phoneNumber = rv.phoneNumber
+      openingTime = rv.openingTime
+      closingTime = rv.closingTime
+
+      console.log(openingTime)
+      console.log(closingTime)
+      
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+  getData()
+
+  async function getNewDivisions() {
+    try {
+      const rv = await pagingQueryHandler({
+        page: 'divisions',
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
+        perPage,
+        viewedDivisionID: "Default"
+      });
+      divisions =  rv.list
+      currentPage = 1
+      totalPages = rv.totalPages
+    } catch (error) {
+      console.log((error as Error).message)
+    }
+  }
 
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -50,6 +112,7 @@
           <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{divisionName}</h2>
           <div class="grid grid-cols-1">
             <form
+              class = "grid grid-cols-1"
               id="editDivision"
               method="POST" 
               action="?/editDivision"
@@ -58,6 +121,7 @@
                   await update({invalidateAll:true});
                   if (form?.success) {
                       currPopUp = ''
+                      getNewDivisions()
                   }
                 };
               }}
@@ -66,11 +130,25 @@
               {#if form?.error}
                   <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
               {/if}
-              <input type="hidden" name="divisionID" value="{divisionID}" />
-              <input type = "text" name = "name" value={divisionName}>
-              <input type = "text" name = "phoneNumber" value={phoneNumber}>
-              <input type = "time" name = "opening" value={openingTime}>
-              <input type = "time" name = "closing" value={closingTime}>
+              <input type="hidden" name="divisionID" value="{divisionID}" class=" card" />
+              <input type="text" name="name" value={divisionName} class=" card"/>
+              <input type="text" name="email" value={divisionEmail} class=" card"/>
+              <input type="text" name="phoneNumber" value={phoneNumber} class=" card"/>
+              <div class="card">
+                <input 
+                  class="input-box w-30"
+                  name="opening"
+                  type="time"
+                  value={openingTime}
+                >
+                  to
+                <input 
+                  class="input-box w-30"
+                  name="closing"
+                  type="time"
+                  value={closingTime}
+                >
+              </div>
             </form>
           </div>
         </div>

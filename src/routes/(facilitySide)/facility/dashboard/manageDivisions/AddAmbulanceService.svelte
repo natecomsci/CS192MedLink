@@ -1,5 +1,5 @@
 <script lang="ts">
-    // let { i }: { i:number } = $props();
+    let { i }: { i:number } = $props();
 </script>
 
 <div class="container">
@@ -9,7 +9,7 @@
             <span class="text-label">Phone No.</span>
             <input 
                 class="input-box" 
-                name="phoneNumber"
+                name="phoneNumber{i}"
                 type="tel"
                 value="+63 9"
             />
@@ -23,14 +23,14 @@
             <div class="flex-container">
                 <input 
                     class="input-box w-30"
-                    name="opening"
+                    name="opening{i}"
                     type="time"
                     value="08:00"
                 >
                 <h1 class="text-label">to</h1>
                 <input 
                     class="input-box w-30"
-                    name="closing"
+                    name="closing{i}"
                     type="time"
                     value="16:00"
                 >
@@ -43,7 +43,7 @@
         <label>
             <span class="text-label">Base Price</span>
             <input 
-                name="price"
+                name="price{i}"
                 type="number" 
                 class="input-box" 
                 placeholder="Price"
@@ -61,7 +61,7 @@
                 <label>
                     <span>Minimum</span>
                     <input 
-                        name="minCoverageRadius" 
+                        name="minCoverageRadius{i}" 
                         type="number"
                         placeholder="1"
                         class="input-box w-30"
@@ -75,7 +75,7 @@
                 <label>
                     <span>Maximum</span>
                     <input 
-                        name="maxCoverageRadius" 
+                        name="maxCoverageRadius{i}" 
                         type="number"
                         placeholder="1"
                         class="input-box w-30"
@@ -93,7 +93,7 @@
         <label>
             <span class="text-label">Mileage Rate</span>
             <input 
-                name="mileageRate" 
+                name="mileageRate{i}" 
                 type="number" 
                 class="input-box" 
                 placeholder="Mileage Rate" 

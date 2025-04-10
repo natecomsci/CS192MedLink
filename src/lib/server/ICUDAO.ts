@@ -4,19 +4,22 @@ import type { Prisma } from "@prisma/client";
 
 import { Action }  from "@prisma/client";
 
+import { otherServiceInfo } from "./dataLayerUtility";
+
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { ICUServiceDTO,
-              CreateICUServiceDTO 
+              CreateICUServiceDTO,
+              UpdateICUServiceDTO, 
             } from "./DTOs";
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
+const updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class ICUServiceDAO {
   async create(facilityID: string, employeeID: string, data: CreateICUServiceDTO): Promise<string> {
     try {
-      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, ...iCUData } = data;
+      return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { divisionID, note, ...iCUData } = data;
   
         const service = await tx.service.create({
           data: {
@@ -28,6 +31,10 @@ export class ICUServiceDAO {
               } 
             },
 
+            ...((note !== undefined) && {
+              note
+            }),
+
             ...((divisionID !== undefined) && {
               division: {
                 connect: { 
@@ -38,7 +45,7 @@ export class ICUServiceDAO {
           }
         });
 
-        await tx.iCUService.create({
+        const iCUService = await tx.iCUService.create({
           data: {
             ...iCUData,
             service: { 
@@ -49,10 +56,11 @@ export class ICUServiceDAO {
           }
         });
   
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Intensive Care Unit",
             action: Action.CREATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,
@@ -60,13 +68,13 @@ export class ICUServiceDAO {
           tx
         );
 
+        console.log(`Created ICU Service ${service.serviceID}: `, {service, iCUService});
+
         return service.serviceID;
       });
-  
-      return serviceID;
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create ICU Service.");
+      throw new Error("No database connection.");
     }
   }
 
@@ -76,26 +84,20 @@ export class ICUServiceDAO {
         where: { 
           serviceID 
         },
-        include: { 
-          service: { 
-            select: { 
-              divisionID : true, 
-              updatedAt  : true, 
-            } 
-          } 
-        }
+        include: otherServiceInfo
       });
   
       if (!service) {
-        throw new Error("Missing needed ICUService data.");
+        throw new Error(`No ICU Service linked to ID ${serviceID} found.`);
       }
 
-      const { divisionID, updatedAt } = service.service;
+      const { note, division, updatedAt } = service.service;
+
+      console.log(`Fetched information of ICU Service ${serviceID}: `);
 
       return {
-        phoneNumber         : service.phoneNumber,
-        baseRate            : service.baseRate,
         load                : service.load,
+        baseRate            : service.baseRate,
         availableBeds       : service.availableBeds,
         cardiacSupport      : service.cardiacSupport,
         neurologicalSupport : service.neurologicalSupport,
@@ -103,21 +105,29 @@ export class ICUServiceDAO {
         respiratorySupport  : service.respiratorySupport,
         updatedAt,
 
-        ...(divisionID ? { divisionID } : {}),
+        ...(service.phoneNumber ? { phoneNumber: service.phoneNumber } : {}),
+
+        ...(service.openingTime ? { openingTime: service.openingTime } : {}),
+
+        ...(service.closingTime ? { closingTime: service.closingTime } : {}),
+
+        ...(note ? { note } : {}),
+
+        ...(division ? { division } : {})
       };
 
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for ICUService.");
+      throw new Error("No database connection.");
     }
   }  
 
-  async update(serviceID: string, facilityID: string, employeeID: string, data: ICUServiceDTO): Promise<void> {
+  async update(serviceID: string, facilityID: string, employeeID: string, data: UpdateICUServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, ...iCUData } = data;
+        const { divisionID, note, ...iCUData } = data;
 
-        await tx.iCUService.update({
+        const iCUService = await tx.iCUService.update({
           where: { 
             serviceID 
           },
@@ -130,6 +140,10 @@ export class ICUServiceDAO {
 
         const serviceUpdateData = {
           updatedAt,
+          ...((note !== undefined) && {
+            note
+          }),
+
           ...((divisionID !== undefined) && {
             division: { 
               connect: { 
@@ -158,9 +172,10 @@ export class ICUServiceDAO {
           }
         });
 
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Intensive Care Unit",
+
             action: Action.UPDATE,
             ...(divisionID && { divisionID })
           },
@@ -168,10 +183,12 @@ export class ICUServiceDAO {
           employeeID,
           tx
         );
+
+        console.log(`Updated ICU Service ${serviceID}: `, iCUService);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update ICUService.");
+      throw new Error("No database connection.");
     }
   }
 }

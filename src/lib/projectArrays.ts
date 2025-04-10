@@ -1,4 +1,4 @@
-import type { FacilityType, Ownership, Provider, SecurityQuestion, Availability, Load } from "@prisma/client";
+import type { FacilityType, Ownership, Provider, Availability, Load } from "@prisma/client";
 
 export const providers: Provider[] = [
   "INTELLICARE",
@@ -67,7 +67,7 @@ export const OPServiceTypes: string[] = [
 
 export type OPServiceType = typeof OPServiceTypes[number];
 
-export const securityQuestions: SecurityQuestion[]  = [
+export const securityQuestions: String[]  = [
   "STREETNAME"            ,
   "FIRSTFRIENDNICKNAME"   ,
   "FAVORITEOUTDOORGAME"   ,

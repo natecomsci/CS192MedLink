@@ -7,25 +7,30 @@ import { Action }  from "@prisma/client";
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { OutpatientServiceDTO,
-              CreateOutpatientServiceDTO 
+              CreateOutpatientServiceDTO,
+              UpdateOutpatientServiceDTO,
             } from "./DTOs";
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
+const updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
 
 export class OutpatientServiceDAO {
   async create(facilityID: string, employeeID: string, data: CreateOutpatientServiceDTO): Promise<string> {
     try {
-      const serviceID = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { serviceType, divisionID, ...outpatientData } = data;
+      return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { type, divisionID, note, ...outpatientData } = data;
   
         const service = await tx.service.create({
           data: {
-            type: serviceType,
+            type,
             facility : { 
               connect: { 
                 facilityID 
               } 
             },
+
+            ...((note !== undefined) && {
+              note
+            }),
 
             ...((divisionID !== undefined) && {
               division: {
@@ -37,7 +42,7 @@ export class OutpatientServiceDAO {
           }
         });
 
-        await tx.outpatientService.create({
+        const outpatientService = await tx.outpatientService.create({
           data: {
             ...outpatientData,
             service: { 
@@ -48,10 +53,11 @@ export class OutpatientServiceDAO {
           }
         });
   
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
-            entity: serviceType,
+            entity: type,
             action: Action.CREATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,
@@ -59,73 +65,90 @@ export class OutpatientServiceDAO {
           tx
         );
 
+        console.log(`Created Outpatient Service ${service.serviceID}: `, {service, outpatientService});
+
         return service.serviceID;
-      });
-  
-      return serviceID;
+      });  
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not create AmbulanceService.");
+      throw new Error("No database connection.");
     }
   }
 
   async getInformation(serviceID: string): Promise<OutpatientServiceDTO> {
     try {
       const service = await prisma.outpatientService.findUnique({
-        where: { 
-          serviceID 
+        where: {
+          serviceID,
         },
-        include: { 
-          service: { 
-            select: { 
-              divisionID : true, 
-              updatedAt  : true, 
-            } 
-          } 
+        include: {
+          // tinamad
+          service: {
+            select: {
+              note: true,
+              division: {
+                select: {
+                  divisionID: true,
+                  name: true,
+                },
+              },
+              updatedAt: true,
+              type: true,
+            }
+          }
         }
       });
   
       if (!service) {
-        throw new Error("Missing needed OutpatientService data.");
+        throw new Error(`No Outpatient Service linked to ID ${serviceID} found.`);
       }
 
-      const { divisionID, updatedAt } = service.service;
+      const { note, division, updatedAt, type } = service.service;
+
+      console.log(`Fetched information of Outpatient Service ${serviceID}: `);
 
       return {
-        price           : service.price,
+        type,
+        basePrice       : service.basePrice,
         completionTimeD : service.completionTimeD,
         completionTimeH : service.completionTimeH,
         isAvailable     : service.isAvailable,
         acceptsWalkIns  : service.acceptsWalkIns,
         updatedAt,
 
-        ...(divisionID ? { divisionID } : {}),
+        ...(note ? { note } : {}),
+
+        ...(division ? { division } : {})
       };
 
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not get information for OutpatientService.");
+      throw new Error("No database connection.");
     }
   }  
 
-  async update(serviceID: string, facilityID: string, employeeID: string, data: OutpatientServiceDTO): Promise<void> {
+  async update(serviceID: string, facilityID: string, employeeID: string, data: UpdateOutpatientServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, ...outpatientData } = data;
+        const { divisionID, note, ...outpatientData } = data;
 
-        await tx.outpatientService.update({
+        const outpatientService = await tx.outpatientService.update({
           where: { 
             serviceID 
           },
           data: { 
             ...outpatientData 
-          }
+          },
         });
   
         const updatedAt: Date = new Date();
 
         const serviceUpdateData = {
           updatedAt,
+          ...((note !== undefined) && {
+            note
+          }),
+
           ...((divisionID !== undefined) && {
             division: { 
               connect: { 
@@ -141,7 +164,8 @@ export class OutpatientServiceDAO {
           },
           data: serviceUpdateData,
           select: { 
-            facilityID: true
+            facilityID : true,
+            type       : true,
           }
         });
 
@@ -154,33 +178,23 @@ export class OutpatientServiceDAO {
           }
         });
 
-        const outpatientService = await tx.service.findUnique({
-          where: { 
-            serviceID 
-          },
-          select: { 
-            type: true 
-          }
-        });
-
-        if (!outpatientService) {
-          throw new Error("OutpatientService not found.");
-        }
-
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
-            entity: outpatientService.type,
+            entity: service.type,
             action: Action.UPDATE,
+
             ...(divisionID && { divisionID })
           },
           facilityID,
           employeeID,
           tx
         );
+
+        console.log(`Updated Outpatient Service ${serviceID}: `, outpatientService);
       });
     } catch (error) {
       console.error("Details: ", error);
-      throw new Error("Could not update OutpatientService.");
+      throw new Error("No database connection.");
     }
   }
 }

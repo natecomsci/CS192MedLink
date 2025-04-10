@@ -4,7 +4,19 @@ import type { PageServerLoad, Actions } from './$types';
 import { Role } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
-import { AdminDAO, EmployeeDAO, validatePersonName, facilityAdminsPageSize, type PaginatedAdminDTO, DivisionDAO, type DivisionDTO } from '$lib';
+import { 
+  AdminDAO, 
+  FacilityAdminListDAO,
+
+  EmployeeDAO, 
+  validatePersonName, 
+  facilityAdminsPageSize, 
+  DivisionDAO, 
+  
+  type PaginatedResultsDTO, 
+  type DivisionDTO,
+  type Create_UpdateAdminDTO,
+} from '$lib';
 
 const adminDAO = new AdminDAO();
 const employeeDAO = new EmployeeDAO();
@@ -18,27 +30,26 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (!facilityID || !hasDivisions) {
     throw redirect(303, '/facility');
   }
+
+  const facilityAdminDAO = new FacilityAdminListDAO()
   
-  const paginatedAdmins: PaginatedAdminDTO = await adminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize)
+  const paginatedAdmins: PaginatedResultsDTO = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize, { updatedAt: "desc" })
+
+  let data: { [key: string]: any } = {
+    admins: paginatedAdmins.results,
+    totalPages: paginatedAdmins.totalPages,
+    currentPage: paginatedAdmins.currentPage,
+    hasDivisions: hasDivisions === 'true' ? true : false,
+  }
 
   if (hasDivisions === 'true' ? true : false) {
     const divisionDAO = new DivisionDAO();
     const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
     facilityDivisions = divisions.map(({divisionID}) => divisionID)
-    return {
-      admins: paginatedAdmins.admins,
-      totalPages: paginatedAdmins.totalPages,
-      currentPage: paginatedAdmins.currentPage,
-      divisions
-    };
+    data.divisions = divisions
   }
 
-  return {
-    admins: paginatedAdmins.admins,
-    totalPages: paginatedAdmins.totalPages,
-    currentPage: paginatedAdmins.currentPage,
-    hasDivisions: hasDivisions === 'true' ? true : false,
-  };
+  return data
 };
 
 export const actions: Actions = {
@@ -121,7 +132,7 @@ export const actions: Actions = {
       });
     }
 
-    if (!facilityID || !hasDivisions) {
+    if (!facilityID || !hasDivisions || !role) {
       throw redirect(303, '/facility');
     }
 
@@ -135,52 +146,23 @@ export const actions: Actions = {
       const fname   = validatePersonName(firstName);
       const lname   = validatePersonName(lastName);
 
-      let admin
+      let admin: Create_UpdateAdminDTO = {fname, lname}
 
-      if (middleName && (hasDivisions === 'true' ? true : false)) {
-        const mname = middleName ? validatePersonName(middleName) : '';
+      if (middleName) {
+        const mname = validatePersonName(middleName);
+        admin.mname = mname;
+      }
 
-        let adminDivisionsHandled: string[] = []
-
-        for (const d of facilityDivisions) {
-          if (data.get(d)) {
-            adminDivisionsHandled.push(d);
-          }
+      if (hasDivisions === 'true' ? true : false) {
+        let divisionsHandled: string[] = ((data.get("selectedDivisions")?? '') as string).split(",")
+        if (divisionsHandled[0] === '') {
+          return fail(422, {
+            error: "Must handle at least 1 division",
+            description: "validation",
+            success: false
+          });
         }
-
-        admin = {
-          fname,
-          mname,
-          lname,
-          divisions: adminDivisionsHandled,
-        }
-      } else if (middleName) {
-        const mname = middleName ? validatePersonName(middleName) : '';
-
-        admin = {
-          fname,
-          mname,
-          lname,
-        }
-      } else if (hasDivisions === 'true' ? true : false) {
-        let adminDivisionsHandled: string[] = []
-
-        for (const d of facilityDivisions) {
-          if (data.get(d)) {
-            adminDivisionsHandled.push(d);
-          }
-        }
-
-        admin = {
-          fname,
-          lname,
-          divisions: adminDivisionsHandled,
-        }
-      } else {
-        admin = {
-          fname,
-          lname,
-        }
+        admin.divisionIDs = divisionsHandled
       }
 
       adminDAO.create(facilityID, admin)
@@ -202,7 +184,7 @@ export const actions: Actions = {
     const role = cookies.get('role');
     const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !hasDivisions) {
+    if (!facilityID || !hasDivisions || !role) {
       throw redirect(303, '/facility');
     }
 
@@ -218,9 +200,9 @@ export const actions: Actions = {
 
     const adminID = data.get('adminID') as string;
 
-    const employee = await employeeDAO.getByID(adminID)
+    const admin = await adminDAO.getInformation(adminID)
 
-    if (!employee) {
+    if (!admin) {
       return fail(422, {
         error: "No employee found",
         description: "validation",
@@ -228,11 +210,10 @@ export const actions: Actions = {
       });
     }
 
-    const defFname = employee.fname
-    const defMname = employee.mname
-    const defLname = employee.lname
-    // const defDivisions = employee.divisions ?? []
-
+    const defFname = admin.fname
+    const defMname = admin.mname
+    const defLname = admin.lname
+    const defDivisions = admin.divisions ?? []
     
     const firstName = data.get('fname');
     const middleName = data.get('mname');
@@ -242,57 +223,31 @@ export const actions: Actions = {
       
       const fname   = validatePersonName(firstName);
       const lname   = validatePersonName(lastName);
-      let adminDivisionsHandled: string[] = []
+      let divisionsHandled: string[] = []
 
-      let admin
+      let admin: Create_UpdateAdminDTO = {fname, lname}
 
-      if (middleName && (hasDivisions === 'true' ? true : false)) {
-        const mname = middleName ? validatePersonName(middleName) : '';
-
-        for (const d of facilityDivisions) {
-          if (data.get(d) === "on") {
-            adminDivisionsHandled.push(d);
-          }
-        }
-
-        admin = {
-          fname,
-          mname,
-          lname,
-          divisions: adminDivisionsHandled,
-        }
-      } else if (middleName) {
-        const mname = middleName ? validatePersonName(middleName) : '';
-
-        admin = {
-          fname,
-          mname,
-          lname,
-        }
-      } else if (hasDivisions === 'true' ? true : false) {
-        for (const d of facilityDivisions) {
-          if (data.get(d) === "on") {
-            adminDivisionsHandled.push(d);
-          }
-        }
-        
-        admin = {
-          fname,
-          lname,
-          divisions: adminDivisionsHandled,
-        }
-      } else {
-        admin = {
-          fname,
-          lname,
-        }
+      if (middleName) {
+        const mname = validatePersonName(middleName);
+        admin.mname = mname;
       }
 
-      console.log(admin)
+      if (hasDivisions === 'true' ? true : false) {
+        let divisionsHandled: string[] = ((data.get("selectedDivisions")?? '') as string).split(",")
+        if (divisionsHandled[0] === '') {
+          return fail(422, {
+            error: "Must handle at least 1 division",
+            description: "validation",
+            success: false
+          });
+        }
+        admin.divisionIDs = divisionsHandled
+      }
 
       if (defFname == fname &&
           defMname == (middleName as string) &&
-          defLname == lname 
+          defLname == lname && 
+          defDivisions.toString() == divisionsHandled.toString()
         ) {
         return fail(422, { 
           error: "No changes made",
@@ -314,6 +269,5 @@ export const actions: Actions = {
         success: false
       });
     }
-
   },
 };

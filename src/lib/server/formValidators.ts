@@ -125,7 +125,7 @@ async function hasMXRecords(domain: string): Promise<boolean> {
 
 export async function validateEmail(email: FormDataEntryValue | null): Promise<string> {
   if (!email) {
-    throw new Error("No email provided.");
+    return ''
   }
 
   const emailStr = String(email).trim();

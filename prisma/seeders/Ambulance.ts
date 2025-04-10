@@ -30,6 +30,7 @@ export async function seedAmbulanceService() {
   });
 
   let i = 0;
+  let miscellaneous = 0;
 
   for (const facility of facilities) {
     const serviceID = `ambulance-${facility.facilityID}`;
@@ -38,7 +39,28 @@ export async function seedAmbulanceService() {
 
     const employeeID = facility.employees[0]?.employeeID;
 
+    const divisionID = hasDivision
+      ? faker.helpers.arrayElement(facility.divisions).divisionID
+      : undefined;
+  
     await prisma.$transaction(async (tx) => {
+      let phoneNumber = null;
+      let openingTime = null;
+      let closingTime = null;
+      let note = null;
+
+      if (miscellaneous < 3) {
+        phoneNumber = `0911 000 000${i}`;
+        openingTime = faker.date.future();
+        closingTime = faker.date.between({
+          from : openingTime, 
+          to   : new Date(new Date(openingTime).setHours(new Date(openingTime).getHours() + 12))
+        });
+        note = faker.lorem.words({ min: 7, max: 14 });
+
+        miscellaneous++;
+      }
+
       await tx.ambulanceService.upsert({
         where: { 
             serviceID 
@@ -50,16 +72,17 @@ export async function seedAmbulanceService() {
               serviceID,
               facilityID : facility.facilityID,
               type       : "Ambulance",
+              note,
 
-              ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+              ...(divisionID && { divisionID })
             }
           },
-          phoneNumber       : `0900 000 000${i}`,
-          openingTime       : faker.date.anytime(), // does not enforce constraints
-          closingTime       : faker.date.anytime(),
+          phoneNumber,
+          openingTime,
+          closingTime,
           baseRate          : faker.number.float({ min: 500, max: 2000, fractionDigits: 2 }),
-          mileageRate       : faker.number.float({ min:  10, max:   50, fractionDigits: 2 }),
           minCoverageRadius : faker.number.float({ min:   1, max:    5, fractionDigits: 2 }),
+          mileageRate       : faker.number.float({ min:  10, max:   50, fractionDigits: 2 }),
           maxCoverageRadius : faker.number.float({ min:   5, max:   15, fractionDigits: 2 }),
           availability      : faker.helpers.arrayElement([Availability.AVAILABLE, Availability.UNAVAILABLE]),
         }
@@ -70,11 +93,12 @@ export async function seedAmbulanceService() {
       }
       
       if (employeeID) {
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Ambulance",
             action: Action.CREATE,
-            ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+
+            ...(divisionID && { divisionID })
           },
           facility.facilityID,
           employeeID,
@@ -82,7 +106,7 @@ export async function seedAmbulanceService() {
         );
       }
     });
-  
+
     i++;
   }
 }

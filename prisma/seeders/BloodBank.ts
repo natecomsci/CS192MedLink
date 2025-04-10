@@ -30,6 +30,7 @@ export async function seedBloodBankService() {
   });
 
   let i = 0;
+  let miscellaneous = 0;
 
   for (const facility of facilities) {
     const serviceID = `bloodbank-${facility.facilityID}`;
@@ -38,7 +39,28 @@ export async function seedBloodBankService() {
 
     const employeeID = facility.employees[0]?.employeeID;
 
+    const divisionID = hasDivision
+      ? faker.helpers.arrayElement(facility.divisions).divisionID
+      : undefined;  
+
     await prisma.$transaction(async (tx) => {
+      let phoneNumber = null;
+      let openingTime = null;
+      let closingTime = null;
+      let note = null;
+
+      if (miscellaneous < 3) {
+        phoneNumber = `0912 000 000${i}`;
+        openingTime = faker.date.future();
+        closingTime = faker.date.between({
+          from : openingTime, 
+          to   : new Date(new Date(openingTime).setHours(new Date(openingTime).getHours() + 12))
+        });
+        note = faker.lorem.words({ min: 7, max: 14 });
+
+        miscellaneous++;
+      }
+
       await tx.bloodBankService.upsert({
         where: { 
           serviceID 
@@ -50,16 +72,17 @@ export async function seedBloodBankService() {
               serviceID,
               facilityID : facility.facilityID,
               type       : "Blood Bank",
+              note,
 
-              ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+              ...(divisionID && { divisionID })
             }
           },
-          phoneNumber     : `0911 000 000${i}`,
-          openingTime     : faker.date.anytime(), // does not enforce constraints
-          closingTime     : faker.date.anytime(),
-          pricePerUnit    : faker.number.float({ min: 500, max: 2000, fractionDigits: 2 }),
-          turnaroundTimeD : faker.number.int({ min: 0, max:  5 }),
-          turnaroundTimeH : faker.number.int({ min: 0, max: 23 }),
+          phoneNumber,
+          openingTime,
+          closingTime,
+          basePricePerUnit : faker.number.float({ min: 500, max: 2000, fractionDigits: 2 }),
+          turnaroundTimeD  : faker.number.int({ min: 0, max:  5 }),
+          turnaroundTimeH  : faker.number.int({ min: 0, max: 23 }),
 
           bloodTypeAvailability: {
             create: {
@@ -81,11 +104,12 @@ export async function seedBloodBankService() {
       }
 
       if (employeeID) {
-        await updateLogDAO.createUpdateLog(
+        await updateLogDAO.create(
           {
             entity: "Blood Bank",
             action: Action.CREATE,
-            ...(hasDivision && { divisionID: facility.divisions[0].divisionID })
+
+            ...(divisionID && { divisionID })
           },
           facility.facilityID,
           employeeID,
