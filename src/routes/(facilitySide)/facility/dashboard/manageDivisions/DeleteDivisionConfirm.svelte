@@ -97,10 +97,15 @@
   {/each}
 </form>
 
-{#if currentStep === 1}
+{#if currentStep === 3}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded shadow-lg w-80">
       <h2 class="text-lg font-bold">Confirm Deletion</h2>
+      <button class="mr-3" onclick={() => currentStep = 2}>
+        <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
       <p>Are you sure you want to delete this division?</p>
         {#if form?.error}
           <p class="text-red-500 text-sm font-semibold">{form.error}</p>
@@ -116,14 +121,15 @@
           />
         </div>
 
-        <div class="flex justify-end space-x-2 mt-4">
-          <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
-          <button class="px-4 py-2 bg-red-600 text-white rounded" type="submit" onclick={() => currentStep = 2}>Confirm</button>
-
-        </div>
+        <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
+        <button 
+          class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
+          type="submit" 
+          form="deleteDivisionForm"
+        >Confirm</button>
     </div>
   </div>
-{:else if currentStep === 2}
+{:else if currentStep === 1}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
     <div class="bg-white w-1/2 max-w-full rounded-xl p-6 shadow-lg max-h-[90vh] flex flex-col">
       <div class="flex items-center mb-4">
@@ -177,16 +183,16 @@
 
       <div class="flex justify-between mt-4 pt-4 border-t">
         <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
-        <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = 3}>Next</button>
+        <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = 2}>Next</button>
       </div>
     </div>
   </div>
-{:else if currentStep === 3}
+{:else if currentStep === 2}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
     <div class="bg-white w-1/2 max-w-full rounded-xl p-6 shadow-lg max-h-[90vh] flex flex-col">
       <!-- Header -->
       <div class="flex items-center mb-4">
-        <button class="mr-3" onclick={() => currentStep = 2}>
+        <button class="mr-3" onclick={() => currentStep = 1}>
           <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -234,12 +240,7 @@
 
       <div class="flex justify-between mt-4 pt-4 border-t">
         <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
-        <button 
-          class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
-          type="submit" 
-          onclick={() => currentStep = 3}
-          form="deleteDivisionForm"
-        >Confirm</button>
+        <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = 3}>Next</button>
       </div>
     </div>
   </div>
