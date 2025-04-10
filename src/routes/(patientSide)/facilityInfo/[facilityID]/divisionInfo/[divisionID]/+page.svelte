@@ -20,19 +20,65 @@
   };
 </script>
 
-<h1>{divisionName}</h1>
+<div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
+  <!-- Header Facility Name -->
+  <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">
+    <button class="text-gray-600 hover:text-gray-900">✖</button>
+    <h2 class="text-xl font-bold text-center flex-1 -ml-4"><strong>{divisionName}</strong></h2>
+  </div>
 
-<h2>Contact Information and Hours</h2>
+  <!-- Service and Info!!!-->
+  <div class="p-5 max-h-[calc(100vh-100px)] overflow-y-auto">
+    <!-- Contact Information -->
+    <div>
+      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
+        ☎ Contact Information and Hours
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Phone Number:</strong> {phoneNumber}
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Email:</strong> {email}
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Hours:</strong> {formatTime(openTime)} - {formatTime(closingTime)}
+      </p>
+    </div>
 
-<p><strong>Phone Number:</strong> {phoneNumber}</p>
-<p><strong>Email Address:</strong> {email}</p>
-<p><strong>Hours:</strong> {formatTime(openTime)} - {formatTime(closingTime)}</p>
+    <hr class="my-4 border-gray-300">
+    <!-- Details -->
+    <div>
+      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
+        📝 Details
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Minimum Coverage Radius:</strong> 
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Base Rate:</strong> Php 
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Maximum Coverage Radius:</strong> 
+      </p>
+      <p class="text-gray-700 text-sm">
+        <strong>Mileage Rate:</strong> Php 
+      </p>
+    </div>
+    <hr class="my-4 border-gray-300">
 
-{#if hasServices}
-  <h3>Services Offered</h3>
-  <ul>
-    {#each services as service}
-      <li>{service.type}</li>
-    {/each}
-  </ul>
-{/if}
+    <div>
+      <p class="text-[#9044C4] text-center font-semibold flex items-center gap-2">
+        Services Offered
+      </p>
+      {#if hasServices}
+        <ul>
+          {#each services as service}
+            <li class="text-sm">{service.type}</li>
+          {/each}
+        </ul>
+      {/if}
+
+    </div>
+  </div>
+</div>
+
