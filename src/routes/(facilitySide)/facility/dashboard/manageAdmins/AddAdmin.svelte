@@ -27,16 +27,16 @@
   let middleName =$state("") ;
   let lastName = $state("");
 
-  let selectedDivisions:string[] = $state([]);
+  let selectedDivisionsNames:string[] = $state([]);
+  let selectedDivisionsIDs:string[] = $state([]);
 
-  let selectedDivisionID = $state("")
-  let selectedDivisionName = $state("")
-
-  function toggleDivision(division: string) {
-    if (selectedDivisions.includes(division)) {
-      selectedDivisions = selectedDivisions.filter(d => d !== division);
+  function toggleDivision(name: string, divisionID: string) {
+    if (selectedDivisionsNames.includes(name)) {
+      selectedDivisionsNames = selectedDivisionsNames.filter(d => d !== name);
+      selectedDivisionsIDs = selectedDivisionsIDs.filter(d => d !== divisionID);
     } else {
-      selectedDivisions = [...selectedDivisions, division];
+      selectedDivisionsNames = [...selectedDivisionsNames, name];
+      selectedDivisionsIDs = [...selectedDivisionsIDs, divisionID];
     }
   }
 
@@ -112,7 +112,7 @@
               type="button" 
             >
               <span class="fade-mask">
-                {selectedDivisions.length > 0 ? selectedDivisions.join(", ") : "Select Divisions"}
+                {selectedDivisionsNames.length > 0 ? selectedDivisionsNames.join(", ") : "Select Divisions"}
               </span>
       
               <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform pointer-events-none" 
@@ -121,6 +121,8 @@
                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
               </svg>
             </button>
+
+            <input name="selectedDivisions" class="hidden" type="text" bind:value={selectedDivisionsIDs}>
           
             {#if showDropdown}
               <div class="absolute w-full bg-white border shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
@@ -129,7 +131,7 @@
                     <input 
                       name={divisionID} 
                       type="checkbox"
-                      onclick={() => toggleDivision(name)} 
+                      onclick={() => toggleDivision(name, divisionID)} 
                     />
                     <span>{name}</span>
                   </label>

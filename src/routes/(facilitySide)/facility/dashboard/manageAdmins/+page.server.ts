@@ -154,15 +154,8 @@ export const actions: Actions = {
       }
 
       if (hasDivisions === 'true' ? true : false) {
-        console.log('hello')
-        let divisionsHandled: string[] = []
-
-        for (const d of facilityDivisions) {
-          if (data.get(d) === "on") {
-            divisionsHandled.push(d);
-          }
-        }
-        if (divisionsHandled.length === 0) {
+        let divisionsHandled: string[] = ((data.get("selectedDivisions")?? '') as string).split(",")
+        if (divisionsHandled[0] === '') {
           return fail(422, {
             error: "Must handle at least 1 division",
             description: "validation",
@@ -240,12 +233,8 @@ export const actions: Actions = {
       }
 
       if (hasDivisions === 'true' ? true : false) {
-        for (const d of facilityDivisions) {
-          if (data.get(d) === "on") {
-            divisionsHandled.push(d);
-          }
-        }
-        if (divisionsHandled.length === 0) {
+        let divisionsHandled: string[] = ((data.get("selectedDivisions")?? '') as string).split(",")
+        if (divisionsHandled[0] === '') {
           return fail(422, {
             error: "Must handle at least 1 division",
             description: "validation",
