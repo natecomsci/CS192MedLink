@@ -195,7 +195,7 @@ export const actions = {
         adminDAO.update(employeeID, updateAdminDTO)
       }
 
-      // divisionDAO.delete(divisionID, facilityID, employeeID)
+      divisionDAO.delete(divisionID, facilityID, employeeID)
       return {
         success: true
       }
