@@ -192,8 +192,10 @@
             <button 
               type="button" 
               class="inline-flex items-center" 
-              onclick={() => {currPopUp = divisions.length > 1 ? 'delete' : 'deleteRestricted'}
-                              } 
+              onclick={() => {
+                currPopUp = divisions.length > 1 ? 'delete' : 'deleteRestricted'
+                selectedDivisionID=divisionID
+              }} 
                 data-sveltekit-reload
             >
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
@@ -265,16 +267,6 @@
     <span class="text-xl">+ Add Division</span>
   </button>
 </div>
-
-
-
-
-
-
-
-
-
-
 
 <style>
   ::-webkit-scrollbar {

@@ -98,6 +98,17 @@ export const actions = {
       throw redirect(303, '/facility');
     }
 
+    let facilityDivisions = await divisionDAO.getByFacility(facilityID)
+
+    if (facilityDivisions.length === 1) {
+      console.log('divisionlength error')
+      return fail(422, {
+        error: "Cannot delete last division",
+        description: "Division Validation",
+        success: false
+      });
+    }
+
     try {
       let data = await request.formData();
 
@@ -105,46 +116,42 @@ export const actions = {
 
       let serviceTransfers: Record<string, string[]> = {}
 
+      for (var div of facilityDivisions){
+        serviceTransfers[div.divisionID] = []
+      }
       // services
       const divisionServices = await servicesDAO.getByDivision(divisionID)
+
       for (let { serviceID } of divisionServices) {
         let newDivision = (data.get(serviceID) ?? '') as string
         if (newDivision === '') {
+          console.log('service error')
           return fail(422, {
-            error: "All services in the division must be transferred or deleted",
+            error: "All services in the division must be transferred to another division",
             description: "Division Validation",
             success: false
           });
         }
-        if (serviceTransfers[newDivision]){
-          serviceTransfers.newDivision = [serviceID]
-        } else {
-          serviceTransfers.newDivision.push(serviceID)
-        }
+        serviceTransfers[newDivision] = [...serviceTransfers[newDivision], serviceID]
       }
 
       // admins
       let adminTransfers: Record<string, Create_UpdateAdminDTO>= {}
+
       const facilityAdminListDAO = new FacilityAdminListDAO()
+      const divisionAdmins = await facilityAdminListDAO.getSingleDivisionAdmins(facilityID)
 
-      let facilityDivisions = await divisionDAO.getByFacility(facilityID)
-      const divisionAdmins = await facilityAdminListDAO.getSingleDivisionAdmins(divisionID)
-
-      for (let div of facilityDivisions) {
-        if (divisionID === div.divisionID) {
-          continue
+      for (let { fname, mname, lname, employeeID } of divisionAdmins.filter(d => (d.divisions ?? [{divisionID:''}])[0].divisionID === divisionID)) {
+        let adminDivision = ((data.get(employeeID) ?? '') as string).split(",")
+        if (adminDivision[0] === '') {
+          console.log('admin error')
+          return fail(422, {
+            error: "All admins in the division must be transferred to another division",
+            description: "Division Validation",
+            success: false
+          });
         }
-        for (let { fname, mname, lname, employeeID } of divisionAdmins) {
-          let adminDivision = ((data.get(employeeID+div.divisionID) ?? '') as string)
-          if (!adminDivision) {
-            continue
-          }
-          if (adminTransfers[employeeID]){
-            adminTransfers.adminID = {fname, mname, lname, divisionIDs: [div.divisionID]}
-          } else {
-            adminTransfers.adminID.divisionIDs?.push(div.divisionID)
-          }
-        }
+        adminTransfers[employeeID] = {fname, mname, lname, divisionIDs: adminDivision}
       }
 
       const employeeDAO = new EmployeeDAO()
@@ -164,6 +171,7 @@ export const actions = {
 
       const passwordMatch = await bcrypt.compare(password, employee.password);
       if (!passwordMatch) {
+        console.log('password error')
         return fail(400, { 
           error: 'Incorrect ID-password pair',
           description: 'pass',
@@ -187,12 +195,13 @@ export const actions = {
         adminDAO.update(employeeID, updateAdminDTO)
       }
 
-      divisionDAO.delete(divisionID, facilityID, employeeID)
+      // divisionDAO.delete(divisionID, facilityID, employeeID)
       return {
         success: true
       }
       
     } catch (error) {
+      console.log(error)
       return fail(500, { 
         error: "Failed to delete division",
         description: "database",

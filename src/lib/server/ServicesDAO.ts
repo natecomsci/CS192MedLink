@@ -101,6 +101,7 @@ export class ServicesDAO {
 
       console.log(`Fetched Services of Division ${divisionID}: `);
 
+      console.log(services)
       return services;
     } catch (error) {
       console.error("Details: ", error);
