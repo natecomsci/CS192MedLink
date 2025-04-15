@@ -21,13 +21,11 @@
         </label>
     </div>
 
-
     <!-- Turnaround Time -->
     <div class="card">
         <label >
             <span class="text-label">Completion Time</span>
             <div class="flex items-center gap-2">
-
                 <input 
                     type="number" 
                     name="completionDays"
@@ -35,20 +33,16 @@
                     placeholder="Days" 
                      />
                 Days
-            
                 <input 
                 type="number" 
                 name="completionHours"
                 class="input-box w-30"
                 placeholder="Hours" 
-                
                 />
                 Hours
             </div>
         </label>
     </div>
-
-
 
     <!-- Walkins -->
     <div class="card">
@@ -63,8 +57,6 @@
         </label>
     </div>
 
-
-
     <!-- Price Rate -->
     <div class="card">
         <label >
@@ -76,10 +68,8 @@
                 placeholder="Price"
                 step=0.01
                 min=0
-                 
             />
         </label>
     </div>
-
 </div>
 

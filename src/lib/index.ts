@@ -23,6 +23,14 @@ import { UpdateLogDAO } from "./server/UpdateLogDAO";
 import { DivisionDAO, FacilityDivisionListDAO } from "./server/DivisionDAO";
 import { GeographyDAO } from "./server/GeographyDAO";
 
+import  { 
+          validateAmbulance,
+          validateBloodBank,
+          validateER,
+          validateICU,
+          validateOP
+        } from "./server/validateService";
+
 import type { 
         ServiceDTO,
         ServiceResultsDTO,
@@ -182,4 +190,9 @@ export {
   validateLink,
   validateImage,
 
+  validateAmbulance,
+  validateBloodBank,
+  validateER,
+  validateICU,
+  validateOP,
 }

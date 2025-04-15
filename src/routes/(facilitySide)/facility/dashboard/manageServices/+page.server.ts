@@ -17,9 +17,7 @@ import type { AmbulanceServiceDTO,
               UpdateOutpatientServiceDTO, 
               ServiceDTO,
               OPServiceType,
-              DivisionDTO,
             } from '$lib';
-
 
 import { facilityServicePageSize,
 
@@ -44,10 +42,15 @@ import { facilityServicePageSize,
          EmployeeDAO,
          DivisionDAO,
          FacilityServiceListDAO,
-         FacilityDivisionListDAO,
          AdminDAO,
+
+         validateAmbulance,
+         validateBloodBank,
+         validateER,
+         validateICU,
+         validateOP,
        } from '$lib';
-import type { FacilityDivisionResultsDTO } from '$lib/server/DTOs';
+import type { FacilityDivisionResultsDTO, OutpatientServiceDTO } from '$lib/server/DTOs';
 
 // DAOs
 const servicesDAO = new ServicesDAO();
@@ -186,47 +189,26 @@ export const actions: Actions = {
     }
 
     const data = await request.formData();
-
     const serviceType = data.get('serviceType');
 
-    const phone    = data.get('phoneNumber');
-    const open     = data.get('opening');
-    const close    = data.get('closing');
-    const rates    = data.get('price');
-    const minCover = data.get('minCoverageRadius');
-    const mileRate = data.get('mileageRate');
-    const maxCover = data.get('maxCoverageRadius');
+    let dao : AmbulanceServiceDAO
+            | BloodBankServiceDAO
+            | ERServiceDAO
+            | ICUServiceDAO
+            | OutpatientServiceDAO
 
-    const turnTD  = data.get('turnaroundDays');
-    const turnTH  = data.get('turnaroundHours');
+    let service: any
+      // CreateAmbulanceServiceDTO
+      // CreateBloodBankServiceDTO
+      // CreateERServiceDTO
+      // CreateICUServiceDTO
+      // CreateOutpatientServiceDTO
 
-    const OPType  = data.get('OPserviceType');
-    const compTD  = data.get('completionDays');
-    const compTH  = data.get('completionHours');
-    const walkins = data.get('acceptWalkins');
-    
-    switch (serviceType){
+    switch (serviceType) {
       case "Ambulance": {
-        let phoneNumber: string
-        let openingTime: Date
-        let closingTime: Date
-        let baseRate: number
-        let minCoverageRadius: number
-        let mileageRate: number
-        let maxCoverageRadius: number
-
+        // let service: CreateAmbulanceServiceDTO
         try {
-          phoneNumber = validatePhone(phone);
-          baseRate = validateFloat(rates, "Base Rate");
-          mileageRate = validateFloat(mileRate, "Mileage Rate");
-
-          let OCTime = validateOperatingHours(open, close)
-          openingTime = OCTime.openingTime
-          closingTime = OCTime.closingTime
-
-          let radius = validateCoverageRadius(minCover, maxCover)
-          minCoverageRadius = radius.minCoverageRadius
-          maxCoverageRadius = radius.maxCoverageRadius
+          service = validateAmbulance(data)
 
         } catch (error) {
           return fail(422, {
@@ -236,54 +218,25 @@ export const actions: Actions = {
           });
         }
 
-        const divisionID = data.get("divisionID") as string;
-        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
-          return fail(422, {
-            error: "No division selected",
-            success: false
-          });
-        }
-        let service: CreateAmbulanceServiceDTO = {
-            phoneNumber,
-            openingTime,
-            closingTime,
-            baseRate,
-            minCoverageRadius,
-            mileageRate,
-            maxCoverageRadius
+        if (hasDivisions === 'true' ? true : false) {
+          const divisionID = data.get("divisionID") as string;
+          if (divisionID) {
+            service.divisionID = divisionID
+          } else {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
           }
-
-        if (divisionID) {
-          service.divisionID = divisionID
         }
-
-        const dao = new AmbulanceServiceDAO();
-
-        dao.create(facilityID, employeeID, service)
-        return {
-          success: true
-        }
+        dao = ambulanceDAO;
+        break;
       }
 
       case "Blood Bank": {
-        let phoneNumber: string
-        let openingTime: Date
-        let closingTime: Date
-        let basePricePerUnit: number
-        let turnaroundTimeD: number
-        let turnaroundTimeH: number
-
+        // let service: CreateBloodBankServiceDTO
         try {
-          phoneNumber = validatePhone(phone);
-          basePricePerUnit = validateFloat(rates, "Price Per Unit");
-
-          let OCTime = validateOperatingHours(open, close)
-          openingTime = OCTime.openingTime
-          closingTime = OCTime.closingTime
-
-          let TTime = validateCompletionTime(turnTD, turnTH, "Turnarond")
-          turnaroundTimeD = TTime.days
-          turnaroundTimeH = TTime.hours
+          service = validateBloodBank(data)
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
@@ -292,39 +245,25 @@ export const actions: Actions = {
           });
         }
 
-        const divisionID = data.get("divisionID") as string;
-        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
-          return fail(422, {
-            error: "No division selected",
-            success: false
-          });
-        }
-        let service: CreateBloodBankServiceDTO = {
-            phoneNumber,
-            openingTime,
-            closingTime,
-            basePricePerUnit,
-            turnaroundTimeD,
-            turnaroundTimeH
+        if (hasDivisions === 'true' ? true : false) {
+          const divisionID = data.get("divisionID") as string;
+          if (divisionID) {
+            service.divisionID = divisionID
+          } else {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
           }
-
-        if (divisionID) {
-          service.divisionID = divisionID
         }
-
-        const dao = new BloodBankServiceDAO();
-
-        dao.create(facilityID, employeeID, service)
-        return {
-          success: true
-        }
+        dao = bloodBankDAO;
+        break;
       }
 
       case "Emergency Room": {
-        let phoneNumber: string
-
+        // let service: CreateERServiceDTO
         try {
-          phoneNumber = validatePhone(phone);
+          service = validateER(data)
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
@@ -332,37 +271,26 @@ export const actions: Actions = {
             success: false
           });
         }
-        
-        const divisionID = data.get("divisionID") as string;
-        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
-          return fail(422, {
-            error: "No division selected",
-            success: false
-          });
-        }
-        const service: CreateERServiceDTO = {
-          phoneNumber
-        }
 
-        if (divisionID) {
-          service.divisionID = divisionID
+        if (hasDivisions === 'true' ? true : false) {
+          const divisionID = data.get("divisionID") as string;
+          if (divisionID) {
+            service.divisionID = divisionID
+          } else {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
+          }
         }
-
-        const dao = new ERServiceDAO();
-
-        dao.create(facilityID, employeeID, service)
-        return {
-          success: true
-        }
+        dao = eRDAO;
+        break;
       }
 
       case "Intensive Care Unit": {
-        let phoneNumber: string
-        let baseRate: number
-
+        // let service: CreateICUServiceDTO
         try {
-          phoneNumber = validatePhone(phone);
-          baseRate = validateFloat(rates, "Base Rate");
+          service = validateICU(data)
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
@@ -371,44 +299,25 @@ export const actions: Actions = {
           });
         }
 
-        const divisionID = data.get("divisionID") as string;
-        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
-          return fail(422, {
-            error: "No division selected",
-            success: false
-          });
-        }
-        let service: CreateICUServiceDTO = {
-            phoneNumber,
-            baseRate,
+        if (hasDivisions === 'true' ? true : false) {
+          const divisionID = data.get("divisionID") as string;
+          if (divisionID) {
+            service.divisionID = divisionID
+          } else {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
           }
-
-        if (divisionID) {
-          service.divisionID = divisionID
         }
-
-        const dao = new ICUServiceDAO();
-
-        dao.create(facilityID, employeeID, service)
-        return {
-          success: true
-        }
+        dao = iCUDAO;
+        break;
       }
 
       case "Outpatient": {
-        let basePrice: number
-        let completionTimeD: number
-        let completionTimeH: number
-
-        const OPserviceType     = OPType as string;
-        const acceptsWalkIns    = walkins === 'on';
-
+        // let service: CreateOutpatientServiceDTO
         try {
-          basePrice = validateFloat(rates, "Price");
-        
-          let CTime = validateCompletionTime(compTD, compTH, "Completion")
-          completionTimeD = CTime.days
-          completionTimeH = CTime.hours
+          service = validateOP(data) 
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
@@ -417,32 +326,19 @@ export const actions: Actions = {
           });
         }
 
-        const divisionID = data.get("divisionID") as string;
-        if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
-          return fail(422, {
-            error: "No division selected",
-            success: false
-          });
-        }
-        let service: CreateOutpatientServiceDTO = {
-            type: OPserviceType,
-            basePrice,
-            completionTimeD,
-            completionTimeH,
-            acceptsWalkIns
+        if (hasDivisions === 'true' ? true : false) {
+          const divisionID = data.get("divisionID") as string;
+          if (divisionID) {
+            service.divisionID = divisionID
+          } else {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
           }
-
-        if (divisionID) {
-          service.divisionID = divisionID
         }
-
-        const dao = new OutpatientServiceDAO();
-
-        dao.create(facilityID, employeeID, service)
-
-        return {
-          success: true
-        }
+        dao = outpatientDAO;
+        break;
       }
 
       default: {
@@ -453,76 +349,9 @@ export const actions: Actions = {
         });
       }
     }
-  },
 
-  editAmbulanceService: async ({ cookies, request }) => {
-    const facilityID = cookies.get('facilityID');
-    const employeeID = cookies.get('employeeID');
-    const hasDivisions = cookies.get('hasDivisions');
-    if (!facilityID || !employeeID || !hasDivisions) {
-      throw redirect(303, '/facility');
-    }
-
-    const data = await request.formData();
-    let serviceID = data.get('serviceID');
-
-    if (!serviceID) {
-      return fail(422, { 
-        error: "Service not found",
-        description: "serviceID",
-        success: false  
-      });
-    }
-
-    serviceID = String(serviceID)
-
-    const serviceInfo = await ambulanceDAO.getInformation(serviceID);
-
-    // Original Info
-    const defPhoneNumber: String | undefined = serviceInfo.phoneNumber
-    const defOpeningTime: String = dateToTimeMapping(serviceInfo.openingTime)
-    const defClosingTime: String = dateToTimeMapping(serviceInfo.closingTime)
-    const defBaseRate: Number = serviceInfo.baseRate
-    const defMinCoverageRadius: Number = serviceInfo.minCoverageRadius
-    const defMileageRate: Number = serviceInfo.mileageRate
-    const defMaxCoverageRadius: Number = serviceInfo.maxCoverageRadius
-    const defAvailability: Availability = serviceInfo.availability
-    
-    const defDivisionName: string | undefined = serviceInfo.division?.name
-    const defDivisionID: string | undefined = serviceInfo.division?.divisionID
-
-    // New Info
-    let phoneNumber: string
-    let openingTime: Date
-    let closingTime: Date
-    let baseRate: number
-    let minCoverageRadius: number
-    let mileageRate: number
-    let maxCoverageRadius: number
-    let availability: Availability = data.get('availability') as Availability
-
-    let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
-    let divisionID: string | undefined = (data.get('divisionID') === null) ? undefined : (data.get('divisionID') as string)
-
-    if (!divisionID &&(hasDivisions === 'true' ? true : false)) {
-      return fail(422, {
-        error: "No division selected",
-        success: false
-      });
-    }
     try {
-      phoneNumber = validatePhone(data.get('phoneNumber'));
-      baseRate = validateFloat(data.get('price'), "Base Rate");
-
-      let OCTime = validateOperatingHours(data.get('opening'), data.get('closing'))
-      openingTime = OCTime.openingTime
-      closingTime = OCTime.closingTime
-    
-      let radius = validateCoverageRadius(data.get('minCoverageRadius'), data.get('maxCoverageRadius'))
-      minCoverageRadius = radius.minCoverageRadius
-      maxCoverageRadius = radius.maxCoverageRadius
-
-      mileageRate = validateFloat(data.get('mileageRate'), "Mileage Rate");
+      dao.create(facilityID, employeeID, service)
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
@@ -531,36 +360,484 @@ export const actions: Actions = {
       });
     }
 
-    const service: AmbulanceServiceDTO = {
-      phoneNumber,
-      openingTime,
-      closingTime,
-      baseRate,
-      minCoverageRadius,
-      mileageRate,
-      maxCoverageRadius,
-      availability
+    return {
+      success: true
+    }
+  },
+
+  editService: async ({ cookies, request }) => {
+    const facilityID = cookies.get('facilityID');
+    const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
+
+    if (!facilityID || !employeeID || !hasDivisions) {
+      throw redirect(303, '/facility');
     }
 
-    if (defPhoneNumber == phoneNumber &&
-        defOpeningTime == dateToTimeMapping(openingTime) &&
-        defClosingTime == dateToTimeMapping(closingTime) &&
-        defBaseRate == baseRate &&
-        defMinCoverageRadius == minCoverageRadius &&
-        defMileageRate == mileageRate &&
-        defMaxCoverageRadius == maxCoverageRadius &&
-        defAvailability == availability &&
-        defDivisionID == divisionID && 
-        defDivisionName == divisionName
-      ) {
+    const data = await request.formData();
+
+    const serviceType = data.get('serviceType');
+    let serviceID = data.get('serviceID') as string;
+
+    let dao : AmbulanceServiceDAO
+            | BloodBankServiceDAO
+            | ERServiceDAO
+            | ICUServiceDAO
+            | OutpatientServiceDAO
+
+    let service: any
+      // AmbulanceServiceDTO
+      // BloodBankServiceDTO
+      // ERServiceDTO
+      // ICUServiceDTO
+      // OutpatientServiceDTO
+
+    switch (serviceType) {
+      case "Ambulance": {
+        let ambulanceInfo: AmbulanceServiceDTO
+        // let service: AmbulanceServiceDTO
+
+        try {
+          ambulanceInfo = await ambulanceDAO.getInformation(serviceID);
+        } catch (error) {
+          return fail(422, { 
+            error: "Service not found",
+            description: "serviceID",
+            success: false  
+          });
+        }
+        
+        try {
+          const availability: Availability = data.get('availability') as Availability
+
+          service = {...validateAmbulance(data), availability}
+        } catch (error) {
+          return fail(422, {
+            error: (error as Error).message,
+            description: "validation",
+            success: false
+          });
+        }
+
+        if (hasDivisions === 'true' ? true : false){
+          let divisionName: string = data.get('divisionName') as string
+          let divisionID: string = data.get('divisionID') as string
+
+          if (!divisionID) {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
+          } else {
+            service.division = { divisionID : divisionID, name: divisionName }
+          }
+        }
+        if (ambulanceInfo.phoneNumber                     == service.phoneNumber &&
+            dateToTimeMapping(ambulanceInfo.openingTime)  == dateToTimeMapping(service.openingTime) &&
+            dateToTimeMapping(ambulanceInfo.closingTime)  == dateToTimeMapping(service.closingTime) &&
+            ambulanceInfo.baseRate                        == service.baseRate &&
+            ambulanceInfo.minCoverageRadius               == service.minCoverageRadius &&
+            ambulanceInfo.mileageRate                     == service.mileageRate &&
+            ambulanceInfo.maxCoverageRadius               == service.maxCoverageRadius &&
+            ambulanceInfo.availability                    == service.availability &&
+            ambulanceInfo.division?.name                  == service.division?.divisionID && 
+            ambulanceInfo.division?.divisionID            == service.division?.name
+          ) {
+          return fail(422, { 
+            error: "No changes made",
+            description: "button",
+            success: false  
+          });
+        }
+        dao = ambulanceDAO;
+        break;
+      }
+
+      case "Blood Bank": {
+        let bloodBankInfo: BloodBankServiceDTO
+        // let service: BloodBankServiceDTO
+
+        try {
+          bloodBankInfo = await bloodBankDAO.getInformation(serviceID);
+        } catch (error) {
+          return fail(422, { 
+            error: "Service not found",
+            description: "serviceID",
+            success: false  
+          });
+        }
+
+        try {
+          let bloodTypeAvailability: BloodTypeMappingDTO = {
+            A_P  : (data.get('ap') ?? '') === 'on',
+            A_N  : (data.get('an') ?? '') === 'on',
+            B_P  : (data.get('bp') ?? '') === 'on',
+            B_N  : (data.get('bn') ?? '') === 'on',
+            O_P  : (data.get('op') ?? '') === 'on',
+            O_N  : (data.get('on') ?? '') === 'on',
+            AB_P : (data.get('abp') ?? '') === 'on',
+            AB_N : (data.get('abn') ?? '') === 'on',
+          }
+
+          service = {...validateBloodBank(data), bloodTypeAvailability}
+        } catch (error) {
+          return fail(422, {
+            error: (error as Error).message,
+            description: "validation",
+            success: false
+          });
+        }
+
+        if (hasDivisions === 'true' ? true : false){
+          let divisionName: string = data.get('divisionName') as string
+          let divisionID: string = data.get('divisionID') as string
+
+          if (!divisionID) {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
+          } else {
+            service.division = { divisionID : divisionID, name: divisionName }
+          }
+        }
+
+        if (bloodBankInfo.phoneNumber                     == service.phoneNumber &&
+            dateToTimeMapping(bloodBankInfo.openingTime)  == dateToTimeMapping(service.openingTime) &&
+            dateToTimeMapping(bloodBankInfo.closingTime)  == dateToTimeMapping(service.closingTime) &&
+            bloodBankInfo.basePricePerUnit                == service.basePricePerUnit &&
+            bloodBankInfo.turnaroundTimeD                 == service.turnaroundTimeD &&
+            bloodBankInfo.turnaroundTimeH                 == service.turnaroundTimeH &&
+            bloodBankInfo.bloodTypeAvailability.A_P       == service.bloodTypeAvailability.A_P &&
+            bloodBankInfo.bloodTypeAvailability.A_N       == service.bloodTypeAvailability.A_N &&
+            bloodBankInfo.bloodTypeAvailability.B_P       == service.bloodTypeAvailability.B_P &&
+            bloodBankInfo.bloodTypeAvailability.B_N       == service.bloodTypeAvailability.B_N &&
+            bloodBankInfo.bloodTypeAvailability.O_P       == service.bloodTypeAvailability.O_P &&
+            bloodBankInfo.bloodTypeAvailability.O_N       == service.bloodTypeAvailability.O_N &&
+            bloodBankInfo.bloodTypeAvailability.AB_P      == service.bloodTypeAvailability.AB_P &&
+            bloodBankInfo.bloodTypeAvailability.AB_N      == service.bloodTypeAvailability.AB_N &&
+            bloodBankInfo.division?.name                  == service.division?.divisionID && 
+            bloodBankInfo.division?.divisionID            == service.division?.name
+          ) {
+          return fail(422, { 
+              error: "No changes made",
+              description: "button",
+              success: false  
+            });
+        }
+        dao = bloodBankDAO;
+        break;
+      }
+
+      case "Emergency Room": {
+        let erInfo: ERServiceDTO
+        // let service: ERServiceDTO
+
+        try {
+          erInfo = await eRDAO.getInformation(serviceID);
+        } catch (error) {
+          return fail(422, { 
+            error: "Service not found",
+            description: "serviceID",
+            success: false  
+          });
+        }
+
+        try {
+          const load: Load = data.get('load') as Load
+          const availableBeds = validateInteger(data.get('availableBeds'), "Available Beds");
+
+          const nonUrgentPatients = validateInteger(data.get('nonUrgentPatients'), "Non Urgent Patients");
+          const nonUrgentQueueLength = validateInteger(data.get('nonUrgentQueueLength'), "Non Urgent Queue Length");
+
+          const urgentPatients = validateInteger(data.get('urgentPatients'), "Urgent Patients");
+          const urgentQueueLength = validateInteger(data.get('urgentQueueLength'), "Urgent Queue Length");
+
+          const criticalPatients = validateInteger(data.get('criticalPatients'), "Critical Patients");
+          const criticalQueueLength = validateInteger(data.get('criticalQueueLength'), "Critical Queue Length");
+
+          service = {
+            ...validateER(data), 
+            availableBeds, 
+            load, 
+            nonUrgentPatients, 
+            nonUrgentQueueLength, 
+            urgentPatients, 
+            urgentQueueLength, 
+            criticalPatients, 
+            criticalQueueLength
+          }
+        } catch (error) {
+          return fail(422, {
+            error: (error as Error).message,
+            description: "validation",
+            success: false
+          });
+        }
+
+        if (hasDivisions === 'true' ? true : false){
+          let divisionName: string = data.get('divisionName') as string
+          let divisionID: string = data.get('divisionID') as string
+
+          if (!divisionID) {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
+          } else {
+            service.division = { divisionID : divisionID, name: divisionName }
+          }
+        }
+        if (erInfo.phoneNumber          == service.phoneNumber &&
+            erInfo.load                 == service.load &&
+            erInfo.availableBeds        == service.availableBeds &&
+            erInfo.nonUrgentPatients    == service.nonUrgentPatients &&
+            erInfo.nonUrgentQueueLength == service.nonUrgentQueueLength &&
+            erInfo.urgentPatients       == service.urgentPatients &&
+            erInfo.urgentQueueLength    == service.urgentQueueLength &&
+            erInfo.criticalPatients     == service.criticalPatients &&
+            erInfo.criticalQueueLength  == service.criticalQueueLength &&
+            erInfo.division?.name       == service.division?.divisionID && 
+            erInfo.division?.divisionID == service.division?.name
+          ) {
       return fail(422, { 
         error: "No changes made",
         description: "button",
         success: false  
       });
     }
+        dao = eRDAO;
+        break;
+      }
+
+      case "Intensive Care Unit": {
+        let icuInfo: ICUServiceDTO
+        // let service: ICUServiceDTO
+
+        try {
+          icuInfo = await iCUDAO.getInformation(serviceID);
+        } catch (error) {
+          return fail(422, { 
+            error: "Service not found",
+            description: "serviceID",
+            success: false  
+          });
+        }
+
+        try {
+          const load: Load = data.get('load') as Load
+          const availableBeds       = validateInteger(data.get('availableBeds'), "Available Beds");
+          const cardiacSupport      = (data.get('cardiacSupport') ?? '') === 'on'
+          const neurologicalSupport = (data.get('neurologicalSupport') ?? '') === 'on'
+          const renalSupport        = (data.get('renalSupport') ?? '') === 'on'
+          const respiratorySupport  = (data.get('respiratorySupport') ?? '') === 'on'
+
+          service = {
+            ...validateICU(data), 
+            load,
+            availableBeds, 
+            cardiacSupport, 
+            neurologicalSupport, 
+            renalSupport, 
+            respiratorySupport
+          }
+        } catch (error) {
+          return fail(422, {
+            error: (error as Error).message,
+            description: "validation",
+            success: false
+          });
+        }
+
+        if (hasDivisions === 'true' ? true : false){
+          let divisionName: string = data.get('divisionName') as string
+          let divisionID: string = data.get('divisionID') as string
+
+          if (!divisionID) {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
+          } else {
+            service.division = { divisionID : divisionID, name: divisionName }
+          }
+        }
+
+        if (icuInfo.phoneNumber          == service.phoneNumber &&
+            icuInfo.baseRate             == service.baseRate &&
+            icuInfo.load                 == service.load &&
+            icuInfo.availableBeds        == service.availableBeds &&
+            icuInfo.cardiacSupport       == service.cardiacSupport &&
+            icuInfo.neurologicalSupport  == service.neurologicalSupport &&
+            icuInfo.renalSupport         == service.renalSupport &&
+            icuInfo.respiratorySupport   == service.respiratorySupport &&
+            icuInfo.division?.name       == service.division?.divisionID && 
+            icuInfo.division?.divisionID == service.division?.name
+          ) {
+          return fail(422, { 
+            error: "No changes made",
+            description: "button",
+            success: false  
+          });
+        }
+        dao = iCUDAO;
+        break;
+      }
+
+      case "Outpatient": {
+        let opInfo: OutpatientServiceDTO
+        // let service: OutpatientServiceDTO
+
+        try {
+          opInfo = await outpatientDAO.getInformation(serviceID);
+        } catch (error) {
+          return fail(422, { 
+            error: "Service not found",
+            description: "serviceID",
+            success: false  
+          });
+        }
+
+        try {
+          const isAvailable: boolean = (data.get('isAvailable') ?? '') === 'on'
+          const acceptsWalkIns: boolean = (data.get('acceptsWalkIns') ?? '') === 'on'
+
+          service = {
+            ...validateOP(data), 
+            isAvailable, 
+            acceptsWalkIns,
+          }
+        } catch (error) {
+          return fail(422, {
+            error: (error as Error).message,
+            description: "validation",
+            success: false
+          });
+        }
+
+        if (hasDivisions === 'true' ? true : false){
+          let divisionName: string = data.get('divisionName') as string
+          let divisionID: string = data.get('divisionID') as string
+
+          if (!divisionID) {
+            return fail(422, {
+              error: "No division selected",
+              success: false
+            });
+          } else {
+            service.division = { divisionID : divisionID, name: divisionName }
+          }
+        }
+
+        if (opInfo.basePrice            == service.basePrice &&
+            opInfo.completionTimeD      == service.completionTimeD &&
+            opInfo.completionTimeH      == service.completionTimeH &&
+            opInfo.isAvailable          == service.isAvailable &&
+            opInfo.acceptsWalkIns       == service.acceptsWalkIns &&
+            opInfo.division?.name       == service.division?.divisionID && 
+            opInfo.division?.divisionID == service.division?.name
+          ) {
+          return fail(422, { 
+            error: "No changes made",
+            description: "button",
+            success: false  
+          });
+        }
+        dao = outpatientDAO;
+        break;
+      }
+
+      default: {
+        return fail(422, { 
+          error: "No service type selected", 
+          description: "serviceType",
+          success: false
+        });
+      }
+    }
+
+    try {
+      dao.update(serviceID, facilityID, employeeID, service)
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "validation",
+        success: false
+      });
+    }
+
+    return {
+      success: true
+    }
+  },
+
+  editAmbulanceService: async ({ cookies, request }) => {
+    const facilityID = cookies.get('facilityID');
+    const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
+
+    if (!facilityID || !employeeID || !hasDivisions) {
+      throw redirect(303, '/facility');
+    }
+
+    const data = await request.formData();
+    let serviceID = data.get('serviceID') as string;
+
+    let ambulanceInfo: AmbulanceServiceDTO
+    let service: AmbulanceServiceDTO
+
+    try {
+      ambulanceInfo = await ambulanceDAO.getInformation(serviceID);
+    } catch (error) {
+      return fail(422, { 
+        error: "Service not found",
+        description: "serviceID",
+        success: false  
+      });
+    }
+
+    let availability: Availability = data.get('availability') as Availability
+
+    try {
+      service = {...validateAmbulance(data), availability}
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "validation",
+        success: false
+      });
+    }
+
+    let divisionName: string | undefined = (data.get('divisionName') === null) ? undefined : (data.get('divisionName') as string)
+    let divisionID: string | undefined = (data.get('divisionID') === null) ? undefined : (data.get('divisionID') as string)
+
+    if (!divisionID && (hasDivisions === 'true' ? true : false)) {
+      return fail(422, {
+        error: "No division selected",
+        success: false
+      });
+    }
+
     if (divisionID && divisionName) {
       service.division = {divisionID : divisionID, name: divisionName}
+    }
+
+    if (ambulanceInfo.phoneNumber == service.phoneNumber &&
+        dateToTimeMapping(ambulanceInfo.openingTime) == dateToTimeMapping(service.openingTime) &&
+        dateToTimeMapping(ambulanceInfo.closingTime) == dateToTimeMapping(service.closingTime) &&
+        ambulanceInfo.baseRate == service.baseRate &&
+        ambulanceInfo.minCoverageRadius == service.minCoverageRadius &&
+        ambulanceInfo.mileageRate == service.mileageRate &&
+        ambulanceInfo.maxCoverageRadius == service.maxCoverageRadius &&
+        ambulanceInfo.availability == service.availability &&
+        ambulanceInfo.division?.name == service.division?.divisionID && 
+        ambulanceInfo.division?.divisionID == service.division?.name
+      ) {
+      return fail(422, { 
+        error: "No changes made",
+        description: "button",
+        success: false  
+      });
     }
 
     ambulanceDAO.update(serviceID, facilityID, employeeID, service)

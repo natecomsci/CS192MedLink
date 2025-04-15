@@ -8,7 +8,6 @@
                 name="phoneNumber"
                 type="tel"
                 value="+63 9"
-                 
             />
         </label>
     </div>
@@ -24,7 +23,6 @@
                 placeholder="Price" 
                 step=0.01
                 min=0
-                 
             />
         </label>
     </div>
