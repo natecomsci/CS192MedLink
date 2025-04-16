@@ -1,7 +1,7 @@
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from "./DTOs";
 import { validateFloat, validatePhone, validateOperatingHours, validateCoverageRadius, validateCompletionTime } from "./formValidators";
 
-export function validateAmbulance(data: FormData): CreateAmbulanceServiceDTO{
+export function validateAmbulance(data: FormData, i: string | undefined): CreateAmbulanceServiceDTO{
   let phoneNumber: string
   let openingTime: Date
   let closingTime: Date
@@ -10,20 +10,22 @@ export function validateAmbulance(data: FormData): CreateAmbulanceServiceDTO{
   let mileageRate: number
   let maxCoverageRadius: number
 
-  try {
-    phoneNumber = validatePhone(data.get('phoneNumber'));
+  const j = i === undefined ? "" : i
 
-    let OCTime = validateOperatingHours(data.get('opening'), data.get('closing'))
+  try {
+    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+
+    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
     openingTime = OCTime.openingTime
     closingTime = OCTime.closingTime
 
-    baseRate = validateFloat(data.get('price'), "Base Rate");
+    baseRate = validateFloat(data.get('price'+j), "Base Rate");
 
-    let radius = validateCoverageRadius(data.get('minCoverageRadius'), data.get('maxCoverageRadius'))
+    let radius = validateCoverageRadius(data.get('minCoverageRadius'+j), data.get('maxCoverageRadius'+j))
     minCoverageRadius = radius.minCoverageRadius
     maxCoverageRadius = radius.maxCoverageRadius
 
-    mileageRate = validateFloat(data.get('mileageRate'), "Mileage Rate");
+    mileageRate = validateFloat(data.get('mileageRate'+j), "Mileage Rate");
   } catch (e) {
     throw new Error((e as Error).message);
   }
@@ -39,7 +41,7 @@ export function validateAmbulance(data: FormData): CreateAmbulanceServiceDTO{
           }
 }
 
-export function validateBloodBank(data: FormData): CreateBloodBankServiceDTO {
+export function validateBloodBank(data: FormData, i: string | undefined): CreateBloodBankServiceDTO {
   let phoneNumber: string
   let openingTime: Date
   let closingTime: Date
@@ -47,16 +49,18 @@ export function validateBloodBank(data: FormData): CreateBloodBankServiceDTO {
   let turnaroundTimeD: number
   let turnaroundTimeH: number
 
-  try {
-    phoneNumber = validatePhone(data.get('phoneNumber'));
+  const j = i === undefined ? "" : i
 
-    let OCTime = validateOperatingHours(data.get('opening'), data.get('closing'))
+  try {
+    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+
+    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
     openingTime = OCTime.openingTime
     closingTime = OCTime.closingTime
 
-    basePricePerUnit = validateFloat(data.get('price'), "Price Per Unit");
+    basePricePerUnit = validateFloat(data.get('price'+j), "Price Per Unit");
 
-    let TTime = validateCompletionTime(data.get('turnaroundDays'), data.get('turnaroundHours'), "Turnarond")
+    let TTime = validateCompletionTime(data.get('turnaroundDays'+j), data.get('turnaroundHours'+j), "Turnarond")
     turnaroundTimeD = TTime.days
     turnaroundTimeH = TTime.hours
 
@@ -74,11 +78,13 @@ export function validateBloodBank(data: FormData): CreateBloodBankServiceDTO {
           }
 }
 
-export function validateER(data: FormData): CreateERServiceDTO {
+export function validateER(data: FormData, i: string | undefined): CreateERServiceDTO {
   let phoneNumber: string
 
+  const j = i === undefined ? "" : i
+
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j));
   } catch (e) {
     throw new Error((e as Error).message);
   }
@@ -86,13 +92,15 @@ export function validateER(data: FormData): CreateERServiceDTO {
   return  { phoneNumber }
 }
 
-export function validateICU(data: FormData): CreateICUServiceDTO {
+export function validateICU(data: FormData, i: string | undefined): CreateICUServiceDTO {
   let phoneNumber: string
   let baseRate: number
 
+  const j = i === undefined ? "" : i
+
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'));
-    baseRate = validateFloat(data.get('price'), "Base Rate");
+    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    baseRate = validateFloat(data.get('price'+j), "Base Rate");
   } catch (e) {
     throw new Error((e as Error).message);
   }
@@ -103,18 +111,20 @@ export function validateICU(data: FormData): CreateICUServiceDTO {
           }
 }
 
-export function validateOP(data: FormData): CreateOutpatientServiceDTO {
+export function validateOP(data: FormData, i: string | undefined): CreateOutpatientServiceDTO {
   let basePrice: number
   let completionTimeD: number
   let completionTimeH: number
 
-  const OPserviceType     = data.get('OPserviceType') as string;
-  const acceptsWalkIns    = data.get('acceptWalkins') === 'on';
+  const j = i === undefined ? "" : i
+
+  const OPserviceType     = data.get('OPserviceType'+j) as string;
+  const acceptsWalkIns    = data.get('acceptWalkins'+j) === 'on';
 
   try {
-    basePrice = validateFloat(data.get('price'), "Price");
+    basePrice = validateFloat(data.get('price'+j), "Price");
         
-    let CTime = validateCompletionTime(data.get('completionDays'), data.get('completionHours'), "Completion")
+    let CTime = validateCompletionTime(data.get('completionDays'+j), data.get('completionHours'+j), "Completion")
     completionTimeD = CTime.days
     completionTimeH = CTime.hours
 

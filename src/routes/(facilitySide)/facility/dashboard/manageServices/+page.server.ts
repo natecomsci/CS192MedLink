@@ -7,14 +7,8 @@ import bcrypt from 'bcryptjs';
 import type { AmbulanceServiceDTO, 
               BloodBankServiceDTO, 
               BloodTypeMappingDTO, 
-              CreateAmbulanceServiceDTO, 
-              CreateBloodBankServiceDTO, 
-              CreateERServiceDTO, 
-              CreateICUServiceDTO, 
-              CreateOutpatientServiceDTO, 
               ERServiceDTO, 
               ICUServiceDTO, 
-              UpdateOutpatientServiceDTO, 
               ServiceDTO,
               OPServiceType,
             } from '$lib';
@@ -31,13 +25,6 @@ import { facilityServicePageSize,
          OutpatientServiceDAO,
          ServicesDAO,
 
-         validateCompletionTime, 
-         validateCoverageRadius, 
-         validateFloat, 
-         validateInteger, 
-         validateOperatingHours, 
-         validatePhone,
-
          dateToTimeMapping,
          EmployeeDAO,
          DivisionDAO,
@@ -49,6 +36,8 @@ import { facilityServicePageSize,
          validateER,
          validateICU,
          validateOP,
+
+         validateInteger,
        } from '$lib';
 import type { FacilityDivisionResultsDTO, OutpatientServiceDTO } from '$lib/server/DTOs';
 
@@ -189,7 +178,7 @@ export const actions: Actions = {
     }
 
     const data = await request.formData();
-    const serviceType = data.get('serviceType');
+    const serviceType = data.get('serviceType') as string;
 
     let dao : AmbulanceServiceDAO
             | BloodBankServiceDAO
@@ -204,154 +193,71 @@ export const actions: Actions = {
       // CreateICUServiceDTO
       // CreateOutpatientServiceDTO
 
-    switch (serviceType) {
-      case "Ambulance": {
-        // let service: CreateAmbulanceServiceDTO
-        try {
-          service = validateAmbulance(data)
+    try {
+      switch (serviceType) {
+        case "Ambulance": {
+          // let service: CreateAmbulanceServiceDTO
+          service = validateAmbulance(data, undefined)
+          dao = ambulanceDAO;
+          break;
+        }
 
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "validation",
+        case "Blood Bank": {
+          // let service: CreateBloodBankServiceDTO
+          service = validateBloodBank(data, undefined)
+          dao = bloodBankDAO;
+          break;
+        }
+
+        case "Emergency Room": {
+          // let service: CreateERServiceDTO
+          service = validateER(data, undefined)
+          dao = eRDAO;
+          break;
+        }
+
+        case "Intensive Care Unit": {
+          // let service: CreateICUServiceDTO
+          service = validateICU(data, undefined)
+          dao = iCUDAO;
+          break;
+        }
+        case "Outpatient": {
+          // let service: CreateOutpatientServiceDTO
+          service = validateOP(data, undefined) 
+          dao = outpatientDAO;
+          break;
+        }
+        default: {
+          return fail(422, { 
+            error: "No service type selected", 
+            description: "serviceType",
             success: false
           });
         }
-
-        if (hasDivisions === 'true' ? true : false) {
-          const divisionID = data.get("divisionID") as string;
-          if (divisionID) {
-            service.divisionID = divisionID
-          } else {
-            return fail(422, {
-              error: "No division selected",
-              success: false
-            });
-          }
-        }
-        dao = ambulanceDAO;
-        break;
       }
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "validation",
+        success: false
+      });
+    }
 
-      case "Blood Bank": {
-        // let service: CreateBloodBankServiceDTO
-        try {
-          service = validateBloodBank(data)
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "validation",
-            success: false
-          });
-        }
-
-        if (hasDivisions === 'true' ? true : false) {
-          const divisionID = data.get("divisionID") as string;
-          if (divisionID) {
-            service.divisionID = divisionID
-          } else {
-            return fail(422, {
-              error: "No division selected",
-              success: false
-            });
-          }
-        }
-        dao = bloodBankDAO;
-        break;
-      }
-
-      case "Emergency Room": {
-        // let service: CreateERServiceDTO
-        try {
-          service = validateER(data)
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "validation",
-            success: false
-          });
-        }
-
-        if (hasDivisions === 'true' ? true : false) {
-          const divisionID = data.get("divisionID") as string;
-          if (divisionID) {
-            service.divisionID = divisionID
-          } else {
-            return fail(422, {
-              error: "No division selected",
-              success: false
-            });
-          }
-        }
-        dao = eRDAO;
-        break;
-      }
-
-      case "Intensive Care Unit": {
-        // let service: CreateICUServiceDTO
-        try {
-          service = validateICU(data)
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "validation",
-            success: false
-          });
-        }
-
-        if (hasDivisions === 'true' ? true : false) {
-          const divisionID = data.get("divisionID") as string;
-          if (divisionID) {
-            service.divisionID = divisionID
-          } else {
-            return fail(422, {
-              error: "No division selected",
-              success: false
-            });
-          }
-        }
-        dao = iCUDAO;
-        break;
-      }
-
-      case "Outpatient": {
-        // let service: CreateOutpatientServiceDTO
-        try {
-          service = validateOP(data) 
-        } catch (error) {
-          return fail(422, {
-            error: (error as Error).message,
-            description: "validation",
-            success: false
-          });
-        }
-
-        if (hasDivisions === 'true' ? true : false) {
-          const divisionID = data.get("divisionID") as string;
-          if (divisionID) {
-            service.divisionID = divisionID
-          } else {
-            return fail(422, {
-              error: "No division selected",
-              success: false
-            });
-          }
-        }
-        dao = outpatientDAO;
-        break;
-      }
-
-      default: {
-        return fail(422, { 
-          error: "No service type selected", 
-          description: "serviceType",
+    if (hasDivisions === 'true' ? true : false) {
+      const divisionID = data.get("divisionID") as string;
+      if (divisionID) {
+        service.divisionID = divisionID
+      } else {
+        return fail(422, {
+          error: "No division selected",
           success: false
         });
       }
     }
 
     try {
-      dao.create(facilityID, employeeID, service)
+      await dao.create(facilityID, employeeID, service)
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
@@ -410,7 +316,7 @@ export const actions: Actions = {
         try {
           const availability: Availability = data.get('availability') as Availability
 
-          service = {...validateAmbulance(data), availability}
+          service = {...validateAmbulance(data, undefined), availability}
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
@@ -479,7 +385,7 @@ export const actions: Actions = {
             AB_N : (data.get('abn') ?? '') === 'on',
           }
 
-          service = {...validateBloodBank(data), bloodTypeAvailability}
+          service = {...validateBloodBank(data, undefined), bloodTypeAvailability}
         } catch (error) {
           return fail(422, {
             error: (error as Error).message,
@@ -557,7 +463,7 @@ export const actions: Actions = {
           const criticalQueueLength = validateInteger(data.get('criticalQueueLength'), "Critical Queue Length");
 
           service = {
-            ...validateER(data), 
+            ...validateER(data, undefined), 
             availableBeds, 
             load, 
             nonUrgentPatients, 
@@ -633,7 +539,7 @@ export const actions: Actions = {
           const respiratorySupport  = (data.get('respiratorySupport') ?? '') === 'on'
 
           service = {
-            ...validateICU(data), 
+            ...validateICU(data, undefined), 
             load,
             availableBeds, 
             cardiacSupport, 
@@ -703,7 +609,7 @@ export const actions: Actions = {
           const acceptsWalkIns: boolean = (data.get('acceptsWalkIns') ?? '') === 'on'
 
           service = {
-            ...validateOP(data), 
+            ...validateOP(data, undefined), 
             isAvailable, 
             acceptsWalkIns,
           }
@@ -757,7 +663,7 @@ export const actions: Actions = {
     }
 
     try {
-      dao.update(serviceID, facilityID, employeeID, service)
+      await dao.update(serviceID, facilityID, employeeID, service)
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
