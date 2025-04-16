@@ -20,7 +20,7 @@ import { ICUServiceDAO } from "./server/ICUDAO";
 import { OutpatientServiceDAO } from "./server/OutpatientDAO";
 import { ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO } from "./server/ServicesDAO";
 import { UpdateLogDAO } from "./server/UpdateLogDAO";
-import { DivisionDAO, FacilityDivisionListDAO } from "./server/DivisionDAO";
+import { DivisionDAO, PatientDivisionListDAO, FacilityDivisionListDAO } from "./server/DivisionDAO";
 import { GeographyDAO } from "./server/GeographyDAO";
 
 import  { 
@@ -167,7 +167,7 @@ export {
   FacilityDAO,
   ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO,
   UpdateLogDAO,
-  DivisionDAO, FacilityDivisionListDAO,
+  DivisionDAO, PatientDivisionListDAO, FacilityDivisionListDAO,
   GeographyDAO,
   
   AmbulanceServiceDAO,

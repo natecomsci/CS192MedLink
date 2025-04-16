@@ -1,5 +1,5 @@
 import { fail, redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
+import type { PageServerLoad } from './$types';
 
 import { 
   BloodBankServiceDAO,
@@ -28,22 +28,21 @@ export const load: PageServerLoad = async ({ params, url }) => {
   }
 
   try {
-    let bloodBankService = await bloodBankDAO.getInformation(serviceID);
     let service = await servicesDAO.getByID(serviceID);
-    
     if (!service || !service.facilityID) {
-      console.error("Service or facilityID not found for serviceID:", serviceID);
-      throw new Error("Service or facilityID not found.");
+      return fail(500, { error: "Service or facilityID not found." });
     }
-    
-    console.log("Fetching facility details for facilityID:", service.facilityID);
+
+    let bloodBankService = await bloodBankDAO.getInformation(serviceID);
+    if (!bloodBankService) {
+      return fail(500, { error: "Blood Bank Service details not found." });
+    }
+
     let facility = await facilityDAO.getInformation(service.facilityID);
-    if (!facility) {
-      console.error("Facility details not found for facilityID:", service.facilityID);
-      throw new Error("Facility details not found.");
+    if (!facility || facility.name) {
+      return fail(500, { error: "Facility details not found." });
     }
-    
-    console.log("Fetching address details...");
+
     let address = await addressDAO.getByFacility(service.facilityID);
     let fullAddress = null;
 
@@ -94,7 +93,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
       fromSearch
     };
   } catch (error) {
-    console.error("Error loading service details:", error);
     return fail(500, { description: "Could not get service information." });
   }
 };

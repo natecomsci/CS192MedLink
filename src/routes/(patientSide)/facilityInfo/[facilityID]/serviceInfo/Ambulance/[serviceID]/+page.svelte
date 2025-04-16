@@ -15,23 +15,8 @@
   let availability      = $state(data.availability);
   let updatedAt         = $state(data.updatedAt);
 
-  // Rereplace ito? Dagdag ni elle
-  let service = "Ambulance"
-  function formatTime(time, showTimeZone = false) {
-    if (!time) return "N/A";
-    const date = new Date(time);
-    let formatted = date.toLocaleTimeString("en-SG", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true, // Ensures AM/PM format
-      timeZoneName: showTimeZone ? "short" : undefined,
-    });
-    formatted = formatted.replace(/am|pm/gi, (match) => match.toUpperCase()); // Capitalize
-    return formatted;     // Return formatted time (with or without time zone) 
-  }
-
   let formattedTime = openingTime && closingTime
-    ? `${formatTime(openingTime)} - ${formatTime(closingTime, true)}`
+    ? `${openingTime} - ${closingTime}`
     : "N/A";
 
 </script>
@@ -46,7 +31,7 @@
   <!-- Service and Info!!!-->
   <div class="p-5 max-h-[calc(100vh-100px)] overflow-y-auto">
     <!-- Facility Type  Service Details-->
-    <p class="text-[#6F3990] text-center font-bold text-l">{service}</p>
+    <p class="text-[#6F3990] text-center font-bold text-l">Ambulance</p>
     <hr class="my-2 border-gray-300">
 
     <!-- Availability Status -->

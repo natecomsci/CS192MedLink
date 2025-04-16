@@ -1,8 +1,7 @@
-import type { Facility } from "@prisma/client";
 import { redirect, fail } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-import { DivisionDAO, ServicesDAO, type ServiceDTO } from "$lib";
+import { dateToTimeMapping, DivisionDAO, ServicesDAO, type ServiceDTO } from "$lib";
 const divisionDAO = new DivisionDAO();
 const servicesDAO = new ServicesDAO();
 
@@ -34,8 +33,8 @@ export const load: PageServerLoad = async ({ params }) => {
       divisionName: division.name ?? "Unknown Division",
       phoneNumber: division.phoneNumber ?? "Unknown",
       email: division.email ?? "Unknown",
-      openTime: division.openingTime ?? "Unknown",
-      closeTime: division.closingTime ?? "Unknown",
+      openTime: dateToTimeMapping(division.openingTime) as string,
+      closeTime: dateToTimeMapping(division.closingTime) as string,
       hasServices,
       services: services ?? [],
     };
