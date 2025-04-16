@@ -13,16 +13,17 @@
 
   let service = "Blood Bank Service Details"
 
-    const bloodData = [
-    { type: "A+", available: true },
-    { type: "A-", available: false },
-    { type: "B+", available: true },
-    { type: "B-", available: false },
-    { type: "O+", available: true },
-    { type: "O-", available: false },
-    { type: "AB+", available: true },
-    { type: "AB-", available: false }
+  const bloodData = [
+    { type: "A+", available: bloodTypeAvailability?.A_P },
+    { type: "A-", available: bloodTypeAvailability?.A_N },
+    { type: "B+", available: bloodTypeAvailability?.B_P },
+    { type: "B-", available: bloodTypeAvailability?.B_N },
+    { type: "O+", available: bloodTypeAvailability?.O_P },
+    { type: "O-", available: bloodTypeAvailability?.O_N },
+    { type: "AB+", available: bloodTypeAvailability?.AB_P },
+    { type: "AB-", available: bloodTypeAvailability?.AB_N }
   ];
+  
 </script>
 
 <div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
