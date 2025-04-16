@@ -26,7 +26,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions || !employeeID) {
+  if (!facilityName || !facilityID || !role || !hasAdmins || !hasDivisions || !employeeID) {
     throw redirect(303, '/facility');
   }
 
@@ -37,7 +37,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
   let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, employeeID, role as Role, 1, facilityServicePageSize, { updatedAt: "desc" })
   let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, employeeID, role as Role, 1, facilityUpdateLogsPageSize, { createdAt: "desc" })
 
-  let toShow
   let admins: AdminDTO[] = [];
   let divisions = [];
 
@@ -58,8 +57,8 @@ export const load: PageServerLoad = async ({ cookies }) => {
       divisions = paginatedDivisions
     }
   } 
-
-  toShow = {
+  
+  return {
     mainServicesShown: paginatedServices.results,
     updateLogs: paginatedUpdateLogs.results,
     totalPages: paginatedUpdateLogs.totalPages,
@@ -72,6 +71,4 @@ export const load: PageServerLoad = async ({ cookies }) => {
     divisions,
     facilityName,
   };
-  
-  return toShow
 };

@@ -18,7 +18,6 @@
 
   let viewedDivisionID = $state("Default")
 
-  // ===================================
   let perPage = $state(10);
   let options = [10, 20, 50];
 
@@ -91,36 +90,6 @@
           <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
         </button>
       </div>
-
-
-      <!-- <input
-        type="text"
-        placeholder="Search"
-        bind:value={query}
-        onkeydown={handleKeydown}
-        class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
-      />
-      {#if query.length > 0 || isInQueryMode}
-        <button onclick={() => {
-          query = ""
-          error = ""
-          errorLoc = ""
-          isInQueryMode = false
-          currentPage = 1
-          getPage(0)
-        }}>
-          X
-        </button>
-      {/if} -->
-      <!-- <button onclick={() => {
-        isInQueryMode = true
-        currentPage = 1
-        getPage(0)
-        }}
-        class="border-black"
-      >
-        Search
-      </button> -->
       
       {#if errorLoc == "query"}
         {error}
