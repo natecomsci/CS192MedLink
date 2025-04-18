@@ -1,6 +1,6 @@
 import { prisma } from "./prisma";
 
-import type { Session } from '@prisma/client';
+import type { Employee, Session } from '@prisma/client';
 
 export class SessionDAO {
   async create(sessionID: string, employeeID: string, expiresAt: Date): Promise<Session> {
@@ -16,24 +16,26 @@ export class SessionDAO {
     }
   }
 
-  async getByID(sessionID: string): Promise<Session> {
+  async getByID(sessionID: string): Promise<{session: Session, employee: Employee }> {
     try {
-      const session = await prisma.session.findUnique({
+      const sessionWithEmployee = await prisma.session.findUnique({
         where: { 
           sessionID
         },
         include: {
-          employee: true // exposes every attribute afkdf ginagaya ko lang template ng lucia
+          employee: true // exposes every attribute afkdkf ginagaya ko lang template ng lucia
         }
       });
   
-      if (!session) {
+      if (!sessionWithEmployee) {
         throw new Error(`No Session linked to ID ${sessionID} found.`);
       }
 
-      console.log(`Fetched Employee ${sessionID}: `);
+      const { employee, ...session } = sessionWithEmployee;
+  
+      console.log(`Fetched Session ${sessionID} with Employee ${employee.employeeID}: `);
 
-      return session;
+      return { session, employee };
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("No database connection.");
