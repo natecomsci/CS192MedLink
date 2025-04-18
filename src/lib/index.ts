@@ -9,19 +9,19 @@ import {
         specializedServiceType 
       } from "./projectArrays"
 
-import { AddressDAO } from "./server/AddressDAO";
-import { AdminDAO, FacilityAdminListDAO } from "./server/AdminDAO";
-import { AmbulanceServiceDAO } from "./server/AmbulanceDAO";
-import { BloodBankServiceDAO, BloodTypeMappingDAO } from "./server/BloodBankDAO";
-import { EmployeeDAO } from "./server/EmployeeDAO";
-import { ERServiceDAO } from "./server/ERDAO";
-import { FacilityDAO } from "./server/FacilityDAO";
-import { ICUServiceDAO } from "./server/ICUDAO";
-import { OutpatientServiceDAO } from "./server/OutpatientDAO";
-import { ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO } from "./server/ServicesDAO";
-import { UpdateLogDAO } from "./server/UpdateLogDAO";
-import { DivisionDAO, FacilityDivisionListDAO } from "./server/DivisionDAO";
-import { GeographyDAO } from "./server/GeographyDAO";
+import { AddressDAO } from "./server/dataLayer/AddressDAO";
+import { AdminDAO, FacilityAdminListDAO } from "./server/dataLayer/AdminDAO";
+import { AmbulanceServiceDAO } from "./server/dataLayer/AmbulanceDAO";
+import { BloodBankServiceDAO, BloodTypeMappingDAO } from "./server/dataLayer/BloodBankDAO";
+import { EmployeeDAO } from "./server/dataLayer/EmployeeDAO";
+import { ERServiceDAO } from "./server/dataLayer/ERDAO";
+import { FacilityDAO } from "./server/dataLayer/FacilityDAO";
+import { ICUServiceDAO } from "./server/dataLayer/ICUDAO";
+import { OutpatientServiceDAO } from "./server/dataLayer/OutpatientDAO";
+import { ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO } from "./server/dataLayer/ServicesDAO";
+import { UpdateLogDAO } from "./server/dataLayer/UpdateLogDAO";
+import { DivisionDAO, FacilityDivisionListDAO } from "./server/dataLayer/DivisionDAO";
+import { GeographyDAO } from "./server/dataLayer/GeographyDAO";
 
 import type { 
         ServiceDTO,
@@ -63,7 +63,7 @@ import type {
         MultiServiceDivisionsDTO,
 
         PaginatedResultsDTO,
-      } from "./server/DTOs";
+      } from "./server/dataLayer/DTOs";
 
 import { 
         validateFloat,

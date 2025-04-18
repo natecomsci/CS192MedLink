@@ -47,7 +47,7 @@ import { facilityServicePageSize,
          FacilityDivisionListDAO,
          AdminDAO,
        } from '$lib';
-import type { FacilityDivisionResultsDTO } from '$lib/server/DTOs';
+import type { FacilityDivisionResultsDTO } from '$lib/server/dataLayer/DTOs';
 
 // DAOs
 const servicesDAO = new ServicesDAO();
