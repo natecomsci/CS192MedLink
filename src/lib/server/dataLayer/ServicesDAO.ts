@@ -101,7 +101,6 @@ export class ServicesDAO {
 
       console.log(`Fetched Services of Division ${divisionID}: `);
 
-      console.log(services)
       return services;
     } catch (error) {
       console.error("Details: ", error);
@@ -286,13 +285,13 @@ export class ServicesDAO {
 }
 
 export class PatientServiceListDAO {
-  async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO> { // to refine for location-based search
+  async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO<ServiceDTO>> { // to refine for location-based search
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
 
-      console.log(`Fetched load more list of Services with offset ${offset} whose name matches the search query "${query}": `);
+      console.log(`Loaded more Services (offset: ${offset}) matching search query "${query}": `);
   
       const facilityFilter = {
         ...(filters.ownership && filters.ownership !== "any"
@@ -351,9 +350,9 @@ export class PatientServiceListDAO {
     }
   }
 
-  async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
+  async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<ServiceDTO>> {
     try {
-      console.log(`Fetched load more list of Facility ${facilityID}'s Services with offset ${offset}: `);
+      console.log(`Loaded more Services for Facility ${facilityID} (offset: ${offset}): `);
 
       return await loadMore({
         model: prisma.service,
@@ -371,13 +370,13 @@ export class PatientServiceListDAO {
     }
   }
 
-  async patientSearchServicesByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
+  async patientSearchServicesByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<ServiceDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], hasMore: false };
       }
 
-      console.log(`Fetched load more list of Facility ${facilityID}'s Services with offset ${offset} whose name matches the search query "${query}": `);
+      console.log(`Loaded more Services for Facility ${facilityID} (offset: ${offset}) matching search query "${query}": `);
 
       return await loadMore({
         model: prisma.service,
@@ -400,12 +399,12 @@ export class PatientServiceListDAO {
 }
 
 export class FacilityServiceListDAO {
-  async getServiceListPreview(facilityID: string, numberToFetch: number): Promise<string[]> {
+  async getServiceListPreview(facilityID: string, employeeID: string, numberToFetch: number): Promise<string[]> {
     try {
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID);
+
       const services = await prisma.service.findMany({
-        where: {
-          facilityID
-        },
+        where,
         select: {
           type: true
         },
@@ -424,11 +423,11 @@ export class FacilityServiceListDAO {
     }
   } 
 
-  async getPaginatedServicesByFacility(facilityID: string, employeeID: string, role: Role, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedServicesByFacility(facilityID: string, employeeID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<ServiceDTO>> {
     try {
-      console.log(`Page ${page} of the list of Facility ${facilityID}'s Services: `);
+      console.log(`Page ${page} of Services for Facility ${facilityID}: `);
 
-      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role);
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID);
 
       return await paginate({
         model: prisma.service,
@@ -444,15 +443,15 @@ export class FacilityServiceListDAO {
     }
   } 
 
-  async employeeSearchServicesByFacility(facilityID: string, employeeID: string, role: Role, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchServicesByFacility(facilityID: string, employeeID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<ServiceDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
 
-      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role, query, "type");
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, query, "type");
 
-      console.log(`Page ${page} of the list of Facility ${facilityID}'s Services whose name matches the search query "${query}": `);
+      console.log(`Page ${page} of Services for Facility ${facilityID} matching search query "${query}": `);
 
       return await paginate({
         model: prisma.service,
@@ -468,9 +467,9 @@ export class FacilityServiceListDAO {
     }
   }
 
-  async getPaginatedServicesByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedServicesByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<ServiceDTO>> {
     try {
-      console.log(`Page ${page} of the list of Division ${divisionID}'s Services: `);
+      console.log(`Page ${page} of Services for Division ${divisionID}: `);
 
       return await paginate({
         model: prisma.service,
@@ -488,13 +487,13 @@ export class FacilityServiceListDAO {
     }
   }
 
-  async employeeSearchServicesByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchServicesByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<ServiceDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
 
-      console.log(`Page ${page} of the list of Division ${divisionID}'s Services whose name matches the search query "${query}": `);
+      console.log(`Page ${page} of Services for Division ${divisionID} matching search query "${query}": `);
 
       return await paginate({
         model: prisma.service,

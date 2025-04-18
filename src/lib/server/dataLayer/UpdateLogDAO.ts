@@ -8,7 +8,8 @@ import { paginate } from "./dataLayerUtility";
 
 import { getEmployeeScopedWhereClause } from "./EmployeeDAO";
 
-import type { CreateUpdateLogDTO, 
+import type { UpdateLogDTO,
+              CreateUpdateLogDTO, 
               PaginatedResultsDTO 
             } from "./DTOs";
 
@@ -61,7 +62,7 @@ export class UpdateLogDAO {
     }
   }  
 
-  async getPaginatedUpdateLogsByFacility(facilityID: string, employeeID: string, role: Role, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedUpdateLogsByFacility(facilityID: string, employeeID: string, role: Role, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<UpdateLogDTO>> {
     try {
       const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role);
 
@@ -81,13 +82,13 @@ export class UpdateLogDAO {
     }
   } 
 
-  async employeeSearchUpdateLogsByFacility(facilityID: string, employeeID: string, role: Role, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchUpdateLogsByFacility(facilityID: string, employeeID: string, role: Role, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<UpdateLogDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
 
-      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role, query, "entity");
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, query, "entity");
 
       console.log(`Page ${page} of the list of Facility ${facilityID}'s Update Logs whose name matches the search query "${query}": `);
 
@@ -105,7 +106,7 @@ export class UpdateLogDAO {
     }
   }
 
-  async getPaginatedUpdateLogsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedUpdateLogsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<UpdateLogDTO>> {
     try {
       console.log(`Page ${page} of the list of Division ${divisionID}'s Update Logs: `);
 
@@ -125,7 +126,7 @@ export class UpdateLogDAO {
     }
   } 
 
-  async employeeSearchUpdateLogsByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchUpdateLogsByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<UpdateLogDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };

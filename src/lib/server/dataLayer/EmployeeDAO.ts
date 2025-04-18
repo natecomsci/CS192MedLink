@@ -125,17 +125,18 @@ export class EmployeeDAO {
   */
 }
 
+const employeeDAO: EmployeeDAO = new EmployeeDAO();
+
 // where clause utility ,, they do not like you at dataLayerUtility
 
 export async function getEmployeeScopedWhereClause(
   facilityID      : string,
   employeeID      : string,
-  role            : Role,
   query?          : string,
   queryAttribute? : string,
 ): Promise<any> {
   const baseWhere: any = {
-    facilityID
+    facilityID // redundant if Admin but more secure
   };
 
   if (query) {
@@ -145,6 +146,8 @@ export async function getEmployeeScopedWhereClause(
       };
     }
   }
+
+  const role = await employeeDAO.getRole(employeeID);
 
   if (role === Role.ADMIN) {
     const hasDivisions = await facilityDAO.facilityHasDivisions(facilityID);
