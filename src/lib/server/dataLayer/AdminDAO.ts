@@ -356,7 +356,7 @@ export class FacilityAdminListDAO {
 
   async getPaginatedAdminsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
-      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins: `);
+      console.log(`Page ${page} of Admins for Facility ${facilityID}: `);
 
       return await paginate({
         model: prisma.employee,
@@ -374,7 +374,7 @@ export class FacilityAdminListDAO {
       console.error("Details:", error);
       throw new Error("No database connection.");
     }
-  }  
+  }
 
   async employeeSearchAdminsByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
     try {
@@ -382,7 +382,7 @@ export class FacilityAdminListDAO {
         return { results: [], totalPages: 1, currentPage: page };
       }
 
-      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins whose name matches the search query "${query}": `);
+      console.log(`Page ${page} of Admins for Facility ${facilityID} matching search query "${query}": `);
 
       return await paginate({
         model: prisma.employee,
@@ -472,29 +472,6 @@ export class FacilityAdminListDAO {
       console.log(`Fetched Admins of Facility ${facilityID} with only one Division.`);
   
       return singleDivisionAdmins;
-    } catch (error) {
-      console.error("Details:", error);
-      throw new Error("No database connection.");
-    }
-  }
-
-  async getPaginatedSingleDivisionAdmins(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
-    try {
-      const paginatedAdmins = await this.getPaginatedAdminsByFacility(facilityID, page, pageSize, orderBy);
-
-      const singleDivisionAdmins = paginatedAdmins.results.filter(
-        (admin) =>
-          (Array.isArray(admin.divisions)) && (admin.divisions.length === 1)
-      );
-
-      const totalPages = Math.max(
-        1,
-        Math.ceil(singleDivisionAdmins.length / pageSize)
-      );
-
-      console.log(`Page ${page} of the list of Facility ${facilityID}'s Admins with only one Division": `);
-
-      return { results: singleDivisionAdmins, totalPages, currentPage: page };
     } catch (error) {
       console.error("Details:", error);
       throw new Error("No database connection.");
