@@ -341,13 +341,14 @@ export const actions = {
           }
           default: {
             return fail(422, {
-              error: "No service type selected",
+              error: "Invalid service type selected",
               description: "Division Validation",
               success: false
             });
           }
         }
       }
+      
     } catch (error) {
       return fail(422, {
         error: (error as Error).message,
