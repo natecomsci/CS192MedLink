@@ -354,7 +354,7 @@ export class FacilityAdminListDAO {
     }
   }
 
-  async getPaginatedAdminsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedAdminsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<AdminDTO>> {
     try {
       console.log(`Page ${page} of Admins for Facility ${facilityID}: `);
 
@@ -376,7 +376,7 @@ export class FacilityAdminListDAO {
     }
   }
 
-  async employeeSearchAdminsByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchAdminsByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<AdminDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
@@ -403,7 +403,7 @@ export class FacilityAdminListDAO {
     }
   }
 
-  async getPaginatedAdminsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedAdminsByDivision(divisionID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<AdminDTO>> {
     try {
       console.log(`Page ${page} of the list of Division ${divisionID}'s Admins: `);
 
@@ -429,7 +429,7 @@ export class FacilityAdminListDAO {
     }
   }  
 
-  async employeeSearchAdminsByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchAdminsByDivision(divisionID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<AdminDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
