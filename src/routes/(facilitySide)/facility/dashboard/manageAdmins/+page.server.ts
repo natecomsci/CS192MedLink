@@ -15,7 +15,8 @@ import {
   
   type PaginatedResultsDTO, 
   type DivisionDTO,
-  type Create_UpdateAdminDTO,
+  type CreateAdminDTO,
+  type UpdateAdminDTO,
 } from '$lib';
 
 const adminDAO = new AdminDAO();
@@ -32,7 +33,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   const facilityAdminDAO = new FacilityAdminListDAO()
   
-  const paginatedAdmins: PaginatedResultsDTO = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize, { updatedAt: "desc" })
+  const paginatedAdmins = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize, { updatedAt: "desc" })
 
   let data: { [key: string]: any } = {
     admins: paginatedAdmins.results,
@@ -144,7 +145,7 @@ export const actions: Actions = {
       const fname   = validatePersonName(firstName);
       const lname   = validatePersonName(lastName);
 
-      let admin: Create_UpdateAdminDTO = {fname, lname}
+      let admin: CreateAdminDTO = {fname, lname}
 
       if (middleName) {
         const mname = validatePersonName(middleName);
@@ -222,7 +223,7 @@ export const actions: Actions = {
       const lname   = validatePersonName(lastName);
       let divisionsHandled: string[] = []
 
-      let admin: Create_UpdateAdminDTO = {fname, lname}
+      let admin: UpdateAdminDTO = {fname, lname}
 
       if (middleName) {
         const mname = validatePersonName(middleName);

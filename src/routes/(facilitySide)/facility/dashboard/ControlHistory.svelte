@@ -125,7 +125,7 @@
     {#if errorLoc == "logs"}
       {error}
     {/if}
-    {#each updateLogs as { role, entity, action, employee, createdAt }}
+    {#each updateLogs as { entity, action, employee, createdAt }}
       <!-- history item -->
     <div class="py-2 -b mb-4 ">
         <div class="history-item justify-between  -green-200">

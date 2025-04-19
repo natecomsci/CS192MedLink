@@ -106,9 +106,6 @@
   let selectedOwnership: string =  $state(data.selectedOwnership ?? "any");
   let selectedProviders: string[] = [];
 
-
-
-
     async function loadMode(query: string) {
       if (!hasMore) {
         return

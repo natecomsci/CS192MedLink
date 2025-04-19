@@ -1,51 +1,50 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { json, type RequestHandler } from '@sveltejs/kit';
 import { patientSearchPageSize, PatientServiceListDAO } from "$lib";
 
 const patientServiceListDAO = new PatientServiceListDAO()
 
-  export const load: PageServerLoad = async ({ params, url }) => {
-    const query = params.query;
-    const selectedProvider = url.searchParams.get('selectedProvider') || "any"; // Default to "any"
-    const selectedOwnership = url.searchParams.get('selectedOwnership') || "any"; // Default to "any"
-    const selectedFacilityType = url.searchParams.get('selectedFacilityType') || "any"; // Default to "any"
+export const load: PageServerLoad = async ({ params, url }) => {
+  const query = params.query;
+  const selectedProvider = url.searchParams.get('selectedProvider') || "any"; // Default to "any"
+  const selectedOwnership = url.searchParams.get('selectedOwnership') || "any"; // Default to "any"
+  const selectedFacilityType = url.searchParams.get('selectedFacilityType') || "any"; // Default to "any"
 
-    const filters = {
-      acceptedProviders: selectedProvider && selectedProvider !== "any" ? [selectedProvider] : [],
-      ownership: selectedOwnership !== "any" ? selectedOwnership : undefined,
-      facilityType: selectedFacilityType !== "any" ? selectedFacilityType : undefined
+  const filters = {
+    acceptedProviders: selectedProvider && selectedProvider !== "any" ? [selectedProvider] : [],
+    ownership: selectedOwnership !== "any" ? selectedOwnership : undefined,
+    facilityType: selectedFacilityType !== "any" ? selectedFacilityType : undefined
+  };
+
+  try {
+    const byService = await patientServiceListDAO.patientSearch(query, filters, patientSearchPageSize, 0);
+
+    return { 
+      services: byService.results, 
+      moreServices: byService.hasMore,
+      query,
+      patientSearchPageSize,
+      selectedProvider,
+      selectedOwnership,
+      selectedFacilityType,
+      error: null
     };
 
-    try {
-      const byService = await patientServiceListDAO.patientSearch(query, filters, patientSearchPageSize, 0);
+  } catch (error: any) {
+    console.error("Caught error in load:", error);
 
-      return { 
-        services: byService.results, 
-        moreServices: byService.hasMore,
-        query,
-        patientSearchPageSize,
-        selectedProvider,
-        selectedOwnership,
-        selectedFacilityType,
-        error: null
-      };
-
-    } catch (error: any) {
-      console.error("Caught error in load:", error);
-
-      return {
-        services: [],
-        moreServices: false,
-        query,
-        patientSearchPageSize,
-        selectedProvider,
-        selectedOwnership,
-        selectedFacilityType,
-        error: error.message || 'An unexpected error occurred.'
-      };
-    }
-  };
+    return {
+      services: [],
+      moreServices: false,
+      query,
+      patientSearchPageSize,
+      selectedProvider,
+      selectedOwnership,
+      selectedFacilityType,
+      error: error.message || 'An unexpected error occurred.'
+    };
+  }
+};
 
 
 

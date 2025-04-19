@@ -15,10 +15,7 @@ import {
         OutpatientServiceDAO,
 
         validatePhone, 
-        validateOperatingHours, 
-        validateFloat,
-        validateCoverageRadius,
-        validateCompletionTime,
+        validateOperatingHours,
         validateFacilityName,
 
         type OPServiceType, 
@@ -26,25 +23,21 @@ import {
         specializedServiceType, 
 
         type ServiceDTO, 
-        type Create_UpdateDivisionDTO, 
+        type CreateDivisionDTO, 
         type MultiServiceDivisionsDTO,
 
-        type CreateAmbulanceServiceDTO,
-        type CreateBloodBankServiceDTO,
-        type CreateERServiceDTO,
-        type CreateICUServiceDTO,
-        type CreateOutpatientServiceDTO,
         dateToTimeMapping,
         validateEmail,
         EmployeeDAO,
         FacilityAdminListDAO,
-        type Create_UpdateAdminDTO,
+        type CreateAdminDTO,
         AdminDAO,
         validateAmbulance,
         validateBloodBank,
         validateER,
         validateICU,
         validateOP,
+        type UpdateAdminDTO,
       } from '$lib';
 import bcrypt from 'bcryptjs';
 
@@ -139,7 +132,7 @@ export const actions = {
       }
 
       // admins
-      let adminTransfers: Record<string, Create_UpdateAdminDTO>= {}
+      let adminTransfers: Record<string, UpdateAdminDTO>= {}
 
       const facilityAdminListDAO = new FacilityAdminListDAO()
       const divisionAdmins = await facilityAdminListDAO.getSingleDivisionAdmins(facilityID)
@@ -223,8 +216,8 @@ export const actions = {
     const data = await request.formData();
 
     let name: string
-    let phoneNumber: string
-    let email: string | undefined
+    let phoneNumber: string[]
+    let email: string[] | undefined
     let openingTime: Date
     let closingTime: Date
 
@@ -237,12 +230,12 @@ export const actions = {
     try {
       name = validateFacilityName(divisionName);
 
-      email = await validateEmail(formEmail)
-      if (email === '') {
+      email = [await validateEmail(formEmail)]
+      if (email[0] === '') {
         email = undefined
       }
 
-      phoneNumber = validatePhone(phone);
+      phoneNumber = [validatePhone(phone)];
 
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
       for (let div of facilityDivisions) {
@@ -407,7 +400,7 @@ export const actions = {
         });
     }
 
-    const division: Create_UpdateDivisionDTO = {
+    const division: CreateDivisionDTO = {
       name,
       phoneNumber,
       email,
@@ -460,14 +453,14 @@ export const actions = {
     }
 
     let defName: string = division.name
-    let defPhoneNumber: string = division.phoneNumber
-    let defEmail: string = division.email ?? ''
+    let defPhoneNumber: string[] = division.phoneNumber
+    let defEmail: string[] = division.email ?? []
     let defOpeningTime: String = dateToTimeMapping(division.openingTime)
     let defClosingTime: String = dateToTimeMapping(division.closingTime)
 
     let name: string
-    let phoneNumber: string
-    let email: string | undefined
+    let phoneNumber: string[]
+    let email: string[] | undefined
     let openingTime: Date
     let closingTime: Date
 
@@ -480,12 +473,12 @@ export const actions = {
     try {
       name = validateFacilityName(divisionName);
 
-      email = await validateEmail(formEmail)
-      if (email === '') {
+      email = [await validateEmail(formEmail)]
+      if (email[0] === '') {
         email = undefined
       }
 
-      phoneNumber = validatePhone(phone);
+      phoneNumber = [validatePhone(phone)];
 
       const facilityDivisions = await divisionDAO.getByFacility(facilityID)
       let countName = 0
@@ -548,7 +541,7 @@ export const actions = {
     }
 
     if (defName == name &&
-        defPhoneNumber == phoneNumber&&
+        defPhoneNumber.toString() == phoneNumber.toString() &&
         defOpeningTime == dateToTimeMapping(openingTime) && 
         defClosingTime == dateToTimeMapping(closingTime) && 
         defEmail == email

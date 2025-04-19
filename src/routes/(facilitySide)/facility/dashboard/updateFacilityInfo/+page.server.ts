@@ -27,8 +27,8 @@ import { type GeneralInformationFacilityDTO,
 
 let defPhoto: string
 let defName: string
-let defPhoneNumber: string
-let defEmail: string
+let defPhoneNumber: string[]
+let defEmail: string[]
 let defBookingSystem: string
 let defFacilityType: FacilityType
 let defOwnership: Ownership
@@ -61,7 +61,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     defPhoto = facilityInfo.photo
     defName = facilityInfo.name
     defPhoneNumber = facilityInfo.phoneNumber
-    defEmail = facilityInfo.email ?? ""
+    defEmail = facilityInfo.email ?? []
     defBookingSystem = facilityInfo.bookingSystem ?? ""
     defFacilityType = facilityInfo.facilityType
     defOwnership = facilityInfo.ownership
@@ -129,15 +129,15 @@ export const actions = {
 
     // General Information
     let photo: string = defPhoto;
-    let name: string, phoneNumber: string, email: string, bookingSystem: string;
+    let name: string, phoneNumber: string[], email: string[], bookingSystem: string;
     const facilityType: FacilityType = data.get('type') as FacilityType;
     const ownership: Ownership = data.get('ownership') as Ownership;
     const acceptedProviders: Provider[] = [];
 
     try {
       name = validateFacilityName(data.get('facilityName'));
-      phoneNumber = validatePhone(data.get('phoneNumber'));
-      email = await validateEmail(data.get('email'));
+      phoneNumber = [validatePhone(data.get('phoneNumber'))];
+      email = [await validateEmail(data.get('email'))];
       bookingSystem = String(data.get('bookingSystem')) === "" ? "" : await validateLink(data.get('bookingSystem'))
       address.street = validateStreet(data.get('street'));
 
@@ -208,8 +208,8 @@ export const actions = {
 
     if (defPhoto == photo && 
         defName == name &&
-        defPhoneNumber == phoneNumber &&
-        defEmail == email &&
+        defPhoneNumber.toString() == phoneNumber.toString() &&
+        defEmail.toString() == email.toString() &&
         defBookingSystem == bookingSystem &&
         defFacilityType == facilityType &&
         defOwnership == ownership &&

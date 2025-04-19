@@ -1,6 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
-import { FacilityServiceListDAO, facilityServicePageSize } from '$lib';
-import type { Role } from '@prisma/client';
+import { FacilityServiceListDAO } from '$lib';
 
 let facilityServiceDAO = new FacilityServiceListDAO();
 
@@ -33,14 +32,12 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
     newPageNumber = currPage+change
   }
 
-  // const { results, currentPage, totalPages } = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, employeeID, role as Role, query, newPageNumber, facilityServicePageSize, { updatedAt: "desc" });
-
   let results, currentPage, totalPages, services
 
   if (viewedDivisionID === "Default"){
-    services = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, employeeID, role as Role, query, newPageNumber, facilityServicePageSize, { updatedAt: "desc" });
+    services = await facilityServiceDAO.employeeSearchServicesByFacility(facilityID, employeeID, query, newPageNumber, perPage, { updatedAt: "desc" });
   } else {
-    services= await facilityServiceDAO.employeeSearchServicesByDivision(viewedDivisionID, query, newPageNumber, perPage, { createdAt: "desc" })
+    services = await facilityServiceDAO.employeeSearchServicesByDivision(viewedDivisionID, query, newPageNumber, perPage, { createdAt: "desc" })
   }
   
   results = services.results

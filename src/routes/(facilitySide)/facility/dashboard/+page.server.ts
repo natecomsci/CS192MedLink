@@ -14,6 +14,8 @@ import {
   FacilityDivisionListDAO,
   type AdminDTO,
   AdminDAO,
+  type PaginatedResultsDTO,
+  type DivisionDTO,
 
 } from '$lib';
 import { Role } from '@prisma/client';
@@ -34,30 +36,26 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   const facilityService = new FacilityServiceListDAO()
 
-  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, employeeID, role as Role, 1, facilityServicePageSize, { updatedAt: "desc" })
+  let paginatedServices = await facilityService.getPaginatedServicesByFacility(facilityID, employeeID, 1, facilityServicePageSize, { updatedAt: "desc" })
   let paginatedUpdateLogs = await updateLogDAO.getPaginatedUpdateLogsByFacility(facilityID, employeeID, role as Role, 1, facilityUpdateLogsPageSize, { createdAt: "desc" })
 
   let admins: AdminDTO[] = [];
-  let divisions = [];
+  let divisions: DivisionDTO[] = [];
 
-  if (hasAdmins === 'true' ? true : false && role == Role.MANAGER) {
-    const facilityAdminDAO = new FacilityAdminListDAO()
-    const paginatedAdmins = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize, { updatedAt: "desc" })
-    admins = paginatedAdmins.results
-  }
-  
-  if (hasDivisions === 'true' ? true : false) {
-    if (role == Role.MANAGER){
+  if (role == Role.MANAGER){
+    if (hasAdmins === 'true' ? true : false) {
+      const facilityAdminDAO = new FacilityAdminListDAO()
+      const paginatedAdmins = await facilityAdminDAO.getPaginatedAdminsByFacility(facilityID, 1, facilityAdminsPageSize, { updatedAt: "desc" })
+      admins = paginatedAdmins.results
+    }
+
+    if (hasDivisions === 'true' ? true : false) {
       const facilityDivisionsListDAO = new FacilityDivisionListDAO()
       const paginatedDivisions = await facilityDivisionsListDAO.getPaginatedDivisionsByFacility(facilityID, 1, facilityDivisionsPageSize, { updatedAt: "desc" })
       divisions = paginatedDivisions.results
-    } else {
-      const adminDAO = new AdminDAO()
-      const paginatedDivisions = await adminDAO.getDivisions(employeeID)
-      divisions = paginatedDivisions
-    }
-  } 
-  
+    } 
+  }
+
   return {
     mainServicesShown: paginatedServices.results,
     updateLogs: paginatedUpdateLogs.results,

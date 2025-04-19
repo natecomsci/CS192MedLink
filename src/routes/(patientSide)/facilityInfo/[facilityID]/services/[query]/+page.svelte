@@ -7,35 +7,6 @@
 
 </script>
 
-<!-- <div class="container mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-4">Results for "{query}"</h1>
-
-  {#if results.length > 0}
-    <ul class="list-disc pl-5">
-      {#each results as service}
-        <li class="flex justify-between items-center mb-2">
-          <form
-            method="POST"
-            action="?/viewDetails"
-          >
-            <input type="hidden" name="serviceID" value={service.serviceID} />
-            <input type="hidden" name="serviceType" value={service.type} />
-            <span>{service.type}</span>
-            <button 
-            class="p-2 text-white bg-blue-500 rounded-full hover:bg-blue-600 transition" 
-          >+</button>
-          </form>
-
-        </li>
-      {/each}
-    </ul>
-  {:else}
-    <p class="text-gray-600">No results found.</p>
-  {/if}
-</div> -->
-
-
-
 <div class=" no-scrollbar overflow-y-auto max-h-[calc(100vh-100px)] sm:max-h-[calc(100vh-150px)] max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
    <!-- Top Header -->
   <div class="bg-white px-4 py-4 flex items-center shadow-md">
@@ -77,7 +48,7 @@
       class="flex justify-between items-center w-full"
     >
       <input type="hidden" name="serviceID" value={service.serviceID} />
-      <input type="hidden" name="serviceType" value={service.name} />
+      <input type="hidden" name="serviceType" value={service.type} />
       <p class="text-l text-[#3D1853] font-semibold">{service.type}</p>
       <button
         name="viewDetails"

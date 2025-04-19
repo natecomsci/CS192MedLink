@@ -1,4 +1,4 @@
-import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from "./DTOs";
+import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from "./dataLayer/DTOs";
 import { validateFloat, validatePhone, validateOperatingHours, validateCoverageRadius, validateCompletionTime } from "./formValidators";
 
 export function validateAmbulance(data: FormData, i: string | undefined): CreateAmbulanceServiceDTO{
@@ -31,7 +31,7 @@ export function validateAmbulance(data: FormData, i: string | undefined): Create
   }
 
   return  {
-            phoneNumber,
+            phoneNumber: [phoneNumber],
             openingTime,
             closingTime,
             baseRate,
@@ -69,7 +69,7 @@ export function validateBloodBank(data: FormData, i: string | undefined): Create
   }
 
   return  {
-            phoneNumber,
+            phoneNumber: [phoneNumber],
             openingTime,
             closingTime,
             basePricePerUnit,
@@ -89,7 +89,7 @@ export function validateER(data: FormData, i: string | undefined): CreateERServi
     throw new Error((e as Error).message);
   }
 
-  return  { phoneNumber }
+  return  { phoneNumber: [phoneNumber] }
 }
 
 export function validateICU(data: FormData, i: string | undefined): CreateICUServiceDTO {
@@ -106,7 +106,7 @@ export function validateICU(data: FormData, i: string | undefined): CreateICUSer
   }
 
   return  {
-            phoneNumber,
+            phoneNumber: [phoneNumber],
             baseRate,
           }
 }
