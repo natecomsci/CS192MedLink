@@ -4,6 +4,8 @@ import type { Prisma } from "@prisma/client";
 
 import { Action }  from "@prisma/client";
 
+import { getGeneralServiceInfo } from "./dataLayerUtility";
+
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { OutpatientServiceDTO,
@@ -18,7 +20,9 @@ export class OutpatientServiceDAO {
     try {
       return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const { type, divisionID, note, ...outpatientData } = data;
-  
+
+        // 1. Create base Service.
+
         const service = await tx.service.create({
           data: {
             type,
@@ -42,6 +46,8 @@ export class OutpatientServiceDAO {
           }
         });
 
+        // 2. Create OutpatientService.
+
         const outpatientService = await tx.outpatientService.create({
           data: {
             ...outpatientData,
@@ -52,7 +58,9 @@ export class OutpatientServiceDAO {
             }
           }
         });
-  
+
+        // 3. Log the creation.
+
         await updateLogDAO.create(
           {
             entity: type,
@@ -80,22 +88,6 @@ export class OutpatientServiceDAO {
       const service = await prisma.outpatientService.findUnique({
         where: {
           serviceID,
-        },
-        include: {
-          // tinamad
-          service: {
-            select: {
-              note: true,
-              division: {
-                select: {
-                  divisionID: true,
-                  name: true,
-                },
-              },
-              updatedAt: true,
-              type: true,
-            }
-          }
         }
       });
   
@@ -103,7 +95,7 @@ export class OutpatientServiceDAO {
         throw new Error(`No Outpatient Service linked to ID ${serviceID} found.`);
       }
 
-      const { note, division, updatedAt, type } = service.service;
+      const { note, division, updatedAt, type } = await getGeneralServiceInfo(serviceID);
 
       console.log(`Fetched information of Outpatient Service ${serviceID}: `);
 

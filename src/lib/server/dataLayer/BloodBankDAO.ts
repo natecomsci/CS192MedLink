@@ -2,9 +2,11 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import { Action }  from "@prisma/client";
+import { ContactType, Action }  from "@prisma/client";
 
-import { otherServiceInfo } from "./dataLayerUtility";
+import { getGeneralServiceInfo } from "./dataLayerUtility";
+
+import { ContactDAO } from "./ContactDAO";
 
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
@@ -13,6 +15,8 @@ import type { BloodTypeMappingDTO,
               CreateBloodBankServiceDTO,
               UpdateBloodBankServiceDTO, 
             } from "./DTOs";
+
+const contactDAO: ContactDAO = new ContactDAO();
 
 const updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
             
@@ -88,8 +92,10 @@ export class BloodBankServiceDAO {
   async create(facilityID: string, employeeID: string, data: CreateBloodBankServiceDTO): Promise<string> {
     try {
       return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, note, ...bloodBankData } = data;
-  
+        const { divisionID, note, phoneNumber, ...bloodBankData } = data;
+
+        // 1. Create base Service.
+
         const service = await tx.service.create({
           data: {
             type: "Blood Bank",
@@ -113,6 +119,8 @@ export class BloodBankServiceDAO {
           }
         });
 
+        // 2. Create BloodBankService.
+
         const bloodBankService = await tx.bloodBankService.create({
           data: {
             ...bloodBankData,
@@ -123,9 +131,28 @@ export class BloodBankServiceDAO {
             }
           }
         });
-  
+
+        // 3. Link BloodTypeMapping.
+
         await bloodTypeMappingDAO.createBloodTypeMapping(service.serviceID, tx);
-  
+
+        // 4. Link Phone Numbers.
+
+        if (phoneNumber && phoneNumber.length > 0) {  
+          for (const number of phoneNumber) {
+            await contactDAO.create(
+              {
+                info      : number,
+                type      : ContactType.PHONE,
+                serviceID : service.serviceID
+              },
+              tx
+            );
+          }
+        }
+
+        // 5. Log the creation.
+
         await updateLogDAO.create(
           {
             entity: "Blood Bank",
@@ -154,21 +181,20 @@ export class BloodBankServiceDAO {
         prisma.bloodBankService.findUnique({
           where: { 
             serviceID 
-          },
-          include: otherServiceInfo
+          }
         }),
         bloodTypeMappingDAO.getBloodTypeMapping(serviceID)
       ]);
 
       if (!service) {
-        throw new Error(`No Service linked to ID ${serviceID} found.`);
+        throw new Error(`No Blood Bank Service linked to ID ${serviceID} found.`);
       }
     
       if (!bloodTypeAvailability) {
         throw new Error(`No Blood Type Mapping linked to Service ${serviceID} found.`);
       }
 
-      const { note, division, updatedAt } = service.service;
+      const { note, phoneNumbers, division, updatedAt } = await getGeneralServiceInfo(serviceID);
 
       console.log(`Fetched information of Blood Bank Service ${serviceID}: `);
 
@@ -179,15 +205,15 @@ export class BloodBankServiceDAO {
         bloodTypeAvailability : bloodTypeAvailability,
         updatedAt,
 
-        ...(service.phoneNumber ? { phoneNumber: service.phoneNumber } : {}),
-
         ...(service.openingTime ? { openingTime: service.openingTime } : {}),
 
         ...(service.closingTime ? { closingTime: service.closingTime } : {}),
 
-        ...(note ? { note } : {}),
+        ...(note ? { note: note } : {}), // redundant pero ayaw ni TypeScript ang ginagawa ko at tinatamad akong ayusin
 
-        ...(division ? { division } : {})
+        ...(phoneNumbers.length ? { phoneNumbers: phoneNumbers } : {}),
+
+        ...(division ? { division: division } : {})
       }; 
 
     } catch (error) {

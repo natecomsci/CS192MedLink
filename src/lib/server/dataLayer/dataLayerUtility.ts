@@ -2,22 +2,41 @@ import generator from "generate-password-ts";
 
 import bcrypt from "bcryptjs";
 
-export const otherServiceInfo = {
-  service: {
+export type OtherServiceInfo = { note : string | null; phoneNumbers : { contactID: string; info: string; }[]; division : { divisionID: string; name: string; } | null; updatedAt : Date; type : string };
+
+export async function getGeneralServiceInfo(serviceID: string): Promise<OtherServiceInfo> {
+
+  const service = await prisma.service.findUnique({
+    where: { 
+      serviceID 
+    },
     select: {
       note: true,
+      phoneNumbers: {
+        select: {
+          contactID: true,
+          info: true
+        }
+      },
       division: {
         select: {
           divisionID: true,
-          name: true,
+          name: true
         },
       },
       updatedAt: true,
+      type: true
     }
-  }
-};
+  });
 
-// for creating admin accounts
+  if (!service) {
+    throw new Error(`No Service found with ID ${serviceID}`);
+  }
+
+  return service;
+}
+
+// for creating Admin accounts
 
 export async function createAndHashPassword(): Promise<{ password: string, hashedPassword: string }> {
     const password: string = generator.generate({
