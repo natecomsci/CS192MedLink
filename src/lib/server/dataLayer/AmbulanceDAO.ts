@@ -27,7 +27,7 @@ export class AmbulanceServiceDAO {
   
         // 1. Create base Service.
 
-        const service = await tx.service.create({
+        const { serviceID } = await tx.service.create({
           data: {
             type     : "Ambulance",
             facility : { 
@@ -57,7 +57,7 @@ export class AmbulanceServiceDAO {
             ...ambulanceData,
             service: { 
               connect: { 
-                serviceID: service.serviceID 
+                serviceID
               } 
             }
           }
@@ -65,17 +65,16 @@ export class AmbulanceServiceDAO {
 
         // 3. Link Phone Numbers.
 
-        if (phoneNumber && phoneNumber.length > 0) {  
-          for (const number of phoneNumber) {
-            await contactDAO.create(
-              {
-                info      : number,
-                type      : ContactType.PHONE,
-                serviceID : service.serviceID
-              },
-              tx
-            );
-          }
+        if (phoneNumber && phoneNumber.length) {
+          await contactDAO.createMany(
+            "service",
+            serviceID,
+            phoneNumber.map((info) => ({
+              info,
+              type: ContactType.PHONE
+            })),
+            tx
+          );
         }
 
         // 4. Log the creation.
@@ -92,9 +91,9 @@ export class AmbulanceServiceDAO {
           tx
         );
 
-        console.log(`Created Ambulance Service ${service.serviceID}: `, {service, ambulanceService});
+        console.log(`Created Ambulance Service ${serviceID}: `, ambulanceService);
 
-        return service.serviceID;
+        return serviceID;
       });
       } catch (error) {
       console.error("Details: ", error);

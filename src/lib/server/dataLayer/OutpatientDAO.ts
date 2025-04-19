@@ -23,7 +23,7 @@ export class OutpatientServiceDAO {
 
         // 1. Create base Service.
 
-        const service = await tx.service.create({
+        const { serviceID } = await tx.service.create({
           data: {
             type,
             facility : { 
@@ -53,7 +53,7 @@ export class OutpatientServiceDAO {
             ...outpatientData,
             service: { 
               connect: { 
-                serviceID: service.serviceID 
+                serviceID: serviceID 
               } 
             }
           }
@@ -73,9 +73,9 @@ export class OutpatientServiceDAO {
           tx
         );
 
-        console.log(`Created Outpatient Service ${service.serviceID}: `, {service, outpatientService});
+        console.log(`Created Outpatient Service ${serviceID}: `, outpatientService);
 
-        return service.serviceID;
+        return serviceID;
       });  
     } catch (error) {
       console.error("Details: ", error);

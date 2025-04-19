@@ -27,7 +27,7 @@ export class ICUServiceDAO {
 
         // 1. Create base Service.
 
-        const service = await tx.service.create({
+        const { serviceID } = await tx.service.create({
           data: {
             type: "Intensive Care Unit",
             keywords: ["ICU"],
@@ -58,7 +58,7 @@ export class ICUServiceDAO {
             ...iCUData,
             service: { 
               connect: { 
-                serviceID: service.serviceID 
+                serviceID: serviceID 
               } 
             }
           }
@@ -66,17 +66,16 @@ export class ICUServiceDAO {
 
         // 3. Link Phone Numbers.
 
-        if (phoneNumber && phoneNumber.length > 0) {  
-          for (const number of phoneNumber) {
-            await contactDAO.create(
-              {
-                info      : number,
-                type      : ContactType.PHONE,
-                serviceID : service.serviceID
-              },
-              tx
-            );
-          }
+        if (phoneNumber && phoneNumber.length) {
+          await contactDAO.createMany(
+            "service",
+            serviceID,
+            phoneNumber.map((info) => ({
+              info,
+              type: ContactType.PHONE
+            })),
+            tx
+          );
         }
 
         // 4. Log the creation.
@@ -93,9 +92,9 @@ export class ICUServiceDAO {
           tx
         );
 
-        console.log(`Created ICU Service ${service.serviceID}: `, {service, iCUService});
+        console.log(`Created ICU Service ${serviceID}: `, iCUService);
 
-        return service.serviceID;
+        return serviceID;
       });
     } catch (error) {
       console.error("Details: ", error);

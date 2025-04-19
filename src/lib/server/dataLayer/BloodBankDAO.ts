@@ -96,7 +96,7 @@ export class BloodBankServiceDAO {
 
         // 1. Create base Service.
 
-        const service = await tx.service.create({
+        const { serviceID } = await tx.service.create({
           data: {
             type: "Blood Bank",
             facility : { 
@@ -126,7 +126,7 @@ export class BloodBankServiceDAO {
             ...bloodBankData,
             service: { 
               connect: { 
-                serviceID: service.serviceID 
+                serviceID: serviceID 
               } 
             }
           }
@@ -134,21 +134,20 @@ export class BloodBankServiceDAO {
 
         // 3. Link BloodTypeMapping.
 
-        await bloodTypeMappingDAO.createBloodTypeMapping(service.serviceID, tx);
+        await bloodTypeMappingDAO.createBloodTypeMapping(serviceID, tx);
 
         // 4. Link Phone Numbers.
 
-        if (phoneNumber && phoneNumber.length > 0) {  
-          for (const number of phoneNumber) {
-            await contactDAO.create(
-              {
-                info      : number,
-                type      : ContactType.PHONE,
-                serviceID : service.serviceID
-              },
-              tx
-            );
-          }
+        if (phoneNumber && phoneNumber.length) {
+          await contactDAO.createMany(
+            "service",
+            serviceID,
+            phoneNumber.map((info) => ({
+              info,
+              type: ContactType.PHONE
+            })),
+            tx
+          );
         }
 
         // 5. Log the creation.
@@ -165,9 +164,9 @@ export class BloodBankServiceDAO {
           tx
         );
 
-        console.log(`Created Blood Bank Service ${service.serviceID}: `, {service, bloodBankService});
+        console.log(`Created Blood Bank Service ${serviceID}: `, bloodBankService);
 
-        return service.serviceID;
+        return serviceID;
       });
     } catch (error) {
       console.error("Details: ", error);
