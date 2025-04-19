@@ -1,5 +1,7 @@
 import { prisma } from "./prisma";
 
+import type { Prisma } from "@prisma/client";
+
 import { ContactType } from "@prisma/client";
 
 import type { ContactDTO, 
@@ -34,9 +36,9 @@ export class ContactDAO {
     }
   }
 
-  async create(data: CreateContactDTO): Promise<string> {
+  async create(data: CreateContactDTO, tx: Prisma.TransactionClient): Promise<string> {
     try {
-      const contact = await prisma.contact.create({
+      const contact = await tx.contact.create({
         data,
         select: {
           contactID: true
@@ -92,9 +94,9 @@ export class ContactDAO {
     return this.getContactsByType(ContactType.EMAIL, { divisionID });
   }
   
-  async update(contactID: string, info: string): Promise<void> {
+  async update(contactID: string, info: string, tx: Prisma.TransactionClient): Promise<void> {
     try {
-      await prisma.contact.update({
+      await tx.contact.update({
         where: { 
           contactID 
         },
@@ -110,9 +112,9 @@ export class ContactDAO {
     }
   }
   
-  async delete(contactID: string): Promise<void> {
+  async delete(contactID: string, tx: Prisma.TransactionClient): Promise<void> {
     try {
-      await prisma.contact.delete({ 
+      await tx.contact.delete({ 
         where: { 
           contactID 
         } 
