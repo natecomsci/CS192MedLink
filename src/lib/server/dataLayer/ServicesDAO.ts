@@ -288,7 +288,7 @@ export class PatientServiceListDAO {
   async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO<ServiceDTO>> { // to refine for location-based search
     try {
       if (!(query.trim())) {
-        return { results: [], hasMore: false };
+        return { results: [], totalResults: 0, totalFetched: 0, hasMore: false };
       }
 
       console.log(`Loaded more Services (offset: ${offset}) matching search query "${query}": `);
@@ -373,7 +373,7 @@ export class PatientServiceListDAO {
   async patientSearchServicesByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<ServiceDTO>> {
     try {
       if (!(query.trim())) {
-        return { results: [], hasMore: false };
+        return { results: [], totalResults: 0, totalFetched: 0, hasMore: false };
       }
 
       console.log(`Loaded more Services for Facility ${facilityID} (offset: ${offset}) matching search query "${query}": `);

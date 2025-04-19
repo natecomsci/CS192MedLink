@@ -14,7 +14,7 @@ export class ContactDAO {
 
   // gets both phone numbers and emails if the type input is not given
 
-  private async getContactsByType(type: ContactType, where?: { facilityID?: string; divisionID?: string; serviceID?: string }): Promise<string[]> {
+  private async getContactsByType(type: ContactType, where?: { facilityID?: string; divisionID?: string; }): Promise<string[]> {
     try {
 
       const contacts = await prisma.contact.findMany({
@@ -50,12 +50,6 @@ export class ContactDAO {
     console.log(`Fetched Phone Numbers of Division ${divisionID}: `)
 
     return this.getContactsByType(ContactType.PHONE, { divisionID });
-  }
-  
-  async getPhoneNumbersByService(serviceID: string): Promise<string[]> {
-    console.log(`Fetched Phone Numbers of Service ${serviceID}: `)
-
-    return this.getContactsByType(ContactType.PHONE, { serviceID });
   }
 
   async getAllEmails(): Promise<string[]> {

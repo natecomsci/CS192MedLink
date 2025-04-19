@@ -4,18 +4,20 @@ import { prisma } from "./prisma";
 
 import type { Prisma } from "@prisma/client";
 
-import { Action }  from "@prisma/client";
+import { ContactType, Action }  from "@prisma/client";
 
 import type { Division } from '@prisma/client';
 
 import { paginate, loadMore } from "./dataLayerUtility";
 
+import { ContactDAO } from "./ContactDAO";
+
 import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { DivisionDTO,
-              Create_UpdateDivisionDTO,
+              CreateDivisionDTO,
+              UpdateDivisionDTO,
               MultiServiceDivisionsDTO,
-              FacilityDivisionResultsDTO,
               LoadMoreResultsDTO,
               PaginatedResultsDTO
             } from "./DTOs";
@@ -33,6 +35,8 @@ const divisionCrUpSelect = {
 function divisionSelect(includeCrUp = false) {
   return includeCrUp ? { ...divisionBaseSelect, ...divisionCrUpSelect } : divisionBaseSelect;
 }
+
+const contactDAO: ContactDAO = new ContactDAO();
 
 const updateLogDAO: UpdateLogDAO = new UpdateLogDAO(); // could inject this but whatever lol
 
@@ -80,12 +84,14 @@ export class DivisionDAO {
 
   //
 
-  async create(facilityID: string, employeeID: string, data: Create_UpdateDivisionDTO): Promise<string> {
+  async create(facilityID: string, employeeID: string, data: CreateDivisionDTO): Promise<string> {
     try {
-      return await prisma.$transaction(async (tx) => {
+      return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { email, phoneNumber, ...divisionData } = data;
+
         const division = await tx.division.create({
           data: {
-            ...data,
+            ...divisionData,
             facility: {
               connect: { 
                 facilityID 
@@ -93,7 +99,29 @@ export class DivisionDAO {
             }
           }
         });
-  
+
+        if (email && email.length) {
+          await contactDAO.createMany(
+            "division",
+            division.divisionID,
+            email.map((info) => ({
+              info,
+              type: ContactType.EMAIL
+            })),
+            tx
+          );
+        }
+
+        await contactDAO.createMany(
+          "division",
+          division.divisionID,
+          phoneNumber.map((info) => ({
+            info,
+            type: ContactType.PHONE
+          })),
+          tx
+        );
+
         await updateLogDAO.create(
           {
             entity     : data.name,
@@ -135,7 +163,7 @@ export class DivisionDAO {
     }
   }
 
-  async update(divisionID: string, facilityID: string, employeeID: string, data: Create_UpdateDivisionDTO): Promise<void> {
+  async update(divisionID: string, facilityID: string, employeeID: string, data: UpdateDivisionDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
         const division = await tx.division.update({
@@ -205,7 +233,7 @@ export class DivisionDAO {
     }
   }  
 
-  async getInformation(divisionID: string): Promise<Create_UpdateDivisionDTO> {
+  async getInformation(divisionID: string): Promise<CreateDivisionDTO> {
     try {
       const division = await prisma.division.findUnique({
         where: { 
@@ -213,8 +241,6 @@ export class DivisionDAO {
         },
         select: {
           name        : true,
-          email       : true,
-          phoneNumber : true,
           openingTime : true,
           closingTime : true,
         }
@@ -224,40 +250,20 @@ export class DivisionDAO {
         throw new Error(`No Division linked to ID ${divisionID} found.`);
       }
 
+      const email = await contactDAO.getPhoneNumbersByDivision(divisionID);
+
+      const phoneNumber = await contactDAO.getEmailsByFacility(divisionID);
+
       console.log(`Fetched information of Division ${divisionID}: `);
 
       return {
         name        : division.name,
-        phoneNumber : division.phoneNumber,
         openingTime : division.openingTime,
         closingTime : division.closingTime,
+        phoneNumber,
 
-        ...(division.email ? { email: division.email } : {}),
+        ...(email.length ? { email } : {})
       }
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("No database connection.");
-    }
-  }
-
-  async getPhoneNumber(divisionID: string): Promise<string> {
-    try {
-      const division = await prisma.division.findUnique({
-        where: { 
-          divisionID 
-        },
-        select: {
-          phoneNumber : true
-        }
-      });
-
-      if (!division) {
-        throw new Error(`No Division linked to ID ${divisionID} found.`);
-      }
-
-      console.log(`Fetched phone number of Division ${divisionID}: `);
-
-      return division.phoneNumber;
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("No database connection.");
@@ -275,28 +281,6 @@ export class DivisionDAO {
       console.log(`Does Division ${divisionID} have Services?`);
 
       return count > 0;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("No database connection.");
-    }
-  }
-
-  async getAllUniques(): Promise<{ emails: string[], phoneNumbers: string[] }> {
-    try {
-      const divisions = await prisma.division.findMany({
-        select: {
-          email       : true,
-          phoneNumber : true,
-        }
-      });
-  
-      const emails = divisions.map((division) => division.email).filter((email): email is string => !!(email));
-  
-      const phoneNumbers = divisions.map((division) => division.phoneNumber);
-  
-      console.log("Fetched Division emails and phone numbers: ");
-  
-      return { emails, phoneNumbers };
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("No database connection.");
@@ -325,9 +309,9 @@ export class DivisionDAO {
 }
 
 export class PatientDivisionListDAO {
-  async getLoadMoreDivisionsByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
+  async getLoadMoreDivisionsByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<DivisionDTO>> {
     try {
-      console.log(`Fetched load more list of Facility ${facilityID}'s Divisions with offset ${offset}: `);
+      console.log(`Loaded more Divisions for Facility ${facilityID} (offset: ${offset}): `);
 
       return await loadMore({
         model: prisma.division,
@@ -345,13 +329,13 @@ export class PatientDivisionListDAO {
     }
   }
 
-  async patientSearchDivisionsByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO> {
+  async patientSearchDivisionsByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<DivisionDTO>> {
     try {
       if (!(query.trim())) {
-        return { results: [], hasMore: false };
+        return { results: [], totalResults: 0, totalFetched: 0, hasMore: false };
       }
 
-      console.log(`Fetched load more list of Facility ${facilityID}'s Divisions with offset ${offset} whose name matches the search query "${query}": `);
+      console.log(`Loaded more Divisions for Facility ${facilityID} (offset: ${offset}) matching search query "${query}": `);
 
       return await loadMore({
         model: prisma.division,
@@ -398,9 +382,9 @@ export class FacilityDivisionListDAO {
     }
   } 
 
-  async getPaginatedDivisionsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async getPaginatedDivisionsByFacility(facilityID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<DivisionDTO>> {
     try {
-      console.log(`Page ${page} of the list of Facility ${facilityID}'s Divisions: `);
+      console.log(`Page ${page} of Divisions for Facility ${facilityID}: `);
 
       return await paginate({
         model: prisma.division,
@@ -418,13 +402,13 @@ export class FacilityDivisionListDAO {
     }
   } 
 
-  async employeeSearchDivisionsByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO> {
+  async employeeSearchDivisionsByFacility(facilityID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<DivisionDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
       }
 
-      console.log(`Page ${page} of the list of Facility ${facilityID}'s Divisions whose name matches the search query "${query}": `);
+      console.log(`Page ${page} of Divisions for Facility ${facilityID} matching search query "${query}": `);
 
       return await paginate({
         model: prisma.division,

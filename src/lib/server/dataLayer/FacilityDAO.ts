@@ -1,16 +1,18 @@
-// @ts-nocheck
-
 import { prisma } from "./prisma";
 
 import { Prisma } from "@prisma/client";
 
-import { Role } from "@prisma/client";
+import { ContactType, Role } from "@prisma/client";
 
 import type { Facility } from "@prisma/client";
 
-import type { GeneralInformationFacilityDTO } from "./DTOs";
+import type { GeneralInformationFacilityDTO, UpdateGeneralInformationFacilityDTO } from "./DTOs";
 
 import { AddressDAO } from "./AddressDAO";
+
+import { ContactDAO } from "./ContactDAO";
+
+const contactDAO: ContactDAO = new ContactDAO();
 
 const addressDAO: AddressDAO = new AddressDAO();
 
@@ -36,10 +38,10 @@ export class FacilityDAO {
     }
   }
 
-  async update(facilityID: string, data: GeneralInformationFacilityDTO): Promise<void> {
+  async update(facilityID: string, data: UpdateGeneralInformationFacilityDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { address, ...facilityData } = data;
+        const { address, email, phoneNumber, ...facilityData } = data;
     
         const facility = await tx.facility.update({
           where: { 
@@ -52,9 +54,45 @@ export class FacilityDAO {
             address: true
           }
         });
-  
+
         if (address) {
           await addressDAO.update(facilityID, address, tx);
+        }
+
+        // email = [] means delete everything
+
+        if (email) {
+          await contactDAO.deleteMany("facility", facilityID, tx);
+  
+          if (email.length > 0) {
+            await contactDAO.createMany(
+              "facility",
+              facilityID,
+              email.map((info) => ({
+                info,
+                type: ContactType.EMAIL
+              })),
+              tx
+            );
+          }
+        }
+
+        // phoneNumber = [] means delete everything
+
+        if (phoneNumber) {
+          await contactDAO.deleteMany("facility", facilityID, tx);
+  
+          if (phoneNumber.length > 0) {
+            await contactDAO.createMany(
+              "facility",
+              facilityID,
+              phoneNumber.map((info) => ({
+                info,
+                type: ContactType.PHONE
+              })),
+              tx
+            );
+          }
         }
 
         console.log(`Updated Facility ${facilityID}: `, facility);
@@ -85,8 +123,6 @@ export class FacilityDAO {
         select: {
           name              : true,
           photo             : true,
-          email             : true,
-          phoneNumber       : true,
           openingTime       : true,
           closingTime       : true,
           facilityType      : true,
@@ -106,51 +142,31 @@ export class FacilityDAO {
         throw new Error(`No Address linked to Facility ${facilityID} found.`);
       }
 
+      const email = await contactDAO.getPhoneNumbersByFacility(facilityID);
+
+      const phoneNumber = await contactDAO.getEmailsByFacility(facilityID);
+
       console.log(`Fetched information of Facility ${facilityID}: `);
 
       return {
         name              : facility.name,
         photo             : facility.photo,
         address           : address,
-        phoneNumber       : facility.phoneNumber,
         facilityType      : facility.facilityType,
         ownership         : facility.ownership,
         acceptedProviders : facility.acceptedProviders,
-
-        ...(facility.email ? { email: facility.email } : {}),
+        phoneNumber,
 
         ...(facility.openingTime ? { openingTime: facility.openingTime } : {}),
 
         ...(facility.closingTime ? { closingTime: facility.closingTime } : {}),
 
+        ...(email.length ? { email } : {}),
+
         ...(facility.bookingSystem
           ? { bookingSystem: facility.bookingSystem }
-          : {}),
+          : {})
       };
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("No database connection.");
-    }
-  }
-
-  async getPhoneNumber(facilityID: string): Promise<string> {
-    try {
-      const facility = await prisma.facility.findUnique({
-        where: { 
-          facilityID 
-        },
-        select: {
-          phoneNumber : true
-        }
-      });  
-
-      if (!facility) {
-        throw new Error(`No Facility linked to ID ${facilityID} found.`);
-      }
-
-      console.log(`Fetched phone number of Facility ${facilityID}: `);
-
-      return facility.phoneNumber;
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("No database connection.");
@@ -203,28 +219,6 @@ export class FacilityDAO {
       console.log(`Does Facility ${facilityID} have Admins?`);
 
       return count > 0;
-    } catch (error) {
-      console.error("Details: ", error);
-      throw new Error("No database connection.");
-    }
-  }
-
-  async getAllUniques(): Promise<{ emails: string[], phoneNumbers: string[] }> {
-    try {
-      const facilities = await prisma.facility.findMany({
-        select: {
-          email       : true,
-          phoneNumber : true,
-        }
-      });
-  
-      const emails = facilities.map((facility) => facility.email).filter((email): email is string => !!(email));
-  
-      const phoneNumbers = facilities.map((facility) => facility.phoneNumber);
-  
-      console.log("Fetched Facility emails and phone numbers: ");
-  
-      return { emails, phoneNumbers };
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("No database connection.");

@@ -210,7 +210,7 @@ export class BloodBankServiceDAO {
 
         ...(note ? { note: note } : {}), // redundant pero ayaw ni TypeScript ang ginagawa ko at tinatamad akong ayusin
 
-        ...(phoneNumbers.length ? { phoneNumbers: phoneNumbers } : {}),
+        ...(phoneNumbers.length ? { phoneNumber: phoneNumbers } : {}),
 
         ...(division ? { division: division } : {})
       }; 
@@ -258,7 +258,7 @@ export class BloodBankServiceDAO {
 
         // phoneNumber = [] means delete everything
 
-        if (phoneNumber !== undefined) {
+        if (phoneNumber) {
           await contactDAO.deleteMany("service", serviceID, tx);
   
           if (phoneNumber.length > 0) {
