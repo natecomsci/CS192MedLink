@@ -45,8 +45,8 @@ export interface GeneralInformationFacilityDTO {
   name              : string,
   photo             : string,
   address           : AddressDTO,
-  email?            : ContactDTO[],
-  phoneNumber       : ContactDTO[],
+  email?            : string[],
+  phoneNumber       : string[],
   openingTime?      : Date,
   closingTime?      : Date,
   facilityType      : FacilityType,
@@ -72,10 +72,7 @@ export interface CreateDivisionDTO {
   closingTime : Date,
 }
 
-export type UpdateDivisionDTO = Omit<Partial<CreateDivisionDTO>, ("email" | "phoneNumber")> & {
-  email?       : ContactDTO[],
-  phoneNumber? : ContactDTO[],
-};
+export type UpdateDivisionDTO = Partial<CreateDivisionDTO>;
 
 export interface MultiServiceDivisionsDTO {
   divisionID : string,
@@ -138,7 +135,7 @@ export interface CreateAmbulanceServiceDTO {
 }
 
 export interface AmbulanceServiceDTO {
-  phoneNumber?      : ContactDTO[],
+  phoneNumber?      : string[],
   openingTime?      : Date,
   closingTime?      : Date,
   availability      : Availability,
@@ -183,7 +180,7 @@ export interface CreateBloodBankServiceDTO {
 }
 
 export interface BloodBankServiceDTO {
-  phoneNumber?          : ContactDTO[],
+  phoneNumber?          : string[],
   openingTime?          : Date,
   closingTime?          : Date,
   basePricePerUnit      : number,
@@ -213,7 +210,7 @@ export interface CreateERServiceDTO {
 }
 
 export interface ERServiceDTO {
-  phoneNumber?         : ContactDTO[],
+  phoneNumber?         : string[],
   openingTime?         : Date,
   closingTime?         : Date,
   load                 : Load,
@@ -248,7 +245,7 @@ export interface CreateICUServiceDTO {
 }
 
 export interface ICUServiceDTO {
-  phoneNumber?        : ContactDTO[],
+  phoneNumber?        : string[],
   openingTime?        : Date,
   closingTime?        : Date,
   load                : Load,
@@ -323,16 +320,8 @@ export interface UpdateLogDTO {
 }
 
 export interface CreateContactDTO {
-  info        : string;
-  type        : ContactType;
-  facilityID? : string;
-  divisionID? : string;
-  serviceID?  : string;
-}
-
-export interface ContactDTO {
-  contactID : string,
   info      : string;
+  type      : ContactType;
 }
 
 export interface ServiceResultsDTO {
