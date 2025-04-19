@@ -96,12 +96,14 @@ export interface AdminDTO {
   updatedAt  : Date,
 }
 
-export interface Create_UpdateAdminDTO {
+export interface CreateAdminDTO {
   fname        : string,
   mname?       : string,
   lname        : string,
   divisionIDs? : string[],
 }
+
+export type UpdateAdminDTO = Partial<CreateAdminDTO>;
 
 export interface InitialAdminDetailsDTO {
   adminID  : string,

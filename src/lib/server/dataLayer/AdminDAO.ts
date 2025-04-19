@@ -7,7 +7,8 @@ import { Role } from "@prisma/client";
 import { createAndHashPassword, paginate } from "./dataLayerUtility";
 
 import type { AdminDTO,
-              Create_UpdateAdminDTO, 
+              CreateAdminDTO,
+              UpdateAdminDTO, 
               InitialAdminDetailsDTO,
               FacilityDivisionResultsDTO,
               AdminPreviewDTO,
@@ -110,7 +111,7 @@ export class AdminDAO {
     }
   }
 
-  async create(facilityID: string, data: Create_UpdateAdminDTO): Promise<InitialAdminDetailsDTO> {
+  async create(facilityID: string, data: CreateAdminDTO): Promise<InitialAdminDetailsDTO> {
     try {
       const { divisionIDs, ...adminData } = data;
 
@@ -166,7 +167,7 @@ export class AdminDAO {
   Note: You must still include any unchanged Divisions in the array. Omitting a division implies it should be removed.
   */
 
-  async update(adminID: string, data: Create_UpdateAdminDTO): Promise<void> {
+  async update(adminID: string, data: UpdateAdminDTO): Promise<void> {
     try {
       const { divisionIDs, ...adminData } = data;
 
