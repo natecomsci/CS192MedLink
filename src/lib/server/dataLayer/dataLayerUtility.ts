@@ -38,10 +38,10 @@ type PaginateArgs<T> = {
     findMany : (args: any) => Promise<T[]>;
     count    : (args: any) => Promise<number>;
   };
-  where    : any;
-  select?  : any;
-  include? : any;
-  orderBy? : any;
+  where    : Record<string, unknown>;
+  select?  : Record<string, unknown>;
+  include? : Record<string, unknown>;
+  orderBy? : Record<string, unknown>;
   page     : number;
   pageSize : number;
   mapping? : (item: T) => any;
@@ -73,7 +73,7 @@ export async function paginate<T>({
     }),
     model.count({
       where
-    }),
+    })
   ]);
 
   const totalPages = Math.max(1, Math.ceil(totalObjects / pageSize));
@@ -90,11 +90,12 @@ export async function paginate<T>({
 type LoadMoreArgs<T> = {
   model: {
     findMany : (args: any) => Promise<T[]>;
+    count    : (args: any) => Promise<number>;
   };
-  where         : any;
-  select?       : any;
-  include?      : any;
-  orderBy?      : any;
+  where         : Record<string, unknown>;
+  select?       : Record<string, unknown>;
+  include?      : Record<string, unknown>;
+  orderBy?      : Record<string, unknown>;
   offset        : number;
   numberToFetch : number;
   mapping?      : (item: T) => any;
@@ -110,20 +111,31 @@ export async function loadMore<T>({
   numberToFetch,
   mapping = (item) => item,
 }: LoadMoreArgs<T>) {
-  const objects = await model.findMany({
-    where,
-    skip: offset,
-    take: numberToFetch + 1,
+  const [objects, totalObjects] = await Promise.all([
+    model.findMany({
+      where,
+      skip: offset,
+      take: numberToFetch + 1,
 
-    ...(select  && { select  }),
-    ...(include && { include }),
-    ...(orderBy && { orderBy }),
-  });
+      ...(select  && { select  }),
+      ...(include && { include }),
+      ...(orderBy && { orderBy }),
+  }),
+  model.count({
+    where
+  })
+]);
+
+  const results = objects.slice(0, numberToFetch).map(mapping)
+
+  const totalFetched = offset + results.length;
 
   const hasMore = objects.length > numberToFetch;
 
   return {
-    results: objects.slice(0, numberToFetch).map(mapping),
+    results,
+    totalObjects,
+    totalFetched,
     hasMore,
   };
 }

@@ -343,8 +343,10 @@ export interface ServiceResultsDTO {
 }
 
 export interface LoadMoreResultsDTO<T> {
-  results : T[],
-  hasMore : boolean,
+  results      : T[],
+  totalResults : number,
+  totalFetched : number,
+  hasMore      : boolean,
 }
 
 export interface PaginatedResultsDTO<T> {
