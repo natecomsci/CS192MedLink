@@ -2,18 +2,6 @@ import generator from "generate-password-ts";
 
 import bcrypt from "bcryptjs";
 
-export async function createAndHashPassword(): Promise<{ password: string, hashedPassword: string }> {
-    const password: string = generator.generate({
-      length  : 10,
-      numbers : true,
-    });
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword: string = await bcrypt.hash(password, salt);
-
-    return { password, hashedPassword };
-}
-
 export const otherServiceInfo = {
   service: {
     select: {
@@ -28,6 +16,20 @@ export const otherServiceInfo = {
     }
   }
 };
+
+// for creating admin accounts
+
+export async function createAndHashPassword(): Promise<{ password: string, hashedPassword: string }> {
+    const password: string = generator.generate({
+      length  : 10,
+      numbers : true,
+    });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword: string = await bcrypt.hash(password, salt);
+
+    return { password, hashedPassword };
+}
 
 // pagination utility
 
