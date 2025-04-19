@@ -27,7 +27,7 @@ export class ContactDAO {
         }
       });
 
-      return contacts.map((contact) => contact.info);
+      return contacts.map((contact: { info: string }) => contact.info);
     } catch (error) {
       console.error("Details: ", error);
       throw new Error("No database connection.");

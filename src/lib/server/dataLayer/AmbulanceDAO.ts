@@ -144,7 +144,7 @@ export class AmbulanceServiceDAO {
   async update(serviceID: string, facilityID: string, employeeID: string, data: UpdateAmbulanceServiceDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-        const { divisionID, note, ...ambulanceData } = data;
+        const { divisionID, note, phoneNumber, ...ambulanceData } = data;
 
         const ambulanceService = await tx.ambulanceService.update({
           where: { 
@@ -181,6 +181,24 @@ export class AmbulanceServiceDAO {
             facilityID: true
           }
         });
+
+        // phoneNumber = [] means delete everything
+
+        if (phoneNumber !== undefined) {
+          await contactDAO.deleteMany("service", serviceID, tx);
+  
+          if (phoneNumber.length > 0) {
+            await contactDAO.createMany(
+              "service",
+              serviceID,
+              phoneNumber.map((info) => ({
+                info,
+                type: ContactType.PHONE
+              })),
+              tx
+            );
+          }
+        }
 
         await tx.facility.update({
           where: { 
