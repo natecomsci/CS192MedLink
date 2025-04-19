@@ -31,17 +31,17 @@ export const load: PageServerLoad = async ({ params, url }) => {
   try {
     let service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
-      throw new Error("Service or facilityID not found.");
+      return fail(500, { error: "Service or facilityID not found." });
     }
     
     let icuService = await icuDAO.getInformation(serviceID);
     if (!icuService) {
-      throw new Error("ICU Service details not found.");
+      return fail(500, { error: "ICU Service details not found." });
     }
     
     let facility = await facilityDAO.getInformation(service.facilityID);
-    if (!facility) {
-      throw new Error("Facility details not found.");
+    if (!facility || facility.name) {
+      return fail(500, { error: "Facility details not found." });
     }
     
     let address = await addressDAO.getByFacility(service.facilityID);

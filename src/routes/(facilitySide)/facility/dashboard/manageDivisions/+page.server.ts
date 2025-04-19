@@ -1,4 +1,4 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 import {
@@ -40,6 +40,11 @@ import {
         FacilityAdminListDAO,
         type Create_UpdateAdminDTO,
         AdminDAO,
+        validateAmbulance,
+        validateBloodBank,
+        validateER,
+        validateICU,
+        validateOP,
       } from '$lib';
 import bcrypt from 'bcryptjs';
 
@@ -101,7 +106,6 @@ export const actions = {
     let facilityDivisions = await divisionDAO.getByFacility(facilityID)
 
     if (facilityDivisions.length === 1) {
-      console.log('divisionlength error')
       return fail(422, {
         error: "Cannot delete last division",
         description: "Division Validation",
@@ -125,7 +129,6 @@ export const actions = {
       for (let { serviceID } of divisionServices) {
         let newDivision = (data.get(serviceID) ?? '') as string
         if (newDivision === '') {
-          console.log('service error')
           return fail(422, {
             error: "All services in the division must be transferred to another division",
             description: "Division Validation",
@@ -144,7 +147,6 @@ export const actions = {
       for (let { fname, mname, lname, employeeID } of divisionAdmins.filter(d => (d.divisions ?? [{divisionID:''}])[0].divisionID === divisionID)) {
         let adminDivision = ((data.get(employeeID) ?? '') as string).split(",")
         if (adminDivision[0] === '') {
-          console.log('admin error')
           return fail(422, {
             error: "All admins in the division must be transferred to another division",
             description: "Division Validation",
@@ -185,17 +187,17 @@ export const actions = {
             await servicesDAO.delete(serviceID, facilityID, employeeID);
           }
         } else {
-          divisionDAO.connectServices(divisionID, serviceList)
+          await divisionDAO.connectServices(divisionID, serviceList)
         }
       }
 
       const adminDAO = new AdminDAO()
 
       for (const [employeeID, updateAdminDTO] of Object.entries(adminTransfers)) {
-        adminDAO.update(employeeID, updateAdminDTO)
+        await adminDAO.update(employeeID, updateAdminDTO)
       }
 
-      divisionDAO.delete(divisionID, facilityID, employeeID)
+      await divisionDAO.delete(divisionID, facilityID, employeeID)
       return {
         success: true
       }
@@ -277,7 +279,6 @@ export const actions = {
         } 
       }
 
-
       let OCTime = validateOperatingHours(open, close)
       openingTime = OCTime.openingTime
       closingTime = OCTime.closingTime
@@ -291,22 +292,69 @@ export const actions = {
     }
 
     let newServices = []
-    let newService
 
-    for (let i = 0; ; i++) {
-      try {
-        newService = validateService(data, i)
-        if (!newService) {
+    const ambulanceDAO = new AmbulanceServiceDAO();
+    const bloodBankDAO = new BloodBankServiceDAO();
+    const eRDAO = new ERServiceDAO();
+    const iCUDAO = new ICUServiceDAO();
+    const outpatientDAO = new OutpatientServiceDAO();
+
+    let service: any
+
+    try {
+      for (let i = 0; ; i++) {
+        const serviceType = data.get('serviceType'+String(i)) as string;
+        if (!serviceType) {
           break;
         }
-        newServices.push(newService)
-      } catch (error) {
-        return fail(422, {
-          error: (error as Error).message,
-          description: "Service Validation",
-          success: false
-        });
+
+        switch (serviceType) {
+          case "Ambulance": {
+            // let service: CreateAmbulanceServiceDTO
+            service = validateAmbulance(data, String(i))
+            newServices.push({dao: ambulanceDAO, service, type: "Ambulance"})
+            break;
+          }
+          case "Blood Bank": {
+            // let service: CreateBloodBankServiceDTO
+            service = validateBloodBank(data, String(i))
+            newServices.push({dao: bloodBankDAO, service, type: "Blood Bank"})
+            break;
+          }
+          case "Emergency Room": {
+            // let service: CreateERServiceDTO
+            service = validateER(data, String(i))
+            newServices.push({dao: eRDAO, service, type: "Emergency Room"})
+            break;
+          }
+          case "Intensive Care Unit": {
+            // let service: CreateICUServiceDTO
+            service = validateICU(data, String(i))
+            newServices.push({dao: iCUDAO, service, type: "Intensive Care Unit"})
+            break;
+          }
+          case "Outpatient": {
+            // let service: CreateOutpatientServiceDTO
+            service = validateOP(data, String(i)) 
+            newServices.push({dao: outpatientDAO, service, type: service.type})
+            break;
+          }
+          default: {
+            return fail(422, {
+              error: "Invalid service type selected",
+              description: "Division Validation",
+              success: false
+            });
+          }
+        }
       }
+      
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "Service Validation",
+        success: false
+      });
     }
 
     for (let i = 0; i < newServices.length; i++) {
@@ -321,11 +369,11 @@ export const actions = {
       }
     }
 
-//     CreateAmbulanceServiceDTO
-// CreateBloodBankServiceDTO
-// CreateERServiceDTO
-// CreateICUServiceDTO
-// CreateOutpatientServiceDTO
+    // CreateAmbulanceServiceDTO
+    // CreateBloodBankServiceDTO
+    // CreateERServiceDTO
+    // CreateICUServiceDTO
+    // CreateOutpatientServiceDTO
 
     let servicesToAttach = []
     let numberOfExistingServices
@@ -333,7 +381,7 @@ export const actions = {
 
     for (let {services} of existingServices) {
       numberOfExistingServices = services.length
-      for (let {serviceID, type} of services) {
+      for (let {serviceID} of services) {
         if (data.get(serviceID)) {
           count++
           servicesToAttach.push(serviceID)
@@ -369,12 +417,12 @@ export const actions = {
 
     try {
       const divisionID = await divisionDAO.create(facilityID, employeeID, division)
-      for (newService of newServices) {
+      for (var newService of newServices) {
         const serviceID = await newService.dao.create(facilityID, employeeID, newService.service)
         servicesToAttach.push(serviceID)
       }
 
-      divisionDAO.connectServices(divisionID, servicesToAttach)
+      await divisionDAO.connectServices(divisionID, servicesToAttach)
       
     } catch (error) {
       return fail(422, {
@@ -520,7 +568,10 @@ export const actions = {
       closingTime,
     }
 
-    divisionDAO.update(divisionID, facilityID, employeeID, div)
+    await divisionDAO.update(divisionID, facilityID, employeeID, div)
+    return {
+      success: true
+    }
   },
 } satisfies Actions;
 
@@ -547,170 +598,3 @@ function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
   return availableOPServices;
 }
 
-function validateService(data: FormData, i: number): any {
-  const serviceType = data.get('serviceType'+String(i));
-  if (!serviceType) {
-    return
-  }
-  const phone    = data.get('phoneNumber'+String(i));
-  const open     = data.get('opening'+String(i));
-  const close    = data.get('closing'+String(i));
-  const rates    = data.get('price'+String(i));
-
-  const minCover = data.get('minCoverageRadius'+String(i));
-  const mileRate = data.get('mileageRate'+String(i));
-  const maxCover = data.get('maxCoverageRadius'+String(i));
-
-  const turnTD  = data.get('turnaroundDays'+String(i));
-  const turnTH  = data.get('turnaroundHours'+String(i));
-
-  const OPType  = data.get('OPserviceType'+String(i));
-  const compTD  = data.get('completionDays'+String(i));
-  const compTH  = data.get('completionHours'+String(i));
-  const walkins = data.get('acceptWalkins'+String(i));
-  
-  switch (serviceType){
-    case "Ambulance": {
-      let phoneNumber: string
-      let openingTime: Date
-      let closingTime: Date
-      let baseRate: number
-      let minCoverageRadius: number
-      let mileageRate: number
-      let maxCoverageRadius: number
-
-      try {
-        phoneNumber = validatePhone(phone);
-        baseRate = validateFloat(rates, "Base Rate");
-        mileageRate = validateFloat(mileRate, "Mileage Rate");
-
-        let OCTime = validateOperatingHours(open, close)
-        openingTime = OCTime.openingTime
-        closingTime = OCTime.closingTime
-
-        let radius = validateCoverageRadius(minCover, maxCover)
-        minCoverageRadius = radius.minCoverageRadius
-        maxCoverageRadius = radius.maxCoverageRadius
-
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateAmbulanceServiceDTO = {
-        phoneNumber,
-        openingTime,
-        closingTime,
-        baseRate,
-        minCoverageRadius,
-        mileageRate,
-        maxCoverageRadius
-      }
-
-      const dao = new AmbulanceServiceDAO();
-      return {dao, service, type:"Ambulance"}
-    }
-
-    case "Blood Bank": {
-      let phoneNumber: string
-      let openingTime: Date
-      let closingTime: Date
-      let basePricePerUnit: number
-      let turnaroundTimeD: number
-      let turnaroundTimeH: number
-
-      try {
-        phoneNumber = validatePhone(phone);
-        basePricePerUnit = validateFloat(rates, "Price Per Unit");
-
-        let OCTime = validateOperatingHours(open, close)
-        openingTime = OCTime.openingTime
-        closingTime = OCTime.closingTime
-
-        let TTime = validateCompletionTime(turnTD, turnTH, "Turnarond")
-        turnaroundTimeD = TTime.days
-        turnaroundTimeH = TTime.hours
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateBloodBankServiceDTO = {
-        phoneNumber,
-        openingTime,
-        closingTime,
-        basePricePerUnit,
-        turnaroundTimeD,
-        turnaroundTimeH
-      }
-
-      const dao = new BloodBankServiceDAO();
-      return {dao, service, type:"Blood Bank"}
-    }
-
-    case "Emergency Room": {
-      let phoneNumber: string
-
-      try {
-        phoneNumber = validatePhone(phone);
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateERServiceDTO = {
-        phoneNumber
-      }
-
-      const dao = new ERServiceDAO();
-      return {dao, service, type:"Emergency Room"}
-    }
-
-    case "Intensive Care Unit": {
-      let phoneNumber: string
-      let baseRate: number
-
-      try {
-        phoneNumber = validatePhone(phone);
-        baseRate = validateFloat(rates, "Base Rate");
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateICUServiceDTO = {
-        phoneNumber,
-        baseRate
-      }
-
-      const dao = new ICUServiceDAO();
-      return {dao, service, type:"Intensive Care Unit"}
-    }
-
-    case "Outpatient": {
-      let basePrice: number
-      let completionTimeD: number
-      let completionTimeH: number
-
-      const OPserviceType     = OPType as string;
-      const acceptsWalkIns    = walkins === 'on';
-
-      try {
-        basePrice = validateFloat(rates, "Price");
-      
-        let CTime = validateCompletionTime(compTD, compTH, "Completion")
-        completionTimeD = CTime.days
-        completionTimeH = CTime.hours
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateOutpatientServiceDTO = {
-        type: OPserviceType,
-        basePrice,
-        completionTimeD,
-        completionTimeH,
-        acceptsWalkIns
-      }
-
-      const dao = new OutpatientServiceDAO();
-      return {dao, service, type:"Outpatient"}
-    }
-  }
-}

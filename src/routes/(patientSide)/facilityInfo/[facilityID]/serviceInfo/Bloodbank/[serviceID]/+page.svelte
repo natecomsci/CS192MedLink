@@ -13,48 +13,18 @@
 
   let service = "Blood Bank Service Details"
 
-    const bloodData = [
-    { type: "A+", available: true },
-    { type: "A-", available: false },
-    { type: "B+", available: true },
-    { type: "B-", available: false },
-    { type: "O+", available: true },
-    { type: "O-", available: false },
-    { type: "AB+", available: true },
-    { type: "AB-", available: false }
+  const bloodData = [
+    { type: "A+", available: bloodTypeAvailability?.A_P },
+    { type: "A-", available: bloodTypeAvailability?.A_N },
+    { type: "B+", available: bloodTypeAvailability?.B_P },
+    { type: "B-", available: bloodTypeAvailability?.B_N },
+    { type: "O+", available: bloodTypeAvailability?.O_P },
+    { type: "O-", available: bloodTypeAvailability?.O_N },
+    { type: "AB+", available: bloodTypeAvailability?.AB_P },
+    { type: "AB-", available: bloodTypeAvailability?.AB_N }
   ];
+  
 </script>
-<!-- 
-<div class="mt-4 border p-4 rounded-lg shadow-md bg-white">
-  <h1 class="text-xl font-bold mb-4">Blood Bank Service Details</h1>
-
-  <p><strong>Facility Name:</strong> {facilityName}</p>
-  <p><strong>Address:</strong> {facilityAddress ? 
-    `${facilityAddress.street}, ${facilityAddress.barangay}, ${facilityAddress.city}, ${facilityAddress.province}, ${facilityAddress.region}` 
-    : "Address not available"}
-  </p>
-  <p><strong>Phone:</strong> {phoneNumber ?? "N/A"}</p>
-  <p><strong>Opening Time:</strong> {openingTime ?? "N/A"}</p>
-  <p><strong>Closing Time:</strong> {closingTime ?? "N/A"}</p>
-  <p><strong>Price per Unit:</strong> {pricePerUnit ?? "N/A"}</p>
-  <p><strong>Turnaround Time:</strong> {turnaroundTimeD} days, {turnaroundTimeH} hours</p>
-
-  <h3 class="mt-4 font-semibold">Blood Type Availability</h3>
-  {#if bloodTypeAvailability}
-    <ul class="list-disc ml-5">
-      <li><strong>A+:</strong> {bloodTypeAvailability.A_P ? "Available" : "Unavailable"}</li>
-      <li><strong>A-:</strong> {bloodTypeAvailability.A_N ? "Available" : "Unavailable"}</li>
-      <li><strong>B+:</strong> {bloodTypeAvailability.B_P ? "Available" : "Unavailable"}</li>
-      <li><strong>B-:</strong> {bloodTypeAvailability.B_N ? "Available" : "Unavailable"}</li>
-      <li><strong>O+:</strong> {bloodTypeAvailability.O_P ? "Available" : "Unavailable"}</li>
-      <li><strong>O-:</strong> {bloodTypeAvailability.O_N ? "Available" : "Unavailable"}</li>
-      <li><strong>AB+:</strong> {bloodTypeAvailability.AB_P ? "Available" : "Unavailable"}</li>
-      <li><strong>AB-:</strong> {bloodTypeAvailability.AB_N ? "Available" : "Unavailable"}</li>
-    </ul>
-  {:else}
-    <p class="text-gray-500">Blood type availability information is not available.</p>
-  {/if}
-</div> -->
 
 <div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
   <!-- Header Facility Name -->

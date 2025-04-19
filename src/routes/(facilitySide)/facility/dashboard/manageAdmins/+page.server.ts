@@ -21,7 +21,6 @@ import {
 const adminDAO = new AdminDAO();
 const employeeDAO = new EmployeeDAO();
 
-let facilityDivisions: string[] = []
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
@@ -45,7 +44,6 @@ export const load: PageServerLoad = async ({ cookies }) => {
   if (hasDivisions === 'true' ? true : false) {
     const divisionDAO = new DivisionDAO();
     const divisions: DivisionDTO[] = await divisionDAO.getByFacility(facilityID);
-    facilityDivisions = divisions.map(({divisionID}) => divisionID)
     data.divisions = divisions
   }
 
@@ -199,7 +197,6 @@ export const actions: Actions = {
     const data = await request.formData();
 
     const adminID = data.get('adminID') as string;
-
     const admin = await adminDAO.getInformation(adminID)
 
     if (!admin) {

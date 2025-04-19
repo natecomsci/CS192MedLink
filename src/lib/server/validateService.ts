@@ -1,0 +1,142 @@
+import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from "./DTOs";
+import { validateFloat, validatePhone, validateOperatingHours, validateCoverageRadius, validateCompletionTime } from "./formValidators";
+
+export function validateAmbulance(data: FormData, i: string | undefined): CreateAmbulanceServiceDTO{
+  let phoneNumber: string
+  let openingTime: Date
+  let closingTime: Date
+  let baseRate: number
+  let minCoverageRadius: number
+  let mileageRate: number
+  let maxCoverageRadius: number
+
+  const j = i === undefined ? "" : i
+
+  try {
+    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+
+    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
+    openingTime = OCTime.openingTime
+    closingTime = OCTime.closingTime
+
+    baseRate = validateFloat(data.get('price'+j), "Base Rate");
+
+    let radius = validateCoverageRadius(data.get('minCoverageRadius'+j), data.get('maxCoverageRadius'+j))
+    minCoverageRadius = radius.minCoverageRadius
+    maxCoverageRadius = radius.maxCoverageRadius
+
+    mileageRate = validateFloat(data.get('mileageRate'+j), "Mileage Rate");
+  } catch (e) {
+    throw new Error((e as Error).message);
+  }
+
+  return  {
+            phoneNumber,
+            openingTime,
+            closingTime,
+            baseRate,
+            minCoverageRadius,
+            mileageRate,
+            maxCoverageRadius
+          }
+}
+
+export function validateBloodBank(data: FormData, i: string | undefined): CreateBloodBankServiceDTO {
+  let phoneNumber: string
+  let openingTime: Date
+  let closingTime: Date
+  let basePricePerUnit: number
+  let turnaroundTimeD: number
+  let turnaroundTimeH: number
+
+  const j = i === undefined ? "" : i
+
+  try {
+    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+
+    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
+    openingTime = OCTime.openingTime
+    closingTime = OCTime.closingTime
+
+    basePricePerUnit = validateFloat(data.get('price'+j), "Price Per Unit");
+
+    let TTime = validateCompletionTime(data.get('turnaroundDays'+j), data.get('turnaroundHours'+j), "Turnarond")
+    turnaroundTimeD = TTime.days
+    turnaroundTimeH = TTime.hours
+
+  } catch (e) {
+    throw new Error((e as Error).message);
+  }
+
+  return  {
+            phoneNumber,
+            openingTime,
+            closingTime,
+            basePricePerUnit,
+            turnaroundTimeD,
+            turnaroundTimeH
+          }
+}
+
+export function validateER(data: FormData, i: string | undefined): CreateERServiceDTO {
+  let phoneNumber: string
+
+  const j = i === undefined ? "" : i
+
+  try {
+    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+  } catch (e) {
+    throw new Error((e as Error).message);
+  }
+
+  return  { phoneNumber }
+}
+
+export function validateICU(data: FormData, i: string | undefined): CreateICUServiceDTO {
+  let phoneNumber: string
+  let baseRate: number
+
+  const j = i === undefined ? "" : i
+
+  try {
+    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    baseRate = validateFloat(data.get('price'+j), "Base Rate");
+  } catch (e) {
+    throw new Error((e as Error).message);
+  }
+
+  return  {
+            phoneNumber,
+            baseRate,
+          }
+}
+
+export function validateOP(data: FormData, i: string | undefined): CreateOutpatientServiceDTO {
+  let basePrice: number
+  let completionTimeD: number
+  let completionTimeH: number
+
+  const j = i === undefined ? "" : i
+
+  const OPserviceType     = data.get('OPserviceType'+j) as string;
+  const acceptsWalkIns    = data.get('acceptWalkins'+j) === 'on';
+
+  try {
+    basePrice = validateFloat(data.get('price'+j), "Price");
+        
+    let CTime = validateCompletionTime(data.get('completionDays'+j), data.get('completionHours'+j), "Completion")
+    completionTimeD = CTime.days
+    completionTimeH = CTime.hours
+
+  } catch (e) {
+    throw new Error((e as Error).message);
+  }
+
+  return  {
+            type: OPserviceType,
+            basePrice,
+            completionTimeD,
+            completionTimeH,
+            acceptsWalkIns
+          }
+}

@@ -5,19 +5,10 @@
   let phoneNumber = $state(data.phoneNumber);
   let divisionName = $state(data.divisionName);
   let email = $state(data.email);
-  let openTime = $state(data.openTime);
-  let closingTime = $state(data.closeTime);
+  let openTime = $state(data.openTime ?? '');
+  let closingTime = $state(data.closeTime ?? '');
   let hasServices = $state(data.hasServices);
-  let services = $state(data.services);
-
-  const formatTime = (time: string) => {
-    const date = new Date(time);
-    return date.toLocaleTimeString('en-PH', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  };
+  let services = $state(data.services ?? []);
 </script>
 
 <div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
@@ -41,7 +32,7 @@
         <strong>Email:</strong> {email}
       </p>
       <p class="text-gray-700 text-sm">
-        <strong>Hours:</strong> {formatTime(openTime)} - {formatTime(closingTime)}
+        <strong>Hours:</strong> {openTime} - {closingTime}
       </p>
     </div>
 

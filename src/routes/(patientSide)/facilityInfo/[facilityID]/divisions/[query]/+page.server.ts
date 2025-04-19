@@ -1,13 +1,13 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
-import { DivisionDAO, FacilityDAO, type DivisionDTO, type ServiceDTO } from "$lib";
+import { PatientDivisionListDAO } from "$lib";
 
 export const load: PageServerLoad = async ({ params, url }) => {
   const { facilityID, query } = params;
   const numberToFetch = 10; // Adjust as needed
   const offset = Number(url.searchParams.get("offset")) || 0;
 
-  const patientDivisionListDAO = new DivisionDAO();
+  const patientDivisionListDAO = new PatientDivisionListDAO();
 
   try {
     // Return early if query is empty (same as the DAO logic)

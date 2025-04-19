@@ -28,20 +28,22 @@ export const load: PageServerLoad = async ({ params, url }) => {
   }
 
   try {
-    let eRService = await ERDAO.getInformation(serviceID);
     let service = await servicesDAO.getByID(serviceID);
-
-    let facility = await servicesDAO.getByID(serviceID);
-    if (!facility || !facility.facilityID) {
-      throw new Error("Service or facilityID not found.");
+    if (!service || !service.facilityID) {
+      return fail(500, { error: "Service or facilityID not found." });
     }
 
-    let facilityname = await facilityDAO.getInformation(facility.facilityID);
-    if (!facilityname || !facilityname.name) {
-      throw new Error("Facility details not found.");
+    let eRService = await ERDAO.getInformation(serviceID);
+    if (!eRService) {
+      return fail(500, { error: "ER Service details not found." });
     }
 
-    let address = await addressDAO.getByFacility(facility.facilityID);
+    let facility = await facilityDAO.getInformation(service.facilityID);
+    if (!facility || facility.name) {
+      return fail(500, { error: "Facility details not found." });
+    }
+
+    let address = await addressDAO.getByFacility(service.facilityID);
     let fullAddress = null;
 
     if (address) {
@@ -77,7 +79,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
     }
 
     return {
-      facilityName: facilityname.name ?? "Unknown Facility",
+      facilityName: facility.name ?? "Unknown Facility",
       facilityAddress: fullAddress,
       phoneNumber ,
       load: eRService.load ?? null,

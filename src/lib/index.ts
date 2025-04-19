@@ -13,56 +13,82 @@ import { AddressDAO } from "./server/dataLayer/AddressDAO";
 import { AdminDAO, FacilityAdminListDAO } from "./server/dataLayer/AdminDAO";
 import { AmbulanceServiceDAO } from "./server/dataLayer/AmbulanceDAO";
 import { BloodBankServiceDAO, BloodTypeMappingDAO } from "./server/dataLayer/BloodBankDAO";
+import { ContactDAO } from "./server/dataLayer/ContactDAO";
+import { DivisionDAO, PatientDivisionListDAO, FacilityDivisionListDAO } from "./server/dataLayer/DivisionDAO";
 import { EmployeeDAO } from "./server/dataLayer/EmployeeDAO";
 import { ERServiceDAO } from "./server/dataLayer/ERDAO";
 import { FacilityDAO } from "./server/dataLayer/FacilityDAO";
+import { GeographyDAO } from "./server/dataLayer/GeographyDAO";
 import { ICUServiceDAO } from "./server/dataLayer/ICUDAO";
 import { OutpatientServiceDAO } from "./server/dataLayer/OutpatientDAO";
 import { ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO } from "./server/dataLayer/ServicesDAO";
 import { UpdateLogDAO } from "./server/dataLayer/UpdateLogDAO";
-import { DivisionDAO, FacilityDivisionListDAO } from "./server/dataLayer/DivisionDAO";
-import { GeographyDAO } from "./server/dataLayer/GeographyDAO";
+
+import  { 
+          validateAmbulance,
+          validateBloodBank,
+          validateER,
+          validateICU,
+          validateOP
+        } from "./server/validateService";
 
 import type { 
-        ServiceDTO,
-        ServiceResultsDTO,
-        LoadMoreResultsDTO,
-        
-        // FacilityResultsDTO,
-        GeneralInformationFacilityDTO,
-
         RegionDTO,
         POrCDTO,
         COrMDTO,
         BrgyDTO,
         AddressDTO,
 
+        GeneralInformationFacilityDTO,
+        UpdateGeneralInformationFacilityDTO,
+
+        DivisionDTO,
+        CreateDivisionDTO,
+        UpdateDivisionDTO,
+        MultiServiceDivisionsDTO,
+
+        AdminDTO,
+        CreateAdminDTO,
+        UpdateAdminDTO,
+        InitialAdminDetailsDTO,
+
+        ServiceDTO,
+
         CreateAmbulanceServiceDTO,
         AmbulanceServiceDTO,
+        UpdateAmbulanceServiceDTO,
 
         BloodTypeMappingDTO,
         CreateBloodBankServiceDTO,
         BloodBankServiceDTO,
+        UpdateBloodBankServiceDTO,
 
         CreateERServiceDTO,
         ERServiceDTO,
+        UpdateERServiceDTO,
 
         CreateICUServiceDTO,
         ICUServiceDTO,
+        UpdateICUServiceDTO,
 
         CreateOutpatientServiceDTO,
         OutpatientServiceDTO,
-
-        InitialAdminDetailsDTO,
-        Create_UpdateAdminDTO,
-        AdminDTO,
-
-        Create_UpdateDivisionDTO,
         UpdateOutpatientServiceDTO,
-        DivisionDTO,
-        MultiServiceDivisionsDTO,
 
+        CreateUpdateLogDTO,
+        UpdateLogDTO,
+
+        CreateContactDTO,
+
+        ServiceResultsDTO,
+
+        LoadMoreResultsDTO,
         PaginatedResultsDTO,
+
+        FacilityDivisionResultsDTO,
+        FacilityServiceResultsDTO,
+
+        AdminPreviewDTO,
       } from "./server/dataLayer/DTOs";
 
 import { 
@@ -92,47 +118,63 @@ export const facilityDivisionsPageSize: number = 10
 
 export type OPServiceType = typeof OPServiceTypes[number];
 
-export type {
-  // DTOs
-  ServiceDTO,
-  ServiceResultsDTO,
-  LoadMoreResultsDTO,
-
-  // FacilityResultsDTO,
-  GeneralInformationFacilityDTO,
-
+export type { 
   RegionDTO,
   POrCDTO,
   COrMDTO,
   BrgyDTO,
   AddressDTO,
 
+  GeneralInformationFacilityDTO,
+  UpdateGeneralInformationFacilityDTO,
+
+  DivisionDTO,
+  CreateDivisionDTO,
+  UpdateDivisionDTO,
+  MultiServiceDivisionsDTO,
+
+  AdminDTO,
+  CreateAdminDTO,
+  UpdateAdminDTO,
+  InitialAdminDetailsDTO,
+
+  ServiceDTO,
+
   CreateAmbulanceServiceDTO,
   AmbulanceServiceDTO,
+  UpdateAmbulanceServiceDTO,
 
   BloodTypeMappingDTO,
   CreateBloodBankServiceDTO,
   BloodBankServiceDTO,
+  UpdateBloodBankServiceDTO,
 
   CreateERServiceDTO,
   ERServiceDTO,
+  UpdateERServiceDTO,
 
   CreateICUServiceDTO,
   ICUServiceDTO,
+  UpdateICUServiceDTO,
 
   CreateOutpatientServiceDTO,
   OutpatientServiceDTO,
-
-  InitialAdminDetailsDTO,
-  Create_UpdateAdminDTO,
-  AdminDTO,
-
-  Create_UpdateDivisionDTO,
   UpdateOutpatientServiceDTO,
-  DivisionDTO,
-  MultiServiceDivisionsDTO,
 
-  PaginatedResultsDTO
+  CreateUpdateLogDTO,
+  UpdateLogDTO,
+
+  CreateContactDTO,
+
+  ServiceResultsDTO,
+
+  LoadMoreResultsDTO,
+  PaginatedResultsDTO,
+
+  FacilityDivisionResultsDTO,
+  FacilityServiceResultsDTO,
+
+  AdminPreviewDTO,
 }
 
 export {
@@ -159,7 +201,7 @@ export {
   FacilityDAO,
   ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO,
   UpdateLogDAO,
-  DivisionDAO, FacilityDivisionListDAO,
+  DivisionDAO, PatientDivisionListDAO, FacilityDivisionListDAO,
   GeographyDAO,
   
   AmbulanceServiceDAO,
@@ -182,4 +224,9 @@ export {
   validateLink,
   validateImage,
 
+  validateAmbulance,
+  validateBloodBank,
+  validateER,
+  validateICU,
+  validateOP,
 }

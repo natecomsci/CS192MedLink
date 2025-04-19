@@ -6,6 +6,7 @@ import {  AmbulanceServiceDAO,
           AddressDAO,
           ServicesDAO,
           GeographyDAO,
+          dateToTimeMapping,
 } from '$lib';
 
 export const load: PageServerLoad = async ({ params, url }) => {
@@ -27,19 +28,19 @@ export const load: PageServerLoad = async ({ params, url }) => {
   }
 
   try {
-    let ambulanceService = await ambulanceDAO.getInformation(serviceID);
     let service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
-      throw new Error("Service or facilityID not found.");
+      return fail(500, { error: "Service or facilityID not found." });
     }
 
-    let phoneNumber
-    let openingTime
-    let closingTime
-    
+    let ambulanceService = await ambulanceDAO.getInformation(serviceID);
+    if (!ambulanceService) {
+      return fail(500, { error: "Ambulance Service details not found." });
+    }
+
     let facility = await facilityDAO.getInformation(service.facilityID);
-    if (!facility) {
-      throw new Error("Facility details not found.");
+    if (!facility || facility.name) {
+      return fail(500, { error: "Facility details not found." });
     }
     
     let address = await addressDAO.getByFacility(service.facilityID);
@@ -62,6 +63,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
       };
     }
 
+    let phoneNumber
+    let openingTime
+    let closingTime
+
     if (!ambulanceService.phoneNumber) {
       const address = await facilityDAO.getInformation(service.facilityID)
       phoneNumber = address.phoneNumber
@@ -77,8 +82,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
       facilityName      : facility.name,
       facilityAddress   : fullAddress,
       phoneNumber       ,
-      openingTime       ,
-      closingTime       ,
+      openingTime       : dateToTimeMapping(openingTime),
+      closingTime       : dateToTimeMapping(closingTime),
       baseRate          : ambulanceService.baseRate,
       minCoverageRadius : ambulanceService.minCoverageRadius,
       mileageRate       : ambulanceService.mileageRate,

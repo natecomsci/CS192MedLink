@@ -169,7 +169,11 @@ export const actions = {
           .upload(filePath, photoFile, { upsert: true });
 
         if (uploadError) {
-          throw new Error("Image upload failed: " + uploadError.message);
+          return fail(422, { 
+            error: "Image upload failed: " + uploadError.message,
+            description: "image",
+            success: false  
+          });
         }
 
         // Get public URL for the uploaded image

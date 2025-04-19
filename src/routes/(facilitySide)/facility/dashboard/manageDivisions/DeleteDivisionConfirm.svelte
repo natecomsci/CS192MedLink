@@ -42,12 +42,7 @@
         selectedAdminDivisionsIDs[admin.employeeID] = []
       }
 
-      console.log(admins)
-      console.log(facilityDivisions)
-      console.log(services)
-
       return {admins, services}
-      
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
@@ -101,7 +96,7 @@
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded shadow-lg w-80">
       <h2 class="text-lg font-bold">Confirm Deletion</h2>
-      <button class="mr-3" onclick={() => currentStep = 2}>
+      <button class="mr-3" onclick={() => currentStep = 2} aria-label="Back">
         <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
@@ -133,11 +128,6 @@
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
     <div class="bg-white w-1/2 max-w-full rounded-xl p-6 shadow-lg max-h-[90vh] flex flex-col">
       <div class="flex items-center mb-4">
-        <button class="mr-3" onclick={() => currentStep = 1}>
-          <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
         <h2 class="text-2xl font-bold text-purple-800">Manage Admins in Division</h2>
       </div>
       <div class="overflow-y-auto flex-1 pr-2 border">
@@ -170,7 +160,7 @@
                 </label>
               </div>
 
-              <button class="text-red-600 hover:text-red-800">
+              <button class="text-red-600 hover:text-red-800" aria-label="Delete">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -192,7 +182,7 @@
     <div class="bg-white w-1/2 max-w-full rounded-xl p-6 shadow-lg max-h-[90vh] flex flex-col">
       <!-- Header -->
       <div class="flex items-center mb-4">
-        <button class="mr-3" onclick={() => currentStep = 1}>
+        <button class="mr-3" onclick={() => currentStep = 1} aria-label="Back">
           <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
@@ -227,7 +217,7 @@
                 </div>
               </div>
 
-              <button class="text-red-600 hover:text-red-800">
+              <button class="text-red-600 hover:text-red-800" aria-label="Delete">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
