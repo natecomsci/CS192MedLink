@@ -16,7 +16,9 @@ import { UpdateLogDAO } from "./UpdateLogDAO";
 
 import type { ServiceDTO,
               LoadMoreResultsDTO,
-              PaginatedResultsDTO 
+              ServiceResultsDTO,
+              FacilityServiceResultsDTO,
+              PaginatedResultsDTO
             } from "./DTOs";
 
 //
@@ -285,7 +287,7 @@ export class ServicesDAO {
 }
 
 export class PatientServiceListDAO {
-  async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO<ServiceDTO>> { // to refine for location-based search
+  async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO<ServiceResultsDTO>> { // to refine for location-based search
     try {
       if (!(query.trim())) {
         return { results: [], totalResults: 0, totalFetched: 0, hasMore: false };
@@ -350,7 +352,7 @@ export class PatientServiceListDAO {
     }
   }
 
-  async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<ServiceDTO>> {
+  async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<FacilityServiceResultsDTO>> {
     try {
       console.log(`Loaded more Services for Facility ${facilityID} (offset: ${offset}): `);
 
@@ -370,7 +372,7 @@ export class PatientServiceListDAO {
     }
   }
 
-  async patientSearchServicesByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<ServiceDTO>> {
+  async patientSearchServicesByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<FacilityServiceResultsDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalResults: 0, totalFetched: 0, hasMore: false };

@@ -309,7 +309,7 @@ export class DivisionDAO {
 }
 
 export class PatientDivisionListDAO {
-  async getLoadMoreDivisionsByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<DivisionDTO>> {
+  async getLoadMoreDivisionsByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<FacilityDivisionResultsDTO>> {
     try {
       console.log(`Loaded more Divisions for Facility ${facilityID} (offset: ${offset}): `);
 
@@ -329,7 +329,7 @@ export class PatientDivisionListDAO {
     }
   }
 
-  async patientSearchDivisionsByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<DivisionDTO>> {
+  async patientSearchDivisionsByFacility(facilityID: string, query: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<FacilityDivisionResultsDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalResults: 0, totalFetched: 0, hasMore: false };
