@@ -45,8 +45,8 @@ export interface GeneralInformationFacilityDTO {
   name              : string,
   photo             : string,
   address           : AddressDTO,
-  email?            : string[],
-  phoneNumber       : string[],
+  email?            : ContactDTO[],
+  phoneNumber       : ContactDTO[],
   openingTime?      : Date,
   closingTime?      : Date,
   facilityType      : FacilityType,
@@ -72,7 +72,10 @@ export interface CreateDivisionDTO {
   closingTime : Date,
 }
 
-export type UpdateDivisionDTO = Partial<CreateDivisionDTO>;
+export type UpdateDivisionDTO = Omit<Partial<CreateDivisionDTO>, ("email" | "phoneNumber")> & {
+  email?       : ContactDTO[],
+  phoneNumber? : ContactDTO[],
+};
 
 export interface MultiServiceDivisionsDTO {
   divisionID : string,
@@ -135,7 +138,7 @@ export interface CreateAmbulanceServiceDTO {
 }
 
 export interface AmbulanceServiceDTO {
-  phoneNumber?      : string[],
+  phoneNumber?      : ContactDTO[],
   openingTime?      : Date,
   closingTime?      : Date,
   availability      : Availability,
@@ -180,7 +183,7 @@ export interface CreateBloodBankServiceDTO {
 }
 
 export interface BloodBankServiceDTO {
-  phoneNumber?          : string[],
+  phoneNumber?          : ContactDTO[],
   openingTime?          : Date,
   closingTime?          : Date,
   basePricePerUnit      : number,
@@ -210,7 +213,7 @@ export interface CreateERServiceDTO {
 }
 
 export interface ERServiceDTO {
-  phoneNumber?         : string[],
+  phoneNumber?         : ContactDTO[],
   openingTime?         : Date,
   closingTime?         : Date,
   load                 : Load,
@@ -245,7 +248,7 @@ export interface CreateICUServiceDTO {
 }
 
 export interface ICUServiceDTO {
-  phoneNumber?        : string[],
+  phoneNumber?        : ContactDTO[],
   openingTime?        : Date,
   closingTime?        : Date,
   load                : Load,
@@ -295,7 +298,7 @@ export interface OutpatientServiceDTO {
 }
 
 export type UpdateOutpatientServiceDTO = Partial<
-  Omit<Omit<OutpatientServiceDTO, "division">, "type"> & {
+  Omit<OutpatientServiceDTO, ("division" | "type")> & {
     divisionID?: string;
   }
 >;
@@ -330,7 +333,6 @@ export interface CreateContactDTO {
 export interface ContactDTO {
   contactID : string,
   info      : string;
-  type?     : ContactType;
 }
 
 export interface ServiceResultsDTO {

@@ -272,6 +272,8 @@ model Service {
 
   // Outpatient Services are always associated with the Phone Numbers of their offering Facility or Division.
 
+  // JOKE LANG HEHE BUSINESS LOGIC LAYER NA TO
+
   phoneNumbers      Contact[]
 
   // operatingHours OperatingHour[]
@@ -399,9 +401,7 @@ model Contact {
 
   // RELATIONS 
 
-  // A Contact may be associated with a Facility, a Division, or a specialized Service.
-
-  // Intricacies of these relationships explained elsewhere. Tinatamad na ako magsulat.
+  // A Contact may be associated with either a Facility, a Division, or a specialized Service.
 
   facility   Facility? @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String?
@@ -411,6 +411,8 @@ model Contact {
 
   service    Service?  @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
   serviceID  String?
+
+  // REMINDER FOR PAUL: DO POSTGRESQL MANUAL ENFORCEMENT OF RELATION THINGIES
 }
 
 /*
@@ -462,11 +464,6 @@ model UpdateLog {
 }
 
 // ENUMS
-
-enum Role {
-  MANAGER
-  ADMIN
-}
 
 enum FacilityType {
   // Hospitals & General Medical Centers  
@@ -575,6 +572,11 @@ enum Provider {
   WELLCARE                 // Wellcare Health Maintenance, Inc.
 }
 
+enum Role {
+  MANAGER
+  ADMIN
+}
+
 enum Availability {
   AVAILABLE
   SHORT_DELAY
@@ -596,6 +598,7 @@ enum ContactType {
   PHONE
   EMAIL
 }
+
 /*
 enum Day {
   MON

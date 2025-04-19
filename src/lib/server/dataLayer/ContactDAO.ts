@@ -11,7 +11,7 @@ export class ContactDAO {
 
   // gets both phone numbers and emails if the type input is not given
 
-  private async getContacts(where: { facilityID?: string; divisionID?: string; serviceID?: string }, type?: ContactType): Promise<ContactDTO[]> {
+  private async getContactsByType(type: ContactType, where?: { facilityID?: string; divisionID?: string; serviceID?: string }): Promise<ContactDTO[]> {
     try {
       const select = {
         contactID : true,
@@ -50,70 +50,46 @@ export class ContactDAO {
     }
   }
 
-  async getAll(): Promise<ContactDTO[]> {
-    console.log(`Fetched Contacts: `);
-
-    return this.getContacts({});
-  }
-
-  async getByFacility(facilityID: string): Promise<ContactDTO[]> {
-    console.log(`Fetched Contacts of Facility ${facilityID}: `)
-
-    return this.getContacts({ facilityID });
-  }
-
-  async getByDivision(divisionID: string): Promise<ContactDTO[]> {
-    console.log(`Fetched Contacts of Division ${divisionID}: `)
-
-    return this.getContacts({ divisionID });
-  }
-
-  async getByService(serviceID: string): Promise<ContactDTO[]> {
-    console.log(`Fetched Contacts of Service ${serviceID}: `)
-
-    return this.getContacts({ serviceID });
-  }
-
   async getAllPhoneNumbers(): Promise<ContactDTO[]> {
     console.log(`Fetched Phone Numbers: `);
 
-    return this.getContacts({}, ContactType.PHONE);
+    return this.getContactsByType(ContactType.PHONE);
   }
 
   async getPhoneNumbersByFacility(facilityID: string): Promise<ContactDTO[]> {
     console.log(`Fetched Phone Numbers of Facility ${facilityID}: `)
 
-    return this.getContacts({ facilityID }, ContactType.PHONE);
+    return this.getContactsByType(ContactType.PHONE, { facilityID });
   }
 
   async getPhoneNumbersByDivision(divisionID: string): Promise<ContactDTO[]> {
     console.log(`Fetched Phone Numbers of Division ${divisionID}: `)
 
-    return this.getContacts({ divisionID }, ContactType.PHONE);
+    return this.getContactsByType(ContactType.PHONE, { divisionID });
   }
   
   async getPhoneNumbersByService(serviceID: string): Promise<ContactDTO[]> {
     console.log(`Fetched Phone Numbers of Service ${serviceID}: `)
 
-    return this.getContacts({ serviceID }, ContactType.PHONE);
+    return this.getContactsByType(ContactType.PHONE, { serviceID });
   }
 
   async getAllEmails(): Promise<ContactDTO[]> {
     console.log(`Fetched Emails: `)
   
-    return this.getContacts({}, ContactType.EMAIL);
+    return this.getContactsByType(ContactType.EMAIL);
   }
 
   async getEmailsByFacility(facilityID: string): Promise<ContactDTO[]> {
     console.log(`Fetched Emails of Facility ${facilityID}: `)
 
-    return this.getContacts({ facilityID }, ContactType.EMAIL);
+    return this.getContactsByType(ContactType.EMAIL, { facilityID });
   }
 
   async getEmailsByDivision(divisionID: string): Promise<ContactDTO[]> {
     console.log(`Fetched Emails of Division ${divisionID}: `)
 
-    return this.getContacts({ divisionID }, ContactType.EMAIL);
+    return this.getContactsByType(ContactType.EMAIL, { divisionID });
   }
   
   async update(contactID: string, info: string): Promise<void> {
