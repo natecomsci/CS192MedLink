@@ -62,9 +62,9 @@ export class UpdateLogDAO {
     }
   }  
 
-  async getPaginatedUpdateLogsByFacility(facilityID: string, employeeID: string, role: Role, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<UpdateLogDTO>> {
+  async getPaginatedUpdateLogsByFacility(facilityID: string, employeeID: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<UpdateLogDTO>> {
     try {
-      const where = await getEmployeeScopedWhereClause(facilityID, employeeID, role);
+      const where = await getEmployeeScopedWhereClause(facilityID, employeeID);
 
       console.log(`Page ${page} of the list of Facility ${facilityID}'s Update Logs: `);
 
@@ -82,7 +82,7 @@ export class UpdateLogDAO {
     }
   } 
 
-  async employeeSearchUpdateLogsByFacility(facilityID: string, employeeID: string, role: Role, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<UpdateLogDTO>> {
+  async employeeSearchUpdateLogsByFacility(facilityID: string, employeeID: string, query: string, page: number, pageSize: number, orderBy: any): Promise<PaginatedResultsDTO<UpdateLogDTO>> {
     try {
       if (!(query.trim())) {
         return { results: [], totalPages: 1, currentPage: page };
