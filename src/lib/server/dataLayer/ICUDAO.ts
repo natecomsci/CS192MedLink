@@ -179,7 +179,7 @@ export class ICUServiceDAO {
         // phoneNumber = [] means delete everything
 
         if (phoneNumber) {
-          await contactDAO.deleteMany("service", serviceID, tx);
+          await contactDAO.deleteMany("service", serviceID, ContactType.PHONE, tx);
   
           if (phoneNumber.length > 0) {
             await contactDAO.createMany(

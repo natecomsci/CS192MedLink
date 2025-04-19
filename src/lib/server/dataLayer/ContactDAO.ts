@@ -87,11 +87,12 @@ export class ContactDAO {
     }
   }
 
-  async deleteMany(entity: EntityType, relatedID: string, tx: Prisma.TransactionClient): Promise<void> {
+  async deleteMany(entity: EntityType, relatedID: string, type: ContactType, tx: Prisma.TransactionClient): Promise<void> {
     try {
       await tx.contact.deleteMany({
         where: {
-          [`${entity}ID`]: relatedID
+          [`${entity}ID`]: relatedID,
+          type
         }
       });
 

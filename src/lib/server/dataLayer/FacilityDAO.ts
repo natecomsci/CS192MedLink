@@ -62,7 +62,7 @@ export class FacilityDAO {
         // email = [] means delete everything
 
         if (email) {
-          await contactDAO.deleteMany("facility", facilityID, tx);
+          await contactDAO.deleteMany("facility", facilityID, ContactType.EMAIL, tx);
   
           if (email.length > 0) {
             await contactDAO.createMany(
@@ -80,7 +80,7 @@ export class FacilityDAO {
         // phoneNumber = [] means delete everything
 
         if (phoneNumber) {
-          await contactDAO.deleteMany("facility", facilityID, tx);
+          await contactDAO.deleteMany("facility", facilityID, ContactType.PHONE, tx);
   
           if (phoneNumber.length > 0) {
             await contactDAO.createMany(

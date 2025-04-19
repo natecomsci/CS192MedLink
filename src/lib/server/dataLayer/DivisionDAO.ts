@@ -19,7 +19,8 @@ import type { DivisionDTO,
               UpdateDivisionDTO,
               MultiServiceDivisionsDTO,
               LoadMoreResultsDTO,
-              PaginatedResultsDTO
+              PaginatedResultsDTO,
+              FacilityDivisionResultsDTO
             } from "./DTOs";
 
 const divisionBaseSelect = {
@@ -166,13 +167,51 @@ export class DivisionDAO {
   async update(divisionID: string, facilityID: string, employeeID: string, data: UpdateDivisionDTO): Promise<void> {
     try {
       await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const { email, phoneNumber, ...divisionData } = data;
+
         const division = await tx.division.update({
           where: { 
             divisionID 
           },
           data
         });
+
+        // email = [] means delete everything
+
+        if (email) {
+          await contactDAO.deleteMany("division", divisionID, ContactType.EMAIL, tx);
   
+          if (email.length > 0) {
+            await contactDAO.createMany(
+              "division",
+              divisionID,
+              email.map((info) => ({
+                info,
+                type: ContactType.EMAIL
+              })),
+              tx
+            );
+          }
+        }
+
+        // phoneNumber = [] means delete everything
+
+        if (phoneNumber) {
+          await contactDAO.deleteMany("division", divisionID, ContactType.PHONE, tx);
+  
+          if (phoneNumber.length > 0) {
+            await contactDAO.createMany(
+              "division",
+              divisionID,
+              phoneNumber.map((info) => ({
+                info,
+                type: ContactType.PHONE
+              })),
+              tx
+            );
+          }
+        }
+
         await updateLogDAO.create(
           {
             entity     : division.name,
