@@ -38,10 +38,13 @@ import {
         validateICU,
         validateOP,
         type UpdateAdminDTO,
+
+        ContactDAO,
       } from '$lib';
 import bcrypt from 'bcryptjs';
 
 const divisionDAO = new DivisionDAO();
+const contactDAO = new ContactDAO();
 const servicesDAO = new ServicesDAO();
 
 let existingServices: MultiServiceDivisionsDTO[]
@@ -248,12 +251,11 @@ export const actions = {
         }
       }
 
-      const allDivisions = await divisionDAO.getAllUniques()
-      const allEmails = allDivisions.emails
-      const allPhones = allDivisions.phoneNumbers
+      const allEmails = await contactDAO.getAllEmails()
+      const allPhones = await contactDAO.getAllPhoneNumbers()
 
       for (let otherPhone of allPhones) {
-        if (otherPhone === phoneNumber) {
+        if (otherPhone === phoneNumber[0]) {
           return fail(422, {
             error: "Duplicate phone number detected",
             description: "Division Validation",
@@ -262,14 +264,16 @@ export const actions = {
         }
       }
 
-      for (let otherEmail of allEmails) {
-        if (email === otherEmail) {
-          return fail(422, {
-            error: "Duplicate email detected",
-            description: "Division Validation",
-            success: false
-          });
-        } 
+      if (email) {
+        for (let otherEmail of allEmails) {
+          if (otherEmail === email[0]) {
+            return fail(422, {
+              error: "Duplicate email detected",
+              description: "Division Validation",
+              success: false
+            });
+          } 
+        }
       }
 
       let OCTime = validateOperatingHours(open, close)
@@ -495,13 +499,11 @@ export const actions = {
         }
       }
 
-      const allDivisions = await divisionDAO.getAllUniques()
-
-      const allPhones = allDivisions.phoneNumbers
+      const allPhones = await contactDAO.getAllPhoneNumbers()
       let countPhones = 0
 
       for (let otherPhone of allPhones) {
-        if (otherPhone === phoneNumber) {
+        if (otherPhone === phoneNumber[0]) {
           countPhones++ 
         }
         if (countPhones > 1) {
@@ -513,20 +515,22 @@ export const actions = {
         }
       }
 
-      const allEmails = allDivisions.emails
+      const allEmails = await contactDAO.getAllEmails()
       let countEmails = 0
 
-      for (let otherEmail of allEmails) {
-        if (otherEmail === email) {
-          countEmails++ 
+      if (email) {
+        for (let otherEmail of allEmails) {
+          if (otherEmail === email[0]) {
+            countEmails++ 
+          }
+          if (countEmails > 1) {
+            return fail(422, {
+              error: "Duplicate email detected",
+              description: "Division Validation",
+              success: false
+            });
+          } 
         }
-        if (countEmails > 1) {
-          return fail(422, {
-            error: "Duplicate email detected",
-            description: "Division Validation",
-            success: false
-          });
-        } 
       }
 
       const OPHours = validateOperatingHours(open, close)

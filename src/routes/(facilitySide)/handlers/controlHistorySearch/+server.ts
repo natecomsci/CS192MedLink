@@ -1,6 +1,5 @@
 import { json, redirect, type RequestHandler } from '@sveltejs/kit';
 import { UpdateLogDAO } from '$lib';
-import type { Role } from '@prisma/client';
 
 const updateLogDAO = new UpdateLogDAO();
 
@@ -36,7 +35,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
   let results, currentPage, totalPages, logs
 
   if (viewedDivisionID === "Default"){
-    logs = await updateLogDAO.employeeSearchUpdateLogsByFacility(facilityID, employeeID, role as Role, query, newPageNumber, perPage, { createdAt: "desc" });
+    logs = await updateLogDAO.employeeSearchUpdateLogsByFacility(facilityID, employeeID, query, newPageNumber, perPage, { createdAt: "desc" });
   } else {
     logs = await updateLogDAO.employeeSearchUpdateLogsByDivision(viewedDivisionID, query, newPageNumber, perPage, { createdAt: "desc" });
   }

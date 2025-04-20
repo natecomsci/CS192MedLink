@@ -203,6 +203,7 @@ export {
   UpdateLogDAO,
   DivisionDAO, PatientDivisionListDAO, FacilityDivisionListDAO,
   GeographyDAO,
+  ContactDAO,
   
   AmbulanceServiceDAO,
   BloodBankServiceDAO, BloodTypeMappingDAO,
