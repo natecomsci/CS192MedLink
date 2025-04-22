@@ -117,7 +117,7 @@ export async function seedFacility() {
 
     // random shit
 
-    ...Array.from({ length: 16 }, (_, i) => ({
+    ...Array.from({ length: 26 }, (_, i) => ({
       facilityID       : (i + 1).toString(),
       name             : `Facility ${i + 1}`,
       hasBookingSystem : faker.datatype.boolean(),

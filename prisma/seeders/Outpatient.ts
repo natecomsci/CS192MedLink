@@ -75,7 +75,7 @@ export async function seedOutpatientService() {
       continue;
     }
 
-    const selectedTypes = faker.helpers.arrayElements(types, 25);
+    const selectedTypes = faker.helpers.arrayElements(types, 26);
 
     for (const type of selectedTypes) {
       const serviceID = `outpatient-${type.replace(/\s+/g, "-")}-${facilityID}`;

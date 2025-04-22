@@ -119,7 +119,7 @@ export async function seedAddress() {
     if (i % 2 === 0) {
       await createAddress(facilityID);
     } else {
-      await createAddress(facilityID, 2); // 13
+      await createAddress(facilityID, 2); // 2 for test database, 13 for actual database
     }
   }
 }

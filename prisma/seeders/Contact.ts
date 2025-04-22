@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 import { prisma } from "../../src/lib/server/dataLayer/prisma";
 
 import { ContactType } from "@prisma/client";
@@ -50,7 +52,7 @@ export async function seedContact() {
       },
     });
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Facility
 
       await contactDAO.createMany(

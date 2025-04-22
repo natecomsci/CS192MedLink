@@ -88,11 +88,15 @@ export async function getFacilities(withDivs?: boolean): Promise<{ facilityID: s
   return facilities;
 }
 
-export async function getDivisions(facilityID: string): Promise<string[]> {
+export async function getDivisions(facilityID?: string): Promise<string[]> {
+  const where = facilityID
+    ? {
+        facilityID
+      }
+    : {};
+
   const divisions = await prisma.division.findMany({
-    where: {
-      facilityID
-    },
+    where,
     select: { 
       divisionID: true 
     }

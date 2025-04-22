@@ -42,7 +42,7 @@ export async function seedDivision() {
     for (let i = 0; i < numDivisions; i++) {
       const { openingTime, closingTime } = createOperatingHours();
 
-      const name: string = getUniqueDivisionName(usedNames);
+      const name: string = `${getUniqueDivisionName(usedNames)} Division`;
 
       const divisionID: string = `${facilityID}-div-${i}`;
 
@@ -56,7 +56,7 @@ export async function seedDivision() {
           },
           create: {
             divisionID,
-            name: `${name} Division`,
+            name,
             openingTime,
             closingTime,
 
@@ -67,7 +67,7 @@ export async function seedDivision() {
         if (i % 2 === 1) {
           await updateLogDAO.create(
             {
-              entity: "Division",
+              entity: name,
               action: Action.CREATE,
               divisionID
             },

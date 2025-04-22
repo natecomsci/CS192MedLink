@@ -48,27 +48,51 @@ export async function seedAdmin() {
   const facilities = await getFacilities();
 
   for (const { facilityID } of facilities) {
-    let divisionIDs: string[] = await getDivisions(facilityID);
+    const divisionIDs: string[] = await getDivisions(facilityID);
 
     const hasDivisions: boolean = divisionIDs.length > 0;
 
-    for (let i = 0; i < 10; i++) {
-      if (hasDivisions) {
-        let num: number = faker.number.int({ min: 2, max: divisionIDs.length });
-
-        divisionIDs = faker.helpers.shuffle(divisionIDs).slice(0, num);
-
-        await createAdmin({ facilityID, index: i, divisionIDs });
-      } else {
-        await createAdmin({ facilityID, index: i });
-      }
-    }
+    let index: number = 0;
 
     if (hasDivisions) {
-      for (let i = 0; i < 5; i++) {
-        divisionIDs = [divisionIDs[i % divisionIDs.length]];
+      for (const divisionID of divisionIDs) {
+        await createAdmin({
+          facilityID,
+          index: index++,
+          divisionIDs: [divisionID]
+        });
+      }
 
-        await createAdmin({ facilityID, index: i + 10, divisionIDs });
+      const remaining = 30 - divisionIDs.length;
+
+      const mNum = Math.min(20, 30 - divisionIDs.length);
+
+      const oNum = 30 - divisionIDs.length - mNum;
+
+      for (let i = 0; i < oNum; i++) {
+        const [randomDivision]: string[] = faker.helpers.shuffle(divisionIDs).slice(0, 1);
+
+        await createAdmin({
+          facilityID,
+          index: index++,
+          divisionIDs: [randomDivision]
+        });
+      }
+
+      for (let i = 0; i < mNum; i++) {
+        const num: number = faker.number.int({ min: 2, max: divisionIDs.length });
+
+        const randomDivisions: string[] = faker.helpers.shuffle(divisionIDs).slice(0, num);
+
+        await createAdmin({
+          facilityID,
+          index: index++,
+          divisionIDs: randomDivisions
+        });
+      }
+    } else {
+      for (let i = 0; i < 20; i++) {
+        await createAdmin({ facilityID, index: index++ });
       }
     }
   }
