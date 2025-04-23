@@ -112,12 +112,12 @@ export async function seedFacility() {
       name             : "4th Other Facility",
       hasBookingSystem : false, 
       hasProviders     : false, 
-      hasDivisions     : false,
+      hasDivisions     : true,
     },
 
     // random shit
 
-    ...Array.from({ length: 26 }, (_, i) => ({
+    ...Array.from({ length: 6 }, (_, i) => ({ // make 26
       facilityID       : (i + 1).toString(),
       name             : `Facility ${i + 1}`,
       hasBookingSystem : faker.datatype.boolean(),

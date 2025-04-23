@@ -145,7 +145,7 @@ export async function seedSpecializedService<T>(options: SeedServiceDTO<T>): Pro
       continue;
     }
 
-    const serviceID = `${type}-${facilityID}`;
+    const serviceID = `${type.replace(/\s+/g, "-")}-${facilityID}`;
 
     const divisionID = await getRandomDivisionIfAny(facilityID);
 

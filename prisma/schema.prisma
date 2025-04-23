@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "app/generated/prisma/client"
 }
 
 datasource db {
@@ -120,7 +121,7 @@ model Address {
 }
 
 model Facility {
-  facilityID String @id @default(uuid())
+  facilityID String @id @default(dbgenerated("randomid()")) @db.Text
 
   name              String
   photo             String
@@ -169,7 +170,7 @@ model Facility {
 }
 
 model Division {
-  divisionID String @id @default(uuid())
+  divisionID String @id @default(dbgenerated("randomid()")) @db.Text
 
   name        String
   openingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
@@ -212,7 +213,7 @@ model Division {
 // Table for both Managers and Admins of a Facility.
 
 model Employee {
-  employeeID String @id @default(uuid())
+  employeeID String @id @default(dbgenerated("randomid()")) @db.Text
 
   password  String
 
@@ -254,7 +255,7 @@ model Session {
 }
 
 model Service {
-  serviceID String @id @default(uuid())
+  serviceID String @id @default(dbgenerated("randomid()")) @db.Text
 
   type      String
   keywords  String[]
@@ -395,7 +396,7 @@ model OutpatientService {
 }
 
 model Contact {
-  contactID String      @id @default(uuid())
+  contactID String      @id @default(dbgenerated("randomid()")) @db.Text
   info      String      @unique              // Either a Phone Number or an Email.
   type      ContactType                      // Enum: PHONE or EMAIL
 
@@ -417,7 +418,7 @@ model Contact {
 
 /*
 model OperatingHour {
-  operatingHourID String   @id @default(uuid())
+  operatingHourID String   @id @default(dbgenerated("randomid()")) @db.Text
   day             Day      
   openingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
   closingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
@@ -444,7 +445,7 @@ model OperatingHour {
 */
 
 model UpdateLog {
-  updateLogID String @id @default(uuid())
+  updateLogID String @id @default(dbgenerated("randomid()")) @db.Text
 
   entity    String
   action    Action
