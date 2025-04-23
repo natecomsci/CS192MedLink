@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-neutral-50  : #f7f7f8;
+  --color-neutral-100 : #edebef;
+  --color-neutral-200 : #dbd8df;
+  --color-neutral-300 : #c9c4cf;
+  --color-neutral-400 : #b8b1bf;
+  --color-neutral-500 : #a69dae;
+  --color-neutral-600 : #948a9e;
+  --color-neutral-700 : #83778f;
+  --color-neutral-800 : #574e5f;
+  --color-neutral-900 : #2b2730;
+  --color-neutral-950 : #171519;
+
+  --color-primary-50  : #f4ecfb;
+  --color-primary-100 : #ebddf7;
+  --color-primary-200 : #dbc1f1;
+  --color-primary-300 : #c59ae6;
+  --color-primary-400 : #ae72da;
+  --color-primary-500 : #9044c4;
+  --color-primary-600 : #8441af;
+  --color-primary-700 : #6f3990;
+  --color-primary-800 : #5b2f74;
+  --color-primary-900 : #3d1853;
+  --color-primary-950 : #251032;
+
+  --color-error-container   : #fde3e5;
+  --color-error-on-f        : #f3767f;
+  --color-error-on          : #e63946;
+  --color-error-on-t        : #b3222d;
+
+  --color-warning-container : #faeacb;
+  --warning-on-f            : #f9c88d;
+  --color-warning-on        : #e67e22;
+  --color-warning-on-t      : #a83e15;
+
+  --color-success-container : #d5f6de;
+  --color-warning-on-f      : #90deb0;
+  --color-success-on        : #20a95d;
+  --color-success-on-t      : #0f6d3d;
+}
