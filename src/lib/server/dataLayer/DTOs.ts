@@ -356,6 +356,14 @@ export interface FacilityServiceResultsDTO {
   type      : string,
 }
 
+export interface ServicePreviewDTO {
+  type      : string,
+  division? : {
+    divisionID : string,
+    name       : string,
+  }
+}
+
 export interface AdminPreviewDTO {
   photo  : string,
   fname  : string,

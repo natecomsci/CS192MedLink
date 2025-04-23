@@ -18,6 +18,7 @@ import type { ServiceDTO,
               LoadMoreResultsDTO,
               ServiceResultsDTO,
               FacilityServiceResultsDTO,
+              ServicePreviewDTO,
               PaginatedResultsDTO
             } from "./DTOs";
 
@@ -401,20 +402,21 @@ export class PatientServiceListDAO {
 }
 
 export class FacilityServiceListDAO {
-  async getServiceListPreview(facilityID: string, employeeID: string, numberToFetch: number): Promise<string[]> {
+  async getServiceListPreview(facilityID: string, employeeID: string, numberToFetch : number): Promise<ServicePreviewDTO[]> {
     try {
       const where = await getEmployeeScopedWhereClause(facilityID, employeeID);
 
       const services = await prisma.service.findMany({
         where,
         select: {
-          type: true
+          type: true,
+          ...serviceDivsSelect
         },
         orderBy: {
           updatedAt: "desc"
         },
         take: numberToFetch
-      })
+      });
 
       console.log(`Fetched Services preview of Facility ${facilityID}: `);
 
