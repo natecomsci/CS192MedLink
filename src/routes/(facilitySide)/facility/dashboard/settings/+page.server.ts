@@ -60,64 +60,70 @@ export const actions = {
             return fail(309, { error: 'No image provided.', success: false });
         }
 
-        // try {
-        //     // Validate the image
-        //     validateImage(photoFile);
+        try {
+            // Validate the image
+            validateImage(photoFile);
 
-        //     // Generate a unique file path
-        //     const filePath = `employees/${employeeID}/${uuidv4()}`;
+            // Generate a unique file path
+            const filePath = `employees/${employeeID}/${uuidv4()}`;
 
-        //     // Upload image to Supabase
-        //     const { error: uploadError } = await supabase.storage
-        //         .from('employee-pictures')
-        //         .upload(filePath, photoFile, { upsert: true });
+            // Upload image to Supabase
+            const { error: uploadError } = await supabase.storage
+                .from('employee-pictures')
+                .upload(filePath, photoFile, { upsert: true });
 
-        //     if (uploadError) {
-        //         throw new Error(`Image upload failed: ${uploadError.message}`);
-        //     }
+            if (uploadError) {
+                return fail(422, { 
+                    error: `Image upload failed: ${uploadError.message}`,
+                    description: "validation",
+                    success: false  
+                });
+            }
 
-        //     // Get public URL
-        //     const { data } = supabase.storage
-        //         .from('employee-pictures')
-        //         .getPublicUrl(filePath);
+            // Get public URL
+            const { data } = supabase.storage
+                .from('employee-pictures')
+                .getPublicUrl(filePath);
 
-        //     if (!data || !data.publicUrl) {
-        //         throw new Error('Failed to retrieve image URL.');
-        //     }
+            if (!data || !data.publicUrl) {
+                return fail(422, { 
+                    error: 'Failed to retrieve image URL.',
+                    description: "validation",
+                    success: false  
+                });
+            }
 
-        //     const publicUrl = data.publicUrl;
+            const publicUrl = data.publicUrl;
 
-        //     // Store the image URL in the database
-        //     await employeeDAO.updatePhoto(employeeID, publicUrl);
+            // Store the image URL in the database
+            await employeeDAO.updatePhoto(employeeID, publicUrl);
 
-            // return { success: true, error: 'Profile photo updated successfully.', imageUrl: publicUrl };
-            return { success: true, error: 'Profile photo updated successfully.' };
-        // } catch (error) {
-        //     console.error(error);
+            return { success: true, error: 'Profile photo updated successfully.', imageUrl: publicUrl };
+        } catch (error) {
+            console.error(error);
 
-        //     // Ensure error is always a string for serialization
-        //     const errorMessage = error instanceof Error ? error.message : String(error);
+            // Ensure error is always a string for serialization
+            const errorMessage = error instanceof Error ? error.message : String(error);
 
-        //     return fail(309, { error: errorMessage, success: false });
-        // }
+            return fail(309, { error: errorMessage, success: false });
+        }
     },
 
     removePhoto: async ({ cookies }) => {
-        // const employeeID = cookies.get('employeeID');
-        // if (!employeeID) {
-        //     return fail(309, { error: 'Unauthorized. Employee not found.' });
-        // }
+        const employeeID = cookies.get('employeeID');
+        if (!employeeID) {
+            return fail(309, { error: 'Unauthorized. Employee not found.' });
+        }
 
-        // try {
-        //     // Update the employee's photo to null in the database
-        //     await employeeDAO.updatePhoto(employeeID, "https://placehold.co/1080x1080/png");
+        try {
+            // Update the employee's photo to null in the database
+            await employeeDAO.updatePhoto(employeeID, "https://placehold.co/1080x1080/png");
 
-        //     return { success: true, message: 'Profile photo removed successfully.' };
             return { success: true, message: 'Profile photo removed successfully.' };
-        // } catch (error) {
-        //     console.error(error);
-        //     return fail(309, { error: error instanceof Error ? error.message : 'Failed to remove profile photo.' });
-        // }
+        } catch (error) {
+            console.error(error);
+            return fail(309, { error: error instanceof Error ? error.message : 'Failed to remove profile photo.' });
+        }
     }
     
 } satisfies Actions;
