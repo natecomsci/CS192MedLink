@@ -63,8 +63,13 @@
 
 {#if currPopUp === "delete"}
   <DeleteDivisionConfirm
+    { data }
     { form }
+    {perPage}
+    bind:divisions={divisions}
     bind:currPopUp={currPopUp}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
     divisionID={selectedDivisionID}
   />
 
@@ -77,7 +82,7 @@
   <AddDivision 
     { data }
     { form }
-    {perPage}
+    { perPage }
     bind:divisions={divisions}
     bind:linkableServices={linkableServices}
     bind:currPopUp={currPopUp}
@@ -87,7 +92,7 @@
 {:else if currPopUp === "editDivision"}
   <EditDivision 
     { form }
-    {perPage}
+    { perPage }
     bind:currPopUp={currPopUp}
     bind:divisions={divisions}
     bind:currentPage={currentPage}

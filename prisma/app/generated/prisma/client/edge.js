@@ -435,7 +435,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\adria\\OneDrive\\Documents\\YEAR 3, SEM 2\\CS 192\\CS192MedLink\\prisma\\app\\generated\\prisma\\client",
+      "value": "/Users/eisenii/Desktop/Projects/192/prisma/app/generated/prisma/client",
       "fromEnvVar": null
     },
     "config": {
@@ -444,16 +444,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\adria\\OneDrive\\Documents\\YEAR 3, SEM 2\\CS 192\\CS192MedLink\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/eisenii/Desktop/Projects/192/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../../../../.env",
+    "rootEnvPath": null,
     "schemaEnvPath": "../../../../../.env"
   },
   "relativePath": "../../../..",
@@ -463,6 +463,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
