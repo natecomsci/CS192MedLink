@@ -1,26 +1,9 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import type { AdminDTO, DivisionDTO, ServiceDTO } from "$lib";
-    import { pagingQueryHandler } from "$lib/postHandlers";
-  import type { ActionData, PageData } from "./$types";
+  import type { ActionData } from "./$types";
 
-  let { data, 
-        form, 
-        currPopUp = $bindable(),
-        divisionID,
-        divisions = $bindable(),
-        currentPage = $bindable(),
-        totalPages = $bindable(),
-        perPage
-        }:{ data:PageData, 
-            form: ActionData, 
-            currPopUp: String, 
-            divisionID: String, 
-            divisions:DivisionDTO[], 
-            currentPage: number, 
-            totalPages: number, 
-            perPage: number
-          } = $props();
+  let { form, divisionID, currPopUp = $bindable() }: { form: ActionData, divisionID: String, currPopUp: String } = $props();
 
   let admins: AdminDTO[] = $state([])
   let facilityDivisions: DivisionDTO[] = $state([])
@@ -82,26 +65,6 @@
     }
   }
 
-  async function getNewDivisions() {
-    try {
-      const rv = await pagingQueryHandler({
-        page: 'divisions',
-        query: '',
-        isInQueryMode:false,
-        currentPage:1,
-        change:0,
-        totalPages:1,
-        perPage,
-        viewedDivisionID: "Default"
-      });
-      divisions =  rv.list
-      currentPage = 1
-      totalPages = rv.totalPages
-    } catch (error) {
-      console.log((error as Error).message)
-    }
-  }
-
 </script>
 <form
   method="POST"
@@ -112,7 +75,6 @@
       await update({invalidateAll:true});
       if (form?.success) {
           currPopUp = ''
-          getNewDivisions()
       }
     };
   }}
