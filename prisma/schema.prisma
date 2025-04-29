@@ -250,7 +250,7 @@ model Session {
 
   expiresAt  DateTime
 
-  employee   Employee @relation(fields: [employeeID], references: [employeeID])
+  employee   Employee @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
   employeeID String
 }
 
