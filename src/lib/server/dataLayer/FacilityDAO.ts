@@ -142,9 +142,9 @@ export class FacilityDAO {
         throw new Error(`No Address linked to Facility ${facilityID} found.`);
       }
 
-      const email = await contactDAO.getPhoneNumbersByFacility(facilityID);
+      const phoneNumber = await contactDAO.getPhoneNumbersByFacility(facilityID);
 
-      const phoneNumber = await contactDAO.getEmailsByFacility(facilityID);
+      const email = await contactDAO.getEmailsByFacility(facilityID);
 
       console.log(`Fetched information of Facility ${facilityID}: `);
 
