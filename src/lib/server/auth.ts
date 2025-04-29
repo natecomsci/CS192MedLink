@@ -2,8 +2,6 @@ import { sha256 } from "@oslojs/crypto/sha2";
 
 import { encodeBase64url, encodeHexLowerCase } from "@oslojs/encoding";
 
-import type { RequestEvent } from "@sveltejs/kit";
-
 import type { Employee, Session } from "@prisma/client";
 
 import { SessionDAO } from "./dataLayer/SessionDAO";
@@ -14,7 +12,7 @@ const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
 export const sessionCookieName = 'auth-session';
 
-export function generateSessionToken() {
+export function generateSessionToken(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(18));
   return encodeBase64url(bytes);
 }
@@ -63,17 +61,4 @@ export async function validateSessionToken(token: string): Promise<{ session: Se
 
 export async function invalidateSession(sessionID: string) {
   await sessionDAO.delete(sessionID);
-}
-
-export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
-  event.cookies.set(sessionCookieName, token, {
-    expires: expiresAt,
-    path: "/",
-  });
-}
-
-export function deleteSessionTokenCookie(event: RequestEvent) {
-  event.cookies.delete(sessionCookieName, {
-    path: "/facility",
-  });
 }

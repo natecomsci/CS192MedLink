@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcryptjs';
 import type { Actions, PageServerLoad } from './$types';
 import { FacilityDAO, EmployeeDAO } from '$lib';
+import { createSession, generateSessionToken, validateSessionToken } from '$lib/server/auth';
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityName = cookies.get('facilityName');
@@ -13,6 +14,22 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
   if (facilityName && facilityID && employeeID && role && hasAdmins && hasDivisions) {
     throw redirect(303, '/facility/dashboard');
+  }
+
+  try {
+    const sessionToken = cookies.get('sessionToken') ?? '';
+
+    const {session, employee} = await validateSessionToken(sessionToken)
+
+    if (session !== null && employee !== null) {
+      cookies.set("auth-session", sessionToken, {
+          expires: session.expiresAt,
+          path: "/",
+        });
+      throw redirect(303, '/facility/dashboard');
+    }
+  } catch (e) {
+
   }
 };
 
@@ -38,30 +55,44 @@ export const actions = {
       });
     }
 
-    const employeeDAO = new EmployeeDAO()
-    const employee = await employeeDAO.getByID(employeeID)
+    let employee
+    let facilityName
+    let hasAdmins
+    let hasDivisions
 
-    if (!employee) {
+    try {
+      const employeeDAO = new EmployeeDAO()
+      employee = await employeeDAO.getByID(employeeID)
+
+      if (!employee) {
+        return fail(409, { 
+          error: 'Employee ID not found',
+          description: 'ID',
+          success: false
+        });
+      }
+
+      const passwordMatch = await bcrypt.compare(password, employee.password);
+      if (!passwordMatch) {
+        return fail(409, { 
+          error: 'Incorrect ID-password pair',
+          description: 'ID',
+          success: false
+        });
+      }
+
+      const facilityDAO = new FacilityDAO()
+      facilityName = (await facilityDAO.getInformation(employee.facilityID)).name
+      hasAdmins = await facilityDAO.facilityHasAdmins(employee.facilityID)
+      hasDivisions = await facilityDAO.facilityHasDivisions(employee.facilityID)
+
+    } catch (error) {
       return fail(409, { 
-        error: 'Employee ID not found',
+        error: (error as Error).message,
         description: 'ID',
         success: false
       });
     }
-
-    const passwordMatch = await bcrypt.compare(password, employee.password);
-    if (!passwordMatch) {
-      return fail(409, { 
-        error: 'Incorrect ID-password pair',
-        description: 'ID',
-        success: false
-      });
-    }
-
-    const facilityDAO = new FacilityDAO()
-    const facilityName = (await facilityDAO.getInformation(employee.facilityID)).name
-    const hasAdmins = await facilityDAO.facilityHasAdmins(employee.facilityID)
-    const hasDivisions = await facilityDAO.facilityHasDivisions(employee.facilityID)
 
     cookies.set('facilityID', employee.facilityID, {path: '/'});
     cookies.set('facilityName', facilityName, {path: '/'});
@@ -69,6 +100,14 @@ export const actions = {
     cookies.set('role', employee.role, {path: '/'});
     cookies.set('hasAdmins', String(hasAdmins), {path: '/'});
     cookies.set('hasDivisions', String(hasDivisions), {path: '/'});
+
+    const token = generateSessionToken()
+    const session = await createSession(token, employeeID)
+
+    cookies.set("auth-session", token, {
+        expires: session.expiresAt,
+        path: "/",
+      });
 
     throw redirect(303, '/facility/dashboard');
   }

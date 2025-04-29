@@ -23,6 +23,7 @@ import { ICUServiceDAO } from "./server/dataLayer/ICUDAO";
 import { OutpatientServiceDAO } from "./server/dataLayer/OutpatientDAO";
 import { ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO } from "./server/dataLayer/ServicesDAO";
 import { UpdateLogDAO } from "./server/dataLayer/UpdateLogDAO";
+import { SessionDAO } from "./server/dataLayer/SessionDAO";
 
 import  { 
           validateAmbulance,
@@ -210,6 +211,7 @@ export {
   ERServiceDAO,
   ICUServiceDAO,
   OutpatientServiceDAO,
+  SessionDAO,
 
   // Form Validators
   validateFloat,

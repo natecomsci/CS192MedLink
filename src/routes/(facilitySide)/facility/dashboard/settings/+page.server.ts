@@ -42,6 +42,7 @@ export const actions = {
         cookies.delete('role', { path: '/' });
         cookies.delete('hasAdmins', { path: '/' });
         cookies.delete('hasDivisions', { path: '/' });
+        cookies.delete('auth-session', { path: '/' });
 
         // Redirect to home or login page
         throw redirect(303, '/facility');

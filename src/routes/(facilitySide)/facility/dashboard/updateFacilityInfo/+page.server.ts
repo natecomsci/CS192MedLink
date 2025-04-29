@@ -25,6 +25,8 @@ import { type GeneralInformationFacilityDTO,
          GeographyDAO,  
       } from '$lib';
 
+let authTokens: string
+
 let defPhoto: string
 let defName: string
 let defPhoneNumber: string[]
@@ -47,8 +49,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const role = cookies.get('role');
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
+  const token = cookies.get('auth-session') ?? '';
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions || !token) {
     throw redirect(303, '/facility');
   }
 
