@@ -1,12 +1,13 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-import {  AmbulanceServiceDAO,
-          FacilityDAO,
-          AddressDAO,
-          ServicesDAO,
-          GeographyDAO,
-          dateToTimeMapping,
+import {
+  AmbulanceServiceDAO,
+  FacilityDAO,
+  AddressDAO,
+  ServicesDAO,
+  GeographyDAO,
+  ContactDAO,
 } from '$lib';
 
 export const load: PageServerLoad = async ({ params, url }) => {
@@ -15,6 +16,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
   const addressDAO = new AddressDAO();
   const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO();
+  const contactDAO = new ContactDAO();
+
   let { facilityID, serviceID } = params;
   let fromSearch = false;
 
@@ -24,26 +27,22 @@ export const load: PageServerLoad = async ({ params, url }) => {
 
   if (url.pathname.includes("---prev=")) {
     fromSearch = true;
-    serviceID = serviceID.split("---prev=", 1)[0]
+    serviceID = serviceID.split("---prev=", 1)[0];
   }
 
   try {
-    let service = await servicesDAO.getByID(serviceID);
+    const ambulanceService = await ambulanceDAO.getInformation(serviceID);
+    const service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
-      return fail(500, { error: "Service or facilityID not found." });
+      throw new Error("Service or facilityID not found.");
     }
 
-    let ambulanceService = await ambulanceDAO.getInformation(serviceID);
-    if (!ambulanceService) {
-      return fail(500, { error: "Ambulance Service details not found." });
+    const facility = await facilityDAO.getInformation(service.facilityID);
+    if (!facility) {
+      throw new Error("Facility details not found.");
     }
 
-    let facility = await facilityDAO.getInformation(service.facilityID);
-    if (!facility || facility.name) {
-      return fail(500, { error: "Facility details not found." });
-    }
-    
-    let address = await addressDAO.getByFacility(service.facilityID);
+    const address = await addressDAO.getByFacility(service.facilityID);
     let fullAddress = null;
 
     if (address) {
@@ -63,27 +62,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
       };
     }
 
-    let phoneNumber
-    let openingTime
-    let closingTime
-
-    if (!ambulanceService.phoneNumber) {
-      const address = await facilityDAO.getInformation(service.facilityID)
-      phoneNumber = address.phoneNumber
-      openingTime = address.openingTime
-      closingTime = address.closingTime
-    } else {
-      phoneNumber = ambulanceService.phoneNumber
-      openingTime = ambulanceService.openingTime
-      closingTime = ambulanceService.closingTime
-    }
+    const phoneNumbers = await contactDAO.getPhoneNumbersByService(serviceID);
+    const phoneNumber = phoneNumbers.length > 0 ? phoneNumbers[0] : "N/A";
 
     return {
       facilityName      : facility.name,
       facilityAddress   : fullAddress,
       phoneNumber       ,
-      openingTime       : dateToTimeMapping(openingTime),
-      closingTime       : dateToTimeMapping(closingTime),
+      openingTime       : ambulanceService.openingTime ?? facility.openingTime,
+      closingTime       : ambulanceService.closingTime ?? facility.closingTime,
       baseRate          : ambulanceService.baseRate,
       minCoverageRadius : ambulanceService.minCoverageRadius,
       mileageRate       : ambulanceService.mileageRate,
@@ -95,6 +82,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
       fromSearch
     };
   } catch (error) {
+    console.error(error);
     return fail(500, { description: "Could not get service information." });
   }
 };
