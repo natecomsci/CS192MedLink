@@ -74,7 +74,7 @@ export async function getFacilities(withDivs?: boolean): Promise<{ facilityID: s
     };
 
     if (withDivs) {
-      if ((!openingTime) || (!closingTime)) {
+      if (openingTime && closingTime) {
         continue
       };
     }
