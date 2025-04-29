@@ -24,6 +24,7 @@ import { OutpatientServiceDAO } from "./server/dataLayer/OutpatientDAO";
 import { ServicesDAO, PatientServiceListDAO, FacilityServiceListDAO } from "./server/dataLayer/ServicesDAO";
 import { UpdateLogDAO } from "./server/dataLayer/UpdateLogDAO";
 import { SessionDAO } from "./server/dataLayer/SessionDAO";
+import { validateUser } from './server/auth';
 
 import  { 
           validateAmbulance,
@@ -232,4 +233,5 @@ export {
   validateER,
   validateICU,
   validateOP,
+  validateUser,
 }

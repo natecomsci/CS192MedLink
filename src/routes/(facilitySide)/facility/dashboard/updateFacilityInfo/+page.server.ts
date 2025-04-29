@@ -2,7 +2,8 @@ import { fail, redirect } from '@sveltejs/kit';
 
 import type { FacilityType, 
               Ownership, 
-              Provider 
+              Provider, 
+              Session
             } from '@prisma/client';
 import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
@@ -21,11 +22,13 @@ import { type GeneralInformationFacilityDTO,
          validateLink, 
          validateFacilityName, 
          validateImage,
+         validateUser,
          providers,
-         GeographyDAO,  
+         GeographyDAO,
+         SessionDAO,  
       } from '$lib';
 
-let authTokens: string
+let sessionList: Session[]
 
 let defPhoto: string
 let defName: string
@@ -49,11 +52,16 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const role = cookies.get('role');
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
-  const token = cookies.get('auth-session') ?? '';
+  const token = cookies.get('auth-session');
+  const employeeID = cookies.get('employeeID');
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions || !token) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions || !token || !employeeID) {
     throw redirect(303, '/facility');
   }
+
+  const sessionDAO = new SessionDAO();
+
+  sessionList = await sessionDAO.getByEmployee(employeeID)
 
   const facilityDAO = new FacilityDAO();
   const geographyDAO = new GeographyDAO();
@@ -114,9 +122,21 @@ export const actions = {
     const role = cookies.get('role');
     const hasAdmins = cookies.get('hasAdmins');
     const hasDivisions = cookies.get('hasDivisions');
+    const token = cookies.get('auth-session');
+    const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+    if (!facilityID || !role || !hasAdmins || !hasDivisions || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const data = await request.formData();

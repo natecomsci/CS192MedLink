@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
   }
 
   try {
-    const sessionToken = cookies.get('sessionToken') ?? '';
+    const sessionToken = cookies.get('auth-session') ?? '';
 
     const {session, employee} = await validateSessionToken(sessionToken)
 

@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
-import { Role } from '@prisma/client';
+import { Role, type Session } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 import { 
@@ -13,23 +13,32 @@ import {
   facilityAdminsPageSize, 
   DivisionDAO, 
   
-  type PaginatedResultsDTO, 
   type DivisionDTO,
   type CreateAdminDTO,
   type UpdateAdminDTO,
+
+  validateUser,
+  SessionDAO,
 } from '$lib';
 
 const adminDAO = new AdminDAO();
 const employeeDAO = new EmployeeDAO();
 
+let sessionList: Session[]
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
   const hasDivisions = cookies.get('hasDivisions');
+  const token = cookies.get('auth-session');
+  const employeeID = cookies.get('employeeID');
 
-  if (!facilityID || !hasDivisions) {
+  if (!facilityID || !hasDivisions || !token || !employeeID) {
     throw redirect(303, '/facility');
   }
+
+  const sessionDAO = new SessionDAO();
+
+  sessionList = await sessionDAO.getByEmployee(employeeID)
 
   const facilityAdminDAO = new FacilityAdminListDAO()
   
@@ -55,10 +64,21 @@ export const actions: Actions = {
   deleteAdmin: async ({ request, cookies }) => {
     const facilityID = cookies.get('facilityID');
     const role = cookies.get('role');
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !employeeID || !role) {
+    if (!facilityID || !role || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     if (role != Role.MANAGER) {
@@ -122,6 +142,22 @@ export const actions: Actions = {
     const facilityID = cookies.get('facilityID');
     const role = cookies.get('role');
     const hasDivisions = cookies.get('hasDivisions');
+    const token = cookies.get('auth-session');
+    const employeeID = cookies.get('employeeID');
+
+    if (!facilityID || !hasDivisions || !role || !token || !employeeID) {
+      throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
+    }
 
     if (role != Role.MANAGER) {
       return fail(422, { 
@@ -129,10 +165,6 @@ export const actions: Actions = {
         description: "wrong permissions",
         success: false  
       });
-    }
-
-    if (!facilityID || !hasDivisions || !role) {
-      throw redirect(303, '/facility');
     }
 
     const data = await request.formData();
@@ -182,9 +214,21 @@ export const actions: Actions = {
     const facilityID = cookies.get('facilityID');
     const role = cookies.get('role');
     const hasDivisions = cookies.get('hasDivisions');
+    const token = cookies.get('auth-session');
+    const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !hasDivisions || !role) {
+    if (!facilityID || !role || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     if (role != Role.MANAGER) {

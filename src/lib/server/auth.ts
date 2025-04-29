@@ -62,3 +62,13 @@ export async function validateSessionToken(token: string): Promise<{ session: Se
 export async function invalidateSession(sessionID: string) {
   await sessionDAO.delete(sessionID);
 }
+
+export async function validateUser(sessionList: Session[], sessionToken: string, employeeIDCookie: string): Promise<boolean> {
+  const now = Date.now()
+  for (var { sessionID, employeeID, expiresAt } of sessionList) {
+    if (sessionID === sessionToken && employeeID === employeeIDCookie && now < expiresAt.getTime()) {
+      return true
+    }
+  }
+  return false
+}

@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { Role, type Availability, type Load } from '@prisma/client';
+import { Role, type Availability, type Load, type Session } from '@prisma/client';
 
 import type { PageServerLoad, Actions } from './$types';
 import bcrypt from 'bcryptjs';
@@ -38,6 +38,10 @@ import { facilityServicePageSize,
          validateOP,
 
          validateInteger,
+
+
+         validateUser,
+         SessionDAO,
        } from '$lib';
 
 import type { FacilityDivisionResultsDTO, OutpatientServiceDTO } from '$lib/server/dataLayer/DTOs';
@@ -52,17 +56,25 @@ const eRDAO = new ERServiceDAO();
 const iCUDAO = new ICUServiceDAO();
 const outpatientDAO = new OutpatientServiceDAO();
 
+let sessionList: Session[]
+
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
   const role = cookies.get('role');
-  const employeeID = cookies.get('employeeID');
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
+  const token = cookies.get('auth-session');
+  const employeeID = cookies.get('employeeID');
+ 
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions || !employeeID) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions || !token || !employeeID) {
     throw redirect(303, '/facility');
   }
   
+  const sessionDAO = new SessionDAO();
+
+  sessionList = await sessionDAO.getByEmployee(employeeID)
+
   const servicesDAO = new ServicesDAO();
   const divisionDAO = new DivisionDAO();
 
@@ -113,9 +125,21 @@ export const load: PageServerLoad = async ({ cookies }) => {
 export const actions: Actions = {
   deleteService: async ({ request, cookies }) => {
     const facilityID = cookies.get('facilityID');
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
-    if (!facilityID || !employeeID) {
+
+    if (!facilityID || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const formData = await request.formData();
@@ -171,11 +195,22 @@ export const actions: Actions = {
   
   addService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
-    const employeeID = cookies.get('employeeID');
     const hasDivisions = cookies.get('hasDivisions');
+    const token = cookies.get('auth-session');
+    const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !employeeID || !hasDivisions) {
+    if (!facilityID || !hasDivisions || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const data = await request.formData();
@@ -274,11 +309,22 @@ export const actions: Actions = {
 
   editService: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
-    const employeeID = cookies.get('employeeID');
     const hasDivisions = cookies.get('hasDivisions');
+    const token = cookies.get('auth-session');
+    const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !employeeID || !hasDivisions) {
+    if (!facilityID || !hasDivisions || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const data = await request.formData();

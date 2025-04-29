@@ -1,4 +1,4 @@
-import { fail, redirect, type ActionFailure } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 import {
@@ -30,7 +30,6 @@ import {
         validateEmail,
         EmployeeDAO,
         FacilityAdminListDAO,
-        type CreateAdminDTO,
         AdminDAO,
         validateAmbulance,
         validateBloodBank,
@@ -40,8 +39,12 @@ import {
         type UpdateAdminDTO,
 
         ContactDAO,
+        
+        validateUser,
+        SessionDAO,
       } from '$lib';
 import bcrypt from 'bcryptjs';
+import type { Session } from '@prisma/client';
 
 const divisionDAO = new DivisionDAO();
 const contactDAO = new ContactDAO();
@@ -49,15 +52,23 @@ const servicesDAO = new ServicesDAO();
 
 let existingServices: MultiServiceDivisionsDTO[]
 
+let sessionList: Session[]
+
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
   const role = cookies.get('role');
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
+  const token = cookies.get('auth-session');
+  const employeeID = cookies.get('employeeID');
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions || !token || !employeeID) {
     throw redirect(303, '/facility');
   }
+
+  const sessionDAO = new SessionDAO();
+
+  sessionList = await sessionDAO.getByEmployee(employeeID)
   
   if (hasDivisions === 'true' ? false : true) {
     throw redirect(303, '/facility/dashboard')
@@ -93,10 +104,21 @@ export const load: PageServerLoad = async ({ cookies }) => {
 export const actions = {
   deleteDivision: async ({ request, cookies }) => {
     const facilityID = cookies.get('facilityID');
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !employeeID) {
+    if (!facilityID || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     let facilityDivisions = await divisionDAO.getByFacility(facilityID)
@@ -210,10 +232,21 @@ export const actions = {
   
   addDivision: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !employeeID) {
+    if (!facilityID || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const data = await request.formData();
@@ -436,10 +469,21 @@ export const actions = {
 
   editDivision: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !employeeID) {
+    if (!facilityID || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const data = await request.formData();

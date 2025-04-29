@@ -6,14 +6,26 @@ import { v4 as uuidv4 } from 'uuid';
 
 import type { Actions, PageServerLoad } from './$types';
 
-import { EmployeeDAO, validateImage } from '$lib';
-
+import { EmployeeDAO, validateImage, validateUser,SessionDAO, } from '$lib';
+import { invalidateSession } from '$lib/server/auth';
+import type { Session } from '@prisma/client';
 
 const supabase = createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
 const employeeDAO = new EmployeeDAO();
 
+let sessionList: Session[]
+
 export const load: PageServerLoad = async ({ cookies }) => {
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
+
+    if (!token || !employeeID) {
+    throw redirect(303, '/facility');
+    }
+
+    const sessionDAO = new SessionDAO();
+
+    sessionList = await sessionDAO.getByEmployee(employeeID)
 
     if (!employeeID) {
         return { photoUrl: "02" };
@@ -42,6 +54,15 @@ export const actions = {
         cookies.delete('role', { path: '/' });
         cookies.delete('hasAdmins', { path: '/' });
         cookies.delete('hasDivisions', { path: '/' });
+
+        const sessionToken = cookies.get('auth-session') ?? '';
+
+        try {
+            invalidateSession(sessionToken)
+        } catch (e) {
+
+        }
+
         cookies.delete('auth-session', { path: '/' });
 
         // Redirect to home or login page
@@ -49,7 +70,23 @@ export const actions = {
     },
 
     updatePhoto: async ({ request, cookies }) => {
+        const token = cookies.get('auth-session');
         const employeeID = cookies.get('employeeID');
+
+        if (!token || !employeeID) {
+          throw redirect(303, '/facility');
+        }
+
+        const validateSession = await validateUser(sessionList, token, employeeID)
+
+        if (!validateSession) {
+          return fail(422, { 
+            error: "User is not authenticated",
+            description: "authentication",
+            success: false  
+          });
+        }
+
         if (!employeeID) {
             return fail(309, { error: 'Unauthorized. Employee not found.' });
         }
@@ -111,9 +148,21 @@ export const actions = {
     },
 
     removePhoto: async ({ cookies }) => {
+        const token = cookies.get('auth-session');
         const employeeID = cookies.get('employeeID');
-        if (!employeeID) {
-            return fail(309, { error: 'Unauthorized. Employee not found.' });
+
+        if (!token || !employeeID) {
+          throw redirect(303, '/facility');
+        }
+
+        const validateSession = await validateUser(sessionList, token, employeeID)
+
+        if (!validateSession) {
+          return fail(422, { 
+            error: "User is not authenticated",
+            description: "authentication",
+            success: false  
+          });
         }
 
         try {
