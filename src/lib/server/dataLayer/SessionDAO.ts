@@ -42,6 +42,25 @@ export class SessionDAO {
     }
   }
 
+  async getByEmployee(employeeID: string): Promise<Session[]> {
+    try {
+      const sessions = await prisma.session.findMany({
+        where: { 
+          employeeID
+        }
+      });
+  
+      console.log(`Result of "sessions" query for Employee ${employeeID}: `, sessions);
+
+      console.log(`Fetched Sessions of Employee ${sessions}: `);
+
+      return sessions;
+    } catch (error) {
+      console.error("Details: ", error);
+      throw new Error("No database connection.");
+    }
+  }
+
   async updateExpiresAt(sessionID: string, expiresAt: Date): Promise<void> {
     try {
       await prisma.session.update({
