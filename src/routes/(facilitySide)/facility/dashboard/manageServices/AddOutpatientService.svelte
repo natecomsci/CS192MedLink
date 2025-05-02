@@ -2,6 +2,7 @@
     import type { PageProps } from './$types';
     let { data }: PageProps = $props();
     const OPServices: String[] = data.availableOPServices ?? [];
+    let OPserviceType: String = $state(OPServices[0])
 </script>
 
 <div class="container">
@@ -12,7 +13,7 @@
             <select 
                 name="OPserviceType" 
                 class="input-box"
-                 
+                bind:value={OPserviceType}
               >
                 {#each OPServices as t}
                   <option value={t}>{t}</option>

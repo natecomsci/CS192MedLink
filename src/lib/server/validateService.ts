@@ -1,3 +1,4 @@
+import { OPServiceTypes } from "$lib";
 import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from "./dataLayer/DTOs";
 import { validateFloat, validatePhone, validateOperatingHours, validateCoverageRadius, validateCompletionTime } from "./formValidators";
 
@@ -119,6 +120,10 @@ export function validateOP(data: FormData, i: string | undefined): CreateOutpati
   const j = i === undefined ? "" : i
 
   const OPserviceType     = data.get('OPserviceType'+j) as string;
+
+  if (!OPServiceTypes.includes(OPserviceType)) {
+    throw new Error("Invalid service type");
+  }
   const acceptsWalkIns    = data.get('acceptWalkins'+j) === 'on';
 
   try {

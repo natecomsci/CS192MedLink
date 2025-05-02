@@ -29,7 +29,7 @@
           viewedDivisionID:string
         } = $props();
 
-  let serviceType: String = $state('');
+  let serviceType: String = $state(["Ambulance", "Blood Bank", "Emergency Room", "Intensive Care Unit"].includes(String(data.availableServices[0])) ? String(data.availableServices[0]) : "Outpatient");
 
   let selectedDivisionID = $state("")
   let selectedDivisionName = $state("")
