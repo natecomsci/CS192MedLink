@@ -618,7 +618,7 @@ export const actions = {
 
 
 function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[] {
-  let availableServices: String[] = ["None"]
+  let availableServices: String[] = []
   
   for (let serviceType of specializedServiceType) { 
     if (!serviceTypes.includes(serviceType)) {
@@ -629,7 +629,7 @@ function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[
 }
 
 function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
-  let availableOPServices: String[] = ["None"]
+  let availableOPServices: String[] = []
   
   for (let serviceType of OPServiceTypes) { 
     if (!serviceTypes.includes(serviceType)) {

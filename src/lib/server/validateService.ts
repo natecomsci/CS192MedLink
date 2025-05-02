@@ -28,7 +28,7 @@ export function validateAmbulance(data: FormData, i: string | undefined): Create
 
     mileageRate = validateFloat(data.get('mileageRate'+j), "Mileage Rate");
   } catch (e) {
-    throw new Error((e as Error).message);
+    throw new Error("Ambulance: " + (e as Error).message);
   }
 
   return  {
@@ -66,7 +66,7 @@ export function validateBloodBank(data: FormData, i: string | undefined): Create
     turnaroundTimeH = TTime.hours
 
   } catch (e) {
-    throw new Error((e as Error).message);
+    throw new Error("Blood Bank: " + (e as Error).message);
   }
 
   return  {
@@ -87,7 +87,7 @@ export function validateER(data: FormData, i: string | undefined): CreateERServi
   try {
     phoneNumber = validatePhone(data.get('phoneNumber'+j));
   } catch (e) {
-    throw new Error((e as Error).message);
+    throw new Error("Emergency Room: " + (e as Error).message);
   }
 
   return  { phoneNumber: [phoneNumber] }
@@ -103,7 +103,7 @@ export function validateICU(data: FormData, i: string | undefined): CreateICUSer
     phoneNumber = validatePhone(data.get('phoneNumber'+j));
     baseRate = validateFloat(data.get('price'+j), "Base Rate");
   } catch (e) {
-    throw new Error((e as Error).message);
+    throw new Error("Intensive Care Unit: " + (e as Error).message);
   }
 
   return  {
@@ -134,7 +134,7 @@ export function validateOP(data: FormData, i: string | undefined): CreateOutpati
     completionTimeH = CTime.hours
 
   } catch (e) {
-    throw new Error((e as Error).message);
+    throw new Error(OPserviceType + ": " + (e as Error).message);
   }
 
   return  {
