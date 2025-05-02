@@ -10,6 +10,7 @@
   import EditERService from './EditERService.svelte';
   import EditICUService from './EditICUService.svelte';
   import EditOPService from './EditOPService.svelte';
+    import { Role } from '@prisma/client';
 
   let { data, 
         form, 
@@ -136,7 +137,7 @@
               <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
               <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
 
-              {#if data.hasDivisions}
+              {#if data.hasDivisions && data.role == Role.MANAGER}
                 <label>
                   Divisions
                   {#each (data.divisions ?? []) as division}
