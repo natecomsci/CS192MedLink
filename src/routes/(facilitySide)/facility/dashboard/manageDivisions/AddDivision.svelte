@@ -30,6 +30,19 @@
           } = $props();
 
   let selectedLinkableServices: Record<string, string[]> = {};
+  let linkableServiceList: string[] = []
+
+  function toggleDivision(name: string, divisionID: string) {
+    if (linkableServiceList.includes(name)) {
+      linkableServiceList = linkableServiceList.filter(d => d !== divisionID);
+    } else {
+      linkableServiceList = [...linkableServiceList, divisionID];
+    }
+  }
+
+  function isAccepted( division:string ): boolean {
+    return linkableServiceList.includes(division) ?? false
+  }
 
   for (var { divisionID } of linkableServices) {
     selectedLinkableServices[divisionID] = []
@@ -166,7 +179,7 @@
               </svg>
             </button>
 
-            {#if showDropdown}
+            <div class={showDropdown ? "" : "hidden"}>
               <div class="">
                 {#each linkableServices as { name, services }}
                   {name}
@@ -175,13 +188,16 @@
                       <input 
                         name={serviceID} 
                         type="checkbox"
+                        checked={isAccepted(divisionID)}
+                        onclick={() => toggleDivision(name, divisionID)} 
                       />
                       <span>{type}</span>
                     </label>
                   {/each}
                 {/each} 
               </div>
-            {/if} 
+            </div>
+
             <div class="flex items-center gap-5">
               {#if newServicesCount == 0}
                 <button type="button" class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {

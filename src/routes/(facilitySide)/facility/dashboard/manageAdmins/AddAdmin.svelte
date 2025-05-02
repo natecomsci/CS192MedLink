@@ -40,6 +40,10 @@
     }
   }
 
+  function isAccepted( division:string ): boolean {
+    return selectedDivisionsIDs.includes(division) ?? false
+  }
+
   let showDropdown = $state(false);
 
   async function getNewAdmins() {
@@ -131,6 +135,7 @@
                     <input 
                       name={divisionID} 
                       type="checkbox"
+                      checked={isAccepted(divisionID)}
                       onclick={() => toggleDivision(name, divisionID)} 
                     />
                     <span>{name}</span>
