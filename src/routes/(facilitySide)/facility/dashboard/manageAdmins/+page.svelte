@@ -153,28 +153,29 @@
       {#if errorLoc == "query"}
         {error}
       {/if}
-      <h1>View By:</h1>
-
-      <select 
-        bind:value={viewedDivisionID} 
-        class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10"
-        onchange={()=>{
-          console.log(viewedDivisionID)
-          query = ""
-          error = ""
-          errorLoc = ""
-          getPage(0)
-        }}
-      >
-        <option
-          value="Default"
-        >Default</option>
-        {#each data.divisions as {name, divisionID}}
+      {#if data.hasDivisions && data.divisions.length > 1}
+        <h1>View By:</h1>
+        <select 
+          bind:value={viewedDivisionID} 
+          class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10"
+          onchange={()=>{
+            console.log(viewedDivisionID)
+            query = ""
+            error = ""
+            errorLoc = ""
+            getPage(0)
+          }}
+        >
           <option
-            value={divisionID}
-          >{name}</option>
-        {/each}
-      </select>
+            value="Default"
+          >Default</option>
+          {#each data.divisions as {name, divisionID}}
+            <option
+              value={divisionID}
+            >{name}</option>
+          {/each}
+        </select>
+      {/if}
     </div>
 
     <hr class="mt-4 border-gray-300 w-2/3">

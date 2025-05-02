@@ -160,13 +160,7 @@
       {#if errorLoc == "query"}
         {error}
       {/if}
-      <h1>View By:</h1>
-
-      <select class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10">
-        <option>Default</option>
-      </select>
     </div>
-
     <hr class="mt-4 border-gray-300 w-2/3">
     
     <!-- Scrollable List Container -->

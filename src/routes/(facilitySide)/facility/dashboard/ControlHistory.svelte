@@ -94,28 +94,30 @@
       {#if errorLoc == "query"}
         {error}
       {/if}
-      <!-- Ensures "View By:" stays in one line -->
-      <span class="whitespace-nowrap text-sm">View By :</span>
-      <select 
-        bind:value={viewedDivisionID} 
-        class="pl-2 text-sm border border-gray-300 rounded-full h-10 w-1/7 shadow-sm"
-        onchange={()=>{
-          console.log(viewedDivisionID)
-          query = ""
-          error = ""
-          errorLoc = ""
-          getPage(0)
-        }}
-      >
-        <option
-          value="Default"
-        >Default</option>
-        {#each data.divisions as {name, divisionID}}
+      {#if data.hasDivisions && data.divisions.length > 1}
+        <!-- Ensures "View By:" stays in one line -->
+        <span class="whitespace-nowrap text-sm">View By :</span>
+        <select 
+          bind:value={viewedDivisionID} 
+          class="pl-2 text-sm border border-gray-300 rounded-full h-10 w-1/7 shadow-sm"
+          onchange={()=>{
+            console.log(viewedDivisionID)
+            query = ""
+            error = ""
+            errorLoc = ""
+            getPage(0)
+          }}
+        >
           <option
-            value={divisionID}
-          >{name}</option>
-        {/each}
-      </select>
+            value="Default"
+          >Default</option>
+          {#each data.divisions as {name, divisionID}}
+            <option
+              value={divisionID}
+            >{name}</option>
+          {/each}
+        </select>
+      {/if}
     </div>
 
   </div>

@@ -19,6 +19,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
   try {
     const sessionToken = cookies.get('auth-session') ?? '';
 
+    if (!sessionToken) {
+      return
+    }
+
     const {session, employee} = await validateSessionToken(sessionToken)
 
     if (session !== null && employee !== null) {
@@ -104,7 +108,7 @@ export const actions = {
     const token = generateSessionToken()
     const session = await createSession(token, employeeID)
 
-    cookies.set("auth-session", token, {
+    cookies.set("auth-session", session.sessionID, {
         expires: session.expiresAt,
         path: "/",
       });

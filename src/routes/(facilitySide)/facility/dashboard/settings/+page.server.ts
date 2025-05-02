@@ -60,7 +60,7 @@ export const actions = {
         try {
             invalidateSession(sessionToken)
         } catch (e) {
-
+            
         }
 
         cookies.delete('auth-session', { path: '/' });
