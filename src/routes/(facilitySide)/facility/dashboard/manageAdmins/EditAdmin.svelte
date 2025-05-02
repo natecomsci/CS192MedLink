@@ -184,10 +184,10 @@
     {/if}
       <div class="mt-4 flex-1">
         <div class="flex flex-wrap gap-2 mb-4">
-          {#each selectedDivisionsNames as division}
+          {#each {length: selectedDivisionsNames.length}, i}
             <span class="bg-purple-100 text-purple-500 px-3 py-1 rounded-lg flex items-center">
-              {division} 
-              <button onclick={() => selectedDivisionsNames = selectedDivisionsNames.filter(d => d !== division)} class="ml-2 text-xs text-red-500">✕</button>
+              {selectedDivisionsNames[i]} 
+              <button onclick={() => toggleDivision(selectedDivisionsNames[i], selectedDivisionsIDs[i])} class="ml-2 text-xs text-red-500">✕</button>
             </span>
           {/each}
         </div>
