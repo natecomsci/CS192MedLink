@@ -85,7 +85,7 @@
     }
 
     function isAccepted(p: Provider): boolean {
-        return data.providers?.includes(p) ?? false
+        return selectedProviders.includes(p) ?? false
     }
 
   let selectedProviders: string[] = $state(data.providers ?? []);

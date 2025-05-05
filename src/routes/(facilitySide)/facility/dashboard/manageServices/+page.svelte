@@ -40,7 +40,6 @@
 
   // ===================================
   let perPage = $state(10);
-  let options = [10, 20, 50];
 
   async function getPage(change: number) {
     try {
@@ -246,11 +245,11 @@
     {/if}
 
   <PageBar
-    {currentPage} 
-    {totalPages} 
-    {perPage} 
-    {options} 
-    {getPage} />
+    bind:currentPage={currentPage} 
+    bind:totalPages={totalPages} 
+    bind:perPage={perPage} 
+    getPage={getPage}
+  />
 
   {#if data.role === Role.MANAGER}
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addService'}}>

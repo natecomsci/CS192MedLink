@@ -1,9 +1,11 @@
 <script lang="ts">
-  export let currentPage: number;
-  export let totalPages: number;
-  export let perPage: number;
-  export let options: number[];
-  export let getPage: (change: number) => void;
+  let { currentPage = $bindable(),
+        totalPages = $bindable(),
+        perPage = $bindable(),
+        getPage
+      } = $props();
+
+  let options = [10, 20, 50];
 
 </script>
 
@@ -11,7 +13,13 @@
 <div class="flex items-center mx-auto justify-center gap-4 mt-4 w-2/3">
   <div class="flex items-center space-x-2">
     <!-- Double Left-->
-    <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
+    <button 
+      type="button"
+      class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
+      onclick={() => getPage(-currentPage)+1}
+      disabled={currentPage === 1} >
+      « 
+    </button>
 
     <!-- Single Left -->
     <button 
@@ -38,7 +46,13 @@
     </button>
 
     <!-- Double Right -->
-    <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
+    <button 
+      type="button"
+      class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
+      onclick={() => getPage(totalPages-currentPage)}
+      disabled={currentPage === totalPages} >
+      »
+    </button>
 
     <!-- View Dropdown -->
     <div class="ml-4 flex items-center">

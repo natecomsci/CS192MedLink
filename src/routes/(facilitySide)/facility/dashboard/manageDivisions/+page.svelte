@@ -35,7 +35,6 @@
 
   // ===================================
   let perPage = $state(10);
-  let options = [10, 20, 50];
 
   async function getPage(change: number) {
     try {
@@ -211,11 +210,10 @@
     {/if}
 
   <PageBar
-    {currentPage} 
-    {totalPages} 
-    {perPage} 
-    {options} 
-    {getPage}
+    bind:currentPage={currentPage} 
+    bind:totalPages={totalPages} 
+    bind:perPage={perPage} 
+    getPage={getPage}
   />
 
   <!-- Add Division -->
