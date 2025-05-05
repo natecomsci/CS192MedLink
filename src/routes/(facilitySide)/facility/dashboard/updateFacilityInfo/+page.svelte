@@ -93,7 +93,7 @@
 </script>
   
 <form
-    class="w-300 h-[calc(100vh-100px)] mx-auto grid grid-cols-1 bg-white overflow-y-auto  m-6 space-y-2  rounded-2xl p-6 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+    class="w-300 h-[calc(100vh-50px)] my-5 mx-auto bg-white overflow-y-auto  space-y-2  rounded-2xl p-6 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     method="POST" 
     use:enhance
     action="?/update"
@@ -102,7 +102,7 @@
     <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
     <div class="w-full max-w-3x1 mx-auto bg-white">
         <!-- Image Container -->
-        <div class="relative group w-full h-130 overflow-hidden rounded-xl border cursor-pointer">
+        <div class="relative group w-full h-130 overflow-hidden rounded-xl  cursor-pointer">
             <img src={data.photo} alt="Facility" class="w-full h-full object-cover transition-opacity duration-300" />
             
             <!-- Hover Overlay -->
@@ -127,7 +127,7 @@
             <input 
             name="facilityName"
             type="text" 
-            class="border p-2 rounded w-full" 
+            class="input-box" 
             placeholder="Name"
             bind:value={data.facilityName}/> 
         </label>
@@ -140,7 +140,7 @@
                     name="region" 
                     bind:value={regionID} 
                     onchange={() => get_("province")}
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                 >
                 {#each data.regions ?? [] as r}
                     <option value={String(r.regionID)}>{r.name}</option>
@@ -154,7 +154,7 @@
                     name="province" 
                     bind:value={provinceID} 
                     onchange={() => get_("city")}
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                 >
                     {#each provinceList as p}
                         <option value={String(p.pOrCID)}>{p.name}</option>
@@ -169,7 +169,7 @@
                   bind:value={cityID} 
                   onchange={() => get_("brgy")}
                   disabled={!enableCities}
-                  class="border p-2 rounded w-full"
+                  class="input-box"
               >
                   {#each cityList as c}
                       <option value={String(c.cOrMID)}>{c.name}</option>
@@ -184,7 +184,7 @@
                 bind:value={barangayID} 
                 onchange={() => enableStreet ? "" : enableStreet = !enableStreet}
                 disabled={!enableBarangays}
-                class="border p-2 rounded w-full"
+                class="input-box"
             >
                 {#each barangayList as b}
                     <option value={String(b.brgyID)}>{b.name}</option>
@@ -199,7 +199,7 @@
             name="street"
             type="text" 
             bind:value={street}
-            class="border p-2 rounded w-full" 
+            class="input-box" 
             disabled={!enableStreet}
             placeholder="Name"
             />
@@ -212,7 +212,7 @@
                     name="email" 
                     type="text"
                     placeholder="Email"
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                     bind:value={data.email}/>
             </label>
             
@@ -222,7 +222,7 @@
                     name="phoneNumber" 
                     type="tel"
                     placeholder="Contact No."
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                     bind:value={data.contactNumber}
                 />
             </label>
@@ -232,7 +232,7 @@
                 <select 
                     name="type" 
                     bind:value={selectedType} 
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                 >
                     {#each facilityType as t}
                         <option value={t} selected={t === selectedType}>{t}</option>
@@ -288,7 +288,7 @@
                 <input 
                 name="bookingSystem"
                 type="text" 
-                class="border p-2 rounded w-full" 
+                class="input-box" 
                 placeholder="Name"
                 bind:value={data.bookingSystem}
                  /> 
@@ -380,25 +380,6 @@
         -webkit-mask-image: linear-gradient(to right, black 80%, rgba(0, 0, 0, 0));
         mask-image: linear-gradient(to right, black 80%, rgba(0, 0, 0, 0));
     }
-
-    ::-webkit-scrollbar {
-    width: 10px !important;
-    }
-
-    ::-webkit-scrollbar-thumb {
-    background: #9044C4 !important;
-    border-radius: 10px !important;
-    }
-
-    ::-webkit-scrollbar-track {
-    background: #DCDCDC !important;
-    border-radius: 10px !important;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-    background: #6a3191 !important;
-    }
-
 </style>
 
 

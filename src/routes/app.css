@@ -1,19 +1,10 @@
 @import "tailwindcss";
 
-/* add global formatting here */
-
-/* @import "tailwindcss";
-@import "tailwindcss/utilities";
-@import "tailwindcss/base";
-@import "tailwindcss/components"; */
-
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
 
 /* Apply DM Sans as the default font */
 /* @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap'); */
 
+/* ------------------ Colors ------------------ */
 :root {
     --primary-50: #F4ECFB;
     --primary-100: #EBDDF7;
@@ -52,26 +43,55 @@
     --success-1: #20A95D;
     --success-2: #0F6D3D;
 }
-
-.text-primary {
-    color: var(--primary-color);
-}
-
-.text-secondary {
-    color: var(--secondary-color);
-}
-
-.bg-main {
-    
-}
+/* Purples */
+.text-primary-50 { color: var(--primary-50); }
+.text-primary-100 { color: var(--primary-100); }
+.text-primary-200 { color: var(--primary-200); }
+.text-primary-300 { color: var(--primary-300); }
+.text-primary-400 { color: var(--primary-400); }
+.text-primary-500 { color: var(--primary-500); }
+.text-primary-600 { color: var(--primary-600); }
+.text-primary-700 { color: var(--primary-700); }
+.text-primary-800 { color: var(--primary-800); }
+.text-primary-900 { color: var(--primary-900); }
+.text-primary-950 { color: var(--primary-950); }
+/* Grays */
+.text-neutral-50 { color: var(--neutral-50); }
+.text-neutral-100 { color: var(--neutral-100); }
+.text-neutral-200 { color: var(--neutral-200); }
+.text-neutral-300 { color: var(--neutral-300); }
+.text-neutral-400 { color: var(--neutral-400); }
+.text-neutral-500 { color: var(--neutral-500); }
+.text-neutral-600 { color: var(--neutral-600); }
+.text-neutral-700 { color: var(--neutral-700); }
+.text-neutral-800 { color: var(--neutral-800); }
+.text-neutral-900 { color: var(--neutral-900); }
+.text-neutral-950 { color: var(--neutral-950); }
+/* Reds */
+.text-error-0 { color: var(--error-0); }
+.text-error-1 { color: var(--error-1); }
+.text-error-2 { color: var(--error-2); }
+.text-error-3 { color: var(--error-3); }
+/* Oranges */
+.text-warning-0 { color: var(--warning-0); }
+.text-warning-1 { color: var(--warning-1); }
+.text-warning-2 { color: var(--warning-2); }
+/* Greens */
+.text-success-0 { color: var(--success-0); }
+.text-success-1 { color: var(--success-1); }
+.text-success-2 { color: var(--success-2); }
 
 body {
     font-family: 'DM Sans', sans-serif;
 }
 
+
+@media screen and (max-width: 768px) {
+
+}
+
+
 /* add global formatting here */
-
-
 .container {
     flex: 1;
     padding: 1rem;
@@ -133,22 +153,24 @@ body {
 }
 
 ::-webkit-scrollbar {
-    width: 10px !important;
+    width: 5px !important;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #9044C4 !important;
-    border-radius: 10px !important;
+    background: #bca5cb !important;
+    border-radius: 5px !important;
 }
 
 ::-webkit-scrollbar-track {
     background: #DCDCDC !important;
-    border-radius: 10px !important;
+    border-radius: 5px !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: #6a3191 !important;
 }
+
+
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;

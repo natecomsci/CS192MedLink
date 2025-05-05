@@ -5,8 +5,9 @@
 </script>
 
 
-<div class="bg-white shadow-lg rounded-lg p-8 w-full">
-  <div class="flex justify-between items-center border-b border-[#DBD8DF] pb-2">
+<div class="bg-white shadow-lg rounded-lg flex-1 flex flex-col h-full p-4">
+  <!-- Header -->
+  <div class="flex justify-between items-center p-2">
     <h2 class="text-[30px] text-[#9044C4] font-bold">Divisions</h2>
     <a 
         href="./dashboard/manageDivisions" 
@@ -18,7 +19,9 @@
       </a>
   </div>
 
-  <div class="mt-4 overflow-y-auto flex-1 max-h-[calc(100vh-50vh)]">
+  <hr class="mt-2 border-gray-300"> <!-- Line -->   
+
+  <div class="overflow-y-auto flex-1 h-0 min-h-0 max-h-full p-2 ">
     {#each divisions as {name}}
       <p class="py-2 border-b border-transparent italic">{name}</p>
     {/each}

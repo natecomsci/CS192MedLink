@@ -8,6 +8,9 @@
   import DeleteServiceRestricted from "./DeleteServiceRestricted.svelte";
   import AddService from './AddService.svelte';
   import EditService from './EditService.svelte';
+
+  import PageBar from "$lib/facilityComponents/PageBar.svelte";
+
   
   import { pagingQueryHandler } from '$lib/postHandlers';
   import { Role } from '@prisma/client';
@@ -242,58 +245,12 @@
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
 
-
-    <!-- PAGINATIONNNNNNN -->
-    <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <div class="flex items-center space-x-2">
-        <!-- Double Left-->
-        <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
-
-        <!-- Single Left -->
-        <button 
-          type="button"
-          class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
-          onclick={() => getPage(-1)}
-          disabled={currentPage === 1} >
-          ‹
-        </button>
-
-        <!-- Current Page -->
-        <span class="bg-purple-400 p-2 w-8 h-8 hover:bg-purple-700 rounded-md text-white font-semibold flex items-center justify-center">{currentPage}</span>
-        <span class="text-gray-700 font-medium">of {totalPages}</span>
-
-        <!-- Single Right -->
-        <button 
-          type="button"
-          class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" 
-          onclick={() => getPage(1)} 
-          disabled={currentPage === totalPages}>
-          ›
-        </button>
-
-        <!-- Double Right -->
-        <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
-
-        <!-- View Dropdown -->
-        <div class="ml-4 flex items-center">
-          <label class="text-gray-700 font-medium gap-2">
-            View
-            <select
-              bind:value={perPage}
-              class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
-              onchange={()=>{
-                currentPage = 1
-                getPage(0)
-              }}
-            >
-              {#each options as option}
-                <option value={option}>{option}</option>
-              {/each}
-            </select>
-          </label>
-        </div>
-      </div>  
-    </div>
+  <PageBar
+    {currentPage} 
+    {totalPages} 
+    {perPage} 
+    {options} 
+    {getPage} />
 
   {#if data.role === Role.MANAGER}
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addService'}}>
@@ -320,7 +277,7 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-  background: #6a3191 !important;
+  background: #bcb6c0 !important;
   }
 
 </style>
