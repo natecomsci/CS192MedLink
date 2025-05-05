@@ -1,9 +1,10 @@
 import { redirect, fail } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-import { dateToTimeMapping, DivisionDAO, ServicesDAO, type ServiceDTO } from "$lib";
+import { dateToTimeMapping, DivisionDAO, ServicesDAO, ContactDAO, type ServiceDTO } from "$lib";
 const divisionDAO = new DivisionDAO();
 const servicesDAO = new ServicesDAO();
+const contactDAO = new ContactDAO();
 
 export const load: PageServerLoad = async ({ params }) => {
 
@@ -20,6 +21,13 @@ export const load: PageServerLoad = async ({ params }) => {
       return fail(404, { description: "Division not found." });
     }
 
+    // Fetch phone numbers and emails for the division using the ContactDAO
+    const phoneNumbers = await contactDAO.getPhoneNumbersByDivision(divisionID);
+    const contactNumber = phoneNumbers.length > 0 ? phoneNumbers[0] : "Unknown";
+
+    const emails = await contactDAO.getEmailsByDivision(divisionID);
+    const email = emails.length > 0 ? emails[0] : "Unknown";
+
     // Check if division has services using DAO method
     const hasServices = await divisionDAO.divisionHasServices(divisionID);
     
@@ -28,11 +36,10 @@ export const load: PageServerLoad = async ({ params }) => {
       services = await servicesDAO.getByDivision(divisionID);
     }
     
-
     return {
       divisionName: division.name ?? "Unknown Division",
-      phoneNumber: division.phoneNumber ?? "Unknown",
-      email: division.email ?? "Unknown",
+      phoneNumber: contactNumber,
+      email: email,
       openTime: dateToTimeMapping(division.openingTime) as string,
       closeTime: dateToTimeMapping(division.closingTime) as string,
       hasServices,

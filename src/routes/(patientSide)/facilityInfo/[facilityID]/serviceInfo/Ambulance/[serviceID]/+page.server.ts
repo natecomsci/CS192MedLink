@@ -1,8 +1,8 @@
 import { fail, redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
+import type { PageServerLoad } from './$types';
 
-import {
-  AmbulanceServiceDAO,
+import { 
+  BloodBankServiceDAO,
   FacilityDAO,
   AddressDAO,
   ServicesDAO,
@@ -11,7 +11,7 @@ import {
 } from '$lib';
 
 export const load: PageServerLoad = async ({ params, url }) => {
-  const ambulanceDAO = new AmbulanceServiceDAO();
+  const bloodBankDAO = new BloodBankServiceDAO();
   const facilityDAO = new FacilityDAO();
   const addressDAO = new AddressDAO();
   const geographyDAO = new GeographyDAO();
@@ -31,15 +31,19 @@ export const load: PageServerLoad = async ({ params, url }) => {
   }
 
   try {
-    const ambulanceService = await ambulanceDAO.getInformation(serviceID);
     const service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
-      throw new Error("Service or facilityID not found.");
+      return fail(500, { error: "Service or facilityID not found." });
+    }
+
+    const bloodBankService = await bloodBankDAO.getInformation(serviceID);
+    if (!bloodBankService) {
+      return fail(500, { error: "Blood Bank Service details not found." });
     }
 
     const facility = await facilityDAO.getInformation(service.facilityID);
     if (!facility) {
-      throw new Error("Facility details not found.");
+      return fail(500, { error: "Facility details not found." });
     }
 
     const address = await addressDAO.getByFacility(service.facilityID);
@@ -66,19 +70,18 @@ export const load: PageServerLoad = async ({ params, url }) => {
     const phoneNumber = phoneNumbers.length > 0 ? phoneNumbers[0] : "N/A";
 
     return {
-      facilityName      : facility.name,
-      facilityAddress   : fullAddress,
-      phoneNumber       ,
-      openingTime       : ambulanceService.openingTime ?? facility.openingTime,
-      closingTime       : ambulanceService.closingTime ?? facility.closingTime,
-      baseRate          : ambulanceService.baseRate,
-      minCoverageRadius : ambulanceService.minCoverageRadius,
-      mileageRate       : ambulanceService.mileageRate,
-      maxCoverageRadius : ambulanceService.maxCoverageRadius,
-      availability      : ambulanceService.availability,
-      updatedAt         : ambulanceService.updatedAt,
-      serviceID,
+      facilityName           : facility.name,
+      facilityAddress        : fullAddress,
+      phoneNumber,
+      openingTime            : bloodBankService.openingTime ?? facility.openingTime,
+      closingTime            : bloodBankService.closingTime ?? facility.closingTime,
+      pricePerUnit           : bloodBankService.basePricePerUnit ?? null,
+      turnaroundTimeD        : bloodBankService.turnaroundTimeD ?? null,
+      turnaroundTimeH        : bloodBankService.turnaroundTimeH ?? null,
+      bloodTypeAvailability  : bloodBankService.bloodTypeAvailability ?? null,
+      updatedAt              : bloodBankService.updatedAt ?? null,
       facilityID,
+      serviceID,
       fromSearch
     };
   } catch (error) {

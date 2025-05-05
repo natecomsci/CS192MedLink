@@ -7,6 +7,7 @@ import {
   AddressDAO,
   ServicesDAO,
   GeographyDAO,
+  ContactDAO,
 } from '$lib';
 
 export const load: PageServerLoad = async ({ params, url }) => {
@@ -15,35 +16,37 @@ export const load: PageServerLoad = async ({ params, url }) => {
   const addressDAO = new AddressDAO();
   const geographyDAO = new GeographyDAO();
   const servicesDAO = new ServicesDAO();
+  const contactDAO = new ContactDAO();
+
   let { facilityID, serviceID } = params;
   let fromSearch = false;
-  
+
   if (!serviceID || !facilityID) {
     throw redirect(303, "/");
   }
 
   if (url.pathname.includes("---prev=")) {
     fromSearch = true;
-    serviceID = serviceID.split("---prev=", 1)[0]
+    serviceID = serviceID.split("---prev=", 1)[0];
   }
 
   try {
-    let service = await servicesDAO.getByID(serviceID);
+    const service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
       return fail(500, { error: "Service or facilityID not found." });
     }
 
-    let eRService = await ERDAO.getInformation(serviceID);
+    const eRService = await ERDAO.getInformation(serviceID);
     if (!eRService) {
       return fail(500, { error: "ER Service details not found." });
     }
 
-    let facility = await facilityDAO.getInformation(service.facilityID);
-    if (!facility || facility.name) {
+    const facility = await facilityDAO.getInformation(service.facilityID);
+    if (!facility || !facility.name) {
       return fail(500, { error: "Facility details not found." });
     }
 
-    let address = await addressDAO.getByFacility(service.facilityID);
+    const address = await addressDAO.getByFacility(service.facilityID);
     let fullAddress = null;
 
     if (address) {
@@ -63,25 +66,13 @@ export const load: PageServerLoad = async ({ params, url }) => {
       };
     }
 
-    let phoneNumber
-    // let openingTime
-    // let closingTime
-
-    if (!eRService.phoneNumber) {
-      const address = await facilityDAO.getInformation(service.facilityID)
-      phoneNumber = address.phoneNumber
-      // openingTime = address.openingTime
-      // closingTime = address.closingTime
-    } else {
-      phoneNumber = eRService.phoneNumber
-      // openingTime = eRService.openingTime
-      // closingTime = eRService.closingTime
-    }
+    const phoneNumbers = await contactDAO.getPhoneNumbersByService(serviceID);
+    const phoneNumber = phoneNumbers.length > 0 ? phoneNumbers[0] : "N/A";
 
     return {
       facilityName: facility.name ?? "Unknown Facility",
       facilityAddress: fullAddress,
-      phoneNumber ,
+      phoneNumber,
       load: eRService.load ?? null,
       availableBeds: eRService.availableBeds ?? null,
       nonUrgentPatients: eRService.nonUrgentPatients ?? null,
@@ -95,6 +86,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
       fromSearch
     };
   } catch (error) {
+    console.error(error);
     return fail(500, { description: "Could not get service information." });
   }
 };

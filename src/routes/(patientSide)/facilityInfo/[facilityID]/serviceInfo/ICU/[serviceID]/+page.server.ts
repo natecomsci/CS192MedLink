@@ -1,50 +1,48 @@
 import { fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 
-import { 
+import {
   ICUServiceDAO,
   FacilityDAO,
   AddressDAO,
   ServicesDAO,
   GeographyDAO,
+  ContactDAO,
 } from '$lib';
-
 
 export const load: PageServerLoad = async ({ params, url }) => {
   const icuDAO = new ICUServiceDAO();
   const facilityDAO = new FacilityDAO();
-  const servicesDAO = new ServicesDAO();
-  const geographyDAO = new GeographyDAO();
   const addressDAO = new AddressDAO();
+  const geographyDAO = new GeographyDAO();
+  const servicesDAO = new ServicesDAO();
+  const contactDAO = new ContactDAO();
+
   let { facilityID, serviceID } = params;
   let fromSearch = false;
-  
+
   if (!serviceID || !facilityID) {
     throw redirect(303, "/");
   }
 
   if (url.pathname.includes("---prev=")) {
     fromSearch = true;
-    serviceID = serviceID.split("---prev=", 1)[0]
+    serviceID = serviceID.split("---prev=", 1)[0];
   }
 
   try {
-    let service = await servicesDAO.getByID(serviceID);
+    const icuService = await icuDAO.getInformation(serviceID);
+    const service = await servicesDAO.getByID(serviceID);
     if (!service || !service.facilityID) {
-      return fail(500, { error: "Service or facilityID not found." });
+      throw new Error("Service or facilityID not found.");
     }
-    
-    let icuService = await icuDAO.getInformation(serviceID);
-    if (!icuService) {
-      return fail(500, { error: "ICU Service details not found." });
+
+    const facility = await facilityDAO.getInformation(service.facilityID);
+    if (!facility) {
+      throw new Error("Facility details not found.");
     }
-    
-    let facility = await facilityDAO.getInformation(service.facilityID);
-    if (!facility || facility.name) {
-      return fail(500, { error: "Facility details not found." });
-    }
-    
-    let address = await addressDAO.getByFacility(service.facilityID);
+
+    const address = await addressDAO.getByFacility(service.facilityID);
     let fullAddress = null;
 
     if (address) {
@@ -64,25 +62,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
       };
     }
 
-    let phoneNumber
-    // let openingTime
-    // let closingTime
-
-    if (!icuService.phoneNumber) {
-      const address = await facilityDAO.getInformation(service.facilityID)
-      phoneNumber = address.phoneNumber
-      // openingTime = address.openingTime
-      // closingTime = address.closingTime
-    } else {
-      phoneNumber = icuService.phoneNumber
-      // openingTime = icuService.openingTime
-      // closingTime = icuService.closingTime
-    }
+    const phoneNumbers = await contactDAO.getPhoneNumbersByService(serviceID);
+    const phoneNumber = phoneNumbers.length > 0 ? phoneNumbers[0] : "N/A";
 
     return {
       facilityName        : facility.name,
       facilityAddress     : fullAddress,
       phoneNumber         ,
+      openingTime         : icuService.openingTime ?? facility.openingTime,
+      closingTime         : icuService.closingTime ?? facility.closingTime,
       baseRate            : icuService.baseRate,
       load                : icuService.load,
       availableBeds       : icuService.availableBeds,
@@ -92,10 +80,12 @@ export const load: PageServerLoad = async ({ params, url }) => {
       respiratorySupport  : icuService.respiratorySupport,
       updatedAt           : icuService.updatedAt,
       ...(icuService.division?.divisionID ? { divisionID: icuService.division?.divisionID } : {}),
+      serviceID,
       facilityID,
       fromSearch
     };
   } catch (error) {
+    console.error(error);
     return fail(500, { description: "Could not get ICU or facility information." });
   }
 };
