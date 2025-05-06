@@ -69,12 +69,12 @@
           }
         };
       }}
-      class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl p-2 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+      class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     >
       <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
 
         <!-- Left Panel -->
-        <div class="w-1/3 bg-white p-6 flex flex-col ">
+          <div class="w-1/3 bg-white p-6 flex flex-col rounded-l-2xl">
             <div class="flex items-center gap-5">
                 <button onclick={() => currPopUp = ''} type="button">
                   <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
@@ -84,16 +84,28 @@
 
             <label class="mt-5">
               <span class="text-label">Select a Service</span>
-              <select name="serviceType" bind:value={serviceType} required class="border-2 border-[#D9D9D9] p-2 rounded w-full">
+              <select name="serviceType" bind:value={serviceType} required class="input-box">
                 {#each (data.availableServices ?? []) as service}
                   <option value={service} onclick={() => serviceType = service}>{service}</option>
                 {/each}
               </select>
             </label>
 
-            <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" data-sveltekit-reload>
-                Add Service
-            </button>
+          {#if data.hasDivisions}
+          <label class="mt-5">
+            <span class="text-label">Select a Division</span>
+            <select name="divSelect" bind:value={selectedDivisionID} required class="input-box">
+                {#each (data.divisions ?? []) as division}
+                  <option value={division.divisionID + ""}>{division.name}</option> <!-- Convert ID to string -->
+                {/each}
+            </select>
+          </label>
+          {/if}
+
+
+          <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" data-sveltekit-reload>
+              Add Service
+          </button>
         </div>
 
         <!-- Vertical Divider -->
@@ -122,7 +134,7 @@
           <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
           <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
 
-          {#if data.hasDivisions}
+          <!-- {#if data.hasDivisions}
             <label>
               Divisions
               {#each (data.divisions ?? []) as division}
@@ -138,7 +150,7 @@
                 >
               {/each}
             </label>
-          {/if}
+          {/if} -->
         </div>
       </div>
     </form>

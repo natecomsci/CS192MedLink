@@ -8,11 +8,11 @@
 
 <div class="bg-white shadow-lg rounded-lg flex-1 flex flex-col h-2/8 pl-4 pr-4 pt-4 pb-2"> <!-- Adjusted height to 2/8 of the parent container -->
   <!-- Admin Header -->
-  <div class="flex justify-between items-center p-2">
-    <h2 class="text-[30px] text-[#9044C4] font-bold">Admins</h2>
+  <div class="flex justify-between items-center pl-2 pr-2">
+    <h2 class="text-dashboard-header">Admins</h2>
       <a 
         href="./dashboard/manageAdmins" 
-        class="flex items-center text-purple-500 text-m hover:text-purple-400 gap-2 transition-colors duration-200"
+        class="flex items-center text-primary-500 text-m hover:text-primary-400 hover:underline gap-2 transition-colors duration-200"
         data-sveltekit-reload
       >
         <img src="/dashedit_icon.svg" alt="Edit" class="w- h-7">      
@@ -21,13 +21,13 @@
   </div>
   
 
-  <hr class="my-2 border-gray-300"> <!-- Line -->   
+  <hr class="mt-1 border-gray-300"> <!-- Line -->   
 
   <!-- Horizontal Scrollable Admin List -->
   <div class="overflow-x-auto whitespace-nowrap flex gap-3 h-full items-center justify-start p-2"> <!-- Added padding for better spacing -->
     {#if admins.length > 0}
       {#each admins as {fname, lname}}
-        <div class="flex flex-col items-center w-24 shrink-0 ">
+        <div class="flex flex-col items-center w-24  shrink-0 ">
           <!-- Rounded Profile Image Placeholder -->
           <img src={TempMan} alt="Profile" class="w-16 h-16 rounded-full border border-gray-300" />
 
@@ -64,7 +64,7 @@
     background: #e0e0e0; /* Track color */
   }
 
-.overflow-x-auto::-webkit-scrollbar {
-    width: 5px !important;
-}
+  .overflow-x-auto::-webkit-scrollbar {
+      width: 5px !important;
+  }
 </style>

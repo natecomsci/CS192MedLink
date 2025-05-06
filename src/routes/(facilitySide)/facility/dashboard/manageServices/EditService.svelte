@@ -58,7 +58,7 @@
 </script>
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
   <div class=" w-11/12 max-w-3/4 rounded-lg  overflow-hidden ">
-    <div class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl p-2 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
+    <div class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl p-0 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">
 
       <form method="POST" 
         id="editService"
@@ -75,7 +75,7 @@
       >
         <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
           <!-- Left Panel -->
-          <div class="w-1/3 bg-white p-6 flex flex-col ">
+          <div class="w-1/3 bg-white p-6 flex flex-col rounded-l-2xl">
               <div class="flex items-center gap-5">
                   <button onclick={() => currPopUp = ''} data-sveltekit-reload type="button">
                     <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
@@ -83,10 +83,44 @@
                   <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Edit Service</h1>
               </div>
 
-              <div class=" py-10">
+              <div class=" pt-10">
                   <h1 class=" text-[25px] font-['DM_Sans'] font-bold text-black">{serviceType}</h1>
                   <!-- <h3 class="text-[20px] font-['DM_Sans'] font-bold text-purple-500">Division Name</h3> -->
               </div>
+
+              {#if data.hasDivisions && data.role == Role.MANAGER}
+              <label class="mt-5">
+                <span class="text-label">Division</span>
+                <select name="divSelect" bind:value={selectedDivisionID} required class="input-box">
+                    {#each (data.divisions ?? []) as division}
+                      <option value={division.divisionID + ""}>{division.name}</option> <!-- Convert ID to string -->
+                    {/each}
+                </select>
+              </label>
+              {/if}
+
+              <!-- <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
+              <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} /> -->
+
+              <!-- {#if data.hasDivisions && data.role == Role.MANAGER}
+                <label>
+                  Divisions
+                  {#each (data.divisions ?? []) as division}
+                  {division.name}
+                    <input 
+                      type="radio" 
+                      name="divSelect" 
+                      onclick={() => {
+                        selectedDivisionID = division.divisionID
+                        selectedDivisionName = division.name
+                      }}
+                      checked={selectedDivisionID === division.divisionID}
+                      class="input-box w-30"
+                    >
+                  {/each}
+                </label>
+              {/if} -->
+
 
               <button form="editService" type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" data-sveltekit-reload>
                   Edit Service
@@ -134,27 +168,6 @@
                 />
               {/if}
 
-              <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
-              <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
-
-              {#if data.hasDivisions && data.role == Role.MANAGER}
-                <label>
-                  Divisions
-                  {#each (data.divisions ?? []) as division}
-                  {division.name}
-                    <input 
-                      type="radio" 
-                      name="divSelect" 
-                      onclick={() => {
-                        selectedDivisionID = division.divisionID
-                        selectedDivisionName = division.name
-                      }}
-                      checked={selectedDivisionID === division.divisionID}
-                      class="input-box w-30"
-                    >
-                  {/each}
-                </label>
-              {/if}
             </label>
           </div>
         </div>

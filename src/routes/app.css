@@ -81,6 +81,13 @@
 .text-success-1 { color: var(--success-1); }
 .text-success-2 { color: var(--success-2); }
 
+/* Hover */
+.hover\:text-primary-400:hover {
+    color: #AE72DA !important;
+}
+
+
+
 body {
     font-family: 'DM Sans', sans-serif;
 }
@@ -90,7 +97,18 @@ body {
 
 }
 
+.text-dashboard-header {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 25px;
+    color: #9044C4;
+    letter-spacing: -0.02em;
+}
 
+
+
+
+/* ------------------ Global Styles ------------------ */
 /* add global formatting here */
 .container {
     flex: 1;
@@ -152,6 +170,9 @@ body {
     color: #574E5F;
 }
 
+
+/*=============== Scrollbars============ */
+
 ::-webkit-scrollbar {
     width: 5px !important;
 }
@@ -169,8 +190,6 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #6a3191 !important;
 }
-
-
 
 .no-scrollbar::-webkit-scrollbar {
     display: none;

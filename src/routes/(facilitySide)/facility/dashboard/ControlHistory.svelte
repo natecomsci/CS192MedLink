@@ -52,7 +52,7 @@
 <div class="h-full p-4 flex flex-col ">
   <!-- Sticky Header -->
   <div class="flex items-center pl-2 sticky  z-10">
-    <span class=" text-[30px] font-bold text-lg text-[#9044C4] whitespace-nowrap pr-4">
+    <span class=" text-dashboard-header whitespace-nowrap pr-4">
       Control History
     </span>
   

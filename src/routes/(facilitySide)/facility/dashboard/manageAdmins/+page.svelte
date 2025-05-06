@@ -124,7 +124,7 @@
   </div>
 </header>
 
-<div class="p-6 bg-gray-50 max-h-screen h-[calc(100vh-50px)]">
+<div class="p-6 bg-gray-50 max-h-screen h-[calc(100vh-50px)]">\
     <!-- View and Search -->
     <div class="w-2/3 flex items-center gap-10">
       <input
@@ -183,7 +183,7 @@
 
     <hr class="mt-4 border-gray-300 w-2/3">
     <!-- Scrollable List Container -->
-    <div class="space-y-3 mt-4 w-2/3 pl-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
+    <div class="space-y-3 mt-4 w-2/3 p-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
       {#if errorLoc == "admins"}
         {error}
       {/if}
@@ -199,7 +199,7 @@
                 {#if data.hasDivisions}
                   <p class="departments">
                     {#each (admin.divisions ?? []) as division, i}
-                      <span class="dept">
+                      <span class="dept mr-1">
                         {division.name}
                         {#if i < (admin.divisions ?? []).length - 1} | {/if}
                       </span>
@@ -236,7 +236,8 @@
         </div>
       {/each}
     </div>
-
+  
+  <div class="w-2/3">
   <PageBar
     bind:currentPage={currentPage} 
     bind:totalPages={totalPages} 
@@ -246,8 +247,7 @@
 
 
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addAdmin'}}>
-    <span class="text-xl">+</span>
-    Add Admin
+    <span class="text-xl">+ Add Admin</span>
   </button>
 </div>
 

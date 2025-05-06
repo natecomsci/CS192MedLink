@@ -10,6 +10,18 @@
   import Services from './Services.svelte';
   import Divisions from './Divisions.svelte';
 
+  // PopUps
+  import Settings from './Settings.svelte';
+  import UpdateFacilityInfo from './UpdateFacilityInfo.svelte';
+  let currPopUp: String = $state("")
+
+
+  // PopUps
+  import Settings from './Settings.svelte';
+  import UpdateFacilityInfo from './UpdateFacilityInfo.svelte';
+  let currPopUp: String = $state("")
+
+
   let { data, form }: PageProps = $props();
 
   const mainServicesShown: ServiceDTO[] = data.mainServicesShown 
@@ -30,13 +42,35 @@
             <a href="./dashboard/updateFacilityInfo" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
                 <p>GenInfo</p>
             </a>
+            <button type="button"
+                    class="duration-200 hover:text-violet-400"
+                    onclick={() => {currPopUp='UpdateFacilityInfo'}}>
+                    GenInfoPopUp
+            </button>
         </div>
+        <button
+          onclick={() => currPopUp = 'genInfo'}
+          class="duration-200 hover:text-violet-400 " data-sveltekit-reload
+        >
+          GenInfoPop
+        </button>
       {/if}
       <div class="sm:flex items-center gap-4 hidden">
           <a href="./dashboard/settings" class="duration-200 hover:text-violet-400 " data-sveltekit-reload>
               <p>Settings</p>
           </a>
+          <button type="button"
+                  class="duration-200 hover:text-violet-400"
+                  onclick={() => {currPopUp='Settings'}}>
+                  Settings
+          </button>
       </div>
+      <button
+        onclick={() => currPopUp = 'settings'}
+        class="duration-200 hover:text-violet-400 " data-sveltekit-reload
+      >
+        SettingsPop
+      </button>
   </div>
 </header>
 

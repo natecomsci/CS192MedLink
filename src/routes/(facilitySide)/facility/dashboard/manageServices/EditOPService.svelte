@@ -46,12 +46,14 @@
   getData()
 </script>
 
+
+
 <!-- Right Panel (Scrollable) -->
-<label class="grid grid-cols-1" >
+<label class="grid grid-cols-1 " >
   {#if form?.error}
       <p class="error">{form.error}</p>
   {/if}
-  <div class="flex-1 p-6 overflow-y-auto border border-green-100">
+  <div class="flex-1 p-6 overflow-y-auto  ">
     <input 
       class="hidden" 
       name="serviceID"

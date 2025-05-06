@@ -1,7 +1,7 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
     import { page } from '$app/stores';
-    import Placeholder from '$lib/images/TempMan.jpg';
+    import Placeholder from '$lib/images/TempMan.png';
 
     let currentPassword = "";
     let newPassword = "";
