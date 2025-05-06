@@ -1,8 +1,6 @@
 <script lang="ts">
 
     let {currPopUp = $bindable()}:{currPopUp: String;} = $props();
-
-
     let selectedOwnership = $state('PUBLIC')
     let selectedType = $state('')
     
@@ -19,7 +17,6 @@
                 </button>
                 <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">General Information</h1>
             </div> -->
-
 
             <!-- Image Container -->
             <div class="relative group w-full h-[500px] overflow-hidden rounded-t-xl cursor-pointer bg-black">

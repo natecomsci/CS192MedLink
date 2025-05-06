@@ -21,6 +21,17 @@
 
 </script>
 
+{#if currPopUp === 'UpdateFacilityInfo'}
+  <UpdateFacilityInfo 
+    bind:currPopUp={currPopUp}
+  />
+{:else if currPopUp === 'Settings'}
+  <Settings 
+    bind:currPopUp={currPopUp}
+  />
+{/if}
+
+
 <!-- Medlink Logo, Facility Name, General Info and Settings Header -->
 <header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
   <div class="flex items-center">
@@ -41,12 +52,6 @@
                     GenInfoPopUp
             </button>
         </div>
-        <button
-          onclick={() => currPopUp = 'genInfo'}
-          class="duration-200 hover:text-violet-400 " data-sveltekit-reload
-        >
-          GenInfoPop
-        </button>
       {/if}
       <div class="sm:flex items-center gap-4 hidden">
           <a href="./dashboard/settings" class="duration-200 hover:text-violet-400 " data-sveltekit-reload>
@@ -55,15 +60,9 @@
           <button type="button"
                   class="duration-200 hover:text-violet-400"
                   onclick={() => {currPopUp='Settings'}}>
-                  Settings
+                  SettingsPop
           </button>
       </div>
-      <button
-        onclick={() => currPopUp = 'settings'}
-        class="duration-200 hover:text-violet-400 " data-sveltekit-reload
-      >
-        SettingsPop
-      </button>
   </div>
 </header>
 
