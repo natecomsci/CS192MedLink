@@ -124,7 +124,7 @@
   </div>
 </header>
 
-<div class="p-6 bg-gray-50 max-h-screen h-[calc(100vh-50px)]">\
+<div class="p-6 bg-gray-50 max-h-screen h-[calc(100vh-50px)]">
     <!-- View and Search -->
     <div class="w-2/3 flex items-center gap-10">
       <input

@@ -15,13 +15,6 @@
   import UpdateFacilityInfo from './UpdateFacilityInfo.svelte';
   let currPopUp: String = $state("")
 
-
-  // PopUps
-  import Settings from './Settings.svelte';
-  import UpdateFacilityInfo from './UpdateFacilityInfo.svelte';
-  let currPopUp: String = $state("")
-
-
   let { data, form }: PageProps = $props();
 
   const mainServicesShown: ServiceDTO[] = data.mainServicesShown 
