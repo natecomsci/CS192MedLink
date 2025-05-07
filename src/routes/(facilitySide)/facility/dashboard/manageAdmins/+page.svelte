@@ -232,18 +232,19 @@
               <img src="/trash_icon.svg" alt="Delete" class="w-6 h-6 cursor-pointer hover:opacity-80" />
             </button>
 
-          </div>
+            </div>
         </div>
       {/each}
     </div>
   
   <div class="w-2/3">
-  <PageBar
-    bind:currentPage={currentPage} 
-    bind:totalPages={totalPages} 
-    bind:perPage={perPage} 
-    getPage={getPage}
-  />
+    <PageBar
+      bind:currentPage={currentPage} 
+      bind:totalPages={totalPages} 
+      bind:perPage={perPage} 
+      getPage={getPage}
+    />
+  </div>
 
 
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addAdmin'}}>

@@ -74,7 +74,7 @@
       <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
 
         <!-- Left Panel -->
-          <div class="w-1/3 bg-white p-6 flex flex-col rounded-l-2xl">
+        <div class="w-1/3 bg-white p-6 flex flex-col rounded-l-2xl">
             <div class="flex items-center gap-5">
                 <button onclick={() => currPopUp = ''} type="button">
                   <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
@@ -108,6 +108,9 @@
           </button>
         </div>
 
+
+
+        
         <!-- Vertical Divider -->
         <div class="w-[2px] bg-gray-300"></div>
 

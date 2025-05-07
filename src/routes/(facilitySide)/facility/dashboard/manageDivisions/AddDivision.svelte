@@ -162,55 +162,65 @@
                   >
                 </label>
             </div>
-          
-            <button 
-              class="w-full border bg-white text-left p-2 rounded relative overflow-hidden pr-8" 
-              onclick={() => showDropdown = !showDropdown}
-              type="button" 
-            >
-              <span class="fade-mask">
-                Link a Service
-              </span>
-      
-              <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform pointer-events-none" 
-                style="transform: {showDropdown ? 'rotate(180deg)' : 'rotate(0deg)'}" 
-                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </svg>
-            </button>
 
-            <div class={showDropdown ? "" : "hidden"}>
-              <div class="">
-                {#each linkableServices as { name, services }}
-                  {name}
-                  {#each services as { serviceID, type }}
-                    <label class="flex items-center space-x-2">
-                      <input 
-                        name={serviceID} 
-                        type="checkbox"
-                        checked={isAccepted(divisionID)}
-                        onclick={() => toggleDivision(name, divisionID)} 
-                      />
-                      <span>{type}</span>
-                    </label>
+
+            <label class="relative block w-full">
+              <span class="text-label">Link or Create Service</span>
+              <button
+                class="input-box text-left p-2 rounded relative overflow-hidden pr-8 w-full"
+                onclick={() => showDropdown = !showDropdown}
+                type="button"
+              >
+                <span class="fade-mask text-neutral-600">Link a Service</span>
+
+                <svg class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 transition-transform pointer-events-none"
+                  style="transform: {showDropdown ? 'rotate(180deg)' : 'rotate(0deg)'}"
+                  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+
+              <!-- Dropdown -->
+              <div 
+                class={"absolute mt-2 bg-white shadow-lg rounded p-2 w-full max-h-60 overflow-y-auto " + (showDropdown ? "" : "hidden")} 
+                style="z-index: 50;"
+              >
+                <div>
+                  {#each linkableServices as { name, services }}
+                    <span class="block font-semibold">{name}</span>
+                    {#each services as { serviceID, type }}
+                      <label class="flex items-center space-x-2">
+                        <input
+                          name={serviceID}
+                          type="checkbox"
+                          checked={isAccepted(divisionID)}
+                          onclick={() => toggleDivision(name, divisionID)}
+                        />
+                        <span>{type}</span>
+                      </label>
+                    {/each}
                   {/each}
-                {/each} 
+                </div>
               </div>
-            </div>
 
-            <div class="flex items-center gap-5">
-              {#if newServicesCount == 0}
-                <button type="button" class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {
-                  newServicesCount++
-                  currState++
-                  newServiceTypes.push('')
-                }}>Add a new service</button>
-              {:else}
-                <button type="button" class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {
-                  currState++
-                }}>View new services</button>
-              {/if}
-            </div>
+              <div class="flex items-center gap-5">
+                {#if newServicesCount == 0}
+                  <button type="button" class="text-xl text-primary-500 rounded-lg hover:underline hover:text-primary-400" 
+                  onclick={() => {
+                    newServicesCount++
+                    currState++
+                    newServiceTypes.push('')
+                  }}>+ Add a new service</button>
+                {:else}
+                  <button type="button" class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {
+                    currState++
+                  }}>View new services</button>
+                {/if}
+              </div>
+          </label>
+
           </div>
 
           {#each {length: newServicesCount}, i}
@@ -257,14 +267,15 @@
                 Division data
               </button>
               {#if currState === newServicesCount-1}
-                <button type="button" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {
-                  newServicesCount--
-                  currState--
-                }}
-                >
+                <button type="button" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" 
+                  onclick={() => {
+                    newServicesCount--
+                    currState--
+                  }}>
                   Delete Service
                 </button>
-                <button type="button" class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => {
+                <button type="button" class="text-[30px] font-['DM_Sans'] bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" 
+                onclick={() => {
                   newServicesCount++
                   currState++
                   newServiceTypes.push('')
@@ -280,11 +291,7 @@
             </div>
           {/each}
 
-          <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700"
-            >
-              Create Division
-            </button>
-
+          <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700">Create Division</button>
         </div>
       </div>
     </form>
