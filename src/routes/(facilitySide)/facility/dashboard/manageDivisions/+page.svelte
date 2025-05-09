@@ -208,13 +208,15 @@
     {#if form?.description === "pass"}
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
-
-  <PageBar
-    bind:currentPage={currentPage} 
-    bind:totalPages={totalPages} 
-    bind:perPage={perPage} 
-    getPage={getPage}
-  />
+  
+  <div class="w-2/3 items-center justify-center mt-4">
+    <PageBar
+      bind:currentPage={currentPage}
+      bind:totalPages={totalPages}
+      bind:perPage={perPage}
+      getPage={getPage}
+    />
+</div>
 
   <!-- Add Division -->
   <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addDivision'}}>

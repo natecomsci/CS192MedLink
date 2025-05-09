@@ -133,13 +133,13 @@
 
 {#if currentStep === 1}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
-    <div class="bg-white w-1/2 max-w-full rounded-xl p-6 shadow-lg max-h-[90vh] flex flex-col">
+    <div class="bg-white w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
 
       <div class="flex items-center mb-4">
         <h2 class="text-2xl font-bold text-purple-800">Manage Services in Division Name</h2>
       </div>
 
-      <div class="overflow-y-auto flex-1 pr-2 border">
+      <div class="overflow-y-auto flex-1 p-4 ">
         {#await promise then {services}}
         {#each services as service}
           <div class="card2 mb-4 flex items-center justify-between rounded-lg bg-gray-50 shadow-sm">
@@ -177,7 +177,7 @@
         {/await}
       </div>
 
-      <div class="flex justify-between mt-4 pt-4 border-t">
+      <div class="flex justify-between mt-4 pt-4 border-t border-gray-300">
         <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
         <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = admins.length > 0 ? 2 : 3}>Next</button>
       </div>
@@ -186,7 +186,7 @@
 
 {:else if currentStep === 2}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
-    <div class="bg-white w-1/2 max-w-full rounded-xl p-6 shadow-lg max-h-[90vh] flex flex-col">
+    <div class="bg-white w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
 
       <div class="flex items-center mb-4">
         <button class="mr-3" onclick={() => currentStep = 1} aria-label="Back">
@@ -197,7 +197,7 @@
         <h2 class="text-2xl font-bold text-purple-800">Manage Admins in Division</h2>
       </div>
 
-      <div class="overflow-y-auto flex-1 pr-2 border">
+      <div class="overflow-y-auto flex-1 p-4">
         {#await promise then {admins}}
         {#each admins as admin}
           <div class="card2 mb-4 flex items-center justify-between rounded-lg bg-gray-50 shadow-sm">
@@ -238,7 +238,7 @@
         {/await}
       </div>
 
-      <div class="flex justify-between mt-4 pt-4 border-t">
+      <div class="flex justify-between mt-4 pt-4 border-t border-gray-300">
         <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
         <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = 3}>Next</button>
       </div>
