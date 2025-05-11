@@ -81,7 +81,7 @@ export function validateFacilityName(name: FormDataEntryValue | null): string {
 
 export function validatePhone(phone: FormDataEntryValue | null, source: string): string {
   if (!phone) {
-    if (source === "Facility" || "Division") {
+    if (source === "Facility" || source === "Division") {
       throw new Error("No phone number provided.");
     }
     return "";
