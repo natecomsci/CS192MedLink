@@ -79,9 +79,12 @@ export function validateFacilityName(name: FormDataEntryValue | null): string {
 
 // should we allow hyphens? /^\+?\d[\d\s-]*$/
 
-export function validatePhone(phone: FormDataEntryValue | null): string {
+export function validatePhone(phone: FormDataEntryValue | null, source: string): string {
   if (!phone) {
-    throw new Error("No phone number provided.");
+    if (source === "MainFacility") {
+      throw new Error("No phone number provided.");
+    }
+    return "";
   }
 
   let phoneNumberStr = (phone as string).trim();

@@ -89,11 +89,17 @@
               </div>
 
               {#if data.hasDivisions && data.role == Role.MANAGER}
+              <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
               <label class="mt-5">
                 <span class="text-label">Division</span>
-                <select name="divSelect" bind:value={selectedDivisionID} required class="input-box">
+                <select name="divisionID" bind:value={selectedDivisionID} required class="input-box">
                     {#each (data.divisions ?? []) as division}
-                      <option value={division.divisionID + ""}>{division.name}</option> <!-- Convert ID to string -->
+                      <option 
+                        value={division.divisionID}
+                        onclick={() => {
+                          selectedDivisionName = division.name
+                        }}
+                      >{division.name}</option>
                     {/each}
                 </select>
               </label>

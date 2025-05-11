@@ -271,7 +271,7 @@ export const actions = {
         email = undefined
       }
 
-      phoneNumber = [validatePhone(phone)];
+      phoneNumber = [validatePhone(phone, "Division")];
 
       const facilityDivisions = await divisionDAO.getAllNamesByFacility(facilityID)
       for (let div of facilityDivisions) {
@@ -526,7 +526,7 @@ export const actions = {
         email = undefined
       }
 
-      phoneNumber = [validatePhone(phone)];
+      phoneNumber = [validatePhone(phone, "Division")];
 
       const facilityDivisions = await divisionDAO.getAllNamesByFacility(facilityID)
       let countName = 0

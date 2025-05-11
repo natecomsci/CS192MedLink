@@ -159,7 +159,7 @@ export const actions = {
 
     try {
       name = validateFacilityName(data.get('facilityName'));
-      phoneNumber = [validatePhone(data.get('phoneNumber'))];
+      phoneNumber = [validatePhone(data.get('phoneNumber'), "MainFacility")];
       email = [await validateEmail(data.get('email'))];
       bookingSystem = String(data.get('bookingSystem')) === "" ? "" : await validateLink(data.get('bookingSystem'))
       address.street = validateStreet(data.get('street'));
