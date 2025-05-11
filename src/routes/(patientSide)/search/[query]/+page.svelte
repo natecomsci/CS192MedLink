@@ -1,6 +1,7 @@
   <script lang="ts">
     import type { ServiceResultsDTO } from '$lib';
-    
+    import { enhance } from '$app/forms';
+
     // Enums for filters
   const Provider = [
     'INTELLICARE',
@@ -139,10 +140,11 @@
 
 <div class="max-w-md mx-auto p-4 bg-[#FDFCFD]">
   <form 
-    method="POST"
-    action="?/search"
-    class="items-center space-x-2"
-  >
+  class="" 
+  method="POST"
+  action="?/search"
+  use:enhance
+>
     <div class="flex items-center gap-2 p-2 rounded-full border border-gray-300 bg-white shadow-sm w-full">
       <a href="/" class="pl-4 text-gray-500">
         ←

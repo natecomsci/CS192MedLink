@@ -53,12 +53,12 @@ export const actions = {
     // Extract form data from the request
     const formData = Object.fromEntries(await request.formData());
 
-    // Destructure the form data
-    const query = (formData.query as string).trim();
-    const selectedProvider = (formData.selectedProvider as string).trim() || "any"; // Default to "any"
-    const selectedFacilityType = (formData.selectedFacilityType as string) || "any"; // Default to "any"
-    const selectedOwnership = (formData.selectedOwnership as string) || "any"; // Default to "any"
-
+    // Destructure the form data safely
+    const query = (formData.query?.toString().trim()) || "";
+    const selectedProvider = (formData.selectedProvider?.toString().trim()) || "any";
+    const selectedFacilityType = (formData.selectedFacilityType?.toString().trim()) || "any";
+    const selectedOwnership = (formData.selectedOwnership?.toString().trim()) || "any";
+    
     // Log the extracted values
     console.log("Search Query:", query);
     console.log("Selected Provider:", selectedProvider);
