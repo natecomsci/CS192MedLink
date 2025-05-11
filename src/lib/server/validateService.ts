@@ -14,7 +14,7 @@ export function validateAmbulance(data: FormData, i: string | undefined): Create
   const j = i === undefined ? "" : i
 
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
 
     let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
     openingTime = OCTime.openingTime
@@ -53,7 +53,7 @@ export function validateBloodBank(data: FormData, i: string | undefined): Create
   const j = i === undefined ? "" : i
 
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
 
     let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
     openingTime = OCTime.openingTime
@@ -85,7 +85,7 @@ export function validateER(data: FormData, i: string | undefined): CreateERServi
   const j = i === undefined ? "" : i
 
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
   } catch (e) {
     throw new Error("Emergency Room: " + (e as Error).message);
   }
@@ -100,7 +100,7 @@ export function validateICU(data: FormData, i: string | undefined): CreateICUSer
   const j = i === undefined ? "" : i
 
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
     baseRate = validateFloat(data.get('price'+j), "Base Rate");
   } catch (e) {
     throw new Error("Intensive Care Unit: " + (e as Error).message);
