@@ -16,7 +16,7 @@ export function validateAmbulance(data: FormData, i: string | undefined): Create
   try {
     phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
 
-    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
+    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j), "Service", false)
     openingTime = OCTime.openingTime
     closingTime = OCTime.closingTime
 
@@ -55,7 +55,7 @@ export function validateBloodBank(data: FormData, i: string | undefined): Create
   try {
     phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
 
-    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
+    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j), "Service", false)
     openingTime = OCTime.openingTime
     closingTime = OCTime.closingTime
 

@@ -234,8 +234,9 @@ export const actions = {
     const facilityID = cookies.get('facilityID');
     const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !token || !employeeID) {
+    if (!facilityID || !token || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -309,7 +310,7 @@ export const actions = {
         }
       }
 
-      let OCTime = validateOperatingHours(open, close)
+      let OCTime = validateOperatingHours(open, close, "Division", hasDivisions === "true")
       openingTime = OCTime.openingTime
       closingTime = OCTime.closingTime
 
@@ -471,8 +472,9 @@ export const actions = {
     const facilityID = cookies.get('facilityID');
     const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !token || !employeeID) {
+    if (!facilityID || !token || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -577,7 +579,7 @@ export const actions = {
         }
       }
 
-      const OPHours = validateOperatingHours(open, close)
+      const OPHours = validateOperatingHours(open, close, "Division", hasDivisions === "true")
       openingTime = OPHours.openingTime
       closingTime = OPHours.closingTime
     } catch (error) {

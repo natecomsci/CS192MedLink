@@ -154,8 +154,9 @@ export async function validateEmail(email: FormDataEntryValue | null): Promise<s
   return emailStr;
 }
 
-export function validateOperatingHours(open: FormDataEntryValue | null, close: FormDataEntryValue | null): { openingTime: Date, closingTime: Date } {
+export function validateOperatingHours(open: FormDataEntryValue | null, close: FormDataEntryValue | null, source: string, hasDivisions: boolean): { openingTime: Date, closingTime: Date } {
   if (!open || !close) {
+    if ((source === "Facility" && !hasDivisions) || source === "Division")
     throw new Error("No opening and closing time provided.");
   }
 

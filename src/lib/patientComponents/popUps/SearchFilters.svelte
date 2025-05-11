@@ -11,7 +11,7 @@
 	import ValueX from '$lib/icons/ValueX.svelte';
 
 	import { facilityType } from '$lib/projectArrays';
-	import { provider } from '$lib/projectArrays';
+	import { providers } from '$lib/projectArrays';
 
 	let {
 		query,
@@ -156,7 +156,7 @@
 
 			<CheckBoxDropdown
 				label="Select Health Plans"
-				items={provider}
+				items={providers}
 				bind:selectedItems={selectedProviders}
 				opensUp={true}
 			/>
