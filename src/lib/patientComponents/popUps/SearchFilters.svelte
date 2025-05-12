@@ -11,7 +11,7 @@
 	import ValueX from '$lib/icons/ValueX.svelte';
 
 	import { facilityType } from '$lib/projectArrays';
-	import { providers } from '$lib/projectArrays';
+	import { provider } from '$lib/projectArrays';
 
 	let {
 		query,
@@ -39,7 +39,7 @@
 		maximumRange = null;
 	}
 
-	let isSmallScreen = $state(false);
+	let isSmallScreen: boolean = $state(false);
 
 	const checkScreenSize = () => {
 		isSmallScreen = window.innerWidth <= 640;
@@ -115,7 +115,7 @@
 						name="minimumRange"
 						bind:value={minimumRange}
 						placeholder="e.g. 0"
-						class="bg-transparent border-none outline-none text-neutral-400 text-sm font-medium tracking-tight leading-tight font-['Inter'] text-center w-full placeholder:text-neutral-400 focus:ring-0"
+						class="bg-transparent border-none outline-none text-neutral-900 text-sm font-medium tracking-tight leading-tight font-['Inter'] text-center w-full placeholder:text-neutral-400 focus:ring-0"
 					/>
 				</div>
 
@@ -135,7 +135,7 @@
 						name="maximumRange"
 						bind:value={maximumRange}
 						placeholder="e.g. 50"
-						class="bg-transparent border-none outline-none text-neutral-400 text-sm font-medium tracking-tight leading-tight font-['Inter'] text-center w-full placeholder:text-neutral-400 focus:ring-0"
+						class="bg-transparent border-none outline-none text-neutral-900 text-sm font-medium tracking-tight leading-tight font-['Inter'] text-center w-full placeholder:text-neutral-400 focus:ring-0"
 					/>
 				</div>
 
@@ -156,7 +156,7 @@
 
 			<CheckBoxDropdown
 				label="Select Health Plans"
-				items={providers}
+				items={provider}
 				bind:selectedItems={selectedProviders}
 				opensUp={true}
 			/>
@@ -186,12 +186,14 @@
 	
 				<button
 					type="submit"
-					class="flex items-center justify-center 
-						   bg-primary-500 hover:bg-primary-700 active:bg-primary-700 
-							text-sm font-bold tracking-tight leading-loose text-neutral-50 
-							h-12 w-full px-5 py-3 
-							rounded-full 
-							transition-colors duration-300 ease-in-out"
+					class="
+						flex items-center justify-center 
+						bg-primary-500 hover:bg-primary-700 active:bg-primary-700 
+						text-sm font-bold tracking-tight leading-loose text-neutral-50 
+						h-12 w-full px-5 py-3 
+						rounded-full 
+						transition-colors duration-300 ease-in-out
+					"
 				>
 					Apply Filters
 				</button>

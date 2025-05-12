@@ -6,13 +6,13 @@ import { getFromSearchInformation } from "$lib/server/patientSideUtility";
 
 import { 
   ServicesDAO,
-  ICUServiceDAO,
+  ERServiceDAO,
   FacilityDAO,
 } from '$lib';
 
 const servicesDAO = new ServicesDAO();
 
-const iCUServiceDAO = new ICUServiceDAO();
+const eRServiceDAO = new ERServiceDAO();
 
 const facilityDAO = new FacilityDAO();
 
@@ -30,10 +30,10 @@ export const load: PageServerLoad = async ({ params, url }) => {
   }
 
   try {
-    const [service, iCUInfo, facilityInfo, hasDivisions] = await Promise.all([
+    const [service, eRInfo, facilityInfo, hasDivisions] = await Promise.all([
       servicesDAO.getByID(serviceID),
 
-      iCUServiceDAO.getInformation(serviceID),
+      eRServiceDAO.getInformation(serviceID),
 
       facilityDAO.getInformation(facilityID),
 
@@ -47,27 +47,28 @@ export const load: PageServerLoad = async ({ params, url }) => {
     const response: Record<string, any> = {
       facilityID,
       fromSearch,
-      load                : iCUInfo.load,
-      baseRate            : iCUInfo.baseRate,
-      availableBeds       : iCUInfo.availableBeds,
-      cardiacSupport      : iCUInfo.cardiacSupport,
-      neurologicalSupport : iCUInfo.neurologicalSupport,
-      renalSupport        : iCUInfo.renalSupport,
-      respiratorySupport  : iCUInfo.respiratorySupport,
-      updatedAt           : iCUInfo.updatedAt,
+      load                 : eRInfo.load,
+      availableBeds        : eRInfo.availableBeds,
+      nonUrgentPatients    : eRInfo.nonUrgentPatients,
+      nonUrgentQueueLength : eRInfo.nonUrgentQueueLength,
+      urgentPatients       : eRInfo.urgentPatients,
+      urgentQueueLength    : eRInfo.urgentQueueLength,
+      criticalPatients     : eRInfo.criticalPatients,
+      criticalQueueLength  : eRInfo.criticalQueueLength,
+      updatedAt            : eRInfo.updatedAt,
     };
 
-    if (iCUInfo.note) {
-      response.note = iCUInfo.note;
+    if (eRInfo.note) {
+      response.note = eRInfo.note;
     }
 
-    if (iCUInfo.division) {
-      response.divisionName = iCUInfo.division.name;
+    if (eRInfo.division) {
+      response.divisionName = eRInfo.division.name;
     }
   
     if (fromSearch) {
       const { fromSearchResponse, phoneSource, hoursSource } = await getFromSearchInformation({
-        serviceInfo: iCUInfo,
+        serviceInfo: eRInfo,
         facilityInfo,
         hasDivisions,
       });
@@ -77,13 +78,13 @@ export const load: PageServerLoad = async ({ params, url }) => {
       response.phoneSource = phoneSource;
       response.hoursSource = hoursSource;
     } else {
-      if (iCUInfo.phoneNumber) {
-        response.phoneNumber = iCUInfo.phoneNumber;
+      if (eRInfo.phoneNumber) {
+        response.phoneNumber = eRInfo.phoneNumber;
       }
 
-      if (iCUInfo.openingTime && iCUInfo.closingTime) {
-        response.openingTime = iCUInfo.openingTime;
-        response.closingTime = iCUInfo.closingTime;
+      if (eRInfo.openingTime && eRInfo.closingTime) {
+        response.openingTime = eRInfo.openingTime;
+        response.closingTime = eRInfo.closingTime;
       }
     }
 

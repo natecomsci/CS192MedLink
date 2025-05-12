@@ -65,7 +65,7 @@
       type="submit" 
       class="font-['Inter'] w-full bg-[#9044C4] text-white py-3 rounded-md text-[15px] font-bold transition 
       hover:bg-purple-700 active:scale-95 active:bg-purple-800">
-      Log in
+      Sign In
     </button>
   </form>
 </div>

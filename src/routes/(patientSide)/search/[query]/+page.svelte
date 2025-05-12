@@ -107,7 +107,7 @@
   let selectedOwnership: string =  $state(data.selectedOwnership ?? "any");
   let selectedProviders: string[] = [];
 
-    async function loadMode(query: string) {
+    async function loadMore(query: string) {
       if (!hasMore) {
         return
       } 
@@ -199,7 +199,7 @@
       <div class="flex justify-center mt-4">
         <button 
           class="bg-[#9044C4] rounded-lg px-6 py-3 text-white font-semibold shadow-md hover:bg-gray-600 transition"
-          onclick={() => loadMode(data.query ?? '')}>
+          onclick={() => loadMore(data.query ?? '')}>
           Load More
         </button>
       </div>

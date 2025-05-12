@@ -2,24 +2,53 @@ import { fail, redirect, type Actions } from "@sveltejs/kit";
 
 export const actions = {
   search: async ({ request }) => {
-    // Extract form data from the request
-    const formData = Object.fromEntries(await request.formData());
+    // extracts form data from the request
 
-    // Destructure the form data safely
-    const query = (formData.query?.toString().trim()) || "";
-    const selectedProvider = (formData.selectedProvider?.toString().trim()) || "any";
-    const selectedFacilityType = (formData.selectedFacilityType?.toString().trim()) || "any";
-    const selectedOwnership = (formData.selectedOwnership?.toString().trim()) || "any";
-    
-    if (query === "") {
-      return fail(400, { 
-        error: 'Please enter a search query.',
-        description: 'search',
-        success: false
-      });
+    const formDataRaw = await request.formData();
+
+    const query = formDataRaw.get("query")?.toString().trim();
+
+    if (!query) {
+      return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
-    
-    throw redirect(303, `/search/${query}?selectedProvider=${selectedProvider}&selectedFacilityType=${selectedFacilityType}&selectedOwnership=${selectedOwnership}`);
+
+    // filters
+
+    const selectedFacilityTypes = formDataRaw
+      .getAll("selectedFacilityTypes")
+      .map((type) => type.toString());
+
+    const selectedOwnership = formDataRaw
+      .get("selectedOwnership")
+      ?.toString()
+      .trim();
+
+    const selectedProviders = formDataRaw
+      .getAll("selectedProviders")
+      .map((provider) => provider.toString());
+
+    const searchParams = new URLSearchParams();
+
+    // dynamically appends to query url based on set filters
+
+    if (selectedOwnership) {
+      searchParams.set("selectedOwnership", selectedOwnership);
+    }
+
+    if (selectedProviders.length) {
+      for (const provider of selectedProviders) {
+        searchParams.append("selectedProviders", provider);
+      }
+    }
+
+    if (selectedFacilityTypes.length) {
+      for (const type of selectedFacilityTypes) {
+        searchParams.append("selectedFacilityTypes", type);
+      }
+    }
+
+    const url = `/search/${encodeURIComponent(query)}?${searchParams.toString()}`;
+
+    throw redirect(303, url);
   },
 } satisfies Actions;
-

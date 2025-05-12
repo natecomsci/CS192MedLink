@@ -8,8 +8,6 @@
 	const refreshPage = () => {
 		window.location.reload();
 	};
-
-
 </script>
 
 <!-- Overlay -->

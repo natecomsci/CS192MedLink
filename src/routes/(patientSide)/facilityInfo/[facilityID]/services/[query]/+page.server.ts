@@ -1,21 +1,21 @@
 import { fail, redirect } from "@sveltejs/kit";
+
 import type { Actions, PageServerLoad } from "./$types";
 
-import { PatientServiceListDAO } from "$lib";
+import { patientSearchPageSize, PatientServiceListDAO } from "$lib";
+
+const patientServiceListDAO = new PatientServiceListDAO();
 
 export const load: PageServerLoad = async ({ params, url }) => {
-  const { facilityID } = params;
-  const { query } = params;
-  const numberToFetch = 10; // Adjust as needed
+  const { facilityID, query } = params;
+
   const offset = Number(url.searchParams.get("offset")) || 0;
 
-  const patientServiceListDAO = new PatientServiceListDAO();
-
   try {
-    const { results, hasMore } = await patientServiceListDAO.patientSearchServicesByFacility(
+    const { results, totalResults, totalFetched, hasMore } = await patientServiceListDAO.patientSearchServicesByFacility(
       facilityID, 
       query, 
-      numberToFetch, 
+      patientSearchPageSize, 
       offset, 
       { updatedAt: "desc" }
     )
@@ -24,12 +24,15 @@ export const load: PageServerLoad = async ({ params, url }) => {
       results, 
       hasMore, 
       query, 
-      facilityID 
+      totalResults,
+      totalFetched,
+      facilityID, 
     };
   } catch (error) {
-    console.error("Error loading services:", error);
+    console.error(error);
+
     return fail(500, {
-      description: "Could not retrieve service search results."
+      description: "Could not get service search results.",
     });
   }
 };
@@ -38,52 +41,47 @@ export const load: PageServerLoad = async ({ params, url }) => {
 export const actions = {
   search: async ({ request, params }) => {
     const formData = await request.formData();
-    let query = formData.get("query") as string;
+
     const { facilityID } = params;
+
+    let query = formData.get("query")?.toString().trim();
 
     if (!facilityID) {
       return fail(400, { error: "Facility ID is required.", description: "search", success: false });
     }
 
-    if (!query || query.trim() === "") {
+    if (!query) {
       return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
 
-    query = query.trim();
-
-    throw redirect(303, "/facilityInfo/"+facilityID+"/services/"+query);
+    const url = `/facilityInfo/${facilityID}/services/${query}`;
+  
+    throw redirect(303, url);
   },
 
   viewDetails: async ({ request, params }) => {
     const formData = await request.formData();
+
     const { facilityID } = params;
-    const serviceID = formData.get("serviceID") as string;
-    const serviceType = formData.get("serviceType") as string;
+
+    const serviceID = formData.get("serviceID")?.toString().trim();
+
+    const serviceType = formData.get("serviceType")?.toString().trim();
 
     if (!facilityID || !serviceID || !serviceType) {
-      return fail(400, 
-        { 
-          error: "Don't manipulate the hidden data please",
-          description: 'search',
-          success: false
-        }
-      );
+      return fail(400, { error: "Don't manipulate the hidden data please.", description: "search", success: false });
     }
 
-    let url
+    const servicePath =
+      {
+        Ambulance: "Ambulance",
+        "Blood Bank": "BloodBank",
+        "Emergency Room": "ER",
+        "Intensive Care Unit": "ICU",
+      }[serviceType] ?? "Outpatient";
 
-    if (serviceType === "Ambulance") {
-      url = "Ambulance/"+serviceID;
-    } else if (serviceType === "Blood Bank") {
-      url = "Bloodbank/"+serviceID;
-    } else if (serviceType === "Emergency Room") {
-      url = "Emergency/"+serviceID;
-    } else if (serviceType === "Intensive Care Unit") {
-      url = "ICU/"+serviceID;
-    } else {
-      url = "Outpatient/"+serviceID;
-    }
+    const url = `/facilityInfo/${facilityID}/serviceInfo/${servicePath}/${serviceID}`;
 
-    throw redirect(303, "/facilityInfo/"+facilityID+"/serviceInfo/"+url);
+    throw redirect(303, url);
   },
 } satisfies Actions;

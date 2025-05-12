@@ -1,53 +1,45 @@
-import { redirect, fail } from "@sveltejs/kit";
+import { fail } from "@sveltejs/kit";
+
 import type { PageServerLoad } from "./$types";
 
-import { dateToTimeMapping, DivisionDAO, ServicesDAO, ContactDAO, type ServiceDTO } from "$lib";
+import { DivisionDAO, ServicesDAO } from "$lib";
+
 const divisionDAO = new DivisionDAO();
 const servicesDAO = new ServicesDAO();
-const contactDAO = new ContactDAO();
 
 export const load: PageServerLoad = async ({ params }) => {
-
   const { divisionID } = params;
 
   if (!divisionID) {
-    return fail(400, { description: "Missing division ID." });
+    return fail(400, { error: "Division ID is required." });
   }
 
   try {
-    const division = await divisionDAO.getInformation(divisionID);
+    const [divisionInfo, services] = await Promise.all([
+      divisionDAO.getInformation(divisionID),
 
-    if (!division) {
-      return fail(404, { description: "Division not found." });
-    }
+      servicesDAO.getByDivision(divisionID),
+    ]);
 
-    // Fetch phone numbers and emails for the division using the ContactDAO
-    const phoneNumbers = await contactDAO.getPhoneNumbersByDivision(divisionID);
-    const contactNumber = phoneNumbers.length > 0 ? phoneNumbers[0] : "Unknown";
-
-    const emails = await contactDAO.getEmailsByDivision(divisionID);
-    const email = emails.length > 0 ? emails[0] : "Unknown";
-
-    // Check if division has services using DAO method
-    const hasServices = await divisionDAO.divisionHasServices(divisionID);
-    
-    let services: ServiceDTO[] = [];
-    if (hasServices) {
-      services = await servicesDAO.getByDivision(divisionID);
-    }
-    
-    return {
-      divisionName: division.name ?? "Unknown Division",
-      phoneNumber: contactNumber,
-      email: email,
-      openTime: dateToTimeMapping(division.openingTime) as string,
-      closeTime: dateToTimeMapping(division.closingTime) as string,
-      hasServices,
-      services: services ?? [],
+    const response: Record<string, any> = {
+      name        : divisionInfo.name,
+      openingTime : divisionInfo.openingTime,
+      closingTime : divisionInfo.closingTime,
+      services,
     };
 
+    if (divisionInfo.email) {
+      response.email = divisionInfo.email[0];
+    }
+
+    if (divisionInfo.phoneNumber.length) {
+      response.phoneNumber = divisionInfo.phoneNumber[0];
+    }
+
+    return response;
   } catch (error) {
-    console.error("Division load error:", error);
-    return fail(500, { description: "Could not fetch division information." });
+    console.error(error);
+
+    return fail(500, { description: "Could not get division information." });
   }
 };

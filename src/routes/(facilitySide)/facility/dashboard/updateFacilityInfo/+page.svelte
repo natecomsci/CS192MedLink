@@ -4,7 +4,7 @@
     import { enhance } from '$app/forms';
 
     import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib';
-    import { facilityType, providers } from '$lib/projectArrays';
+    import { facilityType, provider } from '$lib/projectArrays';
 
     let enableCities = $state(true);
     let enableBarangays = $state(true);
@@ -346,7 +346,7 @@
                     <!-- Dropdown Content -->
                     {#if showDropdown}
                         <div class="absolute w-full bg-white border border-gray-300 shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
-                            {#each providers as t}
+                            {#each provider as t}
                                 <label class="flex items-center space-x-2">
                                     <input 
                                         name={t} 

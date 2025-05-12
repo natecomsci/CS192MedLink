@@ -23,7 +23,7 @@ import { type GeneralInformationFacilityDTO,
          validateFacilityName, 
          validateImage,
          validateUser,
-         providers,
+         provider,
          GeographyDAO,
          SessionDAO,  
       } from '$lib';
@@ -172,7 +172,7 @@ export const actions = {
       });
     }
 
-    for (const p of providers) {
+    for (const p of provider) {
       if (data.get(p)) {
         acceptedProviders.push(p);
       }

@@ -8,14 +8,14 @@
 	type State = 'default' | 'error' | 'result';
 
 	let {
-		state = "default", query = $bindable(), placeholder
+		propState = "default", query = $bindable(), placeholder
 	}: {
-		state?: State; query: string; placeholder: string;
+		propState?: State; query: string; placeholder: string;
 	} = $props();
 
-	let currentState = $derived(state);
+	let currentState: State = $state(propState);
 
-	const svgClass =
+	const svgClass: string =
 		'h-7 w-7 transition-colors duration-300 ease-in-out hover:text-neutral-700 active:text-neutral-700';
 
 	const handleSubmit = (event: SubmitEvent) => {
@@ -28,7 +28,7 @@
 
 	$effect(() => {
 		if (currentState === 'error' && query.trim() !== '') {
-			currentState = state === 'result' ? 'result' : 'default';
+			currentState = propState;
 		}
 	});
 </script>

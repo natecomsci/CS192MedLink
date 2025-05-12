@@ -1,10 +1,12 @@
 <script lang="ts">
 	import Expand from '$lib/icons/Expand.svelte';
 
+	type Kind = 'service' | 'division';
+
     let {
         id, label, kind
     }: {
-        id: string; label: string; kind: 'service' | 'division';
+        id: string; label: string; kind: Kind;
     } = $props();
 </script>
 

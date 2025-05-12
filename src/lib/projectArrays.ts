@@ -1,6 +1,6 @@
 import type { FacilityType, Ownership, Provider, Availability, Load } from "@prisma/client";
 
-export const providers: Provider[] = [
+export const provider: Provider[] = [
   "INTELLICARE",
   "ASIACARE",
   "AVEGA",
