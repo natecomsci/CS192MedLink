@@ -1,6 +1,7 @@
 @import 'tailwindcss';
-@plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/typography';
+
+/* Apply DM Sans as the default font */
+/* @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap'); */
 
 @theme {
   --color-neutral-50  : #f7f7f8;
@@ -41,4 +42,6 @@
   --color-warning-on-f      : #90deb0;
   --color-success-on        : #20a95d;
   --color-success-on-t      : #0f6d3d;
+
+  --color-background        : #fdfcfd;
 }

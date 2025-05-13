@@ -8,6 +8,6 @@ const patientServiceListDAO = new PatientServiceListDAO()
 export const POST: RequestHandler = async ({ request }) => {
   const { currOffset, query } : { currOffset: number, query: string } = await request.json();
 
-  const { results, hasMore } = await patientServiceListDAO.patientSearch(query, {}, patientSearchPageSize, currOffset);
-  return json({ results, hasMore })
+  const { results, totalResults, totalFetched, hasMore } = await patientServiceListDAO.patientSearch(query, {}, patientSearchPageSize, currOffset); // needs filters
+  return json({ results, totalResults, totalFetched, hasMore })
 };

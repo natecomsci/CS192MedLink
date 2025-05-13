@@ -9,14 +9,12 @@ const patientServiceListDAO = new PatientServiceListDAO();
 export const load: PageServerLoad = async ({ params, url }) => {
   const { facilityID, query } = params;
 
-  const offset = Number(url.searchParams.get("offset")) || 0;
-
   try {
     const { results, totalResults, totalFetched, hasMore } = await patientServiceListDAO.patientSearchServicesByFacility(
       facilityID, 
       query, 
       patientSearchPageSize, 
-      offset, 
+      0, 
       { updatedAt: "desc" }
     )
 
@@ -26,6 +24,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
       query, 
       totalResults,
       totalFetched,
+      patientSearchPageSize,
       facilityID, 
     };
   } catch (error) {

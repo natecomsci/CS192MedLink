@@ -100,7 +100,7 @@
       </label>
     </div>
 
-    <div class="card grid gap-2 p-4 bg-white rounded-lg shadow">
+    <div class="card grid gap-2 p-4 bg-background rounded-lg shadow">
       <label class="flex items-center space-x-2">
         <input 
           name="isAvailable" 

@@ -104,7 +104,7 @@
 {/if}
 
 <!-- Header -->
-<header class="flex items-center justify-between p-3 top-0 duration-200 sticky z-[10] px-6 bg-white shadow-sm ">
+<header class="flex items-center justify-between p-3 top-0 duration-200 sticky z-[10] px-6 bg-background shadow-sm ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
     <a href="/facility/dashboard" data-sveltekit-reload>
@@ -171,7 +171,7 @@
         {error}
       {/if}
         {#each divisions as { name, divisionID }}
-        <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
+        <div class="flex items-center justify-between p-3 bg-background rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{name}</h3>
             <p class="text-purple-600 px-4"></p>

@@ -1,10 +1,3 @@
-export const serviceNameToNameMapping: Record<string, string> = {
-    ambulanceService : "Ambulance", 
-    bloodBankService : "Blood Bank", 
-    eRService        : "Emergency Room", 
-    iCUService       : "Intensive Care Unit",
-  };
-
 export function dateToTimeMapping(date: Date | undefined): string {
     if (!date) {
         return ""

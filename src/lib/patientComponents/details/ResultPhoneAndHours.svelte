@@ -80,7 +80,7 @@
     </div>
 
 {:else}
-    <div class="flex flex-col items-start gap-3 self-stretch font-['Inter']">
+    <div class="flex flex-col items-start gap-4 self-stretch font-['Inter']">
         <!-- Phone Number -->
         <div class="flex flex-col items-start gap-2 self-stretch">
             <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight">

@@ -9,14 +9,12 @@ const patientDivisionListDAO = new PatientDivisionListDAO();
 export const load: PageServerLoad = async ({ params, url }) => {
   const { facilityID, query } = params;
 
-  const offset = Number(url.searchParams.get("offset")) || 0;
-
   try {
     const { results, totalResults, totalFetched, hasMore } = await patientDivisionListDAO.patientSearchDivisionsByFacility(
       facilityID, 
       query, 
       patientSearchPageSize, 
-      offset, 
+      0, 
       { updatedAt: "desc" }
     )
 
@@ -26,6 +24,8 @@ export const load: PageServerLoad = async ({ params, url }) => {
       totalResults,
       totalFetched,
       query,
+      patientSearchPageSize,
+      facilityID,
     };
   } catch (error) {
     console.error(error);

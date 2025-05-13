@@ -4,7 +4,7 @@
 
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
 
-    <div class="relative flex flex-col rounded-2xl bg-white items-center justify-center w-100 h-100">
+    <div class="relative flex flex-col rounded-2xl bg-background items-center justify-center w-100 h-100">
         <!-- Back Button -->
         <button class="absolute top-5 left-5 text-lg text-gray-600 hover:text-black">
             ← Back

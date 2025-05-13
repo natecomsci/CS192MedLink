@@ -149,7 +149,7 @@
       </label>
     </div>
 
-    <div class="mt-4 bg-white p-4 rounded-lg shadow">
+    <div class="mt-4 bg-background p-4 rounded-lg shadow">
       <p class="block text-label mb-2">Blood Type Availability</p>
       <div class="grid grid-cols-2 gap-2">
         <label class="flex items-center space-x-2">

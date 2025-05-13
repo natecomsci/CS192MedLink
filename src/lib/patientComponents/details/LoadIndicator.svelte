@@ -4,12 +4,12 @@
 	import ServiceCrowd3 from '$lib/icons/ServiceCrowd3.svelte';
 	import ValueX from '$lib/icons/ValueX.svelte';
 
-	type Status = 'steady' | 'moderate' | 'crowded' | 'near-capacity' | 'full-capacity' | 'closed';
+	type Status2 = 'steady' | 'moderate' | 'crowded' | 'near-capacity' | 'full-capacity' | 'closed';
 
 	let {
 		status
 	}: {
-		status: Status;
+		status: Status2;
 	} = $props();
 
     const statusMapping = {

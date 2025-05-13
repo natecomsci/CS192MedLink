@@ -113,7 +113,7 @@
 {/if}
 
 <!-- Header -->
-<header class="flex items-center justify-between p-3 shadow-sm top-0 duration-200 sticky z-[10] px-6 bg-white ">
+<header class="flex items-center justify-between p-3 shadow-sm top-0 duration-200 sticky z-[10] px-6 bg-background ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
     <a href="/facility/dashboard" data-sveltekit-reload>
@@ -200,7 +200,7 @@
         {error}
       {/if}
       {#each services as  { type, serviceID, division }}
-        <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
+        <div class="flex items-center justify-between p-3 bg-background rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <!-- Left Side: Text Content -->
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{type}</h3>

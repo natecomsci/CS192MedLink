@@ -59,7 +59,7 @@
 			bind:value={query}
 			placeholder={currentState === 'error' ? 'Please enter a search query.' : placeholder}
 			class="
-				flex-1 bg-transparent pl-0 border-none outline-none focus:ring-0 text-sm font-normal tracking-tight leading-tight font-['Inter']
+				flex-1 bg-transparent pl-0 border-none outline-none min-w-0 focus:ring-0 text-sm font-normal tracking-tight leading-tight font-['Inter']
 				${currentState === 'error' 
 					? 'text-error-on placeholder-error-on' 
 					: 'text-neutral-400 placeholder-neutral-400 focus:text-neutral-900'
@@ -68,7 +68,11 @@
 		/>
 
 		{#if query}
-			<button type="button" onclick={() => (query = '')} class="text-neutral-900">
+			<button
+				type="button"
+				onclick={() => (query = '')}
+				class="flex-shrink-0 text-neutral-900"
+			>
 				<ValueX class={svgClass} />
 			</button>
 		{/if}

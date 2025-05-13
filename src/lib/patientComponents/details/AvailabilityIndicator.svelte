@@ -5,12 +5,12 @@
 	import ServiceLoader3 from '$lib/icons/ServiceLoader3.svelte';
 	import ValueX from '$lib/icons/ValueX.svelte';
 
-	type Status = 'available' | 'short delay' | 'moderate delay' | 'extended delay' | 'unavailable';
+    import type { Status1 } from '$lib';
 
 	let {
 		status
 	}: {
-		status: Status;
+		status: Status1;
 	} = $props();
 
     const statusMapping = {

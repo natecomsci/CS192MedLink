@@ -27,6 +27,8 @@ export const actions = {
       .getAll("selectedProviders")
       .map((provider) => provider.toString());
 
+    // !!!! INSERT MINIMUM AND MAXIMUM DISTANCE FILTERS !!!!
+  
     const searchParams = new URLSearchParams();
 
     // dynamically appends to query url based on set filters
@@ -46,6 +48,8 @@ export const actions = {
         searchParams.append("selectedFacilityTypes", type);
       }
     }
+
+    // !!!! INSERT MINIMUM AND MAXIMUM DISTANCE FILTERS !!!!
 
     const url = `/search/${encodeURIComponent(query)}?${searchParams.toString()}`;
 

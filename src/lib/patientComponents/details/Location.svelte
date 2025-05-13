@@ -27,12 +27,16 @@
 </script>
 
 {#if facilityPage}
-    <div class="flex flex-col items-start gap-2 self-stretch">
-        <p class="text-primary-500 text-base font-bold tracking-tight leading-loose">
+    <div class="flex flex-col items-start gap-3 self-stretch">
+        <p class="text-primary-500 text-base font-bold tracking-tight leading-normal font-['Inter']">
             Location
         </p>
 
         <!-- Insert Google Maps -->
+
+        <div class="bg-primary-100 border-2 border-primary-500 w-full h-48 rounded-2xl">
+            
+        </div>
 
         <InfoRow
             icon={Pin}
@@ -41,7 +45,7 @@
     </div>
 {:else}
     <div class="flex flex-col items-start gap-2 self-stretch">
-        <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight">
+        <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter']">
             Location
         </p>
 

@@ -41,13 +41,13 @@ export const load: PageServerLoad = async ({ params, url }) => {
     return {
       results,
       hasMore,
-      query,
-      patientSearchPageSize,
       totalResults,
       totalFetched,
+      query,
       selectedFacilityTypes,
       selectedOwnership,
       selectedProviders,
+      patientSearchPageSize
     };
   } catch (error) {
     console.error(error);

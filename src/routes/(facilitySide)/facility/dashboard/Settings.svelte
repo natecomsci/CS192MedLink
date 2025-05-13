@@ -29,7 +29,7 @@
 </script>
 
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-  <div class="w-3/10 bg-white max-w-3/4 rounded-lg overflow-hidden pb-10">
+  <div class="w-3/10 bg-background max-w-3/4 rounded-lg overflow-hidden pb-10">
     <!-- Label & Icon -->
     <div class="flex items-center gap-5 pl-6 pr-6 pt-3 pb-3">
         <button onclick={() => currPopUp = ''} type="button">

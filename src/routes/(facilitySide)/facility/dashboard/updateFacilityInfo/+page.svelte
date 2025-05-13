@@ -114,7 +114,7 @@
 </script>
   
 <form
-    class="w-300 h-[calc(100vh-50px)] my-5 mx-auto bg-white overflow-y-auto rounded-2xl p-6 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+    class="w-300 h-[calc(100vh-50px)] my-5 mx-auto bg-background overflow-y-auto rounded-2xl p-6 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     method="POST" 
     use:enhance
     action="?/update"
@@ -142,7 +142,7 @@
     {/if}
 
     <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
-    <div class="w-full max-w-3x1 mx-auto bg-white space-y-4 mt-4">
+    <div class="w-full max-w-3x1 mx-auto bg-background space-y-4 mt-4">
 
         <div>
             <label>
@@ -345,7 +345,7 @@
                 
                     <!-- Dropdown Content -->
                     {#if showDropdown}
-                        <div class="absolute w-full bg-white border border-gray-300 shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
+                        <div class="absolute w-full bg-background border border-gray-300 shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
                             {#each provider as t}
                                 <label class="flex items-center space-x-2">
                                     <input 

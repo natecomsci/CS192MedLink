@@ -108,7 +108,7 @@
 				</p>
 
 				<div
-					class="flex flex-1 items-center bg-neutral-50 px-4 py-1 rounded-xl border border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-900"
+					class="flex flex-1 items-center bg-neutral-50 h-10 px-4 py-1 rounded-xl border border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-900"
 				>
 					<input
 						type="text"
@@ -128,7 +128,7 @@
 				</p>
 
 				<div
-					class="flex flex-1 items-center bg-neutral-50 px-4 py-1 rounded-xl border border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-900"
+					class="flex flex-1 items-center bg-neutral-50 h-10 px-4 py-1 rounded-xl border border-neutral-400 focus-within:ring-2 focus-within:ring-neutral-900"
 				>
 					<input
 						type="text"
@@ -183,7 +183,11 @@
 		<div class="w-1/2">
 			<form method="POST" action="?/search" use:enhance class="flex flex-1">
 				<input type="hidden" name="query" value={query} />
-	
+				<input type="hidden" name="selectedFacilityTypes" value={selectedFacilityTypes} />
+				<input type="hidden" name="selectedOwnership" value={selectedOwnership} />
+				<input type="hidden" name="selectedProviders" value={selectedProviders} />
+				<input type="hidden" name="query" value={query} />
+
 				<button
 					type="submit"
 					class="

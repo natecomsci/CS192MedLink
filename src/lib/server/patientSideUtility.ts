@@ -96,7 +96,7 @@ export async function getFromSearchInformation({
   // Facility Address
 
   if (facilityInfo.address) {
-    const [region, province, city, barangay] = await Promise.all([
+    const [region, pOrC, cOrM, brgy] = await Promise.all([
       geographyDAO.getNameOfRegion(facilityInfo.address.regionID),
       geographyDAO.getNameOfProvince(facilityInfo.address.pOrCID),
       geographyDAO.getNameOfCOrM(facilityInfo.address.cOrMID),
@@ -106,9 +106,9 @@ export async function getFromSearchInformation({
     fromSearchResponse.address = {
       street: facilityInfo.address.street,
       region,
-      province,
-      city,
-      barangay,
+      pOrC,
+      cOrM,
+      brgy,
     };
   }
 

@@ -133,7 +133,7 @@
 
 {#if currentStep === 1}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
-    <div class="bg-white w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
+    <div class="bg-background w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
 
       <div class="flex items-center mb-4">
         <h2 class="text-2xl font-bold text-purple-800">Manage Services in Division Name</h2>
@@ -186,7 +186,7 @@
 
 {:else if currentStep === 2}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
-    <div class="bg-white w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
+    <div class="bg-background w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
 
       <div class="flex items-center mb-4">
         <button class="mr-3" onclick={() => currentStep = 1} aria-label="Back">
@@ -247,7 +247,7 @@
 
 {:else if currentStep === 3}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-80">
+    <div class="bg-background p-6 rounded shadow-lg w-80">
       <h2 class="text-lg font-bold">Confirm Deletion</h2>
       <button class="mr-3" onclick={() => currentStep = admins.length > 0 ? 2 : 1} aria-label="Back">
         <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

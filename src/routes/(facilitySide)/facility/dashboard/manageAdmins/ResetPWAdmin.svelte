@@ -23,7 +23,7 @@
 </script>
 
 <div class="fixed inset-0 bg-black/50 flex items-center z-51">
-  <div class="min-h-[500px] max-w-3xl mx-auto p-10 bg-white rounded-[50px] shadow-md flex flex-col">
+  <div class="min-h-[500px] max-w-3xl mx-auto p-10 bg-background rounded-[50px] shadow-md flex flex-col">
     <div class="flex items-center gap-5">
         <button onclick={() => ResetPW = false} data-sveltekit-reload type="button">
             <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>

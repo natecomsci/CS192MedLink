@@ -33,7 +33,7 @@
 
 
 <!-- Medlink Logo, Facility Name, General Info and Settings Header -->
-<header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
+<header class="flex items-center justify-between p-3 border  border-transparent top-0 duration-200 sticky z-[10] px-6 bg-background ">
   <div class="flex items-center">
       <img src={Logo} alt="MedLink logo" class="w-10 h-13" />
       <h1 class="px-3 font-['DM_Sans'] text-[30px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">Med<span class="text-[#9044C4]">Link</span></h1>
@@ -68,7 +68,7 @@
 
 <div class=" border-transparent flex h-[calc(100vh-75px)] p-10 bg-gray-100 overflow-hidden gap-5">
   <!-- Left Side: Control History -->
-  <div class="w-1/2 bg-white shadow-lg rounded-lg ">
+  <div class="w-1/2 bg-background shadow-lg rounded-lg ">
     <ControlHistory {data} {form}/>
   </div>
 

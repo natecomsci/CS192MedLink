@@ -27,6 +27,8 @@ export const load: PageServerLoad = async ({ params }) => {
       hasMore,
       totalResults,
       totalFetched,
+      patientSearchPageSize,
+      facilityID,
     };
   } catch (error) {
     console.error(error);

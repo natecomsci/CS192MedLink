@@ -20,7 +20,7 @@
   <form 
     method="POST"
     action="?/signIn"
-    class="w-96 grid grid-cols-1 bg-white m-0 space-y-8 rounded-2xl p-8 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+    class="w-96 grid grid-cols-1 bg-background m-0 space-y-8 rounded-2xl p-8 drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     use:enhance
   >
     <h3 class="text-[25px] font-black font-['DM_Sans'] mb-0">SIGN IN</h3>

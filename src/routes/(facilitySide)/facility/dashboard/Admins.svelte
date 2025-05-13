@@ -6,7 +6,7 @@
 
 </script>
 
-<div class="bg-white shadow-lg rounded-lg flex-1 flex flex-col h-2/8 pl-4 pr-4 pt-4 pb-2"> <!-- Adjusted height to 2/8 of the parent container -->
+<div class="bg-background shadow-lg rounded-lg flex-1 flex flex-col h-2/8 pl-4 pr-4 pt-4 pb-2"> <!-- Adjusted height to 2/8 of the parent container -->
   <!-- Admin Header -->
   <div class="flex justify-between items-center pl-2 pr-2">
     <h2 class="text-dashboard-header">Admins</h2>

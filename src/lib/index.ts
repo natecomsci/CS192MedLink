@@ -1,5 +1,4 @@
 import {
-  serviceNameToNameMapping,
   dateToTimeMapping,
   completionTimeMapping,
   moneyMapping,
@@ -126,6 +125,10 @@ export const facilityDivisionsPageSize: number = 10;
 
 export type OPServiceType = (typeof OPServiceTypes)[number];
 
+export type Status1 = 'available' | 'short delay' | 'moderate delay' | 'extended delay' | 'unavailable';
+
+export type Status2 = 'steady' | 'moderate' | 'crowded' | 'near-capacity' | 'full-capacity' | 'closed';
+
 export type {
   RegionDTO,
   POrCDTO,
@@ -172,7 +175,6 @@ export type {
 
 export {
   // Mappings
-  serviceNameToNameMapping,
   dateToTimeMapping,
   completionTimeMapping,
   moneyMapping,

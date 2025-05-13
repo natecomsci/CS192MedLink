@@ -13,10 +13,10 @@
     } = $props();
 
     const svgClass =
-        "h-10 w-10 transition-colors duration-300 ease-in-out hover:text-neutral-700 active:text-neutral-700";
+        "h-8 w-8 transition-colors duration-300 ease-in-out hover:text-neutral-700 active:text-neutral-700";
 </script>
 
-<header class="relative flex h-20 items-center border-b border-neutral-200 bg-neutral-50">
+<header class="relative flex items-center h-20 border-b border-neutral-200 bg-neutral-50">
     <button
         type="button"
         onclick={() => window.history.length > 1 && window.history.back()}

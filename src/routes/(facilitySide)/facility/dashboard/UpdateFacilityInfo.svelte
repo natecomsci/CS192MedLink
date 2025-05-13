@@ -7,9 +7,9 @@
 </script>
 
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-    <!-- <div class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"> -->
+    <!-- <div class="grid grid-cols-1 bg-background m-6 space-y-2 rounded-2xl shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"> -->
       <!-- <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl"> -->
-        <div class="w-1/2 h-[calc(100vh-100px)] bg-white  flex flex-col rounded-2xl overflow-y-auto">
+        <div class="w-1/2 h-[calc(100vh-100px)] bg-background  flex flex-col rounded-2xl overflow-y-auto">
             <!-- Label -->
             <!-- <div class="flex items-center gap-5 border pl-6 pr-6">
                 <button onclick={() => currPopUp = ''} type="button">
@@ -39,7 +39,7 @@
                 {/if} -->
 
 
-            <div class="w-full max-w-3x1 mx-auto bg-white space-y-4 mt-4  pl-6 pr-6">
+            <div class="w-full max-w-3x1 mx-auto bg-background space-y-4 mt-4  pl-6 pr-6">
 
                     <div>
                         <label>
@@ -226,7 +226,7 @@
                             
                                 <!-- Dropdown Content
                                 {#if showDropdown}
-                                    <div class="absolute w-full bg-white border border-gray-300 shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
+                                    <div class="absolute w-full bg-background border border-gray-300 shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
                                         {#each providers as t}
                                             <label class="flex items-center space-x-2">
                                                 <input 

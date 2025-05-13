@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ params }) => {
 
     const address = facilityInfo.address
       ? await (async () => {
-          const [region, province, city, barangay] = await Promise.all([
+          const [region, pOrc, cOrM, brgy] = await Promise.all([
             geographyDAO.getNameOfRegion(facilityInfo.address.regionID),
             geographyDAO.getNameOfProvince(facilityInfo.address.pOrCID),
             geographyDAO.getNameOfCOrM(facilityInfo.address.cOrMID),
@@ -34,9 +34,9 @@ export const load: PageServerLoad = async ({ params }) => {
           return {
             street: facilityInfo.address.street,
             region,
-            province,
-            city,
-            barangay,
+            pOrc,
+            cOrM,
+            brgy,
           };
         })()
       : null;
@@ -83,7 +83,7 @@ export const actions = {
     throw redirect(303, `/facilityInfo/${facilityID}/services`);
   },
 
-  viewDivision: async ({ params }) => {
+  viewDivisions: async ({ params }) => {
     const { facilityID } = params;
 
     throw redirect(303, `/facilityInfo/${facilityID}/divisions`);

@@ -126,7 +126,7 @@
       </label>
     </div>
 
-    <div class="card p-4 bg-white rounded-lg shadow">
+    <div class="card p-4 bg-background rounded-lg shadow">
       <span class="block text-label mb-2">Support</span>
       <div class="grid grid-cols-1 gap-2">
         <label class="flex items-center space-x-2">
