@@ -1,5 +1,5 @@
 import { OPServiceTypes } from "../projectArrays";
-import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from "./dataLayer/DTOs";
+import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO, UpdateOutpatientServiceDTO } from "./dataLayer/DTOs";
 import { validateFloat, validatePhone, validateOperatingHours, validateCoverageRadius, validateCompletionTime } from "./formValidators";
 
 export function validateAmbulance(data: FormData, i: string | undefined): CreateAmbulanceServiceDTO{
@@ -112,14 +112,14 @@ export function validateICU(data: FormData, i: string | undefined): CreateICUSer
           }
 }
 
-export function validateOP(data: FormData, i: string | undefined): CreateOutpatientServiceDTO {
+export function validateOP(data: FormData, i: string | undefined): UpdateOutpatientServiceDTO {
   let basePrice: number
   let completionTimeD: number
   let completionTimeH: number
 
   const j = i === undefined ? "" : i
 
-  const OPserviceType     = data.get('OPserviceType'+j) as string;
+  const OPserviceType = data.get('OPserviceType'+j) as string;
 
   if (!OPServiceTypes.includes(OPserviceType)) {
     throw new Error("Invalid service type");
@@ -138,7 +138,6 @@ export function validateOP(data: FormData, i: string | undefined): CreateOutpati
   }
 
   return  {
-            type: OPserviceType,
             basePrice,
             completionTimeD,
             completionTimeH,
