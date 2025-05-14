@@ -45,3 +45,119 @@
 
   --color-background        : #fdfcfd;
 }
+
+body {
+    font-family: 'DM Sans', sans-serif;
+}
+
+
+@media screen and (max-width: 768px) {
+
+}
+
+.text-dashboard-header {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 25px;
+    color: #9044C4;
+    letter-spacing: -0.02em;
+}
+
+/* ------------------ Global Styles ------------------ */
+/* add global formatting here */
+.container {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    border: 1px solidrgba(209, 250, 229, 0);
+    /* Tailwind green-100 */
+}
+
+/* Common styles for input boxes */
+.input-box {
+    border: 1px solid #ccc;
+    padding: 0.5rem;
+    border-radius: 10px;
+    width: 100%;
+}
+
+/* Card style */
+.card {
+    margin-top: 30px;
+    background: white;
+    padding: 1rem;
+    border-radius: 20px;
+    box-shadow: 0px 2px 13px 3px rgba(0, 0, 0, 0.25);
+    /* box-shadow: 0 4px 6px rgba(35, 2, 2, 0.1); */
+}
+
+/* Card style */
+.card2 {
+    background: white;
+    padding: 1rem;
+    border-radius: 20px;
+    box-shadow: 0px 2px 13px 3px rgba(0, 0, 0, 0.25);
+    /* box-shadow: 0 4px 6px rgba(35, 2, 2, 0.1); */
+}
+
+/* Flex container for time & turnaround inputs */
+.flex-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.w-30 {
+    width: 8rem;
+    /* Approximate fixed width */
+}
+
+.text-label {
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 25px;
+    /* identical to box height, or 125% */
+    letter-spacing: -0.05em;
+
+    /* Neutrals/Neutral - 800 */
+    color: #574E5F;
+}
+
+
+/*=============== Scrollbars============ */
+
+::-webkit-scrollbar {
+    width: 5px !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #bca5cb !important;
+    border-radius: 5px !important;
+}
+
+::-webkit-scrollbar-track {
+    background: #DCDCDC !important;
+    border-radius: 5px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6a3191 !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* Hover */
+.hover\:text-primary-400:hover {
+    color: #AE72DA !important;
+}
