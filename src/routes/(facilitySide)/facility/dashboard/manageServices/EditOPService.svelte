@@ -3,9 +3,11 @@
   
   let { data,
         form, 
+        serviceType, 
         serviceID,
       }:{ data: PageData,
           form: ActionData, 
+          serviceType: String,
           serviceID: String,
         } = $props();
   
@@ -54,6 +56,7 @@
       <p class="error">{form.error}</p>
   {/if}
   <div class="flex-1 p-6 overflow-y-auto  ">
+    <input type="text" class="hidden" name="OPserviceType" value={serviceType} />
     <input 
       class="hidden" 
       name="serviceID"
@@ -70,7 +73,7 @@
             name="completionDays"
             class="input-box  w-30" 
             placeholder="Days"
-            value={completionTimeD}
+            bind:value={completionTimeD}
           />
           Days
           <input 
@@ -78,7 +81,7 @@
             name="completionHours"
             class="border p-2 rounded  w-30" 
             placeholder="Hours"
-            value={completionTimeH}
+            bind:value={completionTimeH}
           />
           Hours
         </div>
@@ -95,7 +98,7 @@
           placeholder="Price"
           step=0.01
           min=0
-          value={price}
+          bind:value={price}
         />
       </label>
     </div>

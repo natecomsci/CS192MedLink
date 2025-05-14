@@ -332,9 +332,11 @@ export const actions = {
 
     let service: any
 
+
+
     try {
       for (let i = 0; ; i++) {
-        const serviceType = data.get('serviceType'+String(i)) as string;
+        let serviceType = data.get('serviceType'+String(i)) as string;
         if (!serviceType) {
           break;
         }
@@ -367,6 +369,7 @@ export const actions = {
           case "Outpatient": {
             // let service: CreateOutpatientServiceDTO
             service = validateOP(data, String(i)) 
+            service.type = data.get('OPserviceType'+String(i)) as string,
             newServices.push({dao: outpatientDAO, service, type: service.type})
             break;
           }

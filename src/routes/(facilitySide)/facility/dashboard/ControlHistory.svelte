@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
-  import { dateToTimeMapping } from "$lib/Mappings";
+  import { dateToTimeMapping } from "$lib/mappings";
   import { pagingQueryHandler } from "$lib/postHandlers";
 
   import PageBar from "$lib/facilityComponents/PageBar.svelte";

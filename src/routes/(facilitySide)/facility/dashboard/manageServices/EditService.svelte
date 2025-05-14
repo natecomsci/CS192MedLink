@@ -1,5 +1,6 @@
 <script lang="ts">
-  import type { ServiceDTO } from '$lib';
+  import { type ServiceDTO } from '$lib';
+  import { OPServiceTypes } from '$lib/projectArrays';
   import type { PageData, ActionData } from './$types';
   import { enhance } from '$app/forms';
 
@@ -165,11 +166,11 @@
                   { form }
                   { serviceID }
                 />
-
-              {:else}
+              {:else if OPServiceTypes.includes(String(serviceType))}
                 <EditOPService
                   { data }
                   { form }
+                  { serviceType }
                   { serviceID }
                 />
               {/if}
