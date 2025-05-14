@@ -65,13 +65,16 @@ export const load: PageServerLoad = async ({ params, url }) => {
     }
   
     if (fromSearch) {
-      const { fromSearchResponse } = await getFromSearchInformation({
+      const { fromSearchResponse, phoneSource, hoursSource } = await getFromSearchInformation({
         serviceInfo: outpatientInfo,
         facilityInfo,
         hasDivisions,
       });
 
       Object.assign(response, fromSearchResponse);
+
+      response.phoneSource = phoneSource;
+      response.hoursSource = hoursSource;
     }
 
     return response;

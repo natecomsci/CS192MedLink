@@ -23,9 +23,6 @@
 		hoursSource: Source;
 	} = $props();
 
-	const svgClass: string =
-		'flex-shrink-0 h-5 w-5 text-primary-600 transition-colors duration-300 ease-in-out hover:text-primary-800 active:text-primary-800';
-
 	function getText(phoneSource: string, hoursSource: string): string | [string, string] {
 		const mapping: {
 			facility: string;

@@ -170,7 +170,7 @@
   {/if}
 
   <div class="flex flex-col items-start gap-2 self-stretch">
-    <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight">
+    <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter']">
         Details
     </p>
 
@@ -191,7 +191,7 @@
 
   {#if note}
     <div class="flex flex-col items-start gap-2 self-stretch">
-      <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight">
+      <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter']">
         Note
       </p>
 
