@@ -40,7 +40,7 @@
 		{#if currentState === 'result'}
 			<button
 				type="button"
-				onclick={() => window.history.length > 1 && window.history.back()}
+				onclick={() => window.location.href = "/"}
 				class="text-neutral-900"
 			>
 				<ArrowL class={svgClass} />

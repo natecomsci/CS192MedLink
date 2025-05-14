@@ -107,7 +107,7 @@ export const actions = {
 
     // !!!! INSERT MINIMUM AND MAXIMUM DISTANCE FILTERS !!!!
 
-    const url = `/searchcopy/search/${encodeURIComponent(query)}?${searchParams.toString()}`;
+    const url = `/search/${encodeURIComponent(query)}?${searchParams.toString()}`;
 
     throw redirect(303, url);
   },
