@@ -289,9 +289,9 @@ export class DivisionDAO {
         throw new Error(`No Division linked to ID ${divisionID} found.`);
       }
 
-      const email = await contactDAO.getPhoneNumbersByDivision(divisionID);
+      const phoneNumber = await contactDAO.getPhoneNumbersByDivision(divisionID);
 
-      const phoneNumber = await contactDAO.getEmailsByFacility(divisionID);
+      const email = await contactDAO.getEmailsByFacility(divisionID);
 
       console.log(`Fetched information of Division ${divisionID}: `);
 

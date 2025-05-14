@@ -40,7 +40,9 @@
 <Header text={name} icon="X" />
 
 <div class="flex items-center justify-center flex-col gap-4 w-full px-6 pt-6 pb-14">
-  <Accordion text="Services" content={divisionServices}/>
+  <div class="w-full">
+    <Accordion text="Services" content={divisionServices}/>
+  </div>
 
   <div class="flex flex-col items-start gap-2 self-stretch">
     <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight">

@@ -71,7 +71,7 @@ export const actions = {
       return fail(400, { error: "Don't manipulate the hidden data please.", description: "search", success: false });
     }
 
-    const url = `/facilityInfo/${facilityID}/serviceInfo/${divisionID}`;
+    const url = `/facilityInfo/${facilityID}/divisionInfo/${divisionID}`;
 
     throw redirect(303, url);
   },
