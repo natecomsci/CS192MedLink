@@ -59,11 +59,10 @@
 <Header text="Services" icon="Arrow" />
 
 <div class="justify-center px-6 pt-6 pb-14">
+  <div class="flex items-center w-full gap-2 mb-6">
+    <SearchBar bind:query propState="default" placeholder="Search for Divisions" />
+  </div>
   {#if results.length > 0}
-    <div class="flex items-center w-full gap-2 mb-6">
-  	  <SearchBar bind:query propState="default" placeholder="Search for Services" />
-    </div>
-
     {#if totalFetched < totalResults}
       <p class="mb-4 text-xs font-medium tracking-tight leading-none font-['Inter'] text-left">
         <span class="text-neutral-500">Displaying </span>
