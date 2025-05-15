@@ -60,7 +60,7 @@
 
 <div class="justify-center px-6 pt-6 pb-14">
   <div class="flex items-center w-full gap-2 mb-6">
-    <SearchBar bind:query propState="default" placeholder="Search for Divisions" />
+    <SearchBar bind:query propState="default" placeholder="Search for Services" />
   </div>
   {#if results.length > 0}
     {#if totalFetched < totalResults}
