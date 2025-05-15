@@ -14,11 +14,11 @@
 	} = $props();
 
     const statusMapping = {
-        "available"      : { bg: '[#20A95D]', icon: ValueC, label: "Available" },
-        "short delay"    : { bg: '[#F5DBA6]', icon: ServiceLoader1, label: "Short Delay" },
-        "moderate delay" : { bg: '[#E4A243]', icon: ServiceLoader2, label: "Moderate Delay" },
-        "extended delay" : { bg: '[#9D6B50]', icon: ServiceLoader3, label: "Extended Delay" },
-        "unavailable"    : { bg: '[#E63946]', icon: ValueX, label: "Unavailable" },
+        "available"      : { bg: 'success-on', icon: ValueC, label: "Available" },
+        "short delay"    : { bg: 'service-button-1', icon: ServiceLoader1, label: "Short Delay" },
+        "moderate delay" : { bg: 'service-button-2', icon: ServiceLoader2, label: "Moderate Delay" },
+        "extended delay" : { bg: 'service-button-3', icon: ServiceLoader3, label: "Extended Delay" },
+        "unavailable"    : { bg: 'service-button-4', icon: ValueX, label: "Unavailable" },
     };
 
 	const buttonAttributes = statusMapping[status];

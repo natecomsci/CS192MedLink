@@ -13,11 +13,11 @@
 	} = $props();
 
     const statusMapping = {
-        "steady"        : { bg: '[#20A95D]',   icon: ServiceCrowd1, label: "Steady" },
-        "moderate"      : { bg: '[#F5DBA6]',   icon: ServiceCrowd2, label: "Moderate" },
-        "crowded"       : { bg: '[#E4A243]',   icon: ServiceCrowd2, label: "Crowded" },
-        "near-capacity" : { bg: '[#9D6B50]',   icon: ServiceCrowd3, label: "Near-capacity" },
-        "full-capacity" : { bg: '[#E63946]',   icon: ServiceCrowd3, label: "Full-capacity" },
+        "steady"        : { bg: 'success-on', icon: ServiceCrowd1, label: "Steady" },
+        "moderate"      : { bg: 'service-button-1', icon: ServiceCrowd2, label: "Moderate" },
+        "crowded"       : { bg: 'service-button-2', icon: ServiceCrowd2, label: "Crowded"  },
+        "near-capacity" : { bg: 'service-button-3', icon: ServiceCrowd3, label: "Near-capacity" },
+        "full-capacity" : { bg: 'service-button-4', icon: ServiceCrowd3, label: "Full-capacity" },
         "closed"        : { bg: 'neutral-200', icon: ValueX, label: "Unavailable" },
     };
 

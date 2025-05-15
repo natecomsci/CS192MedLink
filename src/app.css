@@ -44,6 +44,12 @@
   --color-success-on-t      : #0f6d3d;
 
   --color-background        : #fdfcfd;
+
+  --service-button-1        : #F5DBA6;
+  --service-button-2        : #E4A243;
+  --service-button-3        : #9D6B50;
+  --service-button-4        : #E63946;
+
 }
 
 body {
