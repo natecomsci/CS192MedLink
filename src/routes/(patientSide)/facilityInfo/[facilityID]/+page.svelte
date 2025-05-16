@@ -1,35 +1,35 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
-  import { dateToTimeMapping } from '$lib/mappings';
+	import { dateToTimeMapping } from '$lib/mappings';
 
-  import { normalizePhoneNumberForSMS } from '$lib/patientComponents/details/detailsUtility';
+	import { normalizePhoneNumberForSMS } from '$lib/patientComponents/details/detailsUtility';
 
-  import type { PageProps } from './$types';
-  import ArrowL from '$lib/icons/ArrowL.svelte';
-  import Location from '$lib/patientComponents/details/Location.svelte';
-  import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';
+	import type { PageProps } from './$types';
+	import ArrowL from '$lib/icons/ArrowL.svelte';
+	import Location from '$lib/patientComponents/details/Location.svelte';
+	import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';
 	import Phone from '$lib/icons/Phone.svelte';
 	import Email from '$lib/icons/Email.svelte';
-  import Link from '$lib/icons/Link.svelte';
-  import Clock from '$lib/icons/Clock.svelte';
-  import Accordion from '$lib/patientComponents/Accordion.svelte';
+	import Link from '$lib/icons/Link.svelte';
+	import Clock from '$lib/icons/Clock.svelte';
+	import Accordion from '$lib/patientComponents/Accordion.svelte';
 	import ServiceStethoscope from '$lib/icons/ServiceStethoscope.svelte';
-  import ChevronR from '$lib/icons/ChevronR.svelte';
+	import ChevronR from '$lib/icons/ChevronR.svelte';
 
-  let { data }: PageProps = $props();
+	let { data }: PageProps = $props();
 
-  let name              = data.name;
-  let photo             = data.photo;
-  let email             = data.email;
-  let phoneNumber       = data.phoneNumber;
-  let openingTime       = data.openingTime;
-  let closingTime       = data.closingTime;
-  let facilityType      = data.facilityType;
-  let ownership         = data.ownership;
-  let bookingSystem     = data.bookingSystem;
-  let acceptedProviders = data.acceptedProviders;
-  let hasDivisions      = data.hasDivisions;
+	let name              = data.name;
+	let photo             = data.photo;
+	let email             = data.email;
+	let phoneNumber       = data.phoneNumber;
+	let openingTime       = data.openingTime;
+	let closingTime       = data.closingTime;
+	let facilityType      = data.facilityType;
+	let ownership         = data.ownership;
+	let bookingSystem     = data.bookingSystem;
+	let acceptedProviders = data.acceptedProviders;
+	let hasDivisions      = data.hasDivisions;
 
 	let { region, pOrC, cOrM, brgy, street } = data.address;
 
@@ -57,17 +57,17 @@
 
 {#snippet providers()}
 	{#each acceptedProviders as provider}
-		<div class="mb-2">
+		<div class={`${acceptedProviders.length > 1 ? "mb-2" : ""}`}>
 			<InfoRow icon={ServiceStethoscope} value={provider} />
 		</div>
 	{/each}
 {/snippet}
 
-<div class="relative">
+<div class="sticky top-0">
 	<img
 		src={photo}
 		alt="Facility"
-		class="sticky-image absolute w-full object-cover transition-all duration-300 ease-in-out"
+		class="w-full object-cover transition-all duration-300 ease-in-out"
 		style="height: {height}px"
 	/>
 
@@ -193,11 +193,3 @@
 		</form>
 	</div>
 </div>
-
-<style>
-	.sticky-image {
-		position: sticky;
-		top: 0;
-		z-index: 0;
-	}
-</style>

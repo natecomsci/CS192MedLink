@@ -56,7 +56,7 @@
   let query = $state(data.query ?? "");
 </script>
 
-<Header text="Divisions" icon="Arrow" />
+<Header text="Divisions" icon="Arrow"/>
 
 <div class="justify-center px-6 pt-6 pb-14">
   <div class="flex items-center w-full gap-2 mb-6">

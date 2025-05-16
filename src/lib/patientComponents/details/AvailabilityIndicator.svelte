@@ -28,7 +28,7 @@
     flex items-center justify-center gap-2 text-sm font-bold tracking-tight leading-loose font-['Inter'] rounded-full h-12 w-fit px-5 py-3 
     bg-${buttonAttributes.bg} 
     ${status === "short delay" ? "text-neutral-950" : "text-neutral-50"}
-    shadow-${buttonAttributes.bg}
+    shadow-neutral-500
     shadow-md`
 }>
     <buttonAttributes.icon class="h-5 w-5" />

@@ -28,7 +28,7 @@
 
 {#snippet divisionServices()}
 	{#each services as service}
-    <div class="mb-2">
+		<div class={`${services.length > 1 ? "mb-2" : ""}`}>
       <InfoRow
         icon={ServiceStethoscope}
         value={service.type}

@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { completionTimeMapping, moneyMapping } from '$lib/mappings';
-
     import Pin from '$lib/icons/Pin.svelte';
 
     import InfoRow from './InfoRow.svelte';

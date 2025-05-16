@@ -34,7 +34,7 @@
   --color-error-on-t        : #b3222d;
 
   --color-warning-container : #faeacb;
-  --warning-on-f            : #f9c88d;
+  --color-warning-on-f      : #f9c88d;
   --color-warning-on        : #e67e22;
   --color-warning-on-t      : #a83e15;
 
@@ -45,11 +45,10 @@
 
   --color-background        : #fdfcfd;
 
-  --service-button-1        : #F5DBA6;
-  --service-button-2        : #E4A243;
-  --service-button-3        : #9D6B50;
-  --service-button-4        : #E63946;
-
+  --color-service-button-1  : #F5DBA6;
+  --color-service-button-2  : #E4A243;
+  --color-service-button-3  : #9D6B50;
+  --color-service-button-4  : #E63946;
 }
 
 body {
@@ -149,7 +148,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #6a3191 !important;
+    background: #9044c4 !important;
 }
 
 .no-scrollbar::-webkit-scrollbar {

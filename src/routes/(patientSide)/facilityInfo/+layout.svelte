@@ -7,7 +7,7 @@
 
   </aside>
 
-  <main class="w-full lg:w-7/24 mx-auto border-x border-x-neutral-200">
+  <main class="relative w-full lg:w-7/24 mx-auto border-x border-x-neutral-200">
     {@render children()}
   </main>
 
