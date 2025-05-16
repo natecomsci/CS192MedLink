@@ -16,7 +16,7 @@
         "h-8 w-8 transition-colors duration-300 ease-in-out hover:text-neutral-700 active:text-neutral-700";
 </script>
 
-<header class="sticky top-0 z-20 flex items-center h-20 border-b border-neutral-200 bg-neutral-50">
+<header class="sticky top-0 flex items-center h-20 border-b border-neutral-200 bg-neutral-50">
     {#if href}
         <a
             {href}

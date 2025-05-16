@@ -62,7 +62,7 @@
 	let maximumRange = $state(null);
 </script>
 
-<header class="relative flex items-center h-20 px-6 border-b border-neutral-200 bg-neutral-50">
+<header class="sticky top-0 flex items-center h-20 px-6 border-b border-neutral-200 bg-neutral-50">
   <div class="flex items-center w-full gap-2">
     <SearchBar bind:query propState="result" placeholder="Search for Services" />
 
