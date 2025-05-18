@@ -42,7 +42,7 @@
         </button>
     {/if}
 
-    <h1 class="mx-auto text-primary-950 text-2xl font-bold leading-loose font-['DM_Sans']">
+    <h1 class="mx-auto text-primary-950 text-xl md:text-2xl font-bold leading-loose font-['DM_Sans']">
         {text}
     </h1>
 </header>

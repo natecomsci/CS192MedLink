@@ -33,7 +33,7 @@
 	});
 </script>
 
-<form method="POST" action="?/search" use:enhance onsubmit={handleSubmit} class="w-full flex">
+<form method="POST" action="?/search" use:enhance onsubmit={handleSubmit} class="flex min-w-0 w-full">
 	<div
 		class="flex items-center gap-2 bg-neutral-50 h-12 w-full px-5 py-3 rounded-full border border-neutral-200 shadow-lg shadow-neutral-100 focus-within:ring-2 focus-within:ring-neutral-900"
 	>
@@ -59,7 +59,7 @@
 			bind:value={query}
 			placeholder={currentState === 'error' ? 'Please enter a search query.' : placeholder}
 			class="
-				flex-1 bg-transparent pl-0 border-none outline-none min-w-0 focus:ring-0 text-sm font-normal tracking-tight leading-tight font-['Inter']
+				self-stretch bg-transparent pl-0 border-none outline-none min-w-0 focus:ring-0 text-sm font-normal tracking-tight leading-tight font-['Inter']
 				${currentState === 'error' 
 					? 'text-error-on placeholder-error-on' 
 					: 'text-neutral-400 placeholder-neutral-400 focus:text-neutral-900'
