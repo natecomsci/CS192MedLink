@@ -112,7 +112,7 @@
     <InfoRow
       icon={ServiceRadius}
       label="Minimum Coverage Radius"
-      value={minCoverageRadius}
+      value={`${minCoverageRadius} km`}
     />
 
     <InfoRow
@@ -124,7 +124,7 @@
     <InfoRow
       icon={ServiceRadius}
       label="Minimum Coverage Radius"
-      value={maxCoverageRadius}
+      value={`${maxCoverageRadius} km`}
     />
 
     <InfoRow

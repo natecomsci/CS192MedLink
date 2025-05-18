@@ -41,17 +41,17 @@
 			<button
 				type="button"
 				onclick={() => window.location.href = "/"}
-				class="text-neutral-900"
+				class="flex-shrink-0 text-neutral-900"
 			>
 				<ArrowL class={svgClass} />
 			</button>
 		{:else}
-			<button type="submit" class="text-neutral-900">
+			<button type="submit" class="flex-shrink-0 text-neutral-900">
 				<Search class={svgClass} />
 			</button>
 		{/if}
 
-		<div class="h-6 w-px bg-neutral-400"></div>
+		<div class="h-6 w-px bg-neutral-400 flex-shrink-0"></div>
 
 		<input
 			type="text"
@@ -59,10 +59,10 @@
 			bind:value={query}
 			placeholder={currentState === 'error' ? 'Please enter a search query.' : placeholder}
 			class="
-				self-stretch bg-transparent pl-0 border-none outline-none min-w-0 focus:ring-0 text-sm font-normal tracking-tight leading-tight font-['Inter']
-				${currentState === 'error' 
+				flex-1 min-w-0 self-stretch bg-transparent pl-0 border-none outline-none focus:ring-0 text-sm font-normal tracking-tight leading-tight font-['Inter']
+				{currentState === 'error' 
 					? 'text-error-on placeholder-error-on' 
-					: 'text-neutral-400 placeholder-neutral-400 focus:text-neutral-900'
+					: 'text-neutral-900 placeholder-neutral-400'
 				}
 			"
 		/>
