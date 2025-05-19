@@ -31,28 +31,31 @@ export const actions = {
   
     const searchParams = new URLSearchParams();
 
-    // dynamically appends to query url based on set filters
-
-    if (selectedOwnership) {
+    // Only add ownership if it's a non-empty string
+    if (selectedOwnership && selectedOwnership.trim() !== "") {
       searchParams.set("selectedOwnership", selectedOwnership);
     }
-
-    if (selectedProviders.length) {
+    
+    // Only add providers if the array is non-empty and filters out empty strings
+    if (Array.isArray(selectedProviders) && selectedProviders.length > 0) {
       for (const provider of selectedProviders) {
-        searchParams.append("selectedProviders", provider);
+        if (provider.trim() !== "") {
+          searchParams.append("selectedProviders", provider);
+        }
       }
     }
-
-    if (selectedFacilityTypes.length) {
-      for (const type of selectedFacilityTypes) {
-        searchParams.append("selectedFacilityTypes", type);
+    
+    // Only add facility types if the array is non-empty and filters out empty strings
+    if (Array.isArray(selectedFacilityTypes) && selectedFacilityTypes.length > 0) {
+      const nonEmptyFacilityTypes = selectedFacilityTypes.filter(type => type.trim() !== "");
+      if (nonEmptyFacilityTypes.length > 0) {
+        searchParams.set("selectedFacilityTypes", nonEmptyFacilityTypes.join(","));
       }
     }
-
-    // !!!! INSERT MINIMUM AND MAXIMUM DISTANCE FILTERS !!!!
-
+    
     const url = `/search/${encodeURIComponent(query)}?${searchParams.toString()}`;
-
+    
     throw redirect(303, url);
+    
   },
 } satisfies Actions;
