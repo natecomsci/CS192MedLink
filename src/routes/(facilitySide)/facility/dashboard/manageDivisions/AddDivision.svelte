@@ -90,11 +90,11 @@
           }
         };
       }}
-      class="grid grid-cols-1 bg-white m-6 space-y-2 rounded-2xl p-2 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+      class="grid grid-cols-1 bg-background m-6 space-y-2 rounded-2xl p-2 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     >
       <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
 
-        <div class=" bg-white p-6 flex flex-col gap-3 overflow-y-auto">
+        <div class=" bg-background p-6 flex flex-col gap-3 overflow-y-auto">
           <div class="flex items-center gap-5">
 
             {#if currState === -1}
@@ -184,7 +184,7 @@
 
               <!-- Dropdown -->
               <div 
-                class={"absolute mt-2 bg-white shadow-lg rounded p-2 w-full max-h-60 overflow-y-auto " + (showDropdown ? "" : "hidden")} 
+                class={"absolute mt-2 bg-background shadow-lg rounded p-2 w-full max-h-60 overflow-y-auto " + (showDropdown ? "" : "hidden")} 
                 style="z-index: 50;"
               >
                 <div>
@@ -227,7 +227,7 @@
             <div class={currState !== i ? "hidden" : ""}>
               New Service {i+1}
               <div class="h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl">
-                <div class="w-1/3 bg-white p-6 flex flex-col  ">
+                <div class="w-1/3 bg-background p-6 flex flex-col  ">
                   <label class="mt-5">
                     <span class="text-label">Select a Service</span>
                     <select name="serviceType{i}" bind:value={newServiceTypes[i]} class="border-2 border-[#D9D9D9] p-2 rounded w-full">

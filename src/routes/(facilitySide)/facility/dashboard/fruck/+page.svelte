@@ -59,7 +59,7 @@
         </button>
       </div>
 
-<!-- <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-white shadow-sm flex-grow">
+<!-- <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-background shadow-sm flex-grow">
         <input
           type="text"
           name="Search"

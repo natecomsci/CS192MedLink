@@ -136,7 +136,7 @@
 
 {#if currentStep === 1}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
-    <div class="bg-white w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
+    <div class="bg-background w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
 
       <div class="flex items-center mb-4">
         <h2 class="text-2xl font-bold text-purple-800">Manage Services in {divisionName}</h2>
@@ -206,7 +206,7 @@
 
 {:else if currentStep === 2}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
-    <div class="bg-white w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
+    <div class="bg-background w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
 
       <div class="flex items-center mb-4">
         <button class="mr-3" onclick={() => currentStep = 1} aria-label="Back">

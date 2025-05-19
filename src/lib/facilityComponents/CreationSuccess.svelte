@@ -6,7 +6,7 @@
 
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
 
-    <div class="relative flex flex-col rounded-2xl bg-white items-center justify-center w-100 h-80">
+    <div class="relative flex flex-col rounded-2xl bg-background items-center justify-center w-100 h-80">
         <!-- Back Button -->
         <button type="button" class="absolute top-5 left-5" onclick={action}>
             <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>

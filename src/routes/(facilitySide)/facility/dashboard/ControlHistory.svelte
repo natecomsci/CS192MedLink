@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
-  import { dateToTimeMapping } from "$lib/Mappings";
+  import { dateToTimeMapping } from "$lib/mappings";
   import { pagingQueryHandler } from "$lib/postHandlers";
 
   import PageBar from "$lib/facilityComponents/PageBar.svelte";
@@ -58,7 +58,7 @@
   
     <div class=" flex items-center gap-3 flex-grow ">
       <!-- Search -->
-      <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-white shadow-sm flex-grow">
+      <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-background shadow-sm flex-grow">
         <input
           type="text"
           name="Search"

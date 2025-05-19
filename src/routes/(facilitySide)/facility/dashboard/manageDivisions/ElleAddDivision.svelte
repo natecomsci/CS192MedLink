@@ -125,7 +125,7 @@
     <div class="w-11/12 max-w-3/4 rounded-lg  overflow-hidden h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl ">
     
         <!-- Left Side -->
-        <div class="w-1/2 p-6 flex flex-col bg-white">
+        <div class="w-1/2 p-6 flex flex-col bg-background">
             <!-- Header -->
             <div class="flex items-center gap-5 ">
                 <button onclick={() => currPopUp = ''} type="button">
@@ -199,7 +199,7 @@
                         </button>
                         <!-- Dropdown -->
                         <div
-                            class={"border border-gray-300 absolute mt-1 bg-white shadow-lg rounded p-2 w-full max-h-60 overflow-y-auto " + (showDropdown ? "" : "hidden")}
+                            class={"border border-gray-300 absolute mt-1 bg-background shadow-lg rounded p-2 w-full max-h-60 overflow-y-auto " + (showDropdown ? "" : "hidden")}
                             style="z-index: 50;"
                         >
                             <div>
@@ -303,7 +303,7 @@
     {:else if currState === 2}
     <div class="w-11/12 max-w-3/4 rounded-lg  overflow-hidden h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl ">
         <!-- Left Side -->
-        <div class="w-1/3 p-6 flex flex-col bg-white">
+        <div class="w-1/3 p-6 flex flex-col bg-background">
             <!-- Header -->
             <div class="flex items-center gap-5 ">
                 <button type="button"  onclick="{() => {
@@ -379,7 +379,7 @@
     {:else if currState === 3}     
         <div class="w-11/12 max-w-3/4 rounded-lg  overflow-hidden h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl ">
             <!-- Left Side -->
-            <div class="w-1/3 p-6 flex flex-col bg-white">
+            <div class="w-1/3 p-6 flex flex-col bg-background">
                 <!-- Header -->
                 <div class="flex items-center gap-5 ">
                     <button type="button"  onclick="{() => {

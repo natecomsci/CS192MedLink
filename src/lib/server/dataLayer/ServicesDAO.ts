@@ -288,7 +288,7 @@ export class ServicesDAO {
 }
 
 export class PatientServiceListDAO {
-  async patientSearch(query: string, filters: any, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO<ServiceResultsDTO>> { // to refine for location-based search
+  async patientSearch(query: string, filters: record<string, unknown>, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO<ServiceResultsDTO>> { // to refine for location-based search
     try {
       if (!(query.trim())) {
         return { results: [], totalResults: 0, totalFetched: 0, hasMore: false };
@@ -296,25 +296,25 @@ export class PatientServiceListDAO {
 
       console.log(`Loaded more Services (offset: ${offset}) matching search query "${query}": `);
   
+      const { ownership, facilityType, acceptedProviders } = filters;
+
       const facilityFilter = {
-        ...(filters.ownership && filters.ownership !== "any"
-          ? { 
-              ownership: filters.ownership 
-            }
+        ...(ownership
+          ? { ownership }
           : {}),
-        ...(filters.facilityType && filters.facilityType !== "any"
-          ? { 
-              facilityType: filters.facilityType 
-            }
+      
+        ...(facilityType
+          ? { facilityType }
           : {}),
-        ...(filters.acceptedProviders && filters.acceptedProviders.length > 0
+      
+        ...(acceptedProviders && acceptedProviders.length > 0
           ? {
-              acceptedProviders: { 
-                hasSome: filters.acceptedProviders 
+              acceptedProviders: {
+                hasSome: acceptedProviders
               }
             }
           : {})
-      };
+      };   
   
       const where: any = {
         type: {

@@ -261,6 +261,7 @@ export const actions: Actions = {
         case "Outpatient": {
           // let service: CreateOutpatientServiceDTO
           service = validateOP(data, undefined) 
+          service.type = data.get('OPserviceType') as string,
           dao = outpatientDAO;
           break;
         }
@@ -329,7 +330,7 @@ export const actions: Actions = {
 
     const data = await request.formData();
 
-    const serviceType = data.get('serviceType');
+    let serviceType = data.get('serviceType') as string;
     let serviceID = data.get('serviceID') as string;
 
     let dao : AmbulanceServiceDAO
@@ -344,6 +345,10 @@ export const actions: Actions = {
       // ERServiceDTO
       // ICUServiceDTO
       // OutpatientServiceDTO
+
+    if (OPServiceTypes.includes(serviceType)) {
+      serviceType = "Outpatient";
+    }
 
     switch (serviceType) {
       case "Ambulance": {
@@ -373,7 +378,6 @@ export const actions: Actions = {
         }
 
         if (hasDivisions === 'true' ? true : false){
-          let divisionName: string = data.get('divisionName') as string
           let divisionID: string = data.get('divisionID') as string
 
           if (!divisionID) {
@@ -382,10 +386,10 @@ export const actions: Actions = {
               success: false
             });
           } else {
-            service.division = { divisionID : divisionID, name: divisionName }
+            service.divisionID = divisionID
           }
         }
-        if (ambulanceInfo.phoneNumber                     == service.phoneNumber &&
+        if (ambulanceInfo.phoneNumber?.toString()         == service.phoneNumber?.toString() &&
             dateToTimeMapping(ambulanceInfo.openingTime)  == dateToTimeMapping(service.openingTime) &&
             dateToTimeMapping(ambulanceInfo.closingTime)  == dateToTimeMapping(service.closingTime) &&
             ambulanceInfo.baseRate                        == service.baseRate &&
@@ -393,8 +397,7 @@ export const actions: Actions = {
             ambulanceInfo.mileageRate                     == service.mileageRate &&
             ambulanceInfo.maxCoverageRadius               == service.maxCoverageRadius &&
             ambulanceInfo.availability                    == service.availability &&
-            ambulanceInfo.division?.name                  == service.division?.divisionID && 
-            ambulanceInfo.division?.divisionID            == service.division?.name
+            ambulanceInfo.division?.divisionID            == service.divisionID
           ) {
           return fail(422, { 
             error: "No changes made",
@@ -442,7 +445,6 @@ export const actions: Actions = {
         }
 
         if (hasDivisions === 'true' ? true : false){
-          let divisionName: string = data.get('divisionName') as string
           let divisionID: string = data.get('divisionID') as string
 
           if (!divisionID) {
@@ -451,11 +453,11 @@ export const actions: Actions = {
               success: false
             });
           } else {
-            service.division = { divisionID : divisionID, name: divisionName }
+            service.divisionID = divisionID
           }
         }
 
-        if (bloodBankInfo.phoneNumber                     == service.phoneNumber &&
+        if (bloodBankInfo.phoneNumber?.toString()         == service.phoneNumber?.toString() &&
             dateToTimeMapping(bloodBankInfo.openingTime)  == dateToTimeMapping(service.openingTime) &&
             dateToTimeMapping(bloodBankInfo.closingTime)  == dateToTimeMapping(service.closingTime) &&
             bloodBankInfo.basePricePerUnit                == service.basePricePerUnit &&
@@ -469,8 +471,7 @@ export const actions: Actions = {
             bloodBankInfo.bloodTypeAvailability.O_N       == service.bloodTypeAvailability.O_N &&
             bloodBankInfo.bloodTypeAvailability.AB_P      == service.bloodTypeAvailability.AB_P &&
             bloodBankInfo.bloodTypeAvailability.AB_N      == service.bloodTypeAvailability.AB_N &&
-            bloodBankInfo.division?.name                  == service.division?.divisionID && 
-            bloodBankInfo.division?.divisionID            == service.division?.name
+            bloodBankInfo.division?.divisionID            == service.divisionID
           ) {
           return fail(422, { 
               error: "No changes made",
@@ -529,7 +530,6 @@ export const actions: Actions = {
         }
 
         if (hasDivisions === 'true' ? true : false){
-          let divisionName: string = data.get('divisionName') as string
           let divisionID: string = data.get('divisionID') as string
 
           if (!divisionID) {
@@ -538,10 +538,10 @@ export const actions: Actions = {
               success: false
             });
           } else {
-            service.division = { divisionID : divisionID, name: divisionName }
+            service.divisionID = divisionID
           }
         }
-        if (erInfo.phoneNumber          == service.phoneNumber &&
+        if (erInfo.phoneNumber?.toString()          == service.phoneNumber?.toString() &&
             erInfo.load                 == service.load &&
             erInfo.availableBeds        == service.availableBeds &&
             erInfo.nonUrgentPatients    == service.nonUrgentPatients &&
@@ -550,8 +550,7 @@ export const actions: Actions = {
             erInfo.urgentQueueLength    == service.urgentQueueLength &&
             erInfo.criticalPatients     == service.criticalPatients &&
             erInfo.criticalQueueLength  == service.criticalQueueLength &&
-            erInfo.division?.name       == service.division?.divisionID && 
-            erInfo.division?.divisionID == service.division?.name
+            erInfo.division?.divisionID == service.divisionID
           ) {
       return fail(422, { 
         error: "No changes made",
@@ -603,7 +602,6 @@ export const actions: Actions = {
         }
 
         if (hasDivisions === 'true' ? true : false){
-          let divisionName: string = data.get('divisionName') as string
           let divisionID: string = data.get('divisionID') as string
 
           if (!divisionID) {
@@ -612,11 +610,23 @@ export const actions: Actions = {
               success: false
             });
           } else {
-            service.division = { divisionID : divisionID, name: divisionName }
+            service.divisionID = divisionID
           }
         }
 
-        if (icuInfo.phoneNumber          == service.phoneNumber &&
+        console.log(
+            icuInfo.phoneNumber          == service.phoneNumber,
+            icuInfo.baseRate             == service.baseRate,
+            icuInfo.load                 == service.load,
+            icuInfo.availableBeds        == service.availableBeds,
+            icuInfo.cardiacSupport       == service.cardiacSupport,
+            icuInfo.neurologicalSupport  == service.neurologicalSupport,
+            icuInfo.renalSupport         == service.renalSupport,
+            icuInfo.respiratorySupport   == service.respiratorySupport,
+            icuInfo.division?.divisionID == service.divisionID
+          )
+
+        if (icuInfo.phoneNumber?.toString()          == service.phoneNumber?.toString() &&
             icuInfo.baseRate             == service.baseRate &&
             icuInfo.load                 == service.load &&
             icuInfo.availableBeds        == service.availableBeds &&
@@ -624,8 +634,7 @@ export const actions: Actions = {
             icuInfo.neurologicalSupport  == service.neurologicalSupport &&
             icuInfo.renalSupport         == service.renalSupport &&
             icuInfo.respiratorySupport   == service.respiratorySupport &&
-            icuInfo.division?.name       == service.division?.divisionID && 
-            icuInfo.division?.divisionID == service.division?.name
+            icuInfo.division?.divisionID == service.divisionID
           ) {
           return fail(422, { 
             error: "No changes made",
@@ -669,7 +678,6 @@ export const actions: Actions = {
         }
 
         if (hasDivisions === 'true' ? true : false){
-          let divisionName: string = data.get('divisionName') as string
           let divisionID: string = data.get('divisionID') as string
 
           if (!divisionID) {
@@ -678,7 +686,7 @@ export const actions: Actions = {
               success: false
             });
           } else {
-            service.division = { divisionID : divisionID, name: divisionName }
+            service.divisionID = divisionID
           }
         }
 
@@ -687,8 +695,7 @@ export const actions: Actions = {
             opInfo.completionTimeH      == service.completionTimeH &&
             opInfo.isAvailable          == service.isAvailable &&
             opInfo.acceptsWalkIns       == service.acceptsWalkIns &&
-            opInfo.division?.name       == service.division?.divisionID && 
-            opInfo.division?.divisionID == service.division?.name
+            opInfo.division?.divisionID == service.divisionID
           ) {
           return fail(422, { 
             error: "No changes made",

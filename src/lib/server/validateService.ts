@@ -1,5 +1,5 @@
-import { OPServiceTypes } from "$lib";
-import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO } from "./dataLayer/DTOs";
+import { OPServiceTypes } from "../projectArrays";
+import type { CreateAmbulanceServiceDTO, CreateBloodBankServiceDTO, CreateERServiceDTO, CreateICUServiceDTO, CreateOutpatientServiceDTO, UpdateOutpatientServiceDTO } from "./dataLayer/DTOs";
 import { validateFloat, validatePhone, validateOperatingHours, validateCoverageRadius, validateCompletionTime } from "./formValidators";
 
 export function validateAmbulance(data: FormData, i: string | undefined): CreateAmbulanceServiceDTO{
@@ -14,9 +14,9 @@ export function validateAmbulance(data: FormData, i: string | undefined): Create
   const j = i === undefined ? "" : i
 
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
 
-    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
+    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j), "Service", false)
     openingTime = OCTime.openingTime
     closingTime = OCTime.closingTime
 
@@ -53,9 +53,9 @@ export function validateBloodBank(data: FormData, i: string | undefined): Create
   const j = i === undefined ? "" : i
 
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
 
-    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j))
+    let OCTime = validateOperatingHours(data.get('opening'+j), data.get('closing'+j), "Service", false)
     openingTime = OCTime.openingTime
     closingTime = OCTime.closingTime
 
@@ -85,7 +85,7 @@ export function validateER(data: FormData, i: string | undefined): CreateERServi
   const j = i === undefined ? "" : i
 
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
   } catch (e) {
     throw new Error("Emergency Room: " + (e as Error).message);
   }
@@ -100,7 +100,7 @@ export function validateICU(data: FormData, i: string | undefined): CreateICUSer
   const j = i === undefined ? "" : i
 
   try {
-    phoneNumber = validatePhone(data.get('phoneNumber'+j));
+    phoneNumber = validatePhone(data.get('phoneNumber'+j), "Services");
     baseRate = validateFloat(data.get('price'+j), "Base Rate");
   } catch (e) {
     throw new Error("Intensive Care Unit: " + (e as Error).message);
@@ -112,14 +112,14 @@ export function validateICU(data: FormData, i: string | undefined): CreateICUSer
           }
 }
 
-export function validateOP(data: FormData, i: string | undefined): CreateOutpatientServiceDTO {
+export function validateOP(data: FormData, i: string | undefined): UpdateOutpatientServiceDTO {
   let basePrice: number
   let completionTimeD: number
   let completionTimeH: number
 
   const j = i === undefined ? "" : i
 
-  const OPserviceType     = data.get('OPserviceType'+j) as string;
+  const OPserviceType = data.get('OPserviceType'+j) as string;
 
   if (!OPServiceTypes.includes(OPserviceType)) {
     throw new Error("Invalid service type");
@@ -138,7 +138,6 @@ export function validateOP(data: FormData, i: string | undefined): CreateOutpati
   }
 
   return  {
-            type: OPserviceType,
             basePrice,
             completionTimeD,
             completionTimeH,

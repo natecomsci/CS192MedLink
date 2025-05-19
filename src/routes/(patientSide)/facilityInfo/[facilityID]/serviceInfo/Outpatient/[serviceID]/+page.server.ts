@@ -1,86 +1,86 @@
-import { fail, redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
+import { fail } from "@sveltejs/kit";
+
+import type { PageServerLoad } from './$types';
+
+import { getFromSearchInformation } from "$lib/server/patientSideUtility";
 
 import { 
+  ServicesDAO,
   OutpatientServiceDAO,
   FacilityDAO,
-  AddressDAO,
-  ServicesDAO,
-  GeographyDAO,
 } from '$lib';
 
+const servicesDAO = new ServicesDAO();
+
+const outpatientServiceDAO = new OutpatientServiceDAO();
+
+const facilityDAO = new FacilityDAO();
+
 export const load: PageServerLoad = async ({ params, url }) => {
-  const outpatientDAO = new OutpatientServiceDAO();
-  const facilityDAO = new FacilityDAO();
-  const servicesDAO = new ServicesDAO();
-  const addressDAO = new AddressDAO();
-  const geographyDAO = new GeographyDAO();
   let { facilityID, serviceID } = params;
-  let fromSearch = false;
-  
+
   if (!serviceID || !facilityID) {
-    throw redirect(303, "/");
+    return fail(400, { error: "Facility ID and Service ID is required." });
   }
 
-  if (url.pathname.includes("---prev=")) {
-    fromSearch = true;
-    serviceID = serviceID.split("---prev=", 1)[0]
+  const fromSearch = url.pathname.includes("---prev=");
+
+  if (fromSearch) {
+    serviceID = serviceID.split("---prev=", 1)[0];
   }
 
   try {
-    let service = await servicesDAO.getByID(serviceID);
+    const [service, outpatientInfo, facilityInfo, hasDivisions] = await Promise.all([
+      servicesDAO.getByID(serviceID),
+
+      outpatientServiceDAO.getInformation(serviceID),
+
+      facilityDAO.getInformation(facilityID),
+
+      facilityDAO.facilityHasDivisions(facilityID),
+    ]);
+
     if (!service || !service.facilityID) {
       return fail(500, { error: "Service or facilityID not found." });
     }
-    
-    let outpatientService = await outpatientDAO.getInformation(serviceID);
-    if (!outpatientService) {
-      return fail(500, { error: "Outpatient Service details not found." });
-    }
-    
-    let facility = await facilityDAO.getInformation(service.facilityID);
-    if (!facility || facility.name) {
-      return fail(500, { error: "Facility details not found." });
-    }
-    
-    let address = await addressDAO.getByFacility(service.facilityID);
-    let formattedAddress = "Address not available";
 
-    if (address) {
-      const [region, province, city, barangay] = await Promise.all([
-        geographyDAO.getNameOfRegion(address.regionID),
-        geographyDAO.getNameOfProvince(address.pOrCID),
-        geographyDAO.getNameOfCOrM(address.cOrMID),
-        geographyDAO.getNameOfBrgy(address.brgyID),
-      ]);
-
-      formattedAddress = [
-        address.street,
-        barangay,
-        city,
-        province,
-        region
-      ].filter(Boolean).join(", ");
-    }
-
-    return {
-      facilityName    : facility.name,
-      facilityAddress : formattedAddress,
-      price           : outpatientService.basePrice,
-      completionTimeD : outpatientService.completionTimeD,
-      completionTimeH : outpatientService.completionTimeH,
-      isAvailable     : outpatientService.isAvailable,
-      acceptsWalkIns  : outpatientService.acceptsWalkIns,
-      updatedAt       : outpatientService.updatedAt,
-      ...(outpatientService.division?.divisionID ? { divisionID: outpatientService.division?.divisionID } : {}),
+    const response: Record<string, any> = {
       facilityID,
       fromSearch,
-      serviceName: outpatientService.type,
-
+      type            : outpatientInfo.type,
+      basePrice       : outpatientInfo.basePrice,
+      completionTimeD : outpatientInfo.completionTimeD,
+      completionTimeH : outpatientInfo.completionTimeH,
+      isAvailable     : outpatientInfo.isAvailable,
+      acceptsWalkIns  : outpatientInfo.acceptsWalkIns,
+      updatedAt       : outpatientInfo.updatedAt,
     };
+
+    if (outpatientInfo.note) {
+      response.note = outpatientInfo.note;
+    }
+
+    if (outpatientInfo.division) {
+      response.divisionName = outpatientInfo.division.name;
+    }
+  
+    if (fromSearch) {
+      const { fromSearchResponse, phoneSource, hoursSource } = await getFromSearchInformation({
+        serviceInfo: outpatientInfo,
+        facilityInfo,
+        hasDivisions,
+      });
+
+      Object.assign(response, fromSearchResponse);
+
+      response.phoneSource = phoneSource;
+      response.hoursSource = hoursSource;
+    }
+
+    return response;
   } catch (error) {
-    return fail(500, { description: "Could not get outpatient service or facility information." });
+    console.error(error);
+
+    return fail(500, { description: "Could not get ambulance service information." });
   }
 };
-
-

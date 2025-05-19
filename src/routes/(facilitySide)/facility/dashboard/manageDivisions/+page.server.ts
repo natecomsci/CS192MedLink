@@ -234,8 +234,9 @@ export const actions = {
     const facilityID = cookies.get('facilityID');
     const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !token || !employeeID) {
+    if (!facilityID || !token || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -271,7 +272,7 @@ export const actions = {
         email = undefined
       }
 
-      phoneNumber = [validatePhone(phone)];
+      phoneNumber = [validatePhone(phone, "Division")];
 
       const facilityDivisions = await divisionDAO.getAllNamesByFacility(facilityID)
       for (let div of facilityDivisions) {
@@ -309,7 +310,7 @@ export const actions = {
         }
       }
 
-      let OCTime = validateOperatingHours(open, close)
+      let OCTime = validateOperatingHours(open, close, "Division", hasDivisions === "true")
       openingTime = OCTime.openingTime
       closingTime = OCTime.closingTime
 
@@ -331,9 +332,11 @@ export const actions = {
 
     let service: any
 
+
+
     try {
       for (let i = 0; ; i++) {
-        const serviceType = data.get('serviceType'+String(i)) as string;
+        let serviceType = data.get('serviceType'+String(i)) as string;
         if (!serviceType) {
           break;
         }
@@ -366,6 +369,7 @@ export const actions = {
           case "Outpatient": {
             // let service: CreateOutpatientServiceDTO
             service = validateOP(data, String(i)) 
+            service.type = data.get('OPserviceType'+String(i)) as string,
             newServices.push({dao: outpatientDAO, service, type: service.type})
             break;
           }
@@ -471,8 +475,9 @@ export const actions = {
     const facilityID = cookies.get('facilityID');
     const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !token || !employeeID) {
+    if (!facilityID || !token || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
     }
 
@@ -526,7 +531,7 @@ export const actions = {
         email = undefined
       }
 
-      phoneNumber = [validatePhone(phone)];
+      phoneNumber = [validatePhone(phone, "Division")];
 
       const facilityDivisions = await divisionDAO.getAllNamesByFacility(facilityID)
       let countName = 0
@@ -577,7 +582,7 @@ export const actions = {
         }
       }
 
-      const OPHours = validateOperatingHours(open, close)
+      const OPHours = validateOperatingHours(open, close, "Division", hasDivisions === "true")
       openingTime = OPHours.openingTime
       closingTime = OPHours.closingTime
     } catch (error) {

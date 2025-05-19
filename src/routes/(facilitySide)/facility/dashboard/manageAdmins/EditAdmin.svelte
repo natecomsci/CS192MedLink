@@ -114,7 +114,7 @@
 >
 
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-  <div class="min-h-[500px] max-w-3xl mx-auto p-10 bg-white rounded-[50px] shadow-md flex flex-col">
+  <div class="min-h-[500px] max-w-3xl mx-auto p-10 bg-background rounded-[50px] shadow-md flex flex-col">
     <h3 class=" text-gray-800 text-[25px] font-black">{middlename ? firstname + ' ' + middlename + ' ' + lastname : firstname + ' ' + lastname}</h3>
 
     {#if form?.error}
@@ -147,7 +147,7 @@
         <span class= "text-label">Assign Divisions</span>
         <div class="relative w-full">
           <button 
-            class="input-box w-full border bg-white text-left p-2 rounded relative overflow-hidden pr-8" 
+            class="input-box w-full border bg-background text-left p-2 rounded relative overflow-hidden pr-8" 
             onclick={() => showDropdown = !showDropdown}
             type="button" 
           >
@@ -165,7 +165,7 @@
           <input name="selectedDivisions" class="hidden" type="text" bind:value={selectedDivisionsIDs}>
         
           {#if showDropdown}
-            <div class="absolute w-full bg-white border shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
+            <div class="absolute w-full bg-background border shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
               {#each (data.divisions ?? []) as { divisionID, name }}
                 <label class="flex items-center space-x-2">
                   <input 

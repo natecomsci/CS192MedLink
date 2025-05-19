@@ -1,138 +1,197 @@
 <script lang="ts">
-  let { data } = $props();
+  import type { PageProps } from './$types';
 
-  let facilityName       = $state(data.facilityName);
-  let facilityAddress    = $state(data.facilityAddress);
-  let phoneNumber       = $state(data.phoneNumber);
-  let openingTime       = $state(data.openingTime);
-  let closingTime       = $state(data.closingTime);
-  let pricePerUnit      = $state(data.pricePerUnit);
-  let turnaroundTimeD   = $state(data.turnaroundTimeD);
-  let turnaroundTimeH   = $state(data.turnaroundTimeH);
-  let bloodTypeAvailability = $state(data.bloodTypeAvailability);
+  import type { BloodTypeMappingDTO } from '$lib';
 
-  let service = "Blood Bank Service Details"
+	import { completionTimeMapping, moneyMapping, updatedAtMapping } from '$lib/mappings';
 
-  const bloodData = [
-    { type: "A+", available: bloodTypeAvailability?.A_P },
-    { type: "A-", available: bloodTypeAvailability?.A_N },
-    { type: "B+", available: bloodTypeAvailability?.B_P },
-    { type: "B-", available: bloodTypeAvailability?.B_N },
-    { type: "O+", available: bloodTypeAvailability?.O_P },
-    { type: "O-", available: bloodTypeAvailability?.O_N },
-    { type: "AB+", available: bloodTypeAvailability?.AB_P },
-    { type: "AB-", available: bloodTypeAvailability?.AB_N }
-  ];
-  
+  import Header from '$lib/patientComponents/Header.svelte';
+  import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';
+  import Location from '$lib/patientComponents/details/Location.svelte';
+  import ResultPhoneAndHours from '$lib/patientComponents/details/ResultPhoneAndHours.svelte';
+  import PagePhoneAndHours from '$lib/patientComponents/details/PagePhoneAndHours.svelte';
+	import ValueC from '$lib/icons/ValueC.svelte';
+	import ValueX from '$lib/icons/ValueX.svelte';
+  import Clock from '$lib/icons/Clock.svelte';
+  import ServicePeso from '$lib/icons/ServicePeso.svelte';
+  import NavigateButton from '$lib/patientComponents/NavigateButton.svelte';
+
+  let { data }: PageProps = $props();
+
+  let phoneNumber           = data.phoneNumber;
+  let openingTime           = data.openingTime;
+  let closingTime           = data.closingTime;
+  let basePricePerUnit      = data.basePricePerUnit;
+  let turnaroundTimeD       = data.turnaroundTimeD;
+  let turnaroundTimeH       = data.turnaroundTimeH;
+  let bloodTypeAvailability = data.bloodTypeAvailability;
+  let note                  = data.note;
+  let divisionName          = data.divisionName;
+
+  let facilityID   = data.facilityID;
+  let fromSearch   = data.fromSearch;
+  let facilityName = data.facilityName;
+  let {region, pOrC, cOrM, brgy, street } = data.address;
+  let phoneSource  = data.phoneSource;
+  let hoursSource  = data.hoursSource;
+
+  let updatedAt    = data.updatedAt;
+
+  let service = "Blood Bank";
+
+  const mappedTurnaroundTime: string = completionTimeMapping(turnaroundTimeD, turnaroundTimeH);
+
+  let mappedUpdatedAt = $state(updatedAtMapping(updatedAt));
+
+	$effect(() => {
+		const interval = setInterval(() => {
+			mappedUpdatedAt = updatedAtMapping(updatedAt);
+		}, 60 * 1000);
+		return () => {
+			clearInterval(interval);
+		};
+	});
+
+	const rows = [
+		{ key: 'A_P', label: 'A+' },
+		{ key: 'A_N', label: 'A-' },
+		{ key: 'B_P', label: 'B+' },
+		{ key: 'B_N', label: 'B-' },
+		{ key: 'O_P', label: 'O+' },
+		{ key: 'O_N', label: 'O-' },
+		{ key: 'AB_P', label: 'AB+' },
+		{ key: 'AB_N', label: 'AB-' },
+	];
 </script>
 
-<div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
-  <!-- Header Facility Name -->
-  <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">
-    <button class="text-gray-600 hover:text-gray-900">✖</button>
-    <h2 class="text-xl font-bold text-center flex-1 -ml-4"><strong>{facilityName}</strong></h2>
+{#if fromSearch}
+  <Header text={facilityName} icon="X" />
+{:else}
+  <Header text={service} icon="Arrow" />
+{/if}
+
+<div class="flex items-center justify-center flex-col gap-4 w-full px-6 pt-6 pb-14">
+  {#if fromSearch}
+    <p class="text-primary-700 text-base font-bold tracking-tight leading-loose font-['Inter'] text-center">
+      {service}
+    </p>
+
+    <hr class="self-stretch h-px border-neutral-200" />
+  {:else if divisionName}
+    <p class="text-primary-700 text-base font-bold tracking-tight leading-loose font-['Inter'] text-center">
+      {divisionName}
+    </p>
+
+    <hr class="self-stretch h-px border-neutral-200" />
+  {/if}
+
+  <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter'] text-center">
+    Blood Type Availability Status
+  </p>
+
+  <div class="border-primary-400 flex w-48 flex-col overflow-hidden rounded-lg border">
+    <!-- Header -->
+    <div
+      class="bg-primary-100 border-primary-300 flex border-b text-center font-['Inter'] text-xs leading-none font-bold text-neutral-950"
+    >
+      <div class="border-primary-300 flex-1 border-r px-3 py-2">Blood Type</div>
+      
+      <div class="border-primary-300 flex-1 border-l px-3 py-2">Availability</div>
+    </div>
+
+    <!-- Rows -->
+    {#each rows as { key, label }, i}
+      <div class="flex {i % 2 === 0 ? 'bg-primary-50' : 'bg-neutral-50'}">
+        <!-- Left Column -->
+        <div
+          class="border-primary-300 flex flex-1 items-center justify-center border-r px-3 py-2 font-['Inter'] text-xs font-bold text-neutral-950"
+        >
+          {label}
+        </div>
+
+        <!-- Right Column -->
+        <div class="border-primary-300 flex flex-1 items-center justify-center border-l px-3 py-2">
+          {#if bloodTypeAvailability[key as keyof BloodTypeMappingDTO]}
+            <div
+              class="text-success-on flex items-center gap-2 font-['Inter'] text-xs leading-relaxed font-bold"
+            >
+              <ValueC
+                class="text-success-on hover:text-success-on-t active:text-success-on-t h-4 w-4 shrink-0 transition-colors duration-300"
+              />
+              <p class="text-success-on text-left">Yes</p>
+            </div>
+          {:else}
+            <div
+              class="text-error-on flex items-center gap-2 font-['Inter'] text-xs leading-relaxed font-bold"
+            >
+              <ValueX
+                class="text-error-on hover:text-error-on-t active:text-error-on-t h-4 w-4 shrink-0 transition-colors duration-300"
+              />
+              <p class="text-error-on text-left">No</p>
+            </div>
+          {/if}
+        </div>
+      </div>
+    {/each}
   </div>
 
-  <!-- Service and Info!!!-->
-  <div class="p-5 max-h-[calc(100vh-100px)] overflow-y-auto">
-    <!-- Facility Type  Service Details-->
-    <p class="text-[#6F3990] text-center font-bold text-l">{service}</p>
+  <hr class="self-stretch h-px border-neutral-200" />
 
-    <!-- Current Load Status -->
+  {#if fromSearch}
+    <Location {region} {pOrC} {cOrM} {brgy} {street}/>
 
-    <hr class="my-4 border-gray-300"> <!-- Line -->
+    <hr class="self-stretch h-px border-neutral-200" />
 
-    <!-- Table  -->
-    <div class="max-w-md mx-auto my-4 ">
-      <p class="text-[#9044C4] text-center font-semibold">Blood Type Availability Status</p>
-      <table class="w-full border-collapse border border-purple-400 rounded-lg mt-2">
-        <!-- Table Header -->
-        <thead>
-          <tr class="bg-purple-100">
-            <th class="border-purple-400 border-2 px-4 py-2 text-center">Blood Type</th>
-            <th class="border-purple-400 border-2  px-4 py-2 text-center">Availability</th>
-          </tr>
-        </thead>
+    <ResultPhoneAndHours phone={phoneNumber} {openingTime} {closingTime} {phoneSource} {hoursSource} />
 
-        <!-- Table Body -->
+    <hr class="self-stretch h-px border-neutral-200" />
+  {:else}
+    <PagePhoneAndHours phone={phoneNumber} {openingTime} {closingTime} />
 
-        <tbody>
-        {#each bloodData as row, i}
-          <tr class={i % 2 === 0 ? "bg-white" : "bg-purple-50 border-purple-400"}>
-            <td class="p-2 border-l border-r border-purple-400 text-center">{row.type}</td>
-            <td class="p-2 border-purple-200">
-              {#if row.available}
-              <span class="text-green-500 font-bold flex items-center justify-center gap-2">
-                ✔ Yes
-              </span>              
-              {:else}
-              <span class="text-red-500 font-bold flex items-center justify-center gap-2">
-                ✖ No
-              </span>
-              {/if}
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-      </table>
-    </div>
-    {#if data.fromSearch}
-    <hr class="my-4 border-gray-300"> <!-- Line -->
-    
-    <!-- Location -->
-    <div class="mt-4">
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        📍 Location
-      </p>
-      <p class="text-gray-600 text-sm">
-        {@html facilityAddress 
-          ? `${facilityAddress.street} <br>
-            ${facilityAddress.barangay}, ${facilityAddress.city} <br>
-            ${facilityAddress.province}, ${facilityAddress.region}`
-          : "Address not available"}
-      </p>
-    </div>
-    <hr class="my-4 border-gray-300"> <!-- Line -->
+    <hr class="self-stretch h-px border-neutral-200" />
+  {/if}
 
-    <!-- Contact Information -->
-    <div>
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        ☎ Contact Information and Hours
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Phone Number:</strong> {phoneNumber ?? "N/A"}
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Hours:</strong> {openingTime ?? "N/A"} - {closingTime ?? "N/A"}
-      </p>
-    </div>
-    {/if}
-    <hr class="my-4 border-gray-300"> <!-- Line -->
+  <div class="flex flex-col items-start gap-2 self-stretch">
+    <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter']">
+      Details
+    </p>
 
-    <!-- Details -->
-    <div>
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        📝 Details
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Base Rate:</strong> Php {pricePerUnit ?? "N/A"}
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Turnaround Time:</strong> {turnaroundTimeD} days, {turnaroundTimeH} hours
-      </p>
-    </div>
+    <InfoRow
+      icon={Clock}
+      label="Turnaround Time"
+      value={mappedTurnaroundTime}
+    />
 
-    <hr class="mt-4 border-gray-300">
-    <!-- <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p>   -->
+    <InfoRow
+      icon={ServicePeso}
+      label="Base Price Per Unit"
+      value={moneyMapping(basePricePerUnit)}
+    />
   </div>
-  
-  {#if data.fromSearch}
-  <!-- View Facility Page Button -->
-  <div class="flex justify-center pb-10 pt-5 bg-gradient-to-b from-[#BCB6BC]/0 via-[#FDFCFD]/80 to-[#FDFCFD]">
-    <a href={"/facilityInfo/"+(data.facilityID ?? '')} 
-      class="block text-center text-[#9044C4] border-2 border-[#9044C4] px-6 py-3 rounded-full font-semibold hover:bg-[#9044C4] hover:text-white transition">
-      View Facility Page →
-    </a>
-  </div>
+
+  <hr class="self-stretch h-px border-neutral-200" />
+
+  {#if note}
+    <div class="flex flex-col items-start gap-2 self-stretch">
+      <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter']">
+        Note
+      </p>
+
+      <p class="text-neutral-950 text-xs font-normal tracking-tight leading-loose font-['Inter']">
+        {note}
+      </p>
+    </div>
+
+    <hr class="self-stretch h-px border-neutral-200" />
+  {/if}
+
+  <p class="self-stretch justify-center text-neutral-600 text-[10px] font-normal font-['Inter'] tracking-tight leading-none text-right">
+    Updated {mappedUpdatedAt}
+  </p>
+
+  {#if fromSearch}
+    <div class="flex justify-center mt-6">
+      <NavigateButton text="View Facility Page" href={`/facilityInfo/${facilityID}`} />
+    </div>
   {/if}
 </div>

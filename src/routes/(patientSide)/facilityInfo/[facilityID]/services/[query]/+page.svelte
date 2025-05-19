@@ -1,71 +1,91 @@
-<script lang="ts">
+<script lang="ts">  
   import type { PageProps } from './$types';
 
-  let { data }: PageProps = $props(); // Extract data
-  let query = data.query;
-  let results = data.results ?? [];
+  import type { FacilityServiceResultsDTO } from '$lib';
 
+  import Header from '$lib/patientComponents/Header.svelte';
+  import SearchBar from '$lib/patientComponents/SearchBar.svelte';
+  import FacilitySearchResult from '$lib/patientComponents/FacilitySearchResult.svelte';
+  import PrimaryButton from '$lib/patientComponents/PrimaryButton.svelte';
+  import NoSearchResults from '$lib/patientComponents/NoSearchResults.svelte';
+
+  let { data }: PageProps = $props();
+
+  const patientSearchPageSize = data.patientSearchPageSize ?? 10;
+
+  async function loadMore(query: string) {
+    if (!hasMore) {
+      return
+    } 
+    const body = JSON.stringify({currOffset, query, facilityID});
+
+    try {
+      const response = await fetch("./services/loadMoreHandler", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const rv = await response.json();
+
+      results = [...results, ...rv.results];
+  
+      currOffset = currOffset + patientSearchPageSize;
+  
+      hasMore = rv.hasMore;
+      
+      totalFetched = rv.totalFetched;
+    } catch (error) {
+      throw new Error(`Response status: ${error}`);
+    }
+  }
+
+  let facilityID = $state(data.facilityID);
+  let currOffset = $state(patientSearchPageSize);
+
+  let results: FacilityServiceResultsDTO[] = $state(data.results ?? []);
+  let hasMore = $state(data.hasMore);
+  let totalResults = $state(data.totalResults ?? 0);
+  let totalFetched = $state(data.totalFetched ?? 0);
+  let query = $state(data.query ?? "");
 </script>
 
-<div class=" no-scrollbar overflow-y-auto max-h-[calc(100vh-100px)] sm:max-h-[calc(100vh-150px)] max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
-   <!-- Top Header -->
-  <div class="bg-white px-4 py-4 flex items-center shadow-md">
-    <button class="mr-2">
-      ⬅
-    </button>
-    <h2 class="text-lg font-bold flex-1 text-center"> services</h2>
+<Header text="Services" icon="Arrow" />
+
+<div class="justify-center px-6 pt-6 pb-14">
+  <div class="flex items-center w-full gap-2 mb-6">
+    <SearchBar bind:query propState="default" placeholder="Search for Services" />
   </div>
+  {#if results.length > 0}
+    {#if totalFetched < totalResults}
+      <p class="mb-4 text-xs font-medium tracking-tight leading-none font-['Inter'] text-left">
+        <span class="text-neutral-500">Displaying </span>
+        <span class="text-primary-500">{totalFetched}</span>
+        <span class="text-neutral-500"> out of </span>
+        <span class="text-primary-500">{totalResults}</span>
+        <span class="text-neutral-500"> results</span>
+      </p>
+    {/if}
 
-  <!-- Search Bar -->
-  <form 
-    method="POST"
-    action="?/search"
-    class="items-center space-x-2 p-4"
-  >
-    <div class="flex items-center gap-2 p-2 rounded-full border border-gray-300 bg-white shadow-sm w-full">
-      <input
-        type="text"
-        name="query"
-        value={query}
-        placeholder="Search services"
-        class="flex-1 p-2 px-3 text-gray-700 bg-transparent outline-none"
-      />
-
-      <button type="submit" class="p-2 text-gray-500">
-        <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
-      </button>
-    </div>
-  </form>
-
-  <h1 class="text-xl text-center font-bold">Results for "{query}"</h1>
-{#if results.length > 0}
-  <div class="pl-5 pr-5 pb-4 pt-3">
     {#each results as service}
-    <div class="mb-3 h-15 flex justify-between items-center pl-4 pr-4 pt-3 pb-3 border border-gray-300 rounded-xl shadow-lg bg-white w-full">
-      <form
-      method="POST"
-      action="?/viewDetails"
-      class="flex justify-between items-center w-full"
-    >
-      <input type="hidden" name="serviceID" value={service.serviceID} />
-      <input type="hidden" name="serviceType" value={service.type} />
-      <p class="text-l text-[#3D1853] font-semibold">{service.type}</p>
-      <button
-        name="viewDetails"
-        type="submit"
-        class="text-gray-700 hover:bg-gray-200 rounded-full transition"
-      >
-        <img src="/plus_icon.svg" alt="Add" class="w-5 h-5" />
-      </button>
-    </form>
-    
+      <div class="mb-3">
+        <FacilitySearchResult id={service.serviceID} label={service.type} kind="service"/>
+      </div>
+    {/each}
+    {#if hasMore}
+      <div class="flex justify-center mt-9">
+        <PrimaryButton text="Load More" onClick={() => loadMore(query)} />
+      </div>
+    {/if}
+  {:else}
+    <div class="flex h-64 w-full items-center justify-center fixed top-1/2 left-1/2 z-50 -translate-x-1/2 -translate-y-1/2">
+      <NoSearchResults />
     </div>
-  {/each}
-  </div>
-
-
-{:else}
-  <p>No services found.</p>
-{/if}
+  {/if}
 </div>
-

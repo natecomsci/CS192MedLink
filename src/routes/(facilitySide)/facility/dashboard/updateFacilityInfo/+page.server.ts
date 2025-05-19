@@ -23,7 +23,7 @@ import { type GeneralInformationFacilityDTO,
          validateFacilityName, 
          validateImage,
          validateUser,
-         providers,
+         provider,
          GeographyDAO,
          SessionDAO,  
       } from '$lib';
@@ -159,7 +159,7 @@ export const actions = {
 
     try {
       name = validateFacilityName(data.get('facilityName'));
-      phoneNumber = [validatePhone(data.get('phoneNumber'))];
+      phoneNumber = [validatePhone(data.get('phoneNumber'), "Facility")];
       email = [await validateEmail(data.get('email'))];
       bookingSystem = String(data.get('bookingSystem')) === "" ? "" : await validateLink(data.get('bookingSystem'))
       address.street = validateStreet(data.get('street'));
@@ -172,7 +172,7 @@ export const actions = {
       });
     }
 
-    for (const p of providers) {
+    for (const p of provider) {
       if (data.get(p)) {
         acceptedProviders.push(p);
       }

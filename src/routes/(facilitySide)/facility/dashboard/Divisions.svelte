@@ -5,7 +5,7 @@
 </script>
 
 
-<div class="bg-white shadow-lg rounded-lg flex-1 flex flex-col h-full pl-4 pr-4 pt-2">
+<div class="bg-background shadow-lg rounded-lg flex-1 flex flex-col h-full pl-4 pr-4 pt-2">
   <!-- Header -->
   <div class="flex justify-between items-center p-2">
     <h2 class="text-dashboard-header">Divisions</h2>

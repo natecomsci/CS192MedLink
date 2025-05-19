@@ -102,7 +102,7 @@
 {/if}
 
 <!-- Header -->
-<header class="flex items-center justify-between p-3 shadow-sm border-transparent top-0 duration-200 sticky z-[10] px-6 bg-white ">
+<header class="flex items-center justify-between p-3 shadow-sm border-transparent top-0 duration-200 sticky z-[10] px-6 bg-background ">
     <!-- Back Icon -->
   <div class="items-center flex gap-5">
     <a href="/facility/dashboard" data-sveltekit-reload>

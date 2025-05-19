@@ -12,7 +12,7 @@
 </script>
 
 <div class="flex justify-center items-center min-h-screen bg-gray-100">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-96 text-center">
+    <div class="bg-background p-8 rounded-lg shadow-lg w-96 text-center">
         <!-- Profile Image -->
         <img src={Placeholder} alt="Profile" class="w-32 h-32 mx-auto rounded-full mb-4">
 
