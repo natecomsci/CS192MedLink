@@ -288,41 +288,54 @@ export class ServicesDAO {
 }
 
 export class PatientServiceListDAO {
-  async patientSearch(query: string, filters: record<string, unknown>, numberToFetch: number, offset: number): Promise<LoadMoreResultsDTO<ServiceResultsDTO>> { // to refine for location-based search
+  async patientSearch(
+    query: string,
+    filters: Record<string, unknown>,
+    numberToFetch: number,
+    offset: number
+  ): Promise<LoadMoreResultsDTO<ServiceResultsDTO>> {
     try {
-      if (!(query.trim())) {
-        return { results: [], totalResults: 0, totalFetched: 0, hasMore: false };
+      // Return early if query is empty
+      if (!query.trim()) {
+        return {
+          results: [],
+          totalResults: 0,
+          totalFetched: 0,
+          hasMore: false
+        };
       }
-
-      console.log(`Loaded more Services (offset: ${offset}) matching search query "${query}": `);
   
-      const { ownership, facilityType, acceptedProviders } = filters;
-
-      const facilityFilter = {
-        ...(ownership
-          ? { ownership }
+      console.log(`Searching services with query "${query}" at offset ${offset}...`);
+  
+      const { Ownership, facilityType, acceptedProviders } = filters;
+  
+      // Clean up insurance provider list
+      const validAcceptedProviders = Array.isArray(acceptedProviders)
+        ? acceptedProviders.filter((p): p is Provider => !!p)
+        : [];
+  
+      // Construct dynamic facility filters (only include non-empty ones)
+      const facilityFilter: any = {
+        ...(Ownership ? { Ownership } : {}),
+        ...(Array.isArray(facilityType) && facilityType.length > 0
+          ? { facilityType: { in: facilityType } }
           : {}),
-      
-        ...(facilityType
-          ? { facilityType }
-          : {}),
-      
-        ...(acceptedProviders && acceptedProviders.length > 0
-          ? {
-              acceptedProviders: {
-                hasSome: acceptedProviders
-              }
-            }
+        ...(validAcceptedProviders.length > 0
+          ? { acceptedProviders: { hasSome: validAcceptedProviders } }
           : {})
-      };   
+      };
   
+      // If no filters are provided, allow any facility (don't apply the nested filter)
       const where: any = {
         type: {
-          contains: query, mode: "insensitive"
+          contains: query,
+          mode: "insensitive"
         },
-        facility: facilityFilter
+        ...(Object.keys(facilityFilter).length > 0 && {
+          facility: facilityFilter
+        })
       };
-
+  
       return await loadMore({
         model: prisma.service,
         where,
@@ -330,13 +343,13 @@ export class PatientServiceListDAO {
           ...baseServiceSearchSelect,
           facility: {
             select: {
-              facilityID : true,
-              name       : true,
+              facilityID: true,
+              name: true
             }
           }
         },
-        orderBy: { 
-          updatedAt: "desc" 
+        orderBy: {
+          updatedAt: "desc"
         },
         offset,
         numberToFetch,
@@ -345,14 +358,16 @@ export class PatientServiceListDAO {
           type,
           facilityID,
           name
-        })        
+        })
       });
+  
     } catch (error) {
-      console.error("Details: ", error);
+      console.error("Database search error:", error);
       throw new Error("No database connection.");
     }
   }
-
+  
+  
   async getLoadMoreServicesByFacility(facilityID: string, numberToFetch: number, offset: number, orderBy: any): Promise<LoadMoreResultsDTO<FacilityServiceResultsDTO>> {
     try {
       console.log(`Loaded more Services for Facility ${facilityID} (offset: ${offset}): `);

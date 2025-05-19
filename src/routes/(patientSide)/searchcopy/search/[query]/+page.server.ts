@@ -9,25 +9,30 @@ const patientServiceListDAO = new PatientServiceListDAO();
 export const load: PageServerLoad = async ({ params, url }) => {
   const query = params.query;
 
-  const selectedFacilityTypes = url.searchParams.getAll(
-    "selectedFacilityTypes"
-  );
+  const selectedFacilityTypes = url.searchParams
+  .getAll("selectedFacilityTypes")
+  .filter((type) => type.trim() !== "");
 
-  const selectedOwnership = url.searchParams.get("selectedOwnership")?.trim();
+const selectedOwnership = url.searchParams
+  .get("selectedOwnership")
+  ?.trim();
 
-  const selectedProviders = url.searchParams.getAll("selectedProviders");
+const selectedProviders = url.searchParams
+  .getAll("selectedProviders")
+  .filter((provider) => provider.trim() !== "");
 
-  const filters = {
-    ...(selectedOwnership && {
-      ownership: selectedOwnership,
-    }),
-    ...(selectedFacilityTypes.length && {
-      facilityType: selectedFacilityTypes,
-    }),
-    ...(selectedProviders.length && {
-      acceptedProviders: selectedProviders,
-    }),
-  };
+const filters = {
+  ...(selectedOwnership && {
+    ownership: selectedOwnership,
+  }),
+  ...(selectedFacilityTypes.length && {
+    facilityType: selectedFacilityTypes,
+  }),
+  ...(selectedProviders.length && {
+    acceptedProviders: selectedProviders,
+  }),
+};
+
 
   try {
     const { results, totalResults, totalFetched, hasMore } =
@@ -87,29 +92,32 @@ export const actions = {
   
     const searchParams = new URLSearchParams();
 
-    // dynamically appends to query url based on set filters
-
-    if (selectedOwnership) {
+    // Only add ownership if it's a non-empty string
+    if (selectedOwnership && selectedOwnership.trim() !== "") {
       searchParams.set("selectedOwnership", selectedOwnership);
     }
-
-    if (selectedProviders.length) {
+    
+    // Only add providers if the array is non-empty and filters out empty strings
+    if (Array.isArray(selectedProviders) && selectedProviders.length > 0) {
       for (const provider of selectedProviders) {
-        searchParams.append("selectedProviders", provider);
+        if (provider.trim() !== "") {
+          searchParams.append("selectedProviders", provider);
+        }
       }
     }
-
-    if (selectedFacilityTypes.length) {
-      for (const type of selectedFacilityTypes) {
-        searchParams.append("selectedFacilityTypes", type);
+    
+    // Only add facility types if the array is non-empty and filters out empty strings
+    if (Array.isArray(selectedFacilityTypes) && selectedFacilityTypes.length > 0) {
+      const nonEmptyFacilityTypes = selectedFacilityTypes.filter(type => type.trim() !== "");
+      if (nonEmptyFacilityTypes.length > 0) {
+        searchParams.set("selectedFacilityTypes", nonEmptyFacilityTypes.join(","));
       }
     }
-
-    // !!!! INSERT MINIMUM AND MAXIMUM DISTANCE FILTERS !!!!
-
+    
     const url = `/search/${encodeURIComponent(query)}?${searchParams.toString()}`;
-
+    
     throw redirect(303, url);
+    
   },
 
   viewDetails: async ({ request }) => {
