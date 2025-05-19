@@ -21,13 +21,43 @@
     {#if $searchQuery.length > 0}
       <button 
         class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-gray-600 focus:outline-none"
-        on:click={clearSearch}
+        onclick={clearSearch}
       >
         ✕
       </button>
     {/if}
 </div>
 
+      <!-- Search -->
+      <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-white shadow-sm flex-grow">
+        <input
+          type="text"
+          name="Search"
+          placeholder="Search"
+          class="flex-1 p-2 text-gray-700 bg-transparent outline-none"
+        />
+        <!-- {#if query.length > 0 || isInQueryMode} -->
+            <button onclick={() => {
+              // query = ""
+              // error = ""
+              // errorLoc = ""
+              // isInQueryMode = false
+              // currentPage = 1
+              // getPage(0)
+            }}>
+                <img src="/x.svg" alt="Search" class="w-4 h-4" />
+            </button>
+        <!-- {/if} -->
+        <button type="submit" class="text-gray-500 mr-2" 
+                onclick={() => {
+                  // isInQueryMode = true
+                  // currentPage = 1
+                  // getPage(0)
+                  }}
+                >
+          <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
+        </button>
+      </div>
 
 <!-- <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-white shadow-sm flex-grow">
         <input

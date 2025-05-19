@@ -7,7 +7,7 @@
   // PopUps
   import DeleteDivisionConfirm from "./DeleteDivisionConfirm.svelte";
   import DeleteDivisionRestricted from "./DeleteDivisionRestricted.svelte";
-  import AddDivision from './ElleAddDivision.svelte';
+  import AddDivision from './AddDivision.svelte';
   import EditDivision from './EditDivision.svelte';
   import { pagingQueryHandler } from '$lib/postHandlers';
 
@@ -61,6 +61,8 @@
       getPage(0)
     }
   }
+
+  let divisionNameSelected: string;
 </script>
 
 {#if currPopUp === "delete"}
@@ -73,6 +75,8 @@
     bind:currentPage={currentPage}
     bind:totalPages={totalPages}
     divisionID={selectedDivisionID}
+    divisionName={divisionNameSelected}
+
   />
 
 {:else if currPopUp === "deleteRestricted"}
@@ -196,6 +200,7 @@
               onclick={() => {
                 currPopUp = divisions.length > 1 ? 'delete' : 'deleteRestricted'
                 selectedDivisionID=divisionID
+                divisionNameSelected=name
               }} 
                 data-sveltekit-reload
             >
