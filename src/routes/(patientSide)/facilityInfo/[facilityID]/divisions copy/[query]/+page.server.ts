@@ -2,15 +2,15 @@ import { fail, redirect } from "@sveltejs/kit";
 
 import type { Actions, PageServerLoad } from "./$types";
 
-import { patientSearchPageSize, PatientServiceListDAO } from "$lib";
+import { patientSearchPageSize, PatientDivisionListDAO } from "$lib";
 
-const patientServiceListDAO = new PatientServiceListDAO();
+const patientDivisionListDAO = new PatientDivisionListDAO();
 
 export const load: PageServerLoad = async ({ params, url }) => {
   const { facilityID, query } = params;
 
   try {
-    const { results, totalResults, totalFetched, hasMore } = await patientServiceListDAO.patientSearchServicesByFacility(
+    const { results, totalResults, totalFetched, hasMore } = await patientDivisionListDAO.patientSearchDivisionsByFacility(
       facilityID, 
       query, 
       patientSearchPageSize, 
@@ -21,11 +21,11 @@ export const load: PageServerLoad = async ({ params, url }) => {
     return {
       results, 
       hasMore, 
-      query, 
       totalResults,
       totalFetched,
+      query,
       patientSearchPageSize,
-      facilityID, 
+      facilityID,
     };
   } catch (error) {
     console.error(error);
@@ -35,7 +35,6 @@ export const load: PageServerLoad = async ({ params, url }) => {
     });
   }
 };
-
 
 export const actions = {
   search: async ({ request, params }) => {
@@ -53,7 +52,7 @@ export const actions = {
       return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
 
-    const url = `/facilityInfo/${facilityID}/services copy/${query}`;
+    const url = `/facilityInfo/${facilityID}/divisions/${query}`;
   
     throw redirect(303, url);
   },
@@ -63,23 +62,13 @@ export const actions = {
 
     const { facilityID } = params;
 
-    const serviceID = formData.get("serviceID")?.toString().trim();
+    const divisionID = formData.get("divisionID")?.toString().trim();
 
-    const serviceType = formData.get("serviceType")?.toString().trim();
-
-    if (!facilityID || !serviceID || !serviceType) {
+    if (!facilityID || !divisionID) {
       return fail(400, { error: "Don't manipulate the hidden data please.", description: "search", success: false });
     }
 
-    const servicePath =
-      {
-        Ambulance: "Ambulance",
-        "Blood Bank": "BloodBank",
-        "Emergency Room": "ER",
-        "Intensive Care Unit": "ICU",
-      }[serviceType] ?? "Outpatient";
-
-    const url = `/facilityInfo/${facilityID}/serviceInfo/${servicePath}/${serviceID}`;
+    const url = `/facilityInfo/${facilityID}/serviceInfo/${divisionID}`;
 
     throw redirect(303, url);
   },

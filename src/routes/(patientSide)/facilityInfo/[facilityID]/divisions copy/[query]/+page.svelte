@@ -13,11 +13,11 @@
 
   const patientSearchPageSize = data.patientSearchPageSize ?? 10;
 
-  async function loadMore() {
+  async function loadMore(query: string) {
     if (!hasMore) {
       return
     } 
-    const body = JSON.stringify({currOffset, facilityID});
+    const body = JSON.stringify({currOffset, query, facilityID});
 
     try {
       const response = await fetch("./divisions/loadMoreHandler", {
@@ -53,16 +53,17 @@
   let hasMore = $state(data.hasMore);
   let totalResults = $state(data.totalResults ?? 0);
   let totalFetched = $state(data.totalFetched ?? 0);
-  let query = $state("");
+  let query = $state(data.query ?? "");
 </script>
 
-<Header text="Divisionsss" icon="Arrow" />
+<Header text="Divisions" icon="Arrow"/>
 
 <div class="justify-center px-6 pt-6 pb-14">
   <div class="flex items-center w-full gap-2 mb-6">
     <SearchBar bind:query propState="default" placeholder="Search for Divisions" />
   </div>
   {#if results.length > 0}
+
     {#if totalFetched < totalResults}
       <p class="mb-4 text-xs font-medium tracking-tight leading-none font-['Inter'] text-left">
         <span class="text-neutral-500">Displaying </span>
@@ -80,7 +81,7 @@
     {/each}
     {#if hasMore}
       <div class="flex justify-center mt-9">
-        <PrimaryButton text="Load More" onClick={() => loadMore()} />
+        <PrimaryButton text="Load More" onClick={() => loadMore(query)} />
       </div>
     {/if}
   {:else}

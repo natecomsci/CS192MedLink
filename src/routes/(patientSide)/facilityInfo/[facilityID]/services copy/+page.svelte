@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageProps } from './$types';
 
-  import type { FacilityDivisionResultsDTO } from '$lib';
+  import type { FacilityServiceResultsDTO } from '$lib';
 
   import Header from '$lib/patientComponents/Header.svelte';
   import SearchBar from '$lib/patientComponents/SearchBar.svelte';
@@ -20,7 +20,7 @@
     const body = JSON.stringify({currOffset, facilityID});
 
     try {
-      const response = await fetch("./divisions/loadMoreHandler", {
+      const response = await fetch("./services/loadMoreHandler", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,18 +49,18 @@
   let facilityID = $state(data.facilityID);
   let currOffset = $state(patientSearchPageSize);
 
-  let results: FacilityDivisionResultsDTO[] = $state(data.results ?? []);
+  let results: FacilityServiceResultsDTO[] = $state(data.results ?? []);
   let hasMore = $state(data.hasMore);
   let totalResults = $state(data.totalResults ?? 0);
   let totalFetched = $state(data.totalFetched ?? 0);
   let query = $state("");
 </script>
 
-<Header text="Divisionsss" icon="Arrow" />
+<Header text="Services" icon="Arrow" />
 
 <div class="justify-center px-6 pt-6 pb-14">
   <div class="flex items-center w-full gap-2 mb-6">
-    <SearchBar bind:query propState="default" placeholder="Search for Divisions" />
+    <SearchBar bind:query propState="default" placeholder="Search for Services" />
   </div>
   {#if results.length > 0}
     {#if totalFetched < totalResults}
@@ -73,9 +73,9 @@
       </p>
     {/if}
 
-    {#each results as division}
+    {#each results as service}
       <div class="mb-3">
-        <FacilitySearchResult id={division.divisionID} label={division.name} kind="division"/>
+        <FacilitySearchResult id={service.serviceID} label={service.type} kind="service"/>
       </div>
     {/each}
     {#if hasMore}
