@@ -2,6 +2,8 @@
     import type { Provider } from '@prisma/client';
     import type { PageProps } from './$types';
     import { enhance } from '$app/forms';
+    import { formatFacilityType } from '$lib/mappings';
+
 
     import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib';
     import { facilityType, provider } from '$lib/projectArrays';
@@ -264,7 +266,7 @@
                     class="input-box"
                 >
                     {#each facilityType as t}
-                        <option value={t} selected={t === selectedType}>{t}</option>
+                        <option value={t} selected={t === selectedType}>{formatFacilityType(t)}</option>
                     {/each}
                 </select>
             </label>

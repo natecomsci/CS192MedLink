@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import { dateToTimeMapping } from '$lib/mappings';
+	import { dateToTimeMapping, formatFacilityType } from '$lib/mappings';
 
 	import { normalizePhoneNumberForSMS } from '$lib/patientComponents/details/detailsUtility';
 
@@ -88,7 +88,7 @@
 
 		<p class="font-['Inter'] text-xs leading-none font-bold tracking-tight text-neutral-950">
 			{ownership}
-			{facilityType}
+			{formatFacilityType(facilityType)}
 		</p>
 	</div>
 

@@ -90,9 +90,10 @@
         </button>
       </div>
       
-      {#if errorLoc == "query"}
+      <!-- {#if errorLoc == "query"}
         {error}
-      {/if}
+      {/if} -->
+
       {#if data.hasDivisions && data.divisions.length > 1}
         <!-- Ensures "View By:" stays in one line -->
         <span class="whitespace-nowrap text-sm">View By :</span>
@@ -194,7 +195,7 @@
     display: flex;
     flex-direction: column;
     padding-top: 0px;
-    width: 179px;
+    width: 200px;
     text-align: right;
   }
 

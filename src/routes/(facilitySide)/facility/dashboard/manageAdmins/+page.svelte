@@ -12,7 +12,8 @@
 
 
   import PageBar from "$lib/facilityComponents/PageBar.svelte";
-
+  import SearchViewBar from "$lib/facilityComponents/SearchViewBar.svelte";
+  import ManageHeader from '$lib/facilityComponents/ManageHeader.svelte';
   
   let { data, form }: PageProps = $props();
 
@@ -102,84 +103,22 @@
 {/if}
 
 <!-- Header -->
-<header class="flex items-center justify-between p-3 shadow-sm border-transparent top-0 duration-200 sticky z-[10] px-6 bg-background ">
-    <!-- Back Icon -->
-  <div class="items-center flex gap-5">
-    <a href="/facility/dashboard" data-sveltekit-reload>
-      <img
-        src="/back_icon.svg"
-        alt="Back"
-        class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"
-      />
-    </a>
+<ManageHeader manage ="Admins" />
 
-    <!-- Manage Services -->
-    <h2 class="font-bold text-[27px] text-[#3D1853]">Manage Admins</h2>
-  </div>
-
-  <!-- Medlink Logo -->
-  <div class="flex items-center">
-      <img src={Logo} alt="MedLink logo" class="w-10 h-13" />
-      <h1 class="px-3 font-['DM_Sans'] text-[30px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">Med<span class="text-[#9044C4]">Link</span></h1>
-  </div>
-</header>
 
 <div class="p-6 bg-gray-50 max-h-screen h-[calc(100vh-50px)]">
-    <!-- View and Search -->
-    <div class="w-2/3 flex items-center gap-10">
-      <input
-        type="text"
-        placeholder="search"
-        bind:value={query}
-        onkeydown={handleKeydown}
-        class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
-      />
-      {#if query.length > 0 || isInQueryMode}
-        <button onclick={() => {
-            query = ""
-            error = ""
-            errorLoc = ""
-            isInQueryMode = false
-            currentPage = 1
-            getPage(0)
-        }}>
-          Clear
-        </button>
-      {/if}
-      <button onclick={() => {
-        isInQueryMode = true
-        currentPage = 1
-        getPage(0)
-      }}>
-        Search
-      </button>
-      {#if errorLoc == "query"}
-        {error}
-      {/if}
-      {#if data.hasDivisions && data.divisions.length > 1}
-        <h1>View By:</h1>
-        <select 
-          bind:value={viewedDivisionID} 
-          class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10"
-          onchange={()=>{
-            console.log(viewedDivisionID)
-            query = ""
-            error = ""
-            errorLoc = ""
-            getPage(0)
-          }}
-        >
-          <option
-            value="Default"
-          >Default</option>
-          {#each data.divisions as {name, divisionID}}
-            <option
-              value={divisionID}
-            >{name}</option>
-          {/each}
-        </select>
-      {/if}
-    </div>
+
+
+    <SearchViewBar
+      bind:query
+      bind:viewedDivisionID
+      bind:error
+      bind:errorLoc
+      bind:isInQueryMode
+      bind:currentPage
+      {data}
+      {getPage}
+    />
 
     <hr class="mt-4 border-gray-300 w-2/3">
     <!-- Scrollable List Container -->

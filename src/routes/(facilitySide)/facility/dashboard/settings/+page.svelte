@@ -3,87 +3,120 @@
   import type { PageProps } from './$types';
 
   let { data, form }: PageProps = $props();
-
-  // Fetch the photo URL from data
   let photoUrl = data.photoUrl;
 
+    import { writable } from 'svelte/store';
+    
+    let fileInput: HTMLInputElement | null = null;
+    let imageSrc = writable<string | null>(photoUrl ?? null);
+  
+    function openFileDialog() {
+      fileInput?.click();
+    }
+  
+    function handleFileChange(event: Event) {
+      const input = event.target as HTMLInputElement;
+      if (input.files && input.files.length > 0) {
+        const file = input.files[0];
+        imageSrc.set(URL.createObjectURL(file));
+      }
+    }
+  
+    function removeImage() {
+      imageSrc.set(null);
+      if (fileInput) fileInput.value = '';
+    }
 </script>
 
-<div class="flex justify-center items-center min-h-screen bg-gray-100">
-  <div class="bg-background p-8 rounded-lg shadow-lg w-96 text-center">
-      <!-- Profile Image Upload Form -->
+
+  
+  <div class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="bg-background p-8 rounded-xl shadow-xl w-full max-w-md text-center space-y-6">
+      <!-- Heading -->
+      <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900 mb-2">Settings</h1>
+  
+      <!-- 🖼️ Profile Photo Form -->
       <form
-          method="POST"
-          id="updatePhoto"
-          action="?/updatePhoto"
-          class="text-left"
-          use:enhance
-          enctype="multipart/form-data"
+        method="POST"
+        action="?/updatePhoto"
+        enctype="multipart/form-data"
+        use:enhance
+        id="updatePhoto"
+        class="space-y-4"
       >
-          <!-- Image Container -->
-          <div class="relative group w-full h-32 overflow-hidden rounded-full border cursor-pointer mb-4">
-              <img
-                  src={photoUrl || "/default-avatar.png"}
-                  alt="Profile"
-                  class="w-full h-full object-cover transition-opacity duration-300"
-              />
-          </div>
-
-          <!-- File Input -->
-          <input
-              type="file"
-              name="employeeImage"
-              accept="image/*"
-              class="w-full p-2 border rounded mb-4"
-          />
-
-          {#if form?.error}
-              <p class="text-sm {form?.success ? 'text-green-600' : 'text-red-600'} mb-4">{form?.error}</p>
+        <!-- Image Container -->
+        <div class="relative group w-40 h-40 mx-auto rounded-xl overflow-hidden bg-black shadow-md cursor-pointer">
+          {#if $imageSrc}
+            <img
+              src={$imageSrc}
+              alt="Profile"
+              class="w-full h-full object-cover transition-opacity duration-300"
+            />
+          {:else}
+            <div class="flex items-center justify-center w-full h-full text-white text-sm">No Image</div>
           {/if}
-
-          <button
-              type="submit"
-              form="updatePhoto"
-              class="w-full py-2 bg-purple-600 text-white font-semibold rounded-lg mb-3 hover:bg-purple-700"
-              onclick={() => window.location.reload()}
+  
+          <!-- Hover Overlay -->
+          <div
+            class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white text-sm font-semibold"
+            onclick={openFileDialog}
           >
-              Update Profile Picture
-          </button>
-      </form>
-
-      <!-- Remove Photo Form -->
-      <form method="POST" action="?/removePhoto" use:enhance id="removePhoto">
-          <button
-              type="submit"
-              form="removePhoto"
-              class="w-full py-2 bg-gray-500 text-white font-semibold rounded-lg mb-3 hover:bg-gray-600"
-              onclick={() => window.location.reload()}
-          >
-              Remove Photo
-          </button>
-      </form>
-
-      <form></form>
-
-
-          <!-- Update Button -->
-        <a
-        href="/facility/dashboard/settings/changePassword"
-        class="w-full py-2 bg-purple-600 text-white font-semibold rounded-lg mb-3 hover:bg-purple-700"
+            Change Image
+          </div>
+  
+          <!-- Remove Button -->
+          {#if $imageSrc}
+            <button
+              type="button"
+              class="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-red-600 text-white rounded-full px-2 py-0.5 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+              onclick={removeImage}
+            >
+              ✖
+            </button>
+          {/if}
+  
+          <!-- Hidden File Input -->
+          <input
+            type="file"
+            name="employeeImage"
+            accept="image/*"
+            bind:this={fileInput}
+            class="hidden"
+            onchange={handleFileChange}
+          />
+        </div>
+  
+        {#if form?.error}
+          <p class="text-sm {form?.success ? 'text-green-600' : 'text-red-600'}">{form.error}</p>
+        {/if}
+  
+        <button
+          type="submit"
+          form="updatePhoto"
+          class="w-full py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition"
         >
-        Change Password
-        </a>
-
-
-      <!-- Sign Out Form -->
-      <form method="POST" action="?/signOut" use:enhance id="signOut">
-          <button
-              type="submit"
-              form="signOut"
-              class="w-full py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600"
-          >
-              Sign Out
-          </button>
+          Update Profile Picture
+        </button>
       </form>
+  
+      <!--  Change Password -->
+      <a
+        href="/facility/dashboard/settings/changePassword"
+        class="block w-full py-2 border text-purple-600 font-semibold rounded-lg hover:bg-purple-100 transition"
+      >
+        Change Password
+      </a>
+  
+      <!-- Sign Out -->
+      <form method="POST" action="?/signOut" use:enhance id="signOut">
+        <button
+          type="submit"
+          form="signOut"
+          class="w-full py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition"
+        >
+          Sign Out
+        </button>
+      </form>
+    </div>
   </div>
-</div>
+  

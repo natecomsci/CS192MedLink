@@ -46,22 +46,22 @@
             <a href="./dashboard/updateFacilityInfo" class="duration-200 hover:text-violet-400" data-sveltekit-reload>
                 <p>GenInfo</p>
             </a>
-            <button type="button"
+            <!-- <button type="button"
                     class="duration-200 hover:text-violet-400"
                     onclick={() => {currPopUp='UpdateFacilityInfo'}}>
                     GenInfoPopUp
-            </button>
+            </button> -->
         </div>
       {/if}
       <div class="sm:flex items-center gap-4 hidden">
           <a href="./dashboard/settings" class="duration-200 hover:text-violet-400 " data-sveltekit-reload>
               <p>Settings</p>
           </a>
-          <button type="button"
+          <!-- <button type="button"
                   class="duration-200 hover:text-violet-400"
                   onclick={() => {currPopUp='Settings'}}>
                   SettingsPop
-          </button>
+          </button> -->
       </div>
   </div>
 </header>
