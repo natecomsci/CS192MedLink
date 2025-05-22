@@ -58,9 +58,9 @@
 </script>
 
 <div class="grid grid-cols-1" >
-  {#if form?.error}
+  <!-- {#if form?.error}
     <p class="error">{form.error}</p>
-  {/if}
+  {/if} -->
   <div class="container">
     <input 
       class="hidden" 

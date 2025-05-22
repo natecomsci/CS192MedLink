@@ -65,9 +65,9 @@
 </script>
 
 <div class="grid grid-cols-1" >
-  {#if form?.error}
-  <p class="error">{form.error}</p>
-  {/if}
+  <!-- {#if form?.error}
+  <p class="error text-error-on font-semibold">{form.error}</p>
+  {/if} -->
 
   <div class="container">
     <input 

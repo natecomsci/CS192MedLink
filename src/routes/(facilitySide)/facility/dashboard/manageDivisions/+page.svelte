@@ -7,7 +7,7 @@
   // PopUps
   import DeleteDivisionConfirm from "./DeleteDivisionConfirm.svelte";
   import DeleteDivisionRestricted from "./DeleteDivisionRestricted.svelte";
-  import AddDivision from './AddDivision.svelte';
+  import AddDivision from './ElleAddDivision.svelte';
   import EditDivision from './EditDivision.svelte';
   import { pagingQueryHandler } from '$lib/postHandlers';
 

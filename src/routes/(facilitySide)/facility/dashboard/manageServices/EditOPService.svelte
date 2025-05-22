@@ -52,9 +52,9 @@
 
 <!-- Right Panel (Scrollable) -->
 <label class="grid grid-cols-1 " >
-  {#if form?.error}
+  <!-- {#if form?.error}
       <p class="error">{form.error}</p>
-  {/if}
+  {/if} -->
   <div class="flex-1 p-6 overflow-y-auto  ">
     <input type="text" class="hidden" name="OPserviceType" value={serviceType} />
     <input 

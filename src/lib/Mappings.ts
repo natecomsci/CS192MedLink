@@ -54,7 +54,7 @@ export function updatedAtMapping(updatedAt: Date): string {
 	return `${days} day${days === 1 ? "" : "s"}${remainingHours > 0 || remainingMinutes > 0 ? `, ${remainingHours} hour${remainingHours === 1 ? "" : "s"}${remainingMinutes > 0 ? ` and ${remainingMinutes} minute${remainingMinutes === 1 ? "" : "s"}` : ""}` : ""} ago`;
 }
 
-export function formatFacilityType(type: string): string {
+export function formatUnderscoredString(type: string): string {
     return type
         .split('_')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))

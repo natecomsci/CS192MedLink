@@ -133,11 +133,11 @@
 
             <!-- Admin Info -->
             <div class="info">
-                <h3 class="name">{admin.mname ? admin.fname + ' ' + admin.mname + ' ' + admin.lname : admin.fname + ' ' + admin.lname}</h3>
+                <h3 class="text-lg font-bold text-gray-900 px-4">{admin.mname ? admin.fname + ' ' + admin.mname + ' ' + admin.lname : admin.fname + ' ' + admin.lname}</h3>
                 <!-- <p class="id">{admin.employeeID}</p> -->
                 {#if data.hasDivisions}
-                  <p class="departments">
-                    {#each (admin.divisions ?? []) as division, i}
+                <p class="text-primary-500 font-semibold italic text-lg ml-4">
+                  {#each (admin.divisions ?? []) as division, i}
                       <span class="dept mr-1">
                         {division.name}
                         {#if i < (admin.divisions ?? []).length - 1} | {/if}
@@ -227,11 +227,11 @@
         color: #7b1fa2;
     }*/
 
-    .departments {
+    /* .departments {
         font-size: 0.9rem;
         color: #8e8e8e;
         font-style: italic;
-    }
+    } */
 
 /*    .actions {
         display: flex;

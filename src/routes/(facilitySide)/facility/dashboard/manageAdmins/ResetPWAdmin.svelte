@@ -33,7 +33,7 @@
 
     <label class="mt-5">
         <span class = "text-label">Confirm Password to Reset</span>
-        <input type = "text" name = "passwordConfirmation" class="input-box" bind:value={passwordConfirmation} placeholder="Confirm Password">
+        <input type = "password" name = "passwordConfirmation" class="input-box" bind:value={passwordConfirmation} placeholder="Confirm Password">
     </label>
 
 
@@ -48,7 +48,7 @@
           </button> -->
         {/if}
     </div>
-
+    {#if !showNewPassword}
     <p class="text-red-500 font-semibold">
       {errorShown}
     </p>
@@ -58,8 +58,8 @@
       <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" onclick={() => resetPassword()} data-sveltekit-reload>
           Update Password
       </button>
-
     </div>
+    {/if}
 </div>
 </div>
 

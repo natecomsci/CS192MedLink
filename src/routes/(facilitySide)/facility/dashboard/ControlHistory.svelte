@@ -203,7 +203,7 @@
     font-family: 'DM Sans', sans-serif;
     font-style: italic;
     font-weight: 500;
-    font-size: 20px;
+    font-size: 15px;
     color: #6d6666;
     letter-spacing: 0.01em;
   }

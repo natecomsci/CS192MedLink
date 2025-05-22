@@ -127,9 +127,8 @@
                 };
               }}
             >
-              Edit Division Page
               {#if form?.error}
-                  <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
+                  <p class=" error text-red-500 text-sm font-semibold">{form?.error}</p>
               {/if}
               <input type="hidden" name="divisionID" value="{divisionID}" class=" card" />
               <input type="text" name="name" value={divisionName} class=" card"/>

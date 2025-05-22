@@ -83,15 +83,13 @@
 >
   <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
     <div class="min-h-[500px] max-w-3xl mx-auto p-10 bg-background rounded-[50px] shadow-md flex flex-col">
-      <h3 class="mb-10 text-gray-800 text-[25px] font-black">Add Admin</h3>
-
+      <h3 class="mb-2 text-gray-800 text-[25px] font-black ">Add Admin</h3>
       {#if form?.error}
-        <p class="text-red-500 font-semibold">
+        <p class="error mb-4">
         {form.error}
         </p>
       {/if}
-
-      <div class="grid grid-cols-3 gap-4 mb-4">
+      <div class="grid grid-cols-3 gap-4 mb-4 ">
         <label>
           <span class ="text-label">First Name</span>
           <input class="input-box" placeholder="First Name" bind:value={firstName} name="fname"/>
@@ -147,8 +145,25 @@
         </label>
       {/if}
 
+      <div class="mt-4 flex-1">
+        <div class="flex flex-wrap gap-2 mb-4">
+          {#each {length: selectedDivisionsNames.length}, i}
+            <span class="bg-purple-100 text-purple-500 px-3 py-1 rounded-lg flex items-center">
+              {selectedDivisionsNames[i]} 
+              <button onclick={() => toggleDivision(selectedDivisionsNames[i], selectedDivisionsIDs[i])} class="ml-2 text-xs text-red-500">✕</button>
+            </span>
+          {/each}
+        </div>
+      </div>
+
       <div class="flex justify-between mt-auto">
-        <button class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg" onclick={() => currPopUp = ''} data-sveltekit-reload type="button">
+        <button class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg" 
+                onclick={() => {
+                  currPopUp = '';
+                  if (form !== null) {
+                    form.error = undefined;
+                  }
+                }} data-sveltekit-reload type="button">
           Cancel
         </button>
 

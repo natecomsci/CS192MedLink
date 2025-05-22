@@ -48,13 +48,13 @@
     <!-- Walkins -->
     <div class="card">
         <label class="flex items-center gap-2">
-            <span class="text-label">Accepts Walk-ins</span>
             <input 
                 name="acceptWalkins" 
                 type="checkbox"
                 class="w-5 h-5 rounded border-2 border-gray-400 
                     accent-purple-500 cursor-pointer"
             >
+            <span class="text-label">Accepts Walk-ins</span>
         </label>
     </div>
 

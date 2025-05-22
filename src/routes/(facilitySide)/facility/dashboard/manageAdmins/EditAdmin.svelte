@@ -122,8 +122,8 @@
       {form.error}
       </p>
     {/if}
-
-    <div class="p-10 grid place-items-center">
+    
+    <div class="p-4 grid place-items-center">
       <!-- <img class="profile-pic border" src={ad.profilePicture} alt="" /> -->
       <input type="hidden" name="adminID" value="{adminID}" />
     </div>
@@ -198,7 +198,13 @@
       </button>
 
       <div class="flex justify-between mt-auto">
-        <button class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg" onclick={() => currPopUp = ''} data-sveltekit-reload type="button">
+        <button class="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg" 
+                onclick={() => {
+                  currPopUp = '';
+                  if (form !== null) {
+                    form.error = undefined;
+                  }
+                }} data-sveltekit-reload type="button">
           Cancel
         </button>
 

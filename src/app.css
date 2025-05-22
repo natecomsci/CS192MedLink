@@ -130,6 +130,12 @@ body {
     color: #574E5F;
 }
 
+.error {
+    color: #e63946;
+    font-size: large;
+    font-weight: bold;
+    margin-top: 5px;
+}
 
 /*=============== Scrollbars============ */
 

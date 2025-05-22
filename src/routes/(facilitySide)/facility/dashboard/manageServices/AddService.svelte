@@ -1,7 +1,10 @@
 <script lang="ts">
   import type { ActionData, PageData } from './$types';
   import { enhance } from '$app/forms';
+  import { invalidate } from '$app/navigation';
       
+
+
   import AmbulanceService from './AddAmbulanceService.svelte';
   import BloodBankService from './AddBloodBankService.svelte';
   import ERService from './AddERService.svelte';
@@ -66,6 +69,8 @@
           if (form?.success) {
               currPopUp = ''
               getNewService()
+          }else if (form?.error === "No database connection.") {
+              currPopUp = 'NoDatabaseConnectionPopUp';          
           }
         };
       }}
@@ -76,7 +81,14 @@
         <!-- Left Panel -->
         <div class="w-1/3 bg-background p-6 flex flex-col rounded-l-2xl">
             <div class="flex items-center gap-5">
-                <button onclick={() => currPopUp = ''} type="button">
+                <button onclick={() => 
+                  {
+                  currPopUp = '';
+                  if (form !== null) {
+                    form.error = undefined;
+                  }
+                }
+                  } type="button">
                   <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
                 </button>
                 <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Add a Service</h1>
@@ -107,9 +119,6 @@
               Add Service
           </button>
         </div>
-
-
-
         
         <!-- Vertical Divider -->
         <div class="w-[2px] bg-gray-300"></div>
@@ -119,7 +128,7 @@
           <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{serviceType}</h2>
           <label class="grid grid-cols-1">
             {#if form?.error}
-                <p class="error">{form.error}</p>
+                <p class="error text-error-on font-semibold">{form.error}</p>
             {/if}
             {#if serviceType == "Ambulance"}
               <AmbulanceService />

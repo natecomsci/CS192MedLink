@@ -12,11 +12,13 @@
   import PageBar from "$lib/facilityComponents/PageBar.svelte";
   import SearchViewBar from '$lib/facilityComponents/SearchViewBar.svelte';
   import ManageHeader from '$lib/facilityComponents/ManageHeader.svelte';
+  import NoDatabaseConnection from '$lib/facilityComponents/NoDatabaseConnection.svelte';
   
   import { pagingQueryHandler } from '$lib/postHandlers';
   import { Role } from '@prisma/client';
 
   let { data, form }: PageProps = $props();
+
 
   let services: ServiceDTO[] = $state(data.services ?? [])
   let currentPage: number = $state(data.currentPage)
@@ -67,6 +69,14 @@
       getPage(0)
     }
   }
+
+  // elle
+
+  if (form?.error === "No database connection.") {
+  currPopUp = "NoDatabaseConnection";
+  }
+
+
 </script>
 
 {#if currPopUp === "delete"}
@@ -111,10 +121,14 @@
     serviceDivisionName={selectedDivisionName}
     serviceDivisionID={selectedDivisionID}
   />
+  {:else if currPopUp === "NoDatabaseConnection"}
+    <NoDatabaseConnection
+     
+    />
 {/if}
 
 <!-- Header -->
-<ManageHeader manage ="Admins" />
+<ManageHeader manage ="Services" />
 
 <div class="p-6 bg-gray-50 max-h-screen h-[calc(100vh-50px)]">
     <!-- View and Search -->
@@ -141,7 +155,7 @@
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{type}</h3>
             {#if division?.name}
-              <p class="text-purple-600 px-4">Division: {division?.name}</p>
+              <p class="text-primary-500 font-semibold italic text-lg px-4">{division?.name}</p>
             {/if}
           </div>
         
@@ -177,7 +191,7 @@
       {/each}
     </div>
     {#if form?.description === "pass"}
-      <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
+      <p class="error text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
 
   <PageBar
@@ -193,8 +207,6 @@
   </button>
   {/if}
 </div>
-
-
 
 <style>
   ::-webkit-scrollbar {

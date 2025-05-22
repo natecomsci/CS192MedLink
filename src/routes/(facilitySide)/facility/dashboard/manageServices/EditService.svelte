@@ -78,7 +78,10 @@
           <!-- Left Panel -->
           <div class="w-1/3 bg-background p-6 flex flex-col rounded-l-2xl">
               <div class="flex items-center gap-5">
-                  <button onclick={() => currPopUp = ''} data-sveltekit-reload type="button">
+                  <button onclick={() => 
+                    { if (form !== null) {form.error = undefined;}                      
+                      currPopUp = '';}
+                    } data-sveltekit-reload type="button">
                     <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
                   </button>
                   <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Edit Service</h1>
@@ -142,6 +145,10 @@
             <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{serviceType}</h2>
             <label class="grid grid-cols-1">
               <input type="text" class="hidden" name="serviceType" bind:value={serviceType} />
+              {#if form?.error}
+                <p class="error">{form.error}</p>
+              {/if}
+              
               {#if serviceType == "Ambulance"}
                 <EditAmbulanceService 
                   { data }
