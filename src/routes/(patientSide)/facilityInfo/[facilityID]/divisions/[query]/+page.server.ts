@@ -52,7 +52,7 @@ export const actions = {
       return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
 
-    const url = `/facilityInfo/${facilityID}/divisions/${query}`;
+    const url = `/facilityInfo/${facilityID}/divisions copy/${query}`;
   
     throw redirect(303, url);
   },

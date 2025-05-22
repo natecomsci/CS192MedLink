@@ -53,7 +53,7 @@ export const actions = {
       return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
 
-    const url = `/facilityInfo/${facilityID}/services copy/${query}`;
+    const url = `/facilityInfo/${facilityID}/services/${query}`;
   
     throw redirect(303, url);
   },

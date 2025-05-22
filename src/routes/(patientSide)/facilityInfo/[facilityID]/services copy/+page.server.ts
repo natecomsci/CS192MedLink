@@ -1,4 +1,4 @@
-import { fail, redirect } from "@sveltejs/kit";
+import { redirect, fail } from "@sveltejs/kit";
 
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -6,36 +6,38 @@ import { patientSearchPageSize, PatientServiceListDAO } from "$lib";
 
 const patientServiceListDAO = new PatientServiceListDAO();
 
-export const load: PageServerLoad = async ({ params, url }) => {
-  const { facilityID, query } = params;
+export const load: PageServerLoad = async ({ params }) => {
+  const { facilityID } = params;
+
+  if (!facilityID) {
+    return fail(400, { error: "Facility ID is required." });
+  }
 
   try {
-    const { results, totalResults, totalFetched, hasMore } = await patientServiceListDAO.patientSearchServicesByFacility(
-      facilityID, 
-      query, 
-      patientSearchPageSize, 
-      0, 
-      { updatedAt: "desc" }
-    )
+    const { results, totalResults, totalFetched, hasMore } =
+      await patientServiceListDAO.getLoadMoreServicesByFacility(
+        facilityID,
+        patientSearchPageSize,
+        0,
+        { updatedAt: "desc" }
+      );
 
     return {
-      results, 
-      hasMore, 
-      query, 
+      results,
+      hasMore,
       totalResults,
       totalFetched,
       patientSearchPageSize,
-      facilityID, 
+      facilityID,
     };
   } catch (error) {
     console.error(error);
 
     return fail(500, {
-      description: "Could not get service search results.",
+      description: "Could not get services of the facility.",
     });
   }
 };
-
 
 export const actions = {
   search: async ({ request, params }) => {
@@ -53,7 +55,7 @@ export const actions = {
       return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
 
-    const url = `/facilityInfo/${facilityID}/services copy/${query}`;
+    const url = `/facilityInfo/${facilityID}/services/${query}`;
   
     throw redirect(303, url);
   },
