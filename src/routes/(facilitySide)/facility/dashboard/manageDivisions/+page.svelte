@@ -63,7 +63,7 @@
     }
   }
 
-  let divisionNameSelected: string;
+  let divisionNameSelected: string = $state("");
 </script>
 
 {#if currPopUp === "delete"}
@@ -75,7 +75,7 @@
     bind:currPopUp={currPopUp}
     bind:currentPage={currentPage}
     bind:totalPages={totalPages}
-    divisionID={selectedDivisionID}
+    divisionID={String(selectedDivisionID)}
     divisionName={divisionNameSelected}
 
   />
@@ -112,8 +112,6 @@
 <ManageHeader
   manage ="Divisions" 
 />
-
-
 
 <div class="p-6 bg-gray-50 h-[calc(100vh-50px)]">
     <div class="w-3/4">
@@ -185,7 +183,11 @@
 </div>
 
   <!-- Add Division -->
-  <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addDivision'}}>
+  <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {
+    currPopUp='addDivision' 
+    console.log(currPopUp)
+  }
+}>
     <span class="text-xl">+ Add Division</span>
   </button>
 </div>

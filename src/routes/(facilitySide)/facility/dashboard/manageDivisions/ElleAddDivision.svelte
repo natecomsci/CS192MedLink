@@ -104,25 +104,42 @@
 
 
 
+    let mode = $state("")
     let newServicesCount = $state(0)
-    let i = $state(0) // index for new service types
     let newServiceTypes: string[] = $state([])
 
     //elle
     // let tempServiceList = Array(10).fill().map((_, index) => `Service ${index + 1}`);
     let tempServiceList: string[] = [];
-    let currState = $state(1)
+    let currState = $state(-1)
     let showDropdown = $state(false)
     let showServiceSuccess = $state(false)
     let showDivisionSuccess = $state(false)
 
 </script>
 
+<form 
+      method="POST" 
+      action="?/addDivision"
+      use:enhance={() => {
+        return async ({ update }) => {
+          await update({invalidateAll:true});
+          if (form?.success) {
+              currPopUp = ''
+              getNewDivisions()
+          }
+        };
+      }}
+    >
+
 <div class="fixed inset-0 bg-black/50 flex justify-center items-center z-50"> <!-- BACKGROUND -->
+    {#if form?.error}
+        form.error
+    {/if}
 
 
-    {#if currState === 1}
-    <div class="w-11/12 max-w-3/4 rounded-lg  overflow-hidden h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl ">
+    <!-- {#if currState === 1} -->
+    <div class="w-11/12 max-w-3/4 rounded-lg  overflow-hidden h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl {currState === -1 ? "" : "hidden"}">
     
         <!-- Left Side -->
         <div class="w-1/2 p-6 flex flex-col bg-background">
@@ -222,16 +239,19 @@
                     <button
                         class="text-lg font-semibold my-1 text-primary-500 rounded-lg hover:underline "
                         onclick={() => {
-                            currState = 2;
                             newServicesCount++
-                            newServiceTypes.push('')}}
+                            currState = newServicesCount-1;
+                            newServiceTypes.push('')
+                            mode = "Add"
+                        }
+                        }
                     >
                         + Create A New Service
                     </button>
                 </label>
             </div>
 
-            <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" data-sveltekit-reload>
+            <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" data-sveltekit-reload >
                 Create Division
             </button> 
         </div>
@@ -272,13 +292,14 @@
                             
                             <div class=" items-center justify-center flex gap-3">
                                 <button class="text-red-600 hover:text-red-800"
-                                onclick="{() => {
-                                    i = index
-                                    currState = 3; 
-                                    }}"
+                                onclick={() => {
+                                    currState = index; 
+                                    mode = "Edit"
+                                    }}
                                 >
                                     <img src="/dashedit_icon.svg" alt="edit" class="w-6 h-6 cursor-pointer hover:opacity-80" />
                                 </button>
+                                {#if index === newServicesCount-1}
                                 <button class="text-red-600 hover:text-red-800"
                                         onclick={() => {
                                             newServiceTypes = newServiceTypes.filter((_, idx) => idx !== index);
@@ -290,6 +311,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
+                                {/if}
                             </div>
                         </div>
                     {/each}
@@ -300,16 +322,20 @@
 
     <!--========================================== next state: creating a service ==========================================-->
 
-    {:else if currState === 2}
-    <div class="w-11/12 max-w-3/4 rounded-lg  overflow-hidden h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl ">
+    {#each {length: newServicesCount}, i}
+    <div class="w-11/12 max-w-3/4 rounded-lg  overflow-hidden h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl {currState === i ? "": "hidden"}">
         <!-- Left Side -->
         <div class="w-1/3 p-6 flex flex-col bg-background">
             <!-- Header -->
             <div class="flex items-center gap-5 ">
-                <button type="button"  onclick="{() => {
-                        currState = 1; 
-                        newServicesCount--
-                        newServiceTypes.pop()}}"
+                <button type="button"  onclick={() => {
+                        currState = -1
+
+                        if (mode === "Add") {
+                            newServicesCount--
+                            newServiceTypes.pop()
+                        }
+                    }}
                 >      
                     <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
                 </button>
@@ -328,12 +354,13 @@
                     {/each}
                 </select>
             </label>
-            <button type="submit" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" 
+            {#if mode === "Add"}
+            <button type="button" class="mt-auto bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700" 
                 onclick= {()=>
-                    {if (newServiceTypes[i]){showServiceSuccess = true}}}
-                data-sveltekit-reload>
+                    showServiceSuccess = true}>
                 Create Service
             </button>
+            {/if}
         </div>
 
 
@@ -363,8 +390,7 @@
             <CreationSuccess 
                 action = {
                     ()=> {
-                        currState = 1
-                        i = newServicesCount
+                        currState = -1
                         showServiceSuccess = false
                         }
                     }
@@ -372,60 +398,7 @@
                 createdName = " " /> 
         {/if}
     </div>
-    
-    
-    
-    <!--========================================== next state: editing a service ==========================================-->
-    {:else if currState === 3}     
-        <div class="w-11/12 max-w-3/4 rounded-lg  overflow-hidden h-[calc(100vh-100px)] flex bg-gray-100 rounded-2xl ">
-            <!-- Left Side -->
-            <div class="w-1/3 p-6 flex flex-col bg-background">
-                <!-- Header -->
-                <div class="flex items-center gap-5 ">
-                    <button type="button"  onclick="{() => {
-                            currState = 1; 
-                            i = newServicesCount;
-                            }}"
-                    >      
-                        <img src="/back_icon.svg" alt="Back" class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"/>
-                    </button>
-                    <h1 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">Editing A New Service</h1>
-                </div>
-                <!-- Select a Service -->
-                <label class="mt-5">
-                    <span class="text-label">Select a Service</span>
-                    <select name="serviceType{i}" bind:value={newServiceTypes[i]} class="input-box">
-                        <option value="" disabled selected>Select a Service</option>
-                        {#each (data.availableServices ?? []) as service}
-                            <option value={service}
-                                    onclick={() => newServiceTypes[i] = (service as string)}
-                            >{service}</option>
-                        {/each}
-                    </select>
-                </label>
-            </div>
-
-
-            <!-- Right Side -->
-            <div class="w-2/3 p-6 flex flex-col ">
-                <!-- Service -->
-                <div class="flex-1 p-6 overflow-y-auto"> 
-                    <h2 class="text-[30px] font-['DM_Sans'] font-bold text-purple-900">{newServiceTypes[i]}</h2>
-                    <label class="grid grid-cols-1">
-                        {#if newServiceTypes[i] === "Ambulance"}
-                        <AmbulanceService {i}/>
-                        {:else if newServiceTypes[i] === "Blood Bank"}
-                        <BloodBankService {i}/>
-                        {:else if newServiceTypes[i] === "Emergency Room"}
-                        <ERService {i}/>
-                        {:else if newServiceTypes[i] === "Intensive Care Unit"}
-                        <ICUService {i}/>
-                        {:else if newServiceTypes[i] === "Outpatient"}
-                        <OutpatientService {data} {i}/>
-                        {/if}
-                    </label>
-                </div>
-            </div>
-        </div>    
-        {/if}
+    {/each}
 </div>
+
+</form>
