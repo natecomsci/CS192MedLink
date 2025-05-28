@@ -21,7 +21,8 @@ export const actions = {
     const selectedOwnership = formDataRaw
       .get("selectedOwnership")
       ?.toString()
-      .trim();
+      .trim()
+      .toUpperCase();
 
     const selectedProviders = formDataRaw
       .getAll("selectedProviders")
