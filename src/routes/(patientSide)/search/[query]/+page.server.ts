@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ params, url }) => {
     "selectedFacilityTypes"
   );
 
-  const selectedOwnership = url.searchParams.get("selectedOwnership")?.trim();
+  const selectedOwnership = url.searchParams.get("selectedOwnership")?.trim().toUpperCase();
 
   const selectedProviders = url.searchParams.getAll("selectedProviders");
 
