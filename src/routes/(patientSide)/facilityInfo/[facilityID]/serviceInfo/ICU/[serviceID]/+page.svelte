@@ -37,7 +37,7 @@
   let facilityID   = data.facilityID;
   let fromSearch   = data.fromSearch;
   let facilityName = data.facilityName;
-  let {region, pOrC, cOrM, brgy, street } = data.address;
+  let address = data.address;
   let phoneSource  = data.phoneSource;
   let hoursSource  = data.hoursSource;
 
@@ -156,7 +156,7 @@
   <hr class="self-stretch h-px border-neutral-200" />
 
   {#if fromSearch}
-    <Location {region} {pOrC} {cOrM} {brgy} {street}/>
+    <Location region={address.region} pOrC={address.pOrC} cOrM={address.cOrM} brgy={address.brgy} street={address.street}/>
 
     <hr class="self-stretch h-px border-neutral-200" />
 
@@ -207,6 +207,12 @@
     Updated {mappedUpdatedAt}
   </p>
 
+  {#if fromSearch}
+    <div class="flex justify-center mt-6">
+      <NavigateButton text="View Facility Page" href={`/facilityInfo/${facilityID}`} />
+    </div>
+  {/if}
+</div>
   {#if fromSearch}
     <div class="flex justify-center mt-6">
       <NavigateButton text="View Facility Page" href={`/facilityInfo/${facilityID}`} />
