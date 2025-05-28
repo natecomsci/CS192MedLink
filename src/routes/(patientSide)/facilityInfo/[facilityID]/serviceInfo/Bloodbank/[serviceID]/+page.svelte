@@ -3,15 +3,15 @@
 
   import type { BloodTypeMappingDTO } from '$lib';
 
-	import { completionTimeMapping, moneyMapping, updatedAtMapping } from '$lib/mappings';
+  import { completionTimeMapping, moneyMapping, updatedAtMapping } from '$lib/mappings';
 
   import Header from '$lib/patientComponents/Header.svelte';
   import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';
   import Location from '$lib/patientComponents/details/Location.svelte';
   import ResultPhoneAndHours from '$lib/patientComponents/details/ResultPhoneAndHours.svelte';
   import PagePhoneAndHours from '$lib/patientComponents/details/PagePhoneAndHours.svelte';
-	import ValueC from '$lib/icons/ValueC.svelte';
-	import ValueX from '$lib/icons/ValueX.svelte';
+  import ValueC from '$lib/icons/ValueC.svelte';
+  import ValueX from '$lib/icons/ValueX.svelte';
   import Clock from '$lib/icons/Clock.svelte';
   import ServicePeso from '$lib/icons/ServicePeso.svelte';
   import NavigateButton from '$lib/patientComponents/NavigateButton.svelte';
@@ -31,7 +31,7 @@
   let facilityID   = data.facilityID;
   let fromSearch   = data.fromSearch;
   let facilityName = data.facilityName;
-  let {region, pOrC, cOrM, brgy, street } = data.address;
+  let address = data.address;
   let phoneSource  = data.phoneSource;
   let hoursSource  = data.hoursSource;
 
@@ -138,7 +138,7 @@
   <hr class="self-stretch h-px border-neutral-200" />
 
   {#if fromSearch}
-    <Location {region} {pOrC} {cOrM} {brgy} {street}/>
+    <Location region={address.region} pOrC={address.pOrC} cOrM={address.cOrM} brgy={address.brgy} street={address.street}/>
 
     <hr class="self-stretch h-px border-neutral-200" />
 
