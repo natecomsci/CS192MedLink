@@ -1,119 +1,143 @@
 import { fail, redirect } from "@sveltejs/kit";
+
 import type { Actions, PageServerLoad } from "./$types";
-import { json, type RequestHandler } from '@sveltejs/kit';
+
 import { patientSearchPageSize, PatientServiceListDAO } from "$lib";
 
-const patientServiceListDAO = new PatientServiceListDAO()
+const patientServiceListDAO = new PatientServiceListDAO();
 
-  export const load: PageServerLoad = async ({ params, url }) => {
-    const query = params.query;
-    const selectedProvider = url.searchParams.get('selectedProvider') || "any"; // Default to "any"
-    const selectedOwnership = url.searchParams.get('selectedOwnership') || "any"; // Default to "any"
-    const selectedFacilityType = url.searchParams.get('selectedFacilityType') || "any"; // Default to "any"
+export const load: PageServerLoad = async ({ params, url }) => {
+  const query = params.query;
 
-    const filters = {
-      acceptedProviders: selectedProvider && selectedProvider !== "any" ? [selectedProvider] : [],
-      ownership: selectedOwnership !== "any" ? selectedOwnership : undefined,
-      facilityType: selectedFacilityType !== "any" ? selectedFacilityType : undefined
-    };
+  const selectedFacilityTypes = url.searchParams.getAll(
+    "selectedFacilityTypes"
+  );
 
-    try {
-      const byService = await patientServiceListDAO.patientSearch(query, filters, patientSearchPageSize, 0);
+  const selectedOwnership = url.searchParams.get("selectedOwnership")?.trim().toUpperCase();
 
-      return { 
-        services: byService.results, 
-        moreServices: byService.hasMore,
-        query,
-        patientSearchPageSize,
-        selectedProvider,
-        selectedOwnership,
-        selectedFacilityType,
-        error: null
-      };
+  const selectedProviders = url.searchParams.getAll("selectedProviders");
 
-    } catch (error: any) {
-      console.error("Caught error in load:", error);
-
-      return {
-        services: [],
-        moreServices: false,
-        query,
-        patientSearchPageSize,
-        selectedProvider,
-        selectedOwnership,
-        selectedFacilityType,
-        error: error.message || 'An unexpected error occurred.'
-      };
-    }
+  const filters = {
+    ...(selectedOwnership && {
+      ownership: selectedOwnership,
+    }),
+    ...(selectedFacilityTypes.length && {
+      facilityType: selectedFacilityTypes,
+    }),
+    ...(selectedProviders.length && {
+      acceptedProviders: selectedProviders,
+    }),
   };
 
+  try {
+    const { results, totalResults, totalFetched, hasMore } =
+      await patientServiceListDAO.patientSearch(
+        query,
+        filters,
+        patientSearchPageSize,
+        0
+      );
 
+    return {
+      results,
+      hasMore,
+      totalResults,
+      totalFetched,
+      query,
+      selectedFacilityTypes,
+      selectedOwnership,
+      selectedProviders,
+      patientSearchPageSize
+    };
+  } catch (error) {
+    console.error(error);
+
+    return fail(500, { description: "Could not get search results." });
+  }
+};
 
 export const actions = {
   search: async ({ request }) => {
-    // Extract form data from the request
-    const formData = Object.fromEntries(await request.formData());
+    // extracts form data from the request
 
-    // Destructure the form data
-    const query = (formData.query as string).trim();
-    const selectedProvider = (formData.selectedProvider as string).trim() || "any"; // Default to "any"
-    const selectedFacilityType = (formData.selectedFacilityType as string) || "any"; // Default to "any"
-    const selectedOwnership = (formData.selectedOwnership as string) || "any"; // Default to "any"
+    const formDataRaw = await request.formData();
 
-    // Log the extracted values
-    console.log("Search Query:", query);
-    console.log("Selected Provider:", selectedProvider);
-    console.log("Selected Facility Type:", selectedFacilityType);
-    console.log("Selected Ownership:", selectedOwnership);
+    const query = formDataRaw.get("query")?.toString().trim();
 
-    // Handle empty query
-    if (query === "") {
-      return fail(400, 
-        { 
-          error: 'Please enter a search query.',
-          description: 'search',
-          success: false
-        }
-      );
+    if (!query) {
+      return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
 
-    // Redirect to the search page with the query
-    throw redirect(303, `/search/${query}?selectedProvider=${selectedProvider}&selectedFacilityType=${selectedFacilityType}&selectedOwnership=${selectedOwnership}`);
-  },
+    // filters
+
+    const selectedFacilityTypes = formDataRaw
+      .getAll("selectedFacilityTypes")
+      .map((type) => type.toString());
+
+    const selectedOwnership = formDataRaw
+      .get("selectedOwnership")
+      ?.toString()
+      .trim();
+
+    const selectedProviders = formDataRaw
+      .getAll("selectedProviders")
+      .map((provider) => provider.toString());
+
+    // !!!! INSERT MINIMUM AND MAXIMUM DISTANCE FILTERS !!!!
   
+    const searchParams = new URLSearchParams();
+
+    // Only add ownership if it's a non-empty string
+    if (selectedOwnership && selectedOwnership.trim() !== "") {
+      searchParams.set("selectedOwnership", selectedOwnership);
+    }
+    
+    // Only add providers if the array is non-empty and filters out empty strings
+    if (Array.isArray(selectedProviders) && selectedProviders.length > 0) {
+      for (const provider of selectedProviders) {
+        if (provider.trim() !== "") {
+          searchParams.append("selectedProviders", provider);
+        }
+      }
+    }
+    
+    // Only add facility types if the array is non-empty and filters out empty strings
+    if (Array.isArray(selectedFacilityTypes) && selectedFacilityTypes.length > 0) {
+      const nonEmptyFacilityTypes = selectedFacilityTypes.filter(type => type.trim() !== "");
+      if (nonEmptyFacilityTypes.length > 0) {
+        searchParams.set("selectedFacilityTypes", nonEmptyFacilityTypes.join(","));
+      }
+    }
+    
+    const url = `/searchcopy/search/${encodeURIComponent(query)}?${searchParams.toString()}`;
+    
+    throw redirect(303, url);
+    
+  },
+
   viewDetails: async ({ request }) => {
     const formData = await request.formData();
-    const facilityID = formData.get("facilityID") as string;
-    const serviceID = formData.get("serviceID") as string;
-    const serviceType = formData.get("serviceType") as string;
 
-    // Ensure all necessary form data is provided
+    const facilityID = formData.get("facilityID")?.toString().trim();
+
+    const serviceID = formData.get("serviceID")?.toString().trim();
+
+    const serviceType = formData.get("serviceType")?.toString().trim();
+
     if (!facilityID || !serviceID || !serviceType) {
-      return fail(400, 
-        { 
-          error: "Don't manipulate the hidden data please",
-          description: 'search',
-          success: false
-        }
-      );
+      return fail(400, { error: "Don't manipulate the hidden data please.", description: "search", success: false });
     }
 
-    let url
+    const servicePath =
+      {
+        Ambulance: "Ambulance",
+        "Blood Bank": "BloodBank",
+        "Emergency Room": "ER",
+        "Intensive Care Unit": "ICU",
+      }[serviceType] ?? "Outpatient";
 
-    // Construct the appropriate URL based on the service type
-    if (serviceType === "Ambulance") {
-      url = "Ambulance/"+serviceID+"---prev=search";
-    } else if (serviceType === "Blood Bank") {
-      url = "Bloodbank/"+serviceID+"---prev=search";
-    } else if (serviceType === "Emergency Room") {
-      url = "Emergency/"+serviceID+"---prev=search";
-    } else if (serviceType === "Intensive Care Unit") {
-      url = "ICU/"+serviceID+"---prev=search";
-    } else {
-      url = "Outpatient/"+serviceID+"---prev=search";
-    }
+    const url = `/facilityInfo/${facilityID}/serviceInfo/${servicePath}/${serviceID}---prev=search`;
 
-    // Redirect to the appropriate details page
-    throw redirect(303, "/facilityInfo/"+facilityID+"/serviceInfo/"+url);
+    throw redirect(303, url);
   },
 } satisfies Actions;

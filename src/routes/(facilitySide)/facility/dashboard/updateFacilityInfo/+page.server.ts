@@ -2,7 +2,8 @@ import { fail, redirect } from '@sveltejs/kit';
 
 import type { FacilityType, 
               Ownership, 
-              Provider 
+              Provider, 
+              Session
             } from '@prisma/client';
 import { createClient } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
@@ -21,14 +22,18 @@ import { type GeneralInformationFacilityDTO,
          validateLink, 
          validateFacilityName, 
          validateImage,
-         providers,
-         GeographyDAO,  
+         validateUser,
+         provider,
+         GeographyDAO,
+         SessionDAO,  
       } from '$lib';
+
+let sessionList: Session[]
 
 let defPhoto: string
 let defName: string
-let defPhoneNumber: string
-let defEmail: string
+let defPhoneNumber: string[]
+let defEmail: string[]
 let defBookingSystem: string
 let defFacilityType: FacilityType
 let defOwnership: Ownership
@@ -47,10 +52,16 @@ export const load: PageServerLoad = async ({ cookies }) => {
   const role = cookies.get('role');
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
+  const token = cookies.get('auth-session');
+  const employeeID = cookies.get('employeeID');
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions || !token || !employeeID) {
     throw redirect(303, '/facility');
   }
+
+  const sessionDAO = new SessionDAO();
+
+  sessionList = await sessionDAO.getByEmployee(employeeID)
 
   const facilityDAO = new FacilityDAO();
   const geographyDAO = new GeographyDAO();
@@ -61,7 +72,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
     defPhoto = facilityInfo.photo
     defName = facilityInfo.name
     defPhoneNumber = facilityInfo.phoneNumber
-    defEmail = facilityInfo.email ?? ""
+    defEmail = facilityInfo.email ?? []
     defBookingSystem = facilityInfo.bookingSystem ?? ""
     defFacilityType = facilityInfo.facilityType
     defOwnership = facilityInfo.ownership
@@ -111,9 +122,21 @@ export const actions = {
     const role = cookies.get('role');
     const hasAdmins = cookies.get('hasAdmins');
     const hasDivisions = cookies.get('hasDivisions');
+    const token = cookies.get('auth-session');
+    const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+    if (!facilityID || !role || !hasAdmins || !hasDivisions || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const data = await request.formData();
@@ -129,15 +152,15 @@ export const actions = {
 
     // General Information
     let photo: string = defPhoto;
-    let name: string, phoneNumber: string, email: string, bookingSystem: string;
+    let name: string, phoneNumber: string[], email: string[], bookingSystem: string;
     const facilityType: FacilityType = data.get('type') as FacilityType;
     const ownership: Ownership = data.get('ownership') as Ownership;
     const acceptedProviders: Provider[] = [];
 
     try {
       name = validateFacilityName(data.get('facilityName'));
-      phoneNumber = validatePhone(data.get('phoneNumber'));
-      email = await validateEmail(data.get('email'));
+      phoneNumber = [validatePhone(data.get('phoneNumber'), "Facility")];
+      email = [await validateEmail(data.get('email'))];
       bookingSystem = String(data.get('bookingSystem')) === "" ? "" : await validateLink(data.get('bookingSystem'))
       address.street = validateStreet(data.get('street'));
 
@@ -149,7 +172,7 @@ export const actions = {
       });
     }
 
-    for (const p of providers) {
+    for (const p of provider) {
       if (data.get(p)) {
         acceptedProviders.push(p);
       }
@@ -169,7 +192,11 @@ export const actions = {
           .upload(filePath, photoFile, { upsert: true });
 
         if (uploadError) {
-          throw new Error("Image upload failed: " + uploadError.message);
+          return fail(422, { 
+            error: "Image upload failed: " + uploadError.message,
+            description: "image",
+            success: false  
+          });
         }
 
         // Get public URL for the uploaded image
@@ -204,8 +231,8 @@ export const actions = {
 
     if (defPhoto == photo && 
         defName == name &&
-        defPhoneNumber == phoneNumber &&
-        defEmail == email &&
+        defPhoneNumber.toString() == phoneNumber.toString() &&
+        defEmail.toString() == email.toString() &&
         defBookingSystem == bookingSystem &&
         defFacilityType == facilityType &&
         defOwnership == ownership &&

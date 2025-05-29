@@ -2,9 +2,11 @@
     import type { Provider } from '@prisma/client';
     import type { PageProps } from './$types';
     import { enhance } from '$app/forms';
+    import { formatUnderscoredString } from '$lib/mappings';
+
 
     import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib';
-    import { facilityType, providers } from '$lib/projectArrays';
+    import { facilityType, provider } from '$lib/projectArrays';
 
     let enableCities = $state(true);
     let enableBarangays = $state(true);
@@ -85,62 +87,86 @@
     }
 
     function isAccepted(p: Provider): boolean {
-        return data.providers?.includes(p) ?? false
+        return selectedProviders.includes(p) ?? false
     }
 
   let selectedProviders: string[] = $state(data.providers ?? []);
   let showDropdown = $state(false);
+
+
+  // For Image Uploading and Previewing
+  import { writable } from "svelte/store";
+
+  let fileInput: HTMLInputElement | null = null;
+  const imageSrc = writable<string | null>(null);
+
+  // Function to open the file manager
+  function openFileDialog() {
+    fileInput?.click();
+  }
+
+  // Function to update the image preview
+  function handleFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      imageSrc.set(URL.createObjectURL(file)); // Generate temporary preview
+    }
+  }
 </script>
   
 <form
-    class="w-300 h-[calc(100vh-100px)] mx-auto grid grid-cols-1 bg-white overflow-y-auto  m-6 space-y-2  rounded-2xl p-6 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+    class="w-300 h-[calc(100vh-50px)] my-5 mx-auto bg-background overflow-y-auto rounded-2xl p-6 shadow drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
     method="POST" 
     use:enhance
     action="?/update"
     enctype="multipart/form-data"
 >
-    <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
-    <div class="w-full max-w-3x1 mx-auto bg-white">
-        <!-- Image Container -->
-        <div class="relative group w-full h-130 overflow-hidden rounded-xl border cursor-pointer">
-            <img src={data.photo} alt="Facility" class="w-full h-full object-cover transition-opacity duration-300" />
-            
-            <!-- Hover Overlay -->
-            <!-- <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white text-lg font-semibold">
-                Change Image
-            </div> -->
+   
+    <!-- Image Container -->
+    <div class="relative group w-full h-130 overflow-hidden rounded-xl cursor-pointer">
+        <img src={$imageSrc || data.photo} alt="Facility" class="w-full h-full object-cover transition-opacity duration-300" />
+        
+        <!-- Hover Overlay (Opens File Manager) -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white text-lg font-semibold"
+            onclick={openFileDialog}
+        >
+            Change Image
         </div>
-        <input 
-            type="file"
-            name="facilityImage" 
-            accept="image/*"
-        />
+
+        <!-- Hidden File Input -->
+        <input type="file" name="facilityImage" accept="image/*" bind:this={fileInput} class="hidden" onchange={handleFileChange} />
+    </div>
 
 
+    {#if form?.error}
+        <p class="error">{form.error}</p>
+    {/if}
 
-        {#if form?.error}
-            <p class="error">{form.error}</p>
-        {/if}
+    <!-- onchange={(e) => {e.currentTarget.requestSubmit()}} -->
+    <div class="w-full max-w-3x1 mx-auto bg-background space-y-4 mt-4">
 
-        <label class="">
-            Name
-            <input 
-            name="facilityName"
-            type="text" 
-            class="border p-2 rounded w-full" 
-            placeholder="Name"
-            bind:value={data.facilityName}/> 
-        </label>
+        <div>
+            <label>
+                <span class="text-label">Name</span>
+                <input
+                name="facilityName"
+                type="text"
+                class="input-box"
+                placeholder="Name"
+                bind:value={data.facilityName}/>
+            </label>
+        </div>
           
         <!-- Meow More Address Info -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">        
             <label class="w-full">
-                Region
+                <span class="text-label">Region</span>
                 <select 
                     name="region" 
                     bind:value={regionID} 
                     onchange={() => get_("province")}
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                 >
                 {#each data.regions ?? [] as r}
                     <option value={String(r.regionID)}>{r.name}</option>
@@ -149,12 +175,12 @@
             </label>
           
             <label class="w-full">
-                Province
+                <span class="text-label">Province</span>
                 <select 
                     name="province" 
                     bind:value={provinceID} 
                     onchange={() => get_("city")}
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                 >
                     {#each provinceList as p}
                         <option value={String(p.pOrCID)}>{p.name}</option>
@@ -163,13 +189,13 @@
             </label>
           
           <label class="w-full">
-              City/Municipality
+            <span class="text-label">City/Municipality</span>
               <select 
                   name="city" 
                   bind:value={cityID} 
                   onchange={() => get_("brgy")}
                   disabled={!enableCities}
-                  class="border p-2 rounded w-full"
+                  class="input-box"
               >
                   {#each cityList as c}
                       <option value={String(c.cOrMID)}>{c.name}</option>
@@ -178,13 +204,13 @@
           </label>
 
           <label class="w-full">
-            Barangay
+            <span class="text-label">Barangay</span>
             <select 
                 name="brgy" 
                 bind:value={barangayID} 
                 onchange={() => enableStreet ? "" : enableStreet = !enableStreet}
                 disabled={!enableBarangays}
-                class="border p-2 rounded w-full"
+                class="input-box"
             >
                 {#each barangayList as b}
                     <option value={String(b.brgyID)}>{b.name}</option>
@@ -193,57 +219,63 @@
         </label>
         </div>       
         
-        <label>
-            Street
-            <input 
-            name="street"
-            type="text" 
-            bind:value={street}
-            class="border p-2 rounded w-full" 
-            disabled={!enableStreet}
-            placeholder="Name"
-            />
-        </label>
+        <div>
+            <label>
+                <span class="text-label">Street</span>
+                <input
+                name="street"
+                type="text"
+                bind:value={street}
+                class="input-box"
+                disabled={!enableStreet}
+                placeholder="Name"
+                />
+            </label>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full items-center">
+            <!-- Email -->
             <label class="w-full">
-                Email
+            <span class="text-label">Email</span>
                 <input 
                     name="email" 
                     type="text"
                     placeholder="Email"
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                     bind:value={data.email}/>
             </label>
             
+            <!-- Contact No. -->
             <label class="w-full">
-                Contact No.
+            <span class="text-label">Contact No.</span>
                 <input 
                     name="phoneNumber" 
                     type="tel"
                     placeholder="Contact No."
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                     bind:value={data.contactNumber}
                 />
             </label>
         
+            <!-- Type -->
             <label class="w-full">
-                Type
+            <span class="text-label">Type</span>
                 <select 
                     name="type" 
                     bind:value={selectedType} 
-                    class="border p-2 rounded w-full"
+                    class="input-box"
                 >
                     {#each facilityType as t}
-                        <option value={t} selected={t === selectedType}>{t}</option>
+                        <option value={t} selected={t === selectedType}>{formatUnderscoredString(t)}</option>
                     {/each}
                 </select>
             </label>
 
-
+            <!-- Ownership -->
             <label class="w-full text-sm font-medium">
-                Ownership
-                <div class="flex bg-gray-200 rounded-full w-[200px] h-[50px] p-1">
+                <span class="text-label">Ownership</span>
+                <div class="flex bg-gray-200 rounded-lg w-full h-9">
+                    
                     <!-- PUBLIC -->
                     <label class="flex-1 text-center cursor-pointer">
                         <input 
@@ -253,13 +285,13 @@
                             value="PUBLIC"
                             class="hidden"
                         />
-                        <div class="py-1 text-sm font-semibold rounded-full transition-all h-full"
+                        <div class="py-1 text-sm font-semibold rounded-lg transition-all h-full flex items-center justify-center"
                             class:selected={selectedOwnership === "PUBLIC"}
                         >
                             PUBLIC
                         </div>
                     </label>
-            
+
                     <!-- PRIVATE -->
                     <label class="flex-1 text-center cursor-pointer">
                         <input 
@@ -269,7 +301,7 @@
                             value="PRIVATE"
                             class="hidden"
                         />
-                        <div class="py-1 text-sm font-semibold rounded-full transition-all h-full"
+                        <div class="py-1 text-sm font-semibold rounded-lg transition-all h-full flex items-center justify-center"
                             class:selected={selectedOwnership === "PRIVATE"}
                         >
                             PRIVATE
@@ -277,34 +309,31 @@
                     </label>
                 </div>
             </label>
-            
-              
-      
         </div>
+
         <!-- Booker -->
         <div class="grid grid-cols-2 space-x-3">
             <label>
-                Booking System
+            <span class="text-label">Booking System</span>
                 <input 
                 name="bookingSystem"
                 type="text" 
-                class="border p-2 rounded w-full" 
+                class="input-box" 
                 placeholder="Name"
                 bind:value={data.bookingSystem}
                  /> 
             </label>
 
             <label>
-                Accepted Insurance Providers
-
+            <span class="text-label">Accepted Insurance Providers</span>
                 <div class="relative w-full">
                     <!-- Dropdown Button -->
                     <button 
-                        class="w-full border bg-white text-left p-2 rounded relative overflow-hidden pr-8" 
+                        class="input-box overflow-hidden" 
                         onclick={() => showDropdown = !showDropdown}
                         type="button" 
                     >
-                        <span class="fade-mask">
+                        <span class="fade-mask text-left">
                             {selectedProviders.length > 0 ? selectedProviders.join(", ") : "Select Providers"}
                         </span>
                 
@@ -318,8 +347,8 @@
                 
                     <!-- Dropdown Content -->
                     {#if showDropdown}
-                        <div class="absolute w-full bg-white border shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
-                            {#each providers as t}
+                        <div class="absolute w-full bg-background border border-gray-300 shadow-lg p-2 max-h-60 overflow-y-auto bottom-full mb-1 z-50">
+                            {#each provider as t}
                                 <label class="flex items-center space-x-2">
                                     <input 
                                         name={t} 
@@ -367,7 +396,6 @@
         color: white;
     }
 
-
     .fade-mask {
         display: block;
         white-space: nowrap;
@@ -380,25 +408,6 @@
         -webkit-mask-image: linear-gradient(to right, black 80%, rgba(0, 0, 0, 0));
         mask-image: linear-gradient(to right, black 80%, rgba(0, 0, 0, 0));
     }
-
-    ::-webkit-scrollbar {
-    width: 10px !important;
-    }
-
-    ::-webkit-scrollbar-thumb {
-    background: #9044C4 !important;
-    border-radius: 10px !important;
-    }
-
-    ::-webkit-scrollbar-track {
-    background: #DCDCDC !important;
-    border-radius: 10px !important;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-    background: #6a3191 !important;
-    }
-
 </style>
 
 

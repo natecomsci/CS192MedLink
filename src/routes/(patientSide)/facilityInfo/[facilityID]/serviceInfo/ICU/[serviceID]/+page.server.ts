@@ -1,101 +1,96 @@
-import { fail, redirect } from "@sveltejs/kit";
-import type { PageServerLoad } from "./$types";
+import { fail } from "@sveltejs/kit";
+
+import type { PageServerLoad } from './$types';
+
+import { getFromSearchInformation } from "$lib/server/patientSideUtility";
 
 import { 
+  ServicesDAO,
   ICUServiceDAO,
   FacilityDAO,
-  AddressDAO,
-  ServicesDAO,
-  GeographyDAO,
 } from '$lib';
 
+const servicesDAO = new ServicesDAO();
+
+const iCUServiceDAO = new ICUServiceDAO();
+
+const facilityDAO = new FacilityDAO();
 
 export const load: PageServerLoad = async ({ params, url }) => {
-  const icuDAO = new ICUServiceDAO();
-  const facilityDAO = new FacilityDAO();
-  const servicesDAO = new ServicesDAO();
-  const geographyDAO = new GeographyDAO();
-  const addressDAO = new AddressDAO();
   let { facilityID, serviceID } = params;
-  let fromSearch = false;
-  
+
   if (!serviceID || !facilityID) {
-    throw redirect(303, "/");
+    return fail(400, { error: "Facility ID and Service ID is required." });
   }
 
-  if (url.pathname.includes("---prev=")) {
-    fromSearch = true;
-    serviceID = serviceID.split("---prev=", 1)[0]
+  const fromSearch = url.pathname.includes("---prev=");
+
+  if (fromSearch) {
+    serviceID = serviceID.split("---prev=", 1)[0];
   }
 
   try {
-    let service = await servicesDAO.getByID(serviceID);
+    const [service, iCUInfo, facilityInfo, hasDivisions] = await Promise.all([
+      servicesDAO.getByID(serviceID),
+
+      iCUServiceDAO.getInformation(serviceID),
+
+      facilityDAO.getInformation(facilityID),
+
+      facilityDAO.facilityHasDivisions(facilityID),
+    ]);
+
     if (!service || !service.facilityID) {
-      throw new Error("Service or facilityID not found.");
-    }
-    
-    let icuService = await icuDAO.getInformation(serviceID);
-    if (!icuService) {
-      throw new Error("ICU Service details not found.");
-    }
-    
-    let facility = await facilityDAO.getInformation(service.facilityID);
-    if (!facility) {
-      throw new Error("Facility details not found.");
-    }
-    
-    let address = await addressDAO.getByFacility(service.facilityID);
-    let fullAddress = null;
-
-    if (address) {
-      const [region, province, city, barangay] = await Promise.all([
-        geographyDAO.getNameOfRegion(address.regionID),
-        geographyDAO.getNameOfProvince(address.pOrCID),
-        geographyDAO.getNameOfCOrM(address.cOrMID),
-        geographyDAO.getNameOfBrgy(address.brgyID),
-      ]);
-
-      fullAddress = {
-        street: address.street,
-        region: region || "Unknown Region",
-        province: province || "Unknown Province",
-        city: city || "Unknown City",
-        barangay: barangay || "Unknown Barangay",
-      };
+      return fail(500, { error: "Service or facilityID not found." });
     }
 
-    let phoneNumber
-    // let openingTime
-    // let closingTime
-
-    if (!icuService.phoneNumber) {
-      const address = await facilityDAO.getInformation(service.facilityID)
-      phoneNumber = address.phoneNumber
-      // openingTime = address.openingTime
-      // closingTime = address.closingTime
-    } else {
-      phoneNumber = icuService.phoneNumber
-      // openingTime = icuService.openingTime
-      // closingTime = icuService.closingTime
-    }
-
-    return {
-      facilityName        : facility.name,
-      facilityAddress     : fullAddress,
-      phoneNumber         ,
-      baseRate            : icuService.baseRate,
-      load                : icuService.load,
-      availableBeds       : icuService.availableBeds,
-      cardiacSupport      : icuService.cardiacSupport,
-      neurologicalSupport : icuService.neurologicalSupport,
-      renalSupport        : icuService.renalSupport,
-      respiratorySupport  : icuService.respiratorySupport,
-      updatedAt           : icuService.updatedAt,
-      ...(icuService.division?.divisionID ? { divisionID: icuService.division?.divisionID } : {}),
+    const response: Record<string, any> = {
       facilityID,
-      fromSearch
+      fromSearch,
+      load                : iCUInfo.load,
+      baseRate            : iCUInfo.baseRate,
+      availableBeds       : iCUInfo.availableBeds,
+      cardiacSupport      : iCUInfo.cardiacSupport,
+      neurologicalSupport : iCUInfo.neurologicalSupport,
+      renalSupport        : iCUInfo.renalSupport,
+      respiratorySupport  : iCUInfo.respiratorySupport,
+      updatedAt           : iCUInfo.updatedAt,
     };
+
+    if (iCUInfo.note) {
+      response.note = iCUInfo.note;
+    }
+
+    if (iCUInfo.division) {
+      response.divisionName = iCUInfo.division.name;
+    }
+  
+    if (fromSearch) {
+      const { fromSearchResponse, phoneSource, hoursSource } = await getFromSearchInformation({
+        serviceInfo: iCUInfo,
+        facilityInfo,
+        hasDivisions,
+      });
+
+      Object.assign(response, fromSearchResponse);
+
+      response.phoneSource = phoneSource;
+      response.hoursSource = hoursSource;
+    } else {
+      if (iCUInfo.phoneNumber) {
+        response.phoneNumber = iCUInfo.phoneNumber;
+      }
+
+      if (iCUInfo.openingTime && iCUInfo.closingTime) {
+        response.openingTime = iCUInfo.openingTime;
+        response.closingTime = iCUInfo.closingTime;
+      }
+    }
+
+    return response;
   } catch (error) {
-    return fail(500, { description: "Could not get ICU or facility information." });
+    console.error(error);
+
+    return fail(500, { description: "Could not get ambulance service information." });
   }
 };

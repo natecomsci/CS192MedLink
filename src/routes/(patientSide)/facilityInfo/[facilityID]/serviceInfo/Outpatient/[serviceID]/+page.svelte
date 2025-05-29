@@ -1,117 +1,149 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+
+  import { Availability } from '@prisma/client';
+
+	import { completionTimeMapping, moneyMapping, updatedAtMapping } from '$lib/mappings';
+
+  import Header from '$lib/patientComponents/Header.svelte';
+  import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';
+  import Location from '$lib/patientComponents/details/Location.svelte';
+  import ResultPhoneAndHours from '$lib/patientComponents/details/ResultPhoneAndHours.svelte';
+  import PagePhoneAndHours from '$lib/patientComponents/details/PagePhoneAndHours.svelte';
+  import AvailabilityIndicator from '$lib/patientComponents/details/AvailabilityIndicator.svelte';
+  import ServiceWalk from '$lib/icons/ServiceWalk.svelte';
+  import Clock from '$lib/icons/Clock.svelte';
+  import ServicePeso from '$lib/icons/ServicePeso.svelte';
+  import NavigateButton from '$lib/patientComponents/NavigateButton.svelte';
+
+  import type { Status1 } from '$lib';
+
   let { data }: PageProps = $props();
 
-  let facilityName        = $state(data.facilityName);
-  let facilityAddress     = $state(data.facilityAddress) ;
-  let price               = $state(data.price);
-  let completionTimeD     = $state(data.completionTimeD);
-  let completionTimeH     = $state(data.completionTimeH);
-  let isAvailable         = $state(data.isAvailable);
-  let acceptsWalkIns      = $state(data.acceptsWalkIns);
-  let divisionID          = $state(data.divisionID);
-  let updatedAt           = $state(data.updatedAt);
+  let basePrice       = data.basePrice;
+  let completionTimeD = data.completionTimeD;
+  let completionTimeH = data.completionTimeH;
+  let isAvailable     = data.isAvailable;
+  let acceptsWalkIns  = data.acceptsWalkIns;
+  let note            = data.note;
+  let divisionName    = data.divisionName;
 
-  // Rereplace ito? Dagdag ni elle
-  let service           = data.serviceName+" Details"
-  let addressParts      = facilityAddress?.split(",").map(part => part.trim());
-  let street            = addressParts ? addressParts[0] : "N/A";
-  let barangay          = addressParts ? addressParts[1] : "N/A";
-  let cityMunicipality  = addressParts ? addressParts[2] : "N/A";
-  let province          = addressParts ? addressParts[3] : "N/A";
-  let region            = addressParts ? addressParts[4] : "N/A";
+  let phoneNumber  = data.phoneNumber;
+  let openingTime  = data.openingTime;
+  let closingTime  = data.closingTime;
+
+  let facilityID   = data.facilityID;
+  let fromSearch   = data.fromSearch;
+  let facilityName = data.facilityName;
+  let address = data.address;
+  let phoneSource  = data.phoneSource;
+  let hoursSource  = data.hoursSource;
+
+  let updatedAt    = data.updatedAt;
+
+  let service = data.type;
+
+  const completionTime  = completionTimeMapping(completionTimeD, completionTimeH);
+
+  let mappedUpdatedAt = $state(updatedAtMapping(updatedAt));
+
+	$effect(() => {
+		const interval = setInterval(() => {
+			mappedUpdatedAt = updatedAtMapping(updatedAt);
+		}, 60 * 1000);
+		return () => {
+			clearInterval(interval);
+		};
+	});
 </script>
 
-<div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
-  <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">
-    <button class="text-gray-600 hover:text-gray-900">✖</button>
-    <h2 class="text-xl font-bold text-center flex-1 -ml-4"><strong>{facilityName}</strong></h2>
+{#if fromSearch}
+  <Header text={facilityName} icon="X" />
+{:else}
+  <Header text={service} icon="Arrow" />
+{/if}
+
+<div class="flex items-center justify-center flex-col gap-4 w-full px-6 pt-6 pb-14">
+  {#if fromSearch}
+    <p class="text-primary-700 text-base font-bold tracking-tight leading-loose font-['Inter'] text-center">
+      {service}
+    </p>
+
+    <hr class="self-stretch h-px border-neutral-200" />
+  {:else if divisionName}
+    <p class="text-primary-700 text-base font-bold tracking-tight leading-loose font-['Inter'] text-center">
+      {divisionName}
+    </p>
+
+    <hr class="self-stretch h-px border-neutral-200" />
+  {/if}
+
+  <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter'] text-center">
+    Availability Status
+  </p>
+
+  <AvailabilityIndicator status={isAvailable ? 'available' as Status1 : 'unavailable' as Status1} />
+
+  <hr class="self-stretch h-px border-neutral-200" />
+
+  {#if fromSearch}
+    <Location region={address.region} pOrC={address.pOrC} cOrM={address.cOrM} brgy={address.brgy} street={address.street}/>
+
+    <hr class="self-stretch h-px border-neutral-200" />
+
+    <ResultPhoneAndHours phone={phoneNumber} {openingTime} {closingTime} {phoneSource} {hoursSource} />
+
+    <hr class="self-stretch h-px border-neutral-200" />
+  {/if}
+
+  <div class="flex flex-col items-start gap-2 self-stretch">
+    <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter']">
+      Details
+    </p>
+
+    <InfoRow
+      icon={ServiceWalk}
+      label="Walk-ins"
+      value={acceptsWalkIns ? "<b>Accepted</b>" : "<b>Not Accepted</b>"}
+      valueColor={acceptsWalkIns ? "text-success-on" : "text-error-on"}
+    />
+
+    <InfoRow
+      icon={Clock}
+      label="Completion Time"
+      value={completionTime}
+    />
+
+    <InfoRow
+      icon={ServicePeso}
+      label="Base Price"
+      value={moneyMapping(basePrice)}
+    />
   </div>
 
-  <!-- Service and Info!!!-->
-  <div class="p-5 max-h-[calc(100vh-100px)] overflow-y-auto">
-    <!-- Facility Type  Service Details-->
-    <p class="text-[#6F3990] text-center font-bold text-l">{service}</p>
-    <hr class="my-2 border-gray-300">
+  <hr class="self-stretch h-px border-neutral-200" />
 
-    <!-- Availability Status -->
-    <div class="text-center my-4">
-      <p class="text-[#9044C4] font-semibold">Availability Status</p>
-      <div class="flex justify-center mt-2">
-        {#if isAvailable}
-          <span class="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2">
-            ✔ Available
-          </span>
-        {:else}
-          <span class="bg-red-500 text-white px-4 py-2 rounded-full flex items-center gap-2">
-            ✖ Unavailable
-          </span>
-        {/if}
-      </div>
-    </div>
-    {#if data.fromSearch}
-    <hr class="my-4 border-gray-300"> <!-- Line -->
-    <!-- Location -->
-    <div class="mt-4">
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        📍 Location
+  {#if note}
+    <div class="flex flex-col items-start gap-2 self-stretch">
+      <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight font-['Inter']">
+        Note
       </p>
-      <p class="text-gray-600 text-sm">
-        {street}<br>
-        {barangay}, {cityMunicipality}<br>
-        {province}, {region}
-      </p>
-    </div>
-    {/if}
 
-  
-
-    <hr class="my-4 border-gray-300">
-
-    <!-- Contact Information -->
-    <div>
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        ☎ Contact Information and Hours
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Phone Number:</strong> 0900 000 0000
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Hours:</strong> 00:00 AM – 00:00 PM
+      <p class="text-neutral-950 text-xs font-normal tracking-tight leading-loose font-['Inter']">
+        {note}
       </p>
     </div>
 
-    <hr class="my-4 border-gray-300">
+    <hr class="self-stretch h-px border-neutral-200" />
+  {/if}
 
-    <!-- Details -->
-    <div>
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        📝 Details
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Walk-Ins:</strong> <span class={acceptsWalkIns ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>{acceptsWalkIns ? "Yes" : "No"}</span>
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Completion Time:</strong> {completionTimeD} Day, {completionTimeH} Hours
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Base Price:</strong> Php {price} 
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Division ID:</strong> {divisionID}
-      </p>
+  <p class="self-stretch justify-center text-neutral-600 text-[10px] font-normal font-['Inter'] tracking-tight leading-none text-right">
+    Updated {mappedUpdatedAt}
+  </p>
+
+  {#if fromSearch}
+    <div class="flex justify-center mt-6">
+      <NavigateButton text="View Facility Page" href={`/facilityInfo/${facilityID}`} />
     </div>
-
-    <hr class="mt-4 border-gray-300">
-   <p class="mt-2 text-gray-500 text-sm"><em>Last Updated:</em> {updatedAt ?? "N/A"}</p>
-  </div>
-  {#if data.fromSearch}
-  <!-- View Facility Page Button -->
-  <div class="flex bg-white pb-10 pt-5  justify-center">
-    <a href={"/facilityInfo/"+(data.facilityID ?? '')} class="bg-purple-500 text-white font-semibold px-6 py-3 rounded-full flex items-center gap-2 hover:bg-purple-600 transition">
-      View Facility Page →
-    </a>
-  </div>
   {/if}
 </div>
-

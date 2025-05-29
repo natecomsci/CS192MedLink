@@ -1,7 +1,9 @@
 <script lang="ts">
   import type { PageProps } from "./$types";
-  import { dateToTimeMapping } from "$lib/Mappings";
+  import { dateToTimeMapping } from "$lib/mappings";
   import { pagingQueryHandler } from "$lib/postHandlers";
+
+  import PageBar from "$lib/facilityComponents/PageBar.svelte";
 
   let { data }: PageProps = $props();
 
@@ -18,9 +20,7 @@
 
   let viewedDivisionID = $state("Default")
 
-  // ===================================
   let perPage = $state(10);
-  let options = [10, 20, 50];
 
   async function getPage(change: number) {
     try {
@@ -49,18 +49,16 @@
   }
 </script>
 
-<div class=" h-full p-4 flex flex-col">
+<div class="h-full p-4 flex flex-col ">
   <!-- Sticky Header -->
-   
-  <div class="border-b border-[#DBD8DF] flex items-center pl-2 pb-2 sticky bg-white z-10">
-
-    <span class=" text-[30px] font-bold text-lg text-[#9044C4] whitespace-nowrap pr-4">
+  <div class="flex items-center pl-2 sticky  z-10">
+    <span class=" text-dashboard-header whitespace-nowrap pr-4">
       Control History
     </span>
-
+  
     <div class=" flex items-center gap-3 flex-grow ">
       <!-- Search -->
-      <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-white shadow-sm flex-grow">
+      <div class="relative flex items-center gap-2 pl-2 rounded-full border border-gray-300 bg-background shadow-sm flex-grow">
         <input
           type="text"
           name="Search"
@@ -91,154 +89,72 @@
           <img src="/search_icon.svg" alt="Search" class="w-6 h-6" />
         </button>
       </div>
-
-
-      <!-- <input
-        type="text"
-        placeholder="Search"
-        bind:value={query}
-        onkeydown={handleKeydown}
-        class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
-      />
-      {#if query.length > 0 || isInQueryMode}
-        <button onclick={() => {
-          query = ""
-          error = ""
-          errorLoc = ""
-          isInQueryMode = false
-          currentPage = 1
-          getPage(0)
-        }}>
-          X
-        </button>
-      {/if} -->
-      <!-- <button onclick={() => {
-        isInQueryMode = true
-        currentPage = 1
-        getPage(0)
-        }}
-        class="border-black"
-      >
-        Search
-      </button> -->
       
-      {#if errorLoc == "query"}
+      <!-- {#if errorLoc == "query"}
         {error}
-      {/if}
-      <!-- Ensures "View By:" stays in one line -->
-      <span class="whitespace-nowrap text-sm">View By :</span>
-      <select 
-        bind:value={viewedDivisionID} 
-        class="pl-2 text-sm border border-gray-300 rounded-full h-10 w-1/7 shadow-sm"
-        onchange={()=>{
-          console.log(viewedDivisionID)
-          query = ""
-          error = ""
-          errorLoc = ""
-          getPage(0)
-        }}
-      >
-        <option
-          value="Default"
-        >Default</option>
-        {#each data.divisions as {name, divisionID}}
-          <option
-            value={divisionID}
-          >{name}</option>
-        {/each}
-      </select>
-    </div>
+      {/if} -->
 
-  </div>
-
-  <!-- Scrollable List -->
-  <div class="flex-1 overflow-y-auto p-4 ">
-    {#if errorLoc == "logs"}
-      {error}
-    {/if}
-    {#each updateLogs as { role, entity, action, employee, createdAt }}
-      <!-- history item -->
-    <div class="py-2 -b mb-4 ">
-        <div class="history-item justify-between  -green-200">
-          <div class ='flex items-center'>
-            <!-- Profile Placeholder -->
-            <!-- <div class="profile-circle"></div> -->
-        
-            <!-- Left Content: Admin & Message -->
-            <div class="info">
-              <span class="message">{
-                String(action).charAt(0).toUpperCase() + String(action).toLowerCase().slice(1) + "d"
-
-              } {entity}</span>
-              <span class="admin"> {employee.fname} {employee.lname}</span>
-            </div>
-          </div>
-        
-          <!-- Right Content: Timestamp & Department -->
-          <div class="details ">
-            <span class="timestamp">Updated at {dateToTimeMapping(new Date(createdAt))}</span>
-            <!-- <span class="department">{department}</span> -->
-          </div>
-      </div>
-    </div>
-    {/each}
-  </div>
-
-  
-<!-- PAGINATIONNNNNNN -->
-<div class="flex items-center mx-auto justify-center gap-4 mt-4 w-2/3">
-  <div class="flex items-center space-x-2">
-    <!-- Double Left-->
-    <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
-
-    <!-- Single Left -->
-    <button 
-      type="button"
-      class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
-      onclick={() => getPage(-1)}
-      disabled={currentPage === 1} >
-      ‹
-    </button>
-
-    <!-- Current Page -->
-    <div class="flex items-center justify-center space-x-2">
-      <span class="bg-purple-400 p-2 w-8 h-8 hover:bg-purple-700 rounded-md text-white font-semibold flex items-center justify-center">{currentPage}</span>
-      <span class="text-gray-700 font-medium">of {totalPages}</span>
-    </div>
-
-    <!-- Single Right -->
-    <button 
-      type="button"
-      class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" 
-      onclick={() => getPage(1)} 
-      disabled={currentPage === totalPages}>
-      ›
-    </button>
-
-    <!-- Double Right -->
-    <button class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
-
-    <!-- View Dropdown -->
-    <div class="ml-4 flex items-center">
-      <label class="text-gray-700 font-medium gap-2">
-        View
-        <select
-          bind:value={perPage}
-          class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
+      {#if data.hasDivisions && data.divisions.length > 1}
+        <!-- Ensures "View By:" stays in one line -->
+        <span class="whitespace-nowrap text-sm">View By :</span>
+        <select 
+          bind:value={viewedDivisionID} 
+          class="pl-2 text-sm border border-gray-300 rounded-full h-10 w-1/7 shadow-sm"
           onchange={()=>{
-            currentPage = 1
+            console.log(viewedDivisionID)
+            query = ""
+            error = ""
+            errorLoc = ""
             getPage(0)
           }}
         >
-          {#each options as option}
-            <option value={option}>{option}</option>
+          <option
+            value="Default"
+          >Default</option>
+          {#each data.divisions as {name, divisionID}}
+            <option
+              value={divisionID}
+            >{name}</option>
           {/each}
         </select>
-      </label>
+      {/if}
     </div>
-  </div>  
-</div>
 
+  </div>
+
+  <hr class="mt-4 border-gray-300"> <!-- Line -->   
+
+  <!-- Scrollable List -->
+  <div class="flex-1 overflow-y-auto p-4">
+    {#if errorLoc == "logs"}
+      {error}
+    {/if}
+    {#each updateLogs as { entity, action, employee, createdAt }}
+      <!-- history item -->
+      <div class="history-item justify-between py-2 -b mb-4">
+        <!-- Left Content: Admin & Message -->
+        <div class ='flex items-center'>        
+          <div class="info">
+            <span class="message">{String(action).charAt(0).toUpperCase() + String(action).toLowerCase().slice(1) + "d"} {entity}</span>
+            <span class="admin">  {employee.fname} {employee.lname}</span>
+          </div>
+        </div>
+      
+        <!-- Right Content: Timestamp & Department -->
+        <div class="details ">
+          <span class="timestamp">Updated at {dateToTimeMapping(new Date(createdAt))}</span>
+          <!-- <span class="department">{department}</span> -->
+        </div>
+      </div>
+    {/each}
+  </div>
+
+  <PageBar
+    bind:currentPage={currentPage} 
+    bind:totalPages={totalPages} 
+    bind:perPage={perPage} 
+    getPage={getPage}
+  />
 </div>
 
 <style>
@@ -250,14 +166,6 @@
     height: 60px;
     padding: 0;
   }
-
-  /*.profile-circle {
-    width: 63px;
-    height: 63px;
-    background: #d9d9d9;
-    -radius: 50%;
-    flex-shrink: 0;
-  }*/
 
   .info {
     display: flex;
@@ -287,7 +195,7 @@
     display: flex;
     flex-direction: column;
     padding-top: 0px;
-    width: 179px;
+    width: 200px;
     text-align: right;
   }
 
@@ -295,16 +203,8 @@
     font-family: 'DM Sans', sans-serif;
     font-style: italic;
     font-weight: 500;
-    font-size: 20px;
+    font-size: 15px;
     color: #6d6666;
     letter-spacing: 0.01em;
   }
-
-  /*.department {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    font-size: 20px;
-    color: #9044C4;
-    letter-spacing: -0.02em;
-  }*/
 </style>

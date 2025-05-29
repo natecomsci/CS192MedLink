@@ -1,31 +1,15 @@
 <script lang="ts">
   import type { ActionData, PageData } from "./$types";
   import type { Load } from '@prisma/client';
-  import { enhance } from '$app/forms';
-  
-  import type { ServiceDTO } from '$lib'
 
-  import { pagingQueryHandler } from '$lib/postHandlers';
   import { load } from '$lib/projectArrays'
   
   let { data,
         form, 
-        serviceID, 
-        currPopUp = $bindable(), 
-        services = $bindable(),
-        perPage,
-        viewedDivisionID,
-        serviceDivisionName = $bindable(),
-        serviceDivisionID = $bindable(),
+        serviceID
       }:{ data: PageData,
           form: ActionData, 
-          serviceID: String, 
-          currPopUp: String, 
-          services: ServiceDTO[],
-          perPage:number,
-          viewedDivisionID:string,
-          serviceDivisionName: String,
-          serviceDivisionID: String,
+          serviceID: String
         } = $props();
 
 
@@ -37,9 +21,6 @@
   let neurologicalSupport: boolean = $state(false)
   let renalSupport: boolean = $state(false)
   let respiratorySupport: boolean = $state(false)
-
-  let selectedDivisionID = $state(serviceDivisionID)
-  let selectedDivisionName = $state(serviceDivisionName)
 
   async function getData() {
     const body = JSON.stringify({serviceID, serviceType:"Intensive Care Unit"});
@@ -74,157 +55,97 @@
     }
   }
   getData()
-
-  async function getNewService() {
-    try {
-      const rv = await pagingQueryHandler({
-        page: 'services',
-        query: '',
-        isInQueryMode:false,
-        currentPage:1,
-        change:0,
-        totalPages:1,
-        perPage,
-        viewedDivisionID
-      });
-      services =  rv.list
-    } catch (error) {
-      console.log((error as Error).message)
-    }
-  }
-
-
 </script>
 
-<form method="POST" 
-    id="editService"
-    action="?/editICUService"
-    use:enhance={() => {
-        return async ({ update }) => {
-            await update({invalidateAll:true});
-            if (form?.success) {
-                currPopUp = ''
-                getNewService()
-            }
-        };
-    }}
->
-    <div class="grid grid-cols-1" >
-      {#if form?.error}
-          <p class="error">{form.error}</p>
-      {/if}
-      <div class="container">
-          <input 
-                class="hidden" 
-                name="serviceID"
-                type="text"
-                value={serviceID}
-            />
-          <!-- Phone Number -->
-          <div class="card">
-              <label><span class="text-label">Phone No.</span>
-                  <input 
-                      class="input-box" 
-                      name="phoneNumber"
-                      type="tel"
-                      value={phoneNumber}
-                  />
-              </label>
-          </div>
-  
-          <!-- Price Rate -->
-          <div class="card">
-              <label><span class="text-label">Base Price</span>
-                  <input 
-                      name="price" 
-                      type="number" 
-                      class="input-box" 
-                      placeholder="Price" 
-                      step=0.01
-                      min=0
-                      value={baseRate}
-                  />
-              </label>
-          </div>
-  
-          <div class="card">
-              <label><span class="text-label">
-                  Load</span>
-                  <select 
-                    name="load" 
-                    class="input-box"
-                    value={loadVal}
-                  >
-                      {#each load as a}
-                          <option value={a}>{a}</option>
-                      {/each}
-                  </select>
-  
-              </label>
-          </div>
-  
-          <div class="card">
-              <label><span class="text-label">
-                Available Beds</span>
-                  <input 
-                      name="availableBeds" 
-                      type="number" 
-                      class="input-box" 
-                      placeholder="Available Beds" 
-                      step=0.01
-                      min=0
-                      value={availableBeds}
-                  />
-              </label>
-          </div>
-            <div class="card p-4 bg-white rounded-lg shadow">
-              <span class="block text-label mb-2">Support</span>
-              <div class="grid grid-cols-1 gap-2">
-                  <label class="flex items-center space-x-2">
-                      <input name="cardiacSupport" type="checkbox" checked={cardiacSupport}
-                      >
-                      <span>Cardiac Support</span>
-                  </label>
-                  <label class="flex items-center space-x-2">
-                      <input name="neurologicalSupport" type="checkbox" checked={neurologicalSupport}>
-                      <span>Neurological Support</span>
-                  </label>
-                  <label class="flex items-center space-x-2">
-                      <input name="renalSupport" type="checkbox" checked={renalSupport}>
-                      <span>Renal Support</span>
-                  </label>
-                  <label class="flex items-center space-x-2">
-                      <input name="respiratorySupport" type="checkbox" checked={respiratorySupport}>
-                      <span>Respiratory Support</span>
-                  </label>
-              </div>
-          </div>
-          
-          <input type="text" class="hidden" name="divisionID" bind:value={selectedDivisionID} />
-          <input type="text" class="hidden" name="divisionName" bind:value={selectedDivisionName} />
-
-          {#if data.hasDivisions}
-            <label>
-              Divisions
-
-              {#each (data.divisions ?? []) as division}
-              {division.name}
-                <input 
-                  type="radio" 
-                  name="divSelect" 
-                  onclick={() => {
-                    selectedDivisionID = division.divisionID
-                    selectedDivisionName = division.name
-                  }}
-                  checked={serviceDivisionID == division.divisionID}
-                  class="input-box w-30"
-                >
-              {/each}
-            </label>
-          {/if}
-
-        </div>
+<div class="grid grid-cols-1" >
+  <!-- {#if form?.error}
+    <p class="error">{form.error}</p>
+  {/if} -->
+  <div class="container">
+    <input 
+      class="hidden" 
+      name="serviceID"
+      type="text"
+      value={serviceID}
+    />
+    
+    <!-- Phone Number -->
+    <div class="card">
+      <label><span class="text-label">Phone No.</span>
+        <input 
+          class="input-box" 
+          name="phoneNumber"
+          type="tel"
+          value={phoneNumber}
+        />
+      </label>
     </div>
-</form>
 
+    <!-- Price Rate -->
+    <div class="card">
+      <label><span class="text-label">Base Price</span>
+        <input 
+          name="price" 
+          type="number" 
+          class="input-box" 
+          placeholder="Price" 
+          step=0.01
+          min=0
+          value={baseRate}
+        />
+      </label>
+    </div>
 
+    <div class="card">
+      <label>
+        <span class="text-label">Load</span>
+          <select 
+            name="load" 
+            class="input-box"
+            value={loadVal}
+          >
+            {#each load as a}
+              <option value={a}>{a}</option>
+            {/each}
+          </select>
+      </label>
+    </div>
+
+    <div class="card">
+      <label>
+        <span class="text-label">Available Beds</span>
+        <input 
+          name="availableBeds" 
+          type="number" 
+          class="input-box" 
+          placeholder="Available Beds" 
+          step=0.01
+          min=0
+          value={availableBeds}
+        />
+      </label>
+    </div>
+
+    <div class="card p-4 bg-background rounded-lg shadow">
+      <span class="block text-label mb-2">Support</span>
+      <div class="grid grid-cols-1 gap-2">
+        <label class="flex items-center space-x-2">
+          <input name="cardiacSupport" type="checkbox" checked={cardiacSupport}>
+          <span>Cardiac Support</span>
+        </label>
+        <label class="flex items-center space-x-2">
+          <input name="neurologicalSupport" type="checkbox" checked={neurologicalSupport}>
+          <span>Neurological Support</span>
+        </label>
+        <label class="flex items-center space-x-2">
+          <input name="renalSupport" type="checkbox" checked={renalSupport}>
+          <span>Renal Support</span>
+        </label>
+        <label class="flex items-center space-x-2">
+          <input name="respiratorySupport" type="checkbox" checked={respiratorySupport}>
+          <span>Respiratory Support</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

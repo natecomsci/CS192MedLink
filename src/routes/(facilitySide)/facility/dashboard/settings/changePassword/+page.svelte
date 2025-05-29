@@ -1,7 +1,7 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
     import { page } from '$app/stores';
-    import Placeholder from '$lib/images/catle.jpg';
+    import Placeholder from '$lib/images/TempMan.png';
 
     let currentPassword = "";
     let newPassword = "";
@@ -12,7 +12,7 @@
 </script>
 
 <div class="flex justify-center items-center min-h-screen bg-gray-100">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-96 text-center">
+    <div class="bg-background p-8 rounded-lg shadow-lg w-96 text-center">
         <!-- Profile Image -->
         <img src={Placeholder} alt="Profile" class="w-32 h-32 mx-auto rounded-full mb-4">
 

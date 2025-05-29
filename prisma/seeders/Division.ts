@@ -1,98 +1,81 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/lib/server/dataLayer/prisma";
 
 import { Action } from "@prisma/client";
 
+import { updateLogDAO, createOperatingHours, getFacilities } from "./seedersUtility";
+
 import { faker } from "@faker-js/faker";
 
-import { UpdateLogDAO } from "../../src/lib/server/UpdateLogDAO";
+function getUniqueDivisionName(usedNames: Set<string>): string {
+  let name: string;
 
-const prisma = new PrismaClient();
+  do {
+    const raw = faker.company.name();
+    name = raw
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  } while (usedNames.has(name));
 
-let updateLogDAO: UpdateLogDAO = new UpdateLogDAO();
+  usedNames.add(name);
+
+  return name;
+}
 
 export async function seedDivision() {
-  const facilityIDs = ["cs192withdivisions", "2", "4"];
+  const facilities: {
+    facilityID: string;
+    employeeID: string;
+  }[] = await getFacilities(true);
 
-  const facilities = await prisma.facility.findMany({
-    where: {
-      facilityID: { 
-        in: facilityIDs 
-      }
-    },
-    include: {
-      employees: {
-        where: {
-          role: "MANAGER"
-        },
-        select: {
-          employeeID: true
-        }
-      }
+  for (const { facilityID, employeeID } of facilities) {
+    if (!employeeID) {
+      console.warn(`No Manager found for facility ${facilityID}. Skipping seeding.`);
+
+      continue;
     }
-  });
 
-  for (const facility of facilities) {
-    const numDivisions = faker.number.int({ min: 2, max: 3 });
+    const numDivisions: number = faker.number.int({ min: 2, max: 5 });
 
-    const employeeID = facility.employees[0]?.employeeID;
-
-    const usedNames = new Set<string>();
+    const usedNames: Set<string> = new Set<string>();
 
     for (let i = 0; i < numDivisions; i++) {
-      let openingTime = faker.date.future();
-      let closingTime = faker.date.between({
-        from: openingTime, 
-        to: new Date(new Date(openingTime).setHours(new Date(openingTime).getHours() + 12))
-      });
+      const { openingTime, closingTime } = createOperatingHours();
 
-      let capitalizedNoun: string;
-    
-      do {
-        const rawNoun = faker.company.name();
-    
-        capitalizedNoun = rawNoun
-          .split(" ")
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ");
-    
-      } while (usedNames.has(capitalizedNoun));
-      
-      usedNames.add(capitalizedNoun);    
+      const name: string = `${getUniqueDivisionName(usedNames)} Division`;
 
-      const divisionID = `${facility.facilityID}-div-${i}`;
+      const divisionID: string = `${facilityID}-div-${i}`;
 
       await prisma.$transaction(async (tx) => {
         await tx.division.upsert({
           where: { 
             divisionID 
           },
-          update: {},
+          update: {
+
+          },
           create: {
             divisionID,
-            name        : `${capitalizedNoun} Division`,
-            email       : `division${i}-${facility.facilityID}@medlink.com`,
-            phoneNumber : `09${faker.string.numeric(2)} 000 000${i}`,
+            name,
             openingTime,
             closingTime,
-            facilityID  : facility.facilityID,
+
+            facilityID
           }
         });
 
-        if (!employeeID) {
-          console.warn(`No Manager found for facility ${facility.facilityID}. Skipping update log.`);
-          return;
+        if (i % 2 === 1) {
+          await updateLogDAO.create(
+            {
+              entity: name,
+              action: Action.CREATE,
+              divisionID
+            },
+            facilityID,
+            employeeID,
+            tx
+          );
         }
-
-        await updateLogDAO.create(
-          {
-            entity: "Division",
-            action: Action.CREATE,
-            divisionID
-          },
-          facility.facilityID,
-          employeeID,
-          tx
-        );
       });
     }
   }

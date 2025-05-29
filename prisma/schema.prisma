@@ -19,9 +19,11 @@ model Region {
   // RELATIONS
 
   // Region - POrC : A Region may have multiple Provinces or Cities.
+
   pOrCs     POrC[]
 
   // Region - Address : A Region may be referenced by multiple Addresses.
+
   addresses Address[]
 }
 
@@ -34,13 +36,16 @@ model POrC { // well, provinces + NCR
   // RELATIONS
 
   // POrC - Region : A Province is associated with one Region.
+
   region    Region @relation(fields: [regionID], references: [regionID])
   regionID  Int
 
   // POrC - COrM : A Province may have multiple Cities or Municipalities.
+
   cOrMs     COrM[]
 
   // POrC - Address : A Province may be referenced by multiple Addresses.
+
   addresses Address[]
 }
 
@@ -53,13 +58,16 @@ model COrM {
   // RELATIONS
 
   // COrM - POrC : A City or Municipality is associated with one Province.
+
   pOrC      POrC @relation(fields: [pOrCID], references: [pOrCID])
   pOrCID    Int
 
   // COrM - Brgy : A City or Municipality may have multiple Barangays.
+
   brgys     Brgy[]
 
   // COrM - Address : A Municipality or Barangay may be referenced by multiple Addresses.
+
   addresses Address[]
 }
 
@@ -72,10 +80,12 @@ model Brgy {
   // RELATIONS
 
   // Brgy - COrM : A Barangay is associated with one City or Municipality.
+
   cOrM      COrM @relation(fields: [cOrMID], references: [cOrMID])
   cOrMID    Int
   
   // Brgy - Address : A Barangay may be referenced by multiple Addresses.
+
   addresses Address[]
 
 }
@@ -101,7 +111,8 @@ model Address {
 
   // RELATIONS
 
-  // Address - Facility : Each Address is tied to one Facility.
+  // Address - Facility : An Address is tied to one Facility.
+
   facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String   @id
 
@@ -109,48 +120,58 @@ model Address {
 }
 
 model Facility {
-  facilityID String @id @default(uuid())
+  facilityID String @id @default(dbgenerated("randomid()")) @db.Text
 
   name              String
   photo             String
   address           Address?                 // "?" because Prisma cannot enforce "at least one ..." constraints.
-  email             String?      @unique     // TEMPORARY, TO ADD []
-  phoneNumber       String       @unique     // TEMPORARY, TO ADD []
   openingTime       DateTime?    @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   closingTime       DateTime?    @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   facilityType      FacilityType
-  ownership         Ownership
+  ownership         Ownership                // Enum: PUBLIC or PRIVATE
   bookingSystem     String?
   acceptedProviders Provider[]
   updatedAt         DateTime     @updatedAt
 
   // RELATIONS
 
+  // Facility - Contact :
+
+  // If a Facility has no Divisions, it must have at least one Phone Number. This constraint is handled by business logic.
+
+  // If it has Divisions, it may still have Phone Numbers, but it is not required.
+
+  // A Facility may or may not have Emails regardless of whether it has Divisions. 
+
+  contacts  Contact[]
+
   // operatingHours OperatingHour[]
 
-  // Facility - Service : Every Facility must have at least one Service. This constraint is handled by business logic.
+  // Facility - Service : A Facility must have at least one Service. This constraint is handled by business logic.
 
-  // Every Facility may have exactly one of each specialized Service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services. This constraint is handled by business logic.
+  // A Facility may have exactly one of each specialized Service: Ambulance, Blood Bank, Emergency Room, Intensive Care Unit, or multiple Outpatient Services. This constraint is handled by business logic.
+  
   services  Service[]
 
   // Facility - Manager : A Facility must have exactly one Manager. This constraint is handled by business logic.
 
   // Facility - Admin : A Facility may or may not have Admins.
+
   employees Employee[]
 
   // Facility - Division : A Facility may or may not have Divisions.
+
   divisions Division[]
 
   // Facility - Update Log : A Facility may or may not have Update Logs.
+
   logs      UpdateLog[]
 }
 
 model Division {
-  divisionID String @id @default(uuid())
+  divisionID String @id @default(dbgenerated("randomid()")) @db.Text
 
   name        String
-  email       String?  @unique         // TEMPORARY, TO ADD []
-  phoneNumber String   @unique         // TEMPORARY, TO ADD []
   openingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   closingTime DateTime @db.Time(0)     // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   createdAt   DateTime @default(now())
@@ -158,28 +179,40 @@ model Division {
 
   // RELATIONS
 
+  // Division - Contact :
+
+  // A Division must have at least one Phone Number. This constraint is handled by business logic.
+
+  // A Division may or may not have Emails.
+
+  contacts  Contact[]
+
   // operatingHours OperatingHour[]
 
   // Facility - Divisions : A Facility may or may not have Divisions.
+
   facility   Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String
 
-  // Division - Service : If a Facility has Divisions, every Division must have at least one Service. This constraint is handled by business logic.
+  // Division - Service : A Division must have at least one Service. This constraint is handled by business logic.
 
-  // Every Division may have exactly one of each specialized service: Ambulance, Blood Bank, ER, ICU, or multiple Outpatient Services. This constraint is handled by business logic.
+  // A Division may have exactly one of each specialized Service (Ambulance, Blood Bank, Emergency Room, Intensive Care Unit) or multiple Outpatient Services. This constraint is handled by business logic.
+
   services   Service[]
 
-  // Division - Admin : If a Facility has Divisions, a Division may or may not have Admins.
+  // Division - Admin : A Division may or may not have Admins.
+
   admins     Employee[]
 
   // Division - Update Log : A Division may or may not have Update Logs.
+
   logs       UpdateLog[]
 }
 
 // Table for both Managers and Admins of a Facility.
 
 model Employee {
-  employeeID String @id @default(uuid())
+  employeeID String @id @default(dbgenerated("randomid()")) @db.Text
 
   password  String
 
@@ -193,21 +226,35 @@ model Employee {
 
   // RELATIONS
 
-  // Manager - Facility : Every Manager must work for exactly one Facility.
+  sessions   Session[]
 
-  // Admin - Facility : Every Admin must work for exactly one Facility.
+  // Manager - Facility : A Manager must work for exactly one Facility.
+
+  // Admin - Facility : An Admin must work for exactly one Facility.
+
   facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String
 
-  // Employee : An Employee may or may not be associated with Update Logs.
-  updateLog  UpdateLog[]
-
   // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
+
   divisions  Division[]
+
+  // Employee : An Employee may or may not be associated with Update Logs.
+
+  updateLog  UpdateLog[]
+}
+
+model Session {
+  sessionID String @id
+
+  expiresAt  DateTime
+
+  employee   Employee @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
+  employeeID String
 }
 
 model Service {
-  serviceID String @id @default(uuid())
+  serviceID String @id @default(dbgenerated("randomid()")) @db.Text
 
   type      String
   keywords  String[]
@@ -217,13 +264,27 @@ model Service {
 
   // RELATIONS
 
+  // Service - Contact :
+
+  // A specialized Service (Ambulance, Blood Bank, Emergency Room, Intensive Care Unit) may or may not have its own Phone Numbers.
+
+  // If a specialized Service has no Phone Numbers, it is associated with the Phone Numbers of its offering Facility or Division.
+
+  // Outpatient Services are always associated with the Phone Numbers of their offering Facility or Division.
+
+  // JOKE LANG HEHE BUSINESS LOGIC LAYER NA TO
+
+  phoneNumbers      Contact[]
+
   // operatingHours OperatingHour[]
 
-  // Service - Facility : Each Service must belong to exactly one Facility.
+  // Service - Facility : A Service must belong to exactly one Facility.
+
   facility          Facility  @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID        String
 
   // Service - Division : If a Facility has Divisions, every Service must belong to a Division.
+
   division          Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
   divisionID        String?
 
@@ -240,9 +301,8 @@ model Service {
 }
 
 model AmbulanceService {
-  phoneNumber       String?                            // TEMPORARY, TO ADD []
-  openingTime       DateTime? @db.Time(0)              // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
-  closingTime       DateTime? @db.Time(0)              // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  openingTime       DateTime?    @db.Time(0)           // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime       DateTime?    @db.Time(0)           // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   availability      Availability @default(UNAVAILABLE)
   baseRate          Float
   minCoverageRadius Float
@@ -273,7 +333,6 @@ model BloodTypeMapping {
 }
 
 model BloodBankService {
-  phoneNumber           String?               // TEMPORARY, TO ADD []
   openingTime           DateTime? @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   closingTime           DateTime? @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   basePricePerUnit      Float
@@ -288,7 +347,6 @@ model BloodBankService {
 }
 
 model ERService {
-  phoneNumber          String?                    // TEMPORARY, TO ADD []
   openingTime          DateTime? @db.Time(0)      // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   closingTime          DateTime? @db.Time(0)      // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   load                 Load      @default(CLOSED)
@@ -307,7 +365,6 @@ model ERService {
 }
 
 model ICUService {
-  phoneNumber         String?                    // TEMPORARY, TO ADD []
   openingTime         DateTime? @db.Time(0)      // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   closingTime         DateTime? @db.Time(0)      // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
   load                Load      @default(CLOSED)
@@ -337,16 +394,14 @@ model OutpatientService {
   serviceID String  @id
 }
 
-/*
-model OperatingHour {
-  operatingHourID String   @id @default(uuid())
-  day             Day      
-  openingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
-  closingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+model Contact {
+  contactID String      @id @default(dbgenerated("randomid()")) @db.Text
+  info      String      @unique              // Either a Phone Number or an Email.
+  type      ContactType                      // Enum: PHONE or EMAIL
 
   // RELATIONS 
 
-  // may either be related to a Facility or a Division, or a specialized Service. This constraint is handled by business logic.
+  // A Contact may be associated with either a Facility, a Division, or a specialized Service.
 
   facility   Facility? @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
   facilityID String?
@@ -354,7 +409,30 @@ model OperatingHour {
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
   divisionID String?
 
-  service    Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  service    Service?  @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID  String?
+
+  // REMINDER FOR PAUL: DO POSTGRESQL MANUAL ENFORCEMENT OF RELATION THINGIES
+}
+
+/*
+model OperatingHour {
+  operatingHourID String   @id @default(dbgenerated("randomid()")) @db.Text
+  day             Day      
+  openingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+  closingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+
+  // RELATIONS 
+
+  // An Operating Hour may be related to a Facility or a Division, or a specialized Service. This constraint is handled by business logic.
+
+  facility   Facility? @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String?
+
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
+  divisionID String?
+
+  service    Service?  @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
   serviceID  String?
 
   // REMINDER FOR PAUL: DO POSTGRESQL MANUAL ENFORCEMENT OF RELATION THINGIES
@@ -366,7 +444,7 @@ model OperatingHour {
 */
 
 model UpdateLog {
-  updateLogID String @id @default(uuid())
+  updateLogID String @id @default(dbgenerated("randomid()")) @db.Text
 
   entity    String
   action    Action
@@ -380,12 +458,89 @@ model UpdateLog {
   division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
   divisionID String?
 
-  // Update Log - Employee : An Update Log is linked to exactly one Employee, who is either a Manager or Admin.
+  // Update Log - Employee : An Update Log is linked to exactly one Employee, who is either a Manager or an Admin.
   employee   Employee  @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
   employeeID String
 }
 
 // ENUMS
+
+enum FacilityType {
+  // Hospitals & General Medical Centers  
+  BARANGAY_HEALTH_CENTER
+  CLINIC
+  HEALTH_CENTER
+  HOSPITAL
+  INFIRMARY
+  POLYCLINIC
+  PRIMARY_CARE_CLINIC
+
+  // Specialty Medical Clinics
+  ALLERGY_CLINIC
+  CARDIOLOGY_CLINIC
+  DENTAL_CLINIC
+  DERMATOLOGY_CLINIC
+  ENDOCRINOLOGY_CLINIC
+  ENT_CLINIC
+  FERTILITY_CLINIC
+  GASTROENTEROLOGY_CLINIC
+  IMMUNOLOGY_CLINIC
+  INFECTIOUS_DISEASE_CLINIC
+  MATERNITY_CLINIC
+  NEPHROLOGY_CLINIC
+  NEUROLOGY_CLINIC
+  ONCOLOGY_CLINIC
+  OPHTHALMOLOGY_CLINIC
+  ORTHOPEDIC_CLINIC
+  PEDIATRIC_CLINIC
+  PULMONOLOGY_CLINIC
+  RHEUMATOLOGY_CLINIC
+  UROLOGY_CLINIC
+
+  // Diagnostic & Laboratory Facilities
+  DIAGNOSTIC_LAB
+  GENETIC_TESTING_LAB
+  PATHOLOGY_LAB
+  RADIOLOGY_CENTER
+  MICROBIOLOGY_LAB
+  TOXICOLOGY_LAB
+
+  // Emergency & Critical Care
+  BURN_CENTER
+  CRITICAL_CARE_CENTER
+  EMERGENCY_CENTER
+  POISON_CONTROL_CENTER
+  TRAUMA_CENTER
+  URGENT_CARE_CENTER
+
+  // Specialized Treatment Centers
+  BLOOD_BANK
+  DIALYSIS_CENTER
+  MENTAL_HEALTH_CENTER
+  PAIN_MANAGEMENT_CENTER
+  REHABILITATION_CENTER
+  SLEEP_CENTER
+  SUBSTANCE_ABUSE_CENTER
+  TRANSPLANT_CENTER
+
+  // Therapy & Alternative Medicine
+  ALTERNATIVE_MEDICINE_CENTER
+  PHYSICAL_THERAPY_CENTER
+  OCCUPATIONAL_THERAPY_CENTER
+  SPEECH_THERAPY_CENTER
+
+  // Surgical & Ambulatory Care
+  AMBULATORY_CARE_CENTER
+  SURGICAL_CENTER
+
+  // Ambulance Services
+  AMBULANCE_SERVICE
+}
+
+enum Ownership {
+  PUBLIC
+  PRIVATE
+}
 
 enum Provider {
   INTELLICARE              // Asalus Corporation
@@ -417,77 +572,9 @@ enum Provider {
   WELLCARE                 // Wellcare Health Maintenance, Inc.
 }
 
-enum FacilityType {
-  // Hospitals & General Medical Centers  
-  BARANGAY_HEALTH_CENTER
-  CLINIC
-  HEALTH_CENTER
-  HOSPITAL
-  INFIRMARY
-  POLYCLINIC
-  PRIMARY_CARE_CLINIC
-
-  // Specialty Medical Clinics
-  CARDIOLOGY_CLINIC
-  DENTAL_CLINIC
-  DERMATOLOGY_CLINIC
-  ENDOCRINOLOGY_CLINIC
-  ENT_CLINIC
-  FERTILITY_CLINIC
-  GASTROENTEROLOGY_CLINIC
-  IMMUNOLOGY_CENTER
-  INFECTIOUS_DISEASE_CENTER
-  MATERNITY_CENTER
-  NEPHROLOGY_CLINIC
-  NEUROLOGY_CLINIC
-  ONCOLOGY_CENTER
-  OPHTHALMOLOGY_CLINIC
-  ORTHOPEDIC_CLINIC
-  PEDIATRIC_CLINIC
-  PULMONOLOGY_CLINIC
-  RHEUMATOLOGY_CLINIC
-  UROLOGY_CLINIC
-
-  // Diagnostic & Laboratory Facilities
-  DIAGNOSTIC_LAB
-  GENETIC_TESTING_LAB
-  PATHOLOGY_LAB
-  RADIOLOGY_CENTER
-
-  // Emergency & Critical Care
-  BURN_CENTER
-  CRITICAL_CARE_CENTER
-  EMERGENCY_CENTER
-  POISON_CONTROL_CENTER
-  TRAUMA_CENTER
-  URGENT_CARE_CENTER
-
-  // Specialized Treatment Centers
-  BLOOD_BANK
-  DIALYSIS_CENTER
-  MENTAL_HEALTH_FACILITY
-  PAIN_MANAGEMENT_CLINIC
-  REHABILITATION_CENTER
-  SLEEP_CENTER
-  SUBSTANCE_ABUSE_CENTER
-  TRANSPLANT_CENTER
-
-  // Therapy & Alternative Medicine
-  ALTERNATIVE_MEDICINE_CENTER
-  HERBAL_MEDICINE_CENTER
-  PHYSICAL_THERAPY_CENTER
-
-  // Surgical & Ambulatory Care
-  AMBULATORY_CARE_CENTER
-  SURGICAL_CENTER
-
-  // Ambulance & Mobile Services
-  AMBULANCE_SERVICE
-}
-
-enum Ownership {
-  PUBLIC
-  PRIVATE
+enum Role {
+  MANAGER
+  ADMIN
 }
 
 enum Availability {
@@ -507,9 +594,9 @@ enum Load {
   CLOSED
 }
 
-enum Role {
-  MANAGER
-  ADMIN
+enum ContactType {
+  PHONE
+  EMAIL
 }
 
 /*

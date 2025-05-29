@@ -3,7 +3,7 @@ import fetch from "node-fetch";
 
 export function validateFloat(value: FormDataEntryValue | null, attribute: string): number {
   if (!value) {
-    throw new Error(`No ${attribute} provided.`);
+    throw new Error(`Please enter a value for ${attribute}.`);
   }
 
   const floatStr = String(value).trim();
@@ -19,7 +19,7 @@ export function validateFloat(value: FormDataEntryValue | null, attribute: strin
 
 export function validateInteger(value: FormDataEntryValue | null, attribute: string): number {
   if (!value) {
-    throw new Error(`No ${attribute} provided.`);
+    throw new Error(`Please enter a value for ${attribute}.`);
   }
 
   const integerStr = String(value).trim();
@@ -27,7 +27,7 @@ export function validateInteger(value: FormDataEntryValue | null, attribute: str
   const integerFormat = /^(0|[1-9]\d*)$/;
 
   if (!integerFormat.test(integerStr)) {
-    throw new Error(`${attribute} must be a non-negative integer.`);
+    throw new Error(`${attribute} must be a non-negative whole number.`);
   }
 
   return Number(integerStr);
@@ -35,7 +35,7 @@ export function validateInteger(value: FormDataEntryValue | null, attribute: str
 
 export function validatePersonName(name: FormDataEntryValue | null): string {
   if (!name) {
-    throw new Error("No name provided.");
+    throw new Error("Please enter a name.");
   }
 
   let nameStr = String(name).trim();
@@ -43,13 +43,13 @@ export function validatePersonName(name: FormDataEntryValue | null): string {
   nameStr = nameStr.replace(/\s+/g, " ");
 
   if (nameStr.length > 50) {
-    throw new Error("Name must not exceed 50 characters.");
+    throw new Error("Name must be 50 characters or fewer.");
   }
 
   const validChars = /^[a-zA-Z\s.'’\-]+$/;
 
   if (!validChars.test(nameStr)) {
-    throw new Error("Name contains invalid characters.");
+    throw new Error("Name may only include letters, spaces, and the characters '-', '.', and apostrophes.");
   }
 
   return nameStr;
@@ -57,7 +57,7 @@ export function validatePersonName(name: FormDataEntryValue | null): string {
 
 export function validateFacilityName(name: FormDataEntryValue | null): string {
   if (!name) {
-    throw new Error("No name provided.");
+    throw new Error("Please enter a name.");
   }
 
   let nameStr = String(name).trim();
@@ -65,13 +65,13 @@ export function validateFacilityName(name: FormDataEntryValue | null): string {
   nameStr = nameStr.replace(/\s+/g, " ");
 
   if (nameStr.length > 50) {
-    throw new Error("Name must not exceed 50 characters.");
+    throw new Error("Name must be 50 characters or fewer.");
   }
 
   const validChars = /^[a-zA-Z\d\s.'’\-&+/]+$/;
 
-  if (!validChars.test(nameStr)) {
-    throw new Error("Name contains invalid characters.");
+  if (!validChars.test(nameStr)) { // lol
+    throw new Error("Name may only include letters, numbers, spaces, and the characters '.', ''', '-', '&', '+', and '/'.");
   }
 
   return nameStr;
@@ -79,38 +79,38 @@ export function validateFacilityName(name: FormDataEntryValue | null): string {
 
 // should we allow hyphens? /^\+?\d[\d\s-]*$/
 
-export function validatePhone(phone: FormDataEntryValue | null): string {
+export function validatePhone(phone: FormDataEntryValue | null, source: string): string {
   if (!phone) {
-    throw new Error("No phone number provided.");
+    if (source === "Facility" || source === "Division") {
+      throw new Error("Please enter a phone number.");
+    }
+    return "";
   }
 
   let phoneNumberStr = (phone as string).trim();
-
   const validChars = /^\+?\d[\d\s]*$/;
 
   if (!validChars.test(phoneNumberStr)) {
-    throw new Error("Phone number contains invalid characters.");
+    throw new Error("Phone number may only include digits, spaces, and an optional '+' at the start.");
   }
 
   const digits = phoneNumberStr.replace(/\s+/g, "");
-  
+
   if (digits.startsWith("+639")) {
     if (digits.length !== 13) {
-      throw new Error("Phone number length is incorrect for +639 format.");
+      throw new Error("A +639-format number must have exactly 13 digits (e.g., +63901 234 5678).");
     }
+    return `+63${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8)}`;
 
   } else if (digits.startsWith("09")) {
     if (digits.length !== 11) {
-      throw new Error("Phone number length is incorrect for 09 format.");
+      throw new Error("A 09-format number must have exactly 11 digits (e.g., 0901 234 5678).");
     }
+    return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
 
   } else {
-    throw new Error("Phone number is neither in +639 nor the 09 format.");
+    throw new Error("Phone number must start with either +639 or 09.");
   }
-
-  phoneNumberStr = phoneNumberStr.replace(/\s+/g, " ");
-
-  return phoneNumberStr;
 }
 
 async function hasMXRecords(domain: string): Promise<boolean> {
@@ -125,7 +125,7 @@ async function hasMXRecords(domain: string): Promise<boolean> {
 
 export async function validateEmail(email: FormDataEntryValue | null): Promise<string> {
   if (!email) {
-    return ''
+    return '';
   }
 
   const emailStr = String(email).trim();
@@ -133,27 +133,26 @@ export async function validateEmail(email: FormDataEntryValue | null): Promise<s
   const validChars = /^[a-zA-Z\d](?:[a-zA-Z\d._\-]*[a-zA-Z\d])*@[a-zA-Z\d.\-]+\.[a-zA-Z]{2,}$/;
 
   if (!validChars.test(emailStr)) {
-    throw new Error("Email contains invalid characters.");
+    throw new Error("Please enter a valid email address (e.g., username@examplewebsite.com).");
   }
 
-  const consecutiveDots = /\.\./;
-
-  if (consecutiveDots.test(emailStr)) {
-    throw new Error("Email contains consecutive dots.");
+  if (/\.\./.test(emailStr)) {
+    throw new Error("Email address cannot contain consecutive dots.");
   }
 
   const domain = emailStr.split("@")[1];
 
   if (!(await hasMXRecords(domain))) {
-    throw new Error("Email domain is invalid.");
+    throw new Error("The domain of the email address doesn't appear to accept emails. Please check for typos.");
   }
 
   return emailStr;
 }
 
-export function validateOperatingHours(open: FormDataEntryValue | null, close: FormDataEntryValue | null): { openingTime: Date, closingTime: Date } {
+export function validateOperatingHours(open: FormDataEntryValue | null, close: FormDataEntryValue | null, source: string, hasDivisions: boolean): { openingTime: Date, closingTime: Date } {
   if (!open || !close) {
-    throw new Error("No opening and closing time provided.");
+    if ((source === "Facility" && !hasDivisions) || source === "Division")
+      throw new Error("Please provide both opening and closing times.");
   }
 
   const openStr  = String(open).trim();
@@ -162,11 +161,11 @@ export function validateOperatingHours(open: FormDataEntryValue | null, close: F
   const timeFormat = /^(?:0?\d|1\d|2[0-3]):[0-5]\d$/;
 
   if (!timeFormat.test(openStr)) {
-    throw new Error("Invalid opening time format. Use HH:MM (24-hour).");
+    throw new Error("Opening time format is invalid. Use HH:MM in 24-hour format (e.g., 08:00 or 20:30).");
   }
 
   if (!timeFormat.test(closeStr)) {
-    throw new Error("Invalid closing time format. Use HH:MM (24-hour).");
+    throw new Error("Closing time format is invalid. Use HH:MM in 24-hour format (e.g., 08:00 or 20:30).");
   }
 
   const [openHour, openMin]   = openStr.split(":").map(Number);
@@ -189,7 +188,7 @@ export function validateCoverageRadius(min: FormDataEntryValue | null, max: Form
   const maxCoverageRadius = validateFloat(max, "Maximum coverage radius");
 
   if (maxCoverageRadius < minCoverageRadius) {
-    throw new Error("Maximum coverage radius must be greater than or equal to minimum coverage radius.");
+    throw new Error("Maximum coverage radius must be equal to or greater than the minimum coverage radius.");
   }
 
   return { minCoverageRadius, maxCoverageRadius };
@@ -200,11 +199,11 @@ export function validateCompletionTime(days: FormDataEntryValue | null, hours: F
   const hoursValue = validateInteger(hours, `${attribute} time hours`);
 
   if (daysValue === 0 && hoursValue === 0) {
-    throw new Error(`Total ${attribute} time must be greater than zero.`);
+    throw new Error(`Please enter a non-zero total ${attribute.toLowerCase()} time.`);
   }
 
   if (hoursValue > 23) {
-    throw new Error(`${attribute} time hours must be at least 0 and at most 23.`);
+    throw new Error(`${attribute} time hours must be between 0 and 23.`);
   }
 
   return { days: daysValue, hours: hoursValue };
@@ -212,7 +211,7 @@ export function validateCompletionTime(days: FormDataEntryValue | null, hours: F
 
 export function validateStreet(street: FormDataEntryValue | null): string {
   if (!street) {
-    throw new Error("No street address provided.");
+    throw new Error("Please enter a street address.");
   }
 
   let streetStr = String(street).trim();
@@ -220,13 +219,13 @@ export function validateStreet(street: FormDataEntryValue | null): string {
   streetStr = streetStr.replace(/\s+/g, " ");
 
   if (streetStr.length > 100) {
-    throw new Error("Street address must not exceed 100 characters.");
+    throw new Error("Street address must be 100 characters or fewer.");
   }
 
   const validChars = /^[a-zA-Z\d\s\-.,&]+$/;
 
   if (!validChars.test(streetStr)) {
-    throw new Error("Street address contains invalid characters.");
+    throw new Error("Street address may only include letters, numbers, spaces, and the characters '-', '.', ',', and '&'.");
   }
 
   return streetStr;
@@ -236,7 +235,7 @@ export function validateStreet(street: FormDataEntryValue | null): string {
 
 export async function validateLink(link: FormDataEntryValue | null): Promise<string> {
   if (link == null) {
-    throw new Error("No booking system link provided.");
+    throw new Error("Please enter a booking system link.");
   }
 
   let linkStr = String(link).trim();
@@ -248,16 +247,16 @@ export async function validateLink(link: FormDataEntryValue | null): Promise<str
   const linkFormat = /^https?:\/\/([a-zA-Z\d\-]+\.)+[a-zA-Z]{2,}(:\d+)?(\/[^\s]*)?$/;
 
   if (!linkFormat.test(linkStr)) {
-    throw new Error("Booking system link must be valid.");
+    throw new Error("Booking system link must start with http:// or https://.");
   }
 
   try {
     const response = await fetch(linkStr, { method: "HEAD" });
     if (!response.ok) {
-      throw new Error("Booking system link is unreachable.");
+      throw new Error("Booking system link could not be reached. Please check the URL.");
     }
   } catch (error) {
-    throw new Error("Booking system link is unreachable.");
+    throw new Error("Booking system link could not be reached. Please check the URL.");
   }
 
   return linkStr;
@@ -265,11 +264,11 @@ export async function validateLink(link: FormDataEntryValue | null): Promise<str
 
 export function validateImage(file: File): File {
   if (file.type.split('/')[0] !== "image") {
-    throw new Error("File must be an image with extentions .jpeg,.png ");
+    throw new Error("Image must be a .jpeg or a .png.");
   }
 
   if (file.size > 5242880) {
-    throw new Error("File must be less than 5MB");
+    throw new Error("Image must be smaller than 5 MB.");
   }
 
   return file;

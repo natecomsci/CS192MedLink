@@ -10,6 +10,12 @@ declare global {
       session: Session | null
       user: User | null
     }
+/*
+		interface Locals {
+			user    : import('$lib/server/auth').SessionValidationResult['employee'];
+			session : import('$lib/server/auth').SessionValidationResult['session'];
+		}
+*/
     interface PageData {
       session: Session | null
     }

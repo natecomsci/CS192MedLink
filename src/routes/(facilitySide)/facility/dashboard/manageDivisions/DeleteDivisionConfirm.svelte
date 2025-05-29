@@ -1,9 +1,29 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
   import type { AdminDTO, DivisionDTO, ServiceDTO } from "$lib";
-  import type { ActionData } from "./$types";
+    import { pagingQueryHandler } from "$lib/postHandlers";
+  import type { ActionData, PageData } from "./$types";
 
-  let { form, divisionID, currPopUp = $bindable() }: { form: ActionData, divisionID: String, currPopUp: String } = $props();
+  let { 
+        divisionName,
+        data, 
+        form, 
+        currPopUp = $bindable(),
+        divisions = $bindable(),
+        divisionID,
+        currentPage = $bindable(),
+        totalPages = $bindable(),
+        perPage
+        }:{ divisionName: string,
+            data:PageData, 
+            form: ActionData, 
+            currPopUp: String, 
+            divisions:DivisionDTO[], 
+            divisionID: string,
+            currentPage: number, 
+            totalPages: number, 
+            perPage: number
+          } = $props();
 
   let admins: AdminDTO[] = $state([])
   let facilityDivisions: DivisionDTO[] = $state([])
@@ -42,12 +62,7 @@
         selectedAdminDivisionsIDs[admin.employeeID] = []
       }
 
-      console.log(admins)
-      console.log(facilityDivisions)
-      console.log(services)
-
       return {admins, services}
-      
       
     } catch (error) {
       throw new Error(`Response status: ${error}`);
@@ -70,6 +85,26 @@
     }
   }
 
+  async function getNewDivisions() {
+    try {
+      const rv = await pagingQueryHandler({
+        page: 'divisions',
+        query: '',
+        isInQueryMode:false,
+        currentPage:1,
+        change:0,
+        totalPages:1,
+        perPage,
+        viewedDivisionID: "Default"
+      });
+      divisions =  rv.list
+      currentPage = 1
+      totalPages = rv.totalPages
+    } catch (error) {
+      console.log((error as Error).message)
+    }
+  }
+
 </script>
 <form
   method="POST"
@@ -80,6 +115,7 @@
       await update({invalidateAll:true});
       if (form?.success) {
           currPopUp = ''
+          getNewDivisions()
       }
     };
   }}
@@ -97,50 +133,91 @@
   {/each}
 </form>
 
-{#if currentStep === 3}
-  <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded shadow-lg w-80">
-      <h2 class="text-lg font-bold">Confirm Deletion</h2>
-      <button class="mr-3" onclick={() => currentStep = 2}>
-        <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-      <p>Are you sure you want to delete this division?</p>
-        {#if form?.error}
-          <p class="text-red-500 text-sm font-semibold">{form.error}</p>
-        {/if}
-        <!-- Password Field -->
-        <div class="mt-4">
-          <label for="password" class="block text-sm font-medium text-gray-700">Enter Password:</label>
-          <input 
-            type="password"
-            bind:value={password}
-            class="mt-1 block w-full p-2 border rounded border-gray-300 focus:outline-none focus:ring focus:border-blue-500" 
-            required 
-          />
-        </div>
 
+{#if currentStep === 1}
+  <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
+    <div class="bg-background w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
+
+      <div class="flex items-center mb-4">
+        <h2 class="text-2xl font-bold text-purple-800">Manage Services in {divisionName}</h2>
+      </div>
+
+      <div class="overflow-y-auto flex-1 p-4 ">
+        {#await promise then {services}}
+        {#each services as service}
+          <div class="card2 mb-4 flex items-center justify-between rounded-lg bg-gray-50 shadow-sm">
+            <div class="flex items-center gap-4">
+              <div>
+                <p class="font-bold text-lg text-gray-800">{service.type}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <!-- <div class="relative">
+                <div class="border rounded px-3 py-2 text-sm focus:outline-none">
+                  {#each (facilityDivisions ?? []) as { divisionID, name }}
+                    <input 
+                      name={service.serviceID} 
+                      type="radio"
+                      onclick={() => {
+                        selectedServiceDivisionsID[service.serviceID] = divisionID
+                        {console.log(selectedServiceDivisionsID)}
+                      }} 
+                    />
+                    {name}
+                  {/each}
+                </div>
+              </div> -->
+
+              <div class="relative w-50 ">
+                <select 
+                  class="input-box text-sm focus:outline-none"
+                  onchange={() => {
+                        selectedServiceDivisionsID[service.serviceID] = divisionID
+                        {console.log(selectedServiceDivisionsID)}
+                  }}
+                >
+                  <option value="" disabled selected>Select Division</option>
+                    {#each (facilityDivisions ?? []) as { divisionID, name }}
+                      <option value={divisionID}>{name}</option>
+                    {/each}
+                </select>
+              </div>
+
+
+              <!-- Trash -->
+              <button class="text-red-600 hover:text-red-800" aria-label="Delete">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        {/each}
+        {/await}
+      </div>
+
+      <div class="flex justify-between mt-4 pt-4 border-t border-gray-300">
         <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
-        <button 
-          class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
-          type="submit" 
-          form="deleteDivisionForm"
-        >Confirm</button>
+        <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = admins.length > 0 ? 2 : 3}>Next</button>
+      </div>
     </div>
   </div>
-{:else if currentStep === 1}
+
+{:else if currentStep === 2}
   <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
-    <div class="bg-white w-1/2 max-w-full rounded-xl p-6 shadow-lg max-h-[90vh] flex flex-col">
+    <div class="bg-background w-1/2 h-200 max-w-full rounded-xl p-6 shadow-lg flex flex-col">
+
       <div class="flex items-center mb-4">
-        <button class="mr-3" onclick={() => currentStep = 1}>
+        <button class="mr-3" onclick={() => currentStep = 1} aria-label="Back">
           <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
         <h2 class="text-2xl font-bold text-purple-800">Manage Admins in Division</h2>
       </div>
-      <div class="overflow-y-auto flex-1 pr-2 border">
+
+      <div class="overflow-y-auto flex-1 p-4">
         {#await promise then {admins}}
         {#each admins as admin}
           <div class="card2 mb-4 flex items-center justify-between rounded-lg bg-gray-50 shadow-sm">
@@ -152,7 +229,7 @@
             </div>
 
             <div class="flex items-center gap-2">
-              <div class="relative">
+              <!-- <div class="relative">
                 <label class="flex items-center space-x-2">
                   <div class="border rounded px-3 py-2 text-sm focus:outline-none">
                     {#each (facilityDivisions ?? []) as { divisionID, name }}
@@ -168,9 +245,24 @@
                     {/each}
                   </div>
                 </label>
+              </div> -->
+
+              <div class="relative w-50 ">
+                <select 
+                  class="input-box text-sm focus:outline-none"
+                  onchange={() => {
+                          toggleAdminDivision(admin.employeeID, divisionID)
+                          {console.log(selectedAdminDivisionsIDs)}
+                  }}
+                >
+                  <option selected disabled>Select a Division</option>
+                  {#each (facilityDivisions ?? []) as { divisionID, name }}
+                    <option value={divisionID}>{name}</option>
+                  {/each}
+                </select>
               </div>
 
-              <button class="text-red-600 hover:text-red-800">
+              <button class="text-red-600 hover:text-red-800" aria-label="Delete">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -181,67 +273,49 @@
         {/await}
       </div>
 
-      <div class="flex justify-between mt-4 pt-4 border-t">
+      <div class="flex justify-between mt-4 pt-4 border-t border-gray-300">
         <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
-        <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = 2}>Next</button>
+        <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = 3}>Next</button>
       </div>
     </div>
   </div>
-{:else if currentStep === 2}
-  <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex justify-center items-center z-50">
-    <div class="bg-white w-1/2 max-w-full rounded-xl p-6 shadow-lg max-h-[90vh] flex flex-col">
-      <!-- Header -->
-      <div class="flex items-center mb-4">
-        <button class="mr-3" onclick={() => currentStep = 1}>
+
+{:else if currentStep === 3}
+  <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded shadow-lg w-80">
+      
+      <div class="flex items-center">
+        <button class="mr-3" onclick={() => currentStep = admins.length > 0 ? 2 : 1} aria-label="Back">
           <svg class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h2 class="text-2xl font-bold text-purple-800">Manage Services in Division Name</h2>
+        <h2 class="text-lg font-bold">Confirm Deletion</h2>
       </div>
 
-      <div class="overflow-y-auto flex-1 pr-2 border">
-        {#await promise then {services}}
-        {#each services as service}
-          <div class="card2 mb-4 flex items-center justify-between rounded-lg bg-gray-50 shadow-sm">
-            <div class="flex items-center gap-4">
-              <div>
-                <p class="font-bold text-lg text-gray-800">{service.type}</p>
-              </div>
-            </div>
+      <p>Are you sure you want to delete this division?</p>
+        {#if form?.error}
+          <p class="text-red-500 text-sm font-semibold">{form.error}</p>
+        {/if}
+        <!-- Password Field -->
+        <div class="mt-4">
+          <label for="password" class="block text-sm font-medium text-gray-700">Enter Password:</label>
+          <input 
+            type="password"
+            bind:value={password}
+            class="mt-1 block w-full p-2 border rounded border-gray-300 focus:outline-none focus:ring focus:border-blue-500" 
+            required 
+          />
+        </div>
 
-            <div class="flex items-center gap-2">
-              <div class="relative">
-                <div class="border rounded px-3 py-2 text-sm focus:outline-none">
-                  {#each (facilityDivisions ?? []) as { divisionID, name }}
-                    <input 
-                      name={service.serviceID} 
-                      type="radio"
-                      onclick={() => {
-                        selectedServiceDivisionsID[service.serviceID] = divisionID
-                        {console.log(selectedServiceDivisionsID)}
-                      }} 
-                    />
-                    {name}
-                  {/each}
-                </div>
-              </div>
-
-              <button class="text-red-600 hover:text-red-800">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        {/each}
-        {/await}
-      </div>
-
-      <div class="flex justify-between mt-4 pt-4 border-t">
-        <button class="px-4 py-2 bg-gray-300 rounded" type="button" onclick={() => currPopUp = ''}>Cancel</button>
-        <button class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700" type="button" onclick={() => currentStep = 3}>Next</button>
-      </div>
+        <div class="flex justify-end space-x-2 mt-4">
+          <button class="px-4 py-2 bg-gray-300 rounded " type="button" onclick={() => currPopUp = ''}>Cancel</button>
+          <button
+            class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700"
+            type="submit"
+            form="deleteDivisionForm"
+          >Confirm</button>
+        </div>
     </div>
   </div>
 {/if}

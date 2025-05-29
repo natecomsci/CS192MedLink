@@ -50,7 +50,7 @@
 
 <!-- Modal Overlay -->
 <div class="fixed inset-0 bg-black/30 bg-opacity-10 flex items-center justify-center z-50">
-  <div class="bg-white p-6 rounded shadow-lg w-80">
+  <div class="bg-background p-6 rounded shadow-lg w-80">
       <h2 class="text-lg font-bold">Confirm Deletion</h2>
       <p>Are you sure you want to delete this service?</p>
 

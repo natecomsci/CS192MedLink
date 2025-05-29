@@ -1,76 +1,78 @@
-import type { Facility } from "@prisma/client";
 import { redirect, fail } from "@sveltejs/kit";
+
 import type { Actions, PageServerLoad } from "./$types";
 
-import { DivisionDAO, FacilityDAO, type DivisionDTO } from "$lib";
+import { patientSearchPageSize, PatientDivisionListDAO } from "$lib";
 
-const divisionDAO = new DivisionDAO();
-const facilityDAO = new FacilityDAO();
+const patientDivisionListDAO = new PatientDivisionListDAO();
 
 export const load: PageServerLoad = async ({ params }) => {
   const { facilityID } = params;
 
   if (!facilityID) {
-    throw redirect(303, "/facility"); // Redirect if no facility ID is found
+    return fail(400, { error: "Facility ID is required." });
   }
-
-  let divisions: DivisionDTO[]
-  let facility: Facility
 
   try {
-    divisions = await divisionDAO.getByFacility(facilityID);
-    facility = await facilityDAO.getByID(facilityID);
+    const { results, totalResults, totalFetched, hasMore } =
+      await patientDivisionListDAO.getLoadMoreDivisionsByFacility(
+        facilityID,
+        patientSearchPageSize,
+        0,
+        { updatedAt: "desc" }
+      );
+
+    return {
+      results,
+      hasMore,
+      totalResults,
+      totalFetched,
+      patientSearchPageSize,
+      facilityID,
+    };
   } catch (error) {
-    console.error("Error loading facility details:", error);
-    return fail(409, {
-      error: "Could not get facility information.",
-      success: false,
+    console.error(error);
+
+    return fail(500, {
+      description: "Could not get divisions of the facility.",
     });
   }
-
-  return { // paul: ha
-      divisions: divisions ?? [], 
-      error: divisions.length === 0 ? "No divisions found for this facility." : null,
-      facilityName: facility.name,
-      facilityID: facility?.facilityID
-    };
 };
 
 export const actions = {
   search: async ({ request, params }) => {
     const formData = await request.formData();
-    let query = formData.get("query") as string;
+
     const { facilityID } = params;
+
+    let query = formData.get("query")?.toString().trim();
 
     if (!facilityID) {
       return fail(400, { error: "Facility ID is required.", description: "search", success: false });
     }
 
-    if (!query || query.trim() === "") {
+    if (!query) {
       return fail(400, { error: "Please enter a search query.", description: "search", success: false });
     }
 
-    query = query.trim();
-
-    throw redirect(303, "/facilityInfo/"+facilityID+"/divisions/"+query);
+    const url = `/facilityInfo/${facilityID}/divisions copy/${query}`;
+  
+    throw redirect(303, url);
   },
 
   viewDetails: async ({ request, params }) => {
     const formData = await request.formData();
-    const { facilityID } = params;
-    const divisionID = formData.get("divisionID") as string;
-    const divisionName = formData.get("divisionName") as string;
 
-    if (!facilityID || !divisionID || !divisionName) {
-      return fail(400, 
-        { 
-          error: "Don't manipulate the hidden data please",
-          description: 'search',
-          success: false
-        }
-      );
+    const { facilityID } = params;
+
+    const divisionID = formData.get("divisionID")?.toString().trim();
+
+    if (!facilityID || !divisionID) {
+      return fail(400, { error: "Don't manipulate the hidden data please.", description: "search", success: false });
     }
 
-    throw redirect(303, "/facilityInfo/"+facilityID+"/divisionInfo/"+ divisionID);
+    const url = `/facilityInfo/${facilityID}/divisionInfo/${divisionID}`;
+
+    throw redirect(303, url);
   },
 } satisfies Actions;

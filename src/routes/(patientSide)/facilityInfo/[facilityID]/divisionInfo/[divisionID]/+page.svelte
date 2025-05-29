@@ -1,84 +1,77 @@
 <script lang="ts">
   import type { PageProps } from './$types';
+
+  import { normalizePhoneNumberForSMS } from '$lib/patientComponents/details/detailsUtility';
+
+  import {type ServiceDTO } from '$lib';
+  import { dateToTimeMapping } from '$lib/mappings'; 
+
+  import Header from '$lib/patientComponents/Header.svelte';
+  import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';
+  import Accordion from '$lib/patientComponents/Accordion.svelte';
+	import ServiceStethoscope from '$lib/icons/ServiceStethoscope.svelte';
+	import Phone from '$lib/icons/Phone.svelte';
+	import Email from '$lib/icons/Email.svelte';
+	import Clock from '$lib/icons/Clock.svelte';
+
   let { data }: PageProps = $props();
 
-  let phoneNumber = $state(data.phoneNumber);
-  let divisionName = $state(data.divisionName);
-  let email = $state(data.email);
-  let openTime = $state(data.openTime);
-  let closingTime = $state(data.closeTime);
-  let hasServices = $state(data.hasServices);
-  let services = $state(data.services);
+  let name = data.name;
+  let openingTime = data.openingTime;
+  let closingTime = data.closingTime;
+  let email = data.email;
+  let phoneNumber = data.phoneNumber;
+  let services: ServiceDTO[] = data.services;
 
-  const formatTime = (time: string) => {
-    const date = new Date(time);
-    return date.toLocaleTimeString('en-PH', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  };
+  const mappedOpeningTime = dateToTimeMapping(openingTime);
+  const mappedClosingTime = dateToTimeMapping(closingTime);
 </script>
 
-<div class="max-w-md mx-auto bg-[#FDFCFD] shadow-lg ">
-  <!-- Header Facility Name -->
-  <div class=" bg-gray-100 p-5 border-b border-gray-300 flex justify-between items-center">
-    <button class="text-gray-600 hover:text-gray-900">✖</button>
-    <h2 class="text-xl font-bold text-center flex-1 -ml-4"><strong>{divisionName}</strong></h2>
+{#snippet divisionServices()}
+	{#each services as service}
+		<div class={`${services.length > 1 ? "mb-2" : ""}`}>
+      <InfoRow
+        icon={ServiceStethoscope}
+        value={service.type}
+      />
+    </div>
+  {/each}
+{/snippet}
+
+<Header text={name} icon="X" />
+
+<div class="flex items-center justify-center flex-col gap-4 w-full px-6 pt-6 pb-14">
+  <div class="w-full">
+    <Accordion text="Services" content={divisionServices}/>
   </div>
 
-  <!-- Service and Info!!!-->
-  <div class="p-5 max-h-[calc(100vh-100px)] overflow-y-auto">
-    <!-- Contact Information -->
-    <div>
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        ☎ Contact Information and Hours
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Phone Number:</strong> {phoneNumber}
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Email:</strong> {email}
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Hours:</strong> {formatTime(openTime)} - {formatTime(closingTime)}
-      </p>
-    </div>
+  <div class="flex flex-col items-start gap-2 self-stretch">
+    <p class="text-primary-500 text-sm font-bold tracking-tight leading-tight">
+      Contact Information and Hours
+    </p>
 
-    <hr class="my-4 border-gray-300">
-    <!-- Details -->
-    <div>
-      <p class="text-[#9044C4] font-semibold flex items-center gap-2">
-        📝 Details
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Minimum Coverage Radius:</strong> 
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Base Rate:</strong> Php 
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Maximum Coverage Radius:</strong> 
-      </p>
-      <p class="text-gray-700 text-sm">
-        <strong>Mileage Rate:</strong> Php 
-      </p>
-    </div>
-    <hr class="my-4 border-gray-300">
+    <InfoRow
+      icon={Phone}
+      label="Phone Number"
+      value={phoneNumber}
+      isLink={true}
+      href={`sms:${normalizePhoneNumberForSMS(phoneNumber)}`}
+    />
 
-    <div>
-      <p class="text-[#9044C4] text-center font-semibold flex items-center gap-2">
-        Services Offered
-      </p>
-      {#if hasServices}
-        <ul>
-          {#each services as service}
-            <li class="text-sm">{service.type}</li>
-          {/each}
-        </ul>
-      {/if}
+    {#if email}
+      <InfoRow
+        icon={Email}
+        label="Email Address"
+        value={email}
+        isLink={true}
+        href={`mailto:${email}`}
+      />
+    {/if}
 
-    </div>
+    <InfoRow
+      icon={Clock}
+      label="Hours"
+      value={`${mappedOpeningTime} - ${mappedClosingTime}`}
+    />
   </div>
 </div>
-

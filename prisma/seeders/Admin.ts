@@ -1,58 +1,99 @@
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "../../src/lib/server/dataLayer/prisma";
 
 import { Role } from "@prisma/client";
 
+import { createPassword, getFacilities, getDivisions } from "./seedersUtility";
+
 import { faker } from "@faker-js/faker";
 
-import bcrypt from "bcryptjs";
+async function createAdmin(data: { facilityID: string, index: number, divisionIDs?: string[] }): Promise<void> {
+  const hashedPassword: string = await createPassword();
 
-const prisma = new PrismaClient();
+  const { facilityID, index, divisionIDs } = data;
 
-export async function seedAdmin() {
-  const facilities = await prisma.facility.findMany({
-    select: {
-      facilityID: true
+  const employeeID: string = `${facilityID}-admin-${index}`;
+
+  const divisionConnect = divisionIDs
+    ? {
+        divisions: {
+          connect: divisionIDs.map((divisionID) => ({ divisionID }))
+        }
+      }
+    : {};
+
+  await prisma.employee.upsert({
+    where: { 
+      employeeID 
+    },
+    update: {
+
+    },
+    create: {
+      employeeID,
+      password : hashedPassword,
+      role     : Role.ADMIN,
+      fname    : faker.person.firstName(faker.person.sexType()),
+      lname    : faker.person.lastName(),
+
+      facilityID,
+  
+      ...divisionConnect,
+
+      ...(faker.datatype.boolean() && { mname: faker.person.middleName() })
     }
   });
+}
 
-  for (const facility of facilities) {
-    const divisions = await prisma.division.findMany({
-      where: {
-        facilityID: facility.facilityID
-      },
-      select: {
-        divisionID: true
+export async function seedAdmin() {
+  const facilities = await getFacilities();
+
+  for (const { facilityID } of facilities) {
+    const divisionIDs: string[] = await getDivisions(facilityID);
+
+    const hasDivisions: boolean = divisionIDs.length > 0;
+
+    let index: number = 0;
+
+    if (hasDivisions) {
+      for (const divisionID of divisionIDs) {
+        await createAdmin({
+          facilityID,
+          index: index++,
+          divisionIDs: [divisionID]
+        });
       }
-    });
 
-    for (let i = 0; i < 5; i++) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash("password", salt);
+      const remaining = 30 - divisionIDs.length;
 
-      const employeeID = `${facility.facilityID}-admin-${i}`;
+      const mNum = Math.min(20, 30 - divisionIDs.length);
 
-      const divisionConnect =
-        divisions.length > 0
-          ? {
-              divisions: {
-                connect: divisions.slice(i % divisions.length).concat(divisions).slice(0, Math.min(3, divisions.length)).map((division) => ({ divisionID: division.divisionID }))
-              }
-            }
-          : {};
+      const oNum = 30 - divisionIDs.length - mNum;
 
-      await prisma.employee.upsert({
-        where: { employeeID },
-        update: {},
-        create: {
-          employeeID,
-          password   : hashedPassword,
-          role       : Role.ADMIN,
-          fname      : faker.person.firstName(faker.person.sexType()),
-          lname      : faker.person.lastName(),
-          facilityID : facility.facilityID,
-          ...divisionConnect
-        }
-      });
+      for (let i = 0; i < oNum; i++) {
+        const [randomDivision]: string[] = faker.helpers.shuffle(divisionIDs).slice(0, 1);
+
+        await createAdmin({
+          facilityID,
+          index: index++,
+          divisionIDs: [randomDivision]
+        });
+      }
+
+      for (let i = 0; i < mNum; i++) {
+        const num: number = faker.number.int({ min: 2, max: divisionIDs.length });
+
+        const randomDivisions: string[] = faker.helpers.shuffle(divisionIDs).slice(0, num);
+
+        await createAdmin({
+          facilityID,
+          index: index++,
+          divisionIDs: randomDivisions
+        });
+      }
+    } else {
+      for (let i = 0; i < 20; i++) {
+        await createAdmin({ facilityID, index: index++ });
+      }
     }
   }
 }

@@ -7,9 +7,13 @@
   // PopUps
   import DeleteDivisionConfirm from "./DeleteDivisionConfirm.svelte";
   import DeleteDivisionRestricted from "./DeleteDivisionRestricted.svelte";
-  import AddDivision from './AddDivision.svelte';
+  import AddDivision from './ElleAddDivision.svelte';
   import EditDivision from './EditDivision.svelte';
   import { pagingQueryHandler } from '$lib/postHandlers';
+
+  import PageBar from "$lib/facilityComponents/PageBar.svelte";
+  import SearchViewBar from '$lib/facilityComponents/SearchViewBar.svelte';
+  import ManageHeader from '$lib/facilityComponents/ManageHeader.svelte';
 
   let { data, form }: PageProps = $props();
 
@@ -24,7 +28,7 @@
   let currPopUp: String = $state("")
 
   let query = $state('')
-  
+  let viewedDivisionID = $state("Default")
   let error = $state('')
   let errorLoc = $state('')
 
@@ -32,7 +36,6 @@
 
   // ===================================
   let perPage = $state(10);
-  let options = [10, 20, 50];
 
   async function getPage(change: number) {
     try {
@@ -59,13 +62,22 @@
       getPage(0)
     }
   }
+
+  let divisionNameSelected: string = $state("");
 </script>
 
 {#if currPopUp === "delete"}
   <DeleteDivisionConfirm
+    { data }
     { form }
+    {perPage}
+    bind:divisions={divisions}
     bind:currPopUp={currPopUp}
-    divisionID={selectedDivisionID}
+    bind:currentPage={currentPage}
+    bind:totalPages={totalPages}
+    divisionID={String(selectedDivisionID)}
+    divisionName={divisionNameSelected}
+
   />
 
 {:else if currPopUp === "deleteRestricted"}
@@ -77,7 +89,7 @@
   <AddDivision 
     { data }
     { form }
-    {perPage}
+    { perPage }
     bind:divisions={divisions}
     bind:linkableServices={linkableServices}
     bind:currPopUp={currPopUp}
@@ -87,7 +99,7 @@
 {:else if currPopUp === "editDivision"}
   <EditDivision 
     { form }
-    {perPage}
+    { perPage }
     bind:currPopUp={currPopUp}
     bind:divisions={divisions}
     bind:currentPage={currentPage}
@@ -97,80 +109,32 @@
 {/if}
 
 <!-- Header -->
-<header class="flex items-center justify-between p-3 top-0 duration-200 sticky z-[10] px-6 bg-white shadow-sm ">
-    <!-- Back Icon -->
-  <div class="items-center flex gap-5">
-    <a href="/facility/dashboard" data-sveltekit-reload>
-      <img
-        src="/back_icon.svg"
-        alt="Back"
-        class="w-6 h-6 cursor-pointer transition-colors duration-200 hover:opacity-70 active:opacity-50"
-      />
-    </a>
-
-    <!-- Manage Services -->
-    <h2 class="font-bold text-[27px] text-[#3D1853]">Manage Divisions</h2>
-  </div>
-
-  <!-- Medlink Logo -->
-  <div class="flex items-center">
-      <img src={Logo} alt="MedLink logo" class="w-10 h-13" />
-      <h1 class="px-3 font-['DM_Sans'] text-[30px] leading-[40px] tracking-[-0.03em] font-black text-[#3D1853] drop-shadow-[0_4px_4px_rgba(0,0,0,0.25)]">Med<span class="text-[#9044C4]">Link</span></h1>
-  </div>
-</header>
+<ManageHeader
+  manage ="Divisions" 
+/>
 
 <div class="p-6 bg-gray-50 h-[calc(100vh-50px)]">
-    <!-- View and Search -->
-    <div class="w-2/3 flex items-center gap-10">
-      <input
-        type="text"
-        placeholder="search"
-        bind:value={query}
-        onkeydown={handleKeydown}
-        class="px-4 py-0 border-2 border-gray-500 rounded-3xl h-10 w-full max-w-[500px]"
+    <div class="w-3/4">
+      <SearchViewBar
+        withfilter={false}
+        bind:query
+        bind:viewedDivisionID
+        bind:errorLoc
+        bind:isInQueryMode
+        bind:currentPage
+        {data}
+        {getPage}
       />
-      {#if query.length > 0 || isInQueryMode}
-        <button 
-          type="button"
-          onclick={() => {
-          query = ""
-          error = ""
-          errorLoc = ""
-          isInQueryMode = false
-          currentPage = 1
-          getPage(0)
-        }}>
-          Clear
-        </button>
-      {/if}
-      <button 
-        type="button"
-        onclick={() => {
-        isInQueryMode = true
-        currentPage = 1
-        getPage(0)
-      }}>
-        Search
-      </button>
-      {#if errorLoc == "query"}
-        {error}
-      {/if}
-      <h1>View By:</h1>
-
-      <select class="px-4 py-0 border-2 border-gray-500 rounded-2xl h-10">
-        <option>Default</option>
-      </select>
     </div>
-
     <hr class="mt-4 border-gray-300 w-2/3">
     
     <!-- Scrollable List Container -->
-    <div class="space-y-3 mt-4 w-2/3 pl-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
+    <div class="space-y-3 mt-4 w-2/3 p-4 h-[calc(100vh-250px)] overflow-y-auto pr-8 pt-5">
       {#if errorLoc == "division"}
         {error}
       {/if}
         {#each divisions as { name, divisionID }}
-        <div class="flex items-center justify-between p-3 bg-white rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
+        <div class="flex items-center justify-between p-3 bg-background rounded-[30px] shadow-[0px_4px_10px_rgba(0,0,0,0.3)] w-full">
           <div>
             <h3 class="text-lg font-bold text-gray-900 px-4">{name}</h3>
             <p class="text-purple-600 px-4"></p>
@@ -195,6 +159,7 @@
               onclick={() => {
                 currPopUp = divisions.length > 1 ? 'delete' : 'deleteRestricted'
                 selectedDivisionID=divisionID
+                divisionNameSelected=name
               }} 
                 data-sveltekit-reload
             >
@@ -207,63 +172,22 @@
     {#if form?.description === "pass"}
       <p class="text-red-500 text-sm font-semibold">{form?.error}</p>
     {/if}
-
-
-    <!-- PAGINATIONNNNNNN -->
-    <div class="flex items-center justify-center gap-4 mt-4 w-2/3">
-      <div class="flex items-center space-x-2">
-        <!-- Double Left-->
-        <button type="button" class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center">« </button>
-
-        <!-- Single Left -->
-        <button 
-          type="button"
-          class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center"
-          onclick={() => getPage(-1)}
-          disabled={currentPage === 1} >
-          ‹
-        </button>
-
-        <!-- Current Page -->
-        <span class="bg-purple-400 p-2 w-8 h-8 hover:bg-purple-700 rounded-md text-white font-semibold flex items-center justify-center">{currentPage}</span>
-        <span class="text-gray-700 font-medium">of {totalPages}</span>
-
-        <!-- Single Right -->
-        <button 
-          type="button"
-          class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" 
-          onclick={() => getPage(1)} 
-          disabled={currentPage === totalPages}>
-          ›
-        </button>
-
-        <!-- Double Right -->
-        <button type="button" class="bg-gray-200 p-2 w-8 h-8 hover:bg-gray-300 rounded-md text-gray-700 flex items-center justify-center" >»</button>
-
-        <!-- View Dropdown -->
-        <div class="ml-4 flex items-center">
-          <label class="text-gray-700 font-medium gap-2">
-            View
-            <select
-              bind:value={perPage}
-              class="border border-gray-400 rounded-md px-2 py-1 text-gray-700 focus:outline-none"
-              onchange={()=>{
-                currentPage = 1
-                getPage(0)
-              }}
-            >
-              {#each options as option}
-                <option value={option}>{option}</option>
-              {/each}
-            </select>
-          </label>
-        </div>
-      </div>  
-    </div>
-
+  
+  <div class="w-2/3 items-center justify-center mt-4">
+    <PageBar
+      bind:currentPage={currentPage}
+      bind:totalPages={totalPages}
+      bind:perPage={perPage}
+      getPage={getPage}
+    />
+</div>
 
   <!-- Add Division -->
-  <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {currPopUp='addDivision'}}>
+  <button type="button" class="fixed bottom-6 right-6 bg-purple-500 text-white px-6 py-3 rounded-full flex items-center space-x-2 shadow-lg" onclick={() => {
+    currPopUp='addDivision' 
+    console.log(currPopUp)
+  }
+}>
     <span class="text-xl">+ Add Division</span>
   </button>
 </div>

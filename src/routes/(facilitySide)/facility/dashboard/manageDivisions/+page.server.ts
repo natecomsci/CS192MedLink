@@ -15,10 +15,7 @@ import {
         OutpatientServiceDAO,
 
         validatePhone, 
-        validateOperatingHours, 
-        validateFloat,
-        validateCoverageRadius,
-        validateCompletionTime,
+        validateOperatingHours,
         validateFacilityName,
 
         type OPServiceType, 
@@ -26,37 +23,52 @@ import {
         specializedServiceType, 
 
         type ServiceDTO, 
-        type Create_UpdateDivisionDTO, 
+        type CreateDivisionDTO, 
         type MultiServiceDivisionsDTO,
 
-        type CreateAmbulanceServiceDTO,
-        type CreateBloodBankServiceDTO,
-        type CreateERServiceDTO,
-        type CreateICUServiceDTO,
-        type CreateOutpatientServiceDTO,
         dateToTimeMapping,
         validateEmail,
         EmployeeDAO,
         FacilityAdminListDAO,
-        type Create_UpdateAdminDTO,
         AdminDAO,
+        validateAmbulance,
+        validateBloodBank,
+        validateER,
+        validateICU,
+        validateOP,
+        type UpdateAdminDTO,
+
+        ContactDAO,
+        
+        validateUser,
+        SessionDAO,
       } from '$lib';
 import bcrypt from 'bcryptjs';
+import type { Session } from '@prisma/client';
 
 const divisionDAO = new DivisionDAO();
+const contactDAO = new ContactDAO();
 const servicesDAO = new ServicesDAO();
 
 let existingServices: MultiServiceDivisionsDTO[]
+
+let sessionList: Session[]
 
 export const load: PageServerLoad = async ({ cookies }) => {
   const facilityID = cookies.get('facilityID');
   const role = cookies.get('role');
   const hasAdmins = cookies.get('hasAdmins');
   const hasDivisions = cookies.get('hasDivisions');
+  const token = cookies.get('auth-session');
+  const employeeID = cookies.get('employeeID');
 
-  if (!facilityID || !role || !hasAdmins || !hasDivisions ) {
+  if (!facilityID || !role || !hasAdmins || !hasDivisions || !token || !employeeID) {
     throw redirect(303, '/facility');
   }
+
+  const sessionDAO = new SessionDAO();
+
+  sessionList = await sessionDAO.getByEmployee(employeeID)
   
   if (hasDivisions === 'true' ? false : true) {
     throw redirect(303, '/facility/dashboard')
@@ -92,16 +104,26 @@ export const load: PageServerLoad = async ({ cookies }) => {
 export const actions = {
   deleteDivision: async ({ request, cookies }) => {
     const facilityID = cookies.get('facilityID');
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
 
-    if (!facilityID || !employeeID) {
+    if (!facilityID || !token || !employeeID) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     let facilityDivisions = await divisionDAO.getByFacility(facilityID)
 
     if (facilityDivisions.length === 1) {
-      console.log('divisionlength error')
       return fail(422, {
         error: "Cannot delete last division",
         description: "Division Validation",
@@ -125,7 +147,6 @@ export const actions = {
       for (let { serviceID } of divisionServices) {
         let newDivision = (data.get(serviceID) ?? '') as string
         if (newDivision === '') {
-          console.log('service error')
           return fail(422, {
             error: "All services in the division must be transferred to another division",
             description: "Division Validation",
@@ -136,7 +157,7 @@ export const actions = {
       }
 
       // admins
-      let adminTransfers: Record<string, Create_UpdateAdminDTO>= {}
+      let adminTransfers: Record<string, UpdateAdminDTO>= {}
 
       const facilityAdminListDAO = new FacilityAdminListDAO()
       const divisionAdmins = await facilityAdminListDAO.getSingleDivisionAdmins(facilityID)
@@ -144,7 +165,6 @@ export const actions = {
       for (let { fname, mname, lname, employeeID } of divisionAdmins.filter(d => (d.divisions ?? [{divisionID:''}])[0].divisionID === divisionID)) {
         let adminDivision = ((data.get(employeeID) ?? '') as string).split(",")
         if (adminDivision[0] === '') {
-          console.log('admin error')
           return fail(422, {
             error: "All admins in the division must be transferred to another division",
             description: "Division Validation",
@@ -185,17 +205,17 @@ export const actions = {
             await servicesDAO.delete(serviceID, facilityID, employeeID);
           }
         } else {
-          divisionDAO.connectServices(divisionID, serviceList)
+          await divisionDAO.connectServices(divisionID, serviceList)
         }
       }
 
       const adminDAO = new AdminDAO()
 
       for (const [employeeID, updateAdminDTO] of Object.entries(adminTransfers)) {
-        adminDAO.update(employeeID, updateAdminDTO)
+        await adminDAO.update(employeeID, updateAdminDTO)
       }
 
-      divisionDAO.delete(divisionID, facilityID, employeeID)
+      await divisionDAO.delete(divisionID, facilityID, employeeID)
       return {
         success: true
       }
@@ -212,17 +232,29 @@ export const actions = {
   
   addDivision: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !employeeID) {
+    if (!facilityID || !token || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const data = await request.formData();
 
     let name: string
-    let phoneNumber: string
-    let email: string | undefined
+    let phoneNumber: string[]
+    let email: string[] | undefined
     let openingTime: Date
     let closingTime: Date
 
@@ -235,16 +267,16 @@ export const actions = {
     try {
       name = validateFacilityName(divisionName);
 
-      email = await validateEmail(formEmail)
-      if (email === '') {
+      email = [await validateEmail(formEmail)]
+      if (email[0] === '') {
         email = undefined
       }
 
-      phoneNumber = validatePhone(phone);
+      phoneNumber = [validatePhone(phone, "Division")];
 
-      const facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      const facilityDivisions = await divisionDAO.getAllNamesByFacility(facilityID)
       for (let div of facilityDivisions) {
-        if (div.name === name) {
+        if (div === name) {
           return fail(422, {
             error: "Duplicate name detected",
             description: "Division Validation",
@@ -253,12 +285,11 @@ export const actions = {
         }
       }
 
-      const allDivisions = await divisionDAO.getAllUniques()
-      const allEmails = allDivisions.emails
-      const allPhones = allDivisions.phoneNumbers
+      const allEmails = await contactDAO.getAllEmails()
+      const allPhones = await contactDAO.getAllPhoneNumbers()
 
       for (let otherPhone of allPhones) {
-        if (otherPhone === phoneNumber) {
+        if (otherPhone === phoneNumber[0]) {
           return fail(422, {
             error: "Duplicate phone number detected",
             description: "Division Validation",
@@ -267,18 +298,19 @@ export const actions = {
         }
       }
 
-      for (let otherEmail of allEmails) {
-        if (email === otherEmail) {
-          return fail(422, {
-            error: "Duplicate email detected",
-            description: "Division Validation",
-            success: false
-          });
-        } 
+      if (email) {
+        for (let otherEmail of allEmails) {
+          if (otherEmail === email[0]) {
+            return fail(422, {
+              error: "Duplicate email detected",
+              description: "Division Validation",
+              success: false
+            });
+          } 
+        }
       }
 
-
-      let OCTime = validateOperatingHours(open, close)
+      let OCTime = validateOperatingHours(open, close, "Division", hasDivisions === "true")
       openingTime = OCTime.openingTime
       closingTime = OCTime.closingTime
 
@@ -291,22 +323,72 @@ export const actions = {
     }
 
     let newServices = []
-    let newService
 
-    for (let i = 0; ; i++) {
-      try {
-        newService = validateService(data, i)
-        if (!newService) {
+    const ambulanceDAO = new AmbulanceServiceDAO();
+    const bloodBankDAO = new BloodBankServiceDAO();
+    const eRDAO = new ERServiceDAO();
+    const iCUDAO = new ICUServiceDAO();
+    const outpatientDAO = new OutpatientServiceDAO();
+
+    let service: any
+
+
+
+    try {
+      for (let i = 0; ; i++) {
+        let serviceType = data.get('serviceType'+String(i)) as string;
+        if (!serviceType) {
           break;
         }
-        newServices.push(newService)
-      } catch (error) {
-        return fail(422, {
-          error: (error as Error).message,
-          description: "Service Validation",
-          success: false
-        });
+
+        switch (serviceType) {
+          case "Ambulance": {
+            // let service: CreateAmbulanceServiceDTO
+            service = validateAmbulance(data, String(i))
+            newServices.push({dao: ambulanceDAO, service, type: "Ambulance"})
+            break;
+          }
+          case "Blood Bank": {
+            // let service: CreateBloodBankServiceDTO
+            service = validateBloodBank(data, String(i))
+            newServices.push({dao: bloodBankDAO, service, type: "Blood Bank"})
+            break;
+          }
+          case "Emergency Room": {
+            // let service: CreateERServiceDTO
+            service = validateER(data, String(i))
+            newServices.push({dao: eRDAO, service, type: "Emergency Room"})
+            break;
+          }
+          case "Intensive Care Unit": {
+            // let service: CreateICUServiceDTO
+            service = validateICU(data, String(i))
+            newServices.push({dao: iCUDAO, service, type: "Intensive Care Unit"})
+            break;
+          }
+          case "Outpatient": {
+            // let service: CreateOutpatientServiceDTO
+            service = validateOP(data, String(i)) 
+            service.type = data.get('OPserviceType'+String(i)) as string,
+            newServices.push({dao: outpatientDAO, service, type: service.type})
+            break;
+          }
+          default: {
+            return fail(422, {
+              error: "Invalid service type selected",
+              description: "Division Validation",
+              success: false
+            });
+          }
+        }
       }
+      
+    } catch (error) {
+      return fail(422, {
+        error: (error as Error).message,
+        description: "Service Validation",
+        success: false
+      });
     }
 
     for (let i = 0; i < newServices.length; i++) {
@@ -321,11 +403,11 @@ export const actions = {
       }
     }
 
-//     CreateAmbulanceServiceDTO
-// CreateBloodBankServiceDTO
-// CreateERServiceDTO
-// CreateICUServiceDTO
-// CreateOutpatientServiceDTO
+    // CreateAmbulanceServiceDTO
+    // CreateBloodBankServiceDTO
+    // CreateERServiceDTO
+    // CreateICUServiceDTO
+    // CreateOutpatientServiceDTO
 
     let servicesToAttach = []
     let numberOfExistingServices
@@ -333,7 +415,7 @@ export const actions = {
 
     for (let {services} of existingServices) {
       numberOfExistingServices = services.length
-      for (let {serviceID, type} of services) {
+      for (let {serviceID} of services) {
         if (data.get(serviceID)) {
           count++
           servicesToAttach.push(serviceID)
@@ -359,7 +441,7 @@ export const actions = {
         });
     }
 
-    const division: Create_UpdateDivisionDTO = {
+    const division: CreateDivisionDTO = {
       name,
       phoneNumber,
       email,
@@ -369,12 +451,12 @@ export const actions = {
 
     try {
       const divisionID = await divisionDAO.create(facilityID, employeeID, division)
-      for (newService of newServices) {
+      for (var newService of newServices) {
         const serviceID = await newService.dao.create(facilityID, employeeID, newService.service)
         servicesToAttach.push(serviceID)
       }
 
-      divisionDAO.connectServices(divisionID, servicesToAttach)
+      await divisionDAO.connectServices(divisionID, servicesToAttach)
       
     } catch (error) {
       return fail(422, {
@@ -391,10 +473,22 @@ export const actions = {
 
   editDivision: async ({ cookies, request }) => {
     const facilityID = cookies.get('facilityID');
+    const token = cookies.get('auth-session');
     const employeeID = cookies.get('employeeID');
+    const hasDivisions = cookies.get('hasDivisions');
 
-    if (!facilityID || !employeeID) {
+    if (!facilityID || !token || !employeeID || !hasDivisions) {
       throw redirect(303, '/facility');
+    }
+
+    const validateSession = await validateUser(sessionList, token, employeeID)
+
+    if (!validateSession) {
+      return fail(422, { 
+        error: "User is not authenticated",
+        description: "authentication",
+        success: false  
+      });
     }
 
     const data = await request.formData();
@@ -412,14 +506,14 @@ export const actions = {
     }
 
     let defName: string = division.name
-    let defPhoneNumber: string = division.phoneNumber
-    let defEmail: string = division.email ?? ''
+    let defPhoneNumber: string[] = division.phoneNumber
+    let defEmail: string[] = division.email ?? []
     let defOpeningTime: String = dateToTimeMapping(division.openingTime)
     let defClosingTime: String = dateToTimeMapping(division.closingTime)
 
     let name: string
-    let phoneNumber: string
-    let email: string | undefined
+    let phoneNumber: string[]
+    let email: string[] | undefined
     let openingTime: Date
     let closingTime: Date
 
@@ -432,17 +526,17 @@ export const actions = {
     try {
       name = validateFacilityName(divisionName);
 
-      email = await validateEmail(formEmail)
-      if (email === '') {
+      email = [await validateEmail(formEmail)]
+      if (email[0] === '') {
         email = undefined
       }
 
-      phoneNumber = validatePhone(phone);
+      phoneNumber = [validatePhone(phone, "Division")];
 
-      const facilityDivisions = await divisionDAO.getByFacility(facilityID)
+      const facilityDivisions = await divisionDAO.getAllNamesByFacility(facilityID)
       let countName = 0
       for (let div of facilityDivisions) {
-        if (div.name === name) {
+        if (div === name) {
           countName++ 
         }
         if (countName > 1) {
@@ -454,13 +548,11 @@ export const actions = {
         }
       }
 
-      const allDivisions = await divisionDAO.getAllUniques()
-
-      const allPhones = allDivisions.phoneNumbers
+      const allPhones = await contactDAO.getAllPhoneNumbers()
       let countPhones = 0
 
       for (let otherPhone of allPhones) {
-        if (otherPhone === phoneNumber) {
+        if (otherPhone === phoneNumber[0]) {
           countPhones++ 
         }
         if (countPhones > 1) {
@@ -472,23 +564,25 @@ export const actions = {
         }
       }
 
-      const allEmails = allDivisions.emails
+      const allEmails = await contactDAO.getAllEmails()
       let countEmails = 0
 
-      for (let otherEmail of allEmails) {
-        if (otherEmail === email) {
-          countEmails++ 
+      if (email) {
+        for (let otherEmail of allEmails) {
+          if (otherEmail === email[0]) {
+            countEmails++ 
+          }
+          if (countEmails > 1) {
+            return fail(422, {
+              error: "Duplicate email detected",
+              description: "Division Validation",
+              success: false
+            });
+          } 
         }
-        if (countEmails > 1) {
-          return fail(422, {
-            error: "Duplicate email detected",
-            description: "Division Validation",
-            success: false
-          });
-        } 
       }
 
-      const OPHours = validateOperatingHours(open, close)
+      const OPHours = validateOperatingHours(open, close, "Division", hasDivisions === "true")
       openingTime = OPHours.openingTime
       closingTime = OPHours.closingTime
     } catch (error) {
@@ -500,7 +594,7 @@ export const actions = {
     }
 
     if (defName == name &&
-        defPhoneNumber == phoneNumber&&
+        defPhoneNumber.toString() == phoneNumber.toString() &&
         defOpeningTime == dateToTimeMapping(openingTime) && 
         defClosingTime == dateToTimeMapping(closingTime) && 
         defEmail == email
@@ -520,13 +614,16 @@ export const actions = {
       closingTime,
     }
 
-    divisionDAO.update(divisionID, facilityID, employeeID, div)
+    await divisionDAO.update(divisionID, facilityID, employeeID, div)
+    return {
+      success: true
+    }
   },
 } satisfies Actions;
 
 
 function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[] {
-  let availableServices: String[] = ["None"]
+  let availableServices: String[] = []
   
   for (let serviceType of specializedServiceType) { 
     if (!serviceTypes.includes(serviceType)) {
@@ -537,7 +634,7 @@ function getAvailableSpecializedServices(serviceTypes: OPServiceType[]): String[
 }
 
 function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
-  let availableOPServices: String[] = ["None"]
+  let availableOPServices: String[] = []
   
   for (let serviceType of OPServiceTypes) { 
     if (!serviceTypes.includes(serviceType)) {
@@ -547,170 +644,3 @@ function getAvailableOPServices(serviceTypes: OPServiceType[]): String[] {
   return availableOPServices;
 }
 
-function validateService(data: FormData, i: number): any {
-  const serviceType = data.get('serviceType'+String(i));
-  if (!serviceType) {
-    return
-  }
-  const phone    = data.get('phoneNumber'+String(i));
-  const open     = data.get('opening'+String(i));
-  const close    = data.get('closing'+String(i));
-  const rates    = data.get('price'+String(i));
-
-  const minCover = data.get('minCoverageRadius'+String(i));
-  const mileRate = data.get('mileageRate'+String(i));
-  const maxCover = data.get('maxCoverageRadius'+String(i));
-
-  const turnTD  = data.get('turnaroundDays'+String(i));
-  const turnTH  = data.get('turnaroundHours'+String(i));
-
-  const OPType  = data.get('OPserviceType'+String(i));
-  const compTD  = data.get('completionDays'+String(i));
-  const compTH  = data.get('completionHours'+String(i));
-  const walkins = data.get('acceptWalkins'+String(i));
-  
-  switch (serviceType){
-    case "Ambulance": {
-      let phoneNumber: string
-      let openingTime: Date
-      let closingTime: Date
-      let baseRate: number
-      let minCoverageRadius: number
-      let mileageRate: number
-      let maxCoverageRadius: number
-
-      try {
-        phoneNumber = validatePhone(phone);
-        baseRate = validateFloat(rates, "Base Rate");
-        mileageRate = validateFloat(mileRate, "Mileage Rate");
-
-        let OCTime = validateOperatingHours(open, close)
-        openingTime = OCTime.openingTime
-        closingTime = OCTime.closingTime
-
-        let radius = validateCoverageRadius(minCover, maxCover)
-        minCoverageRadius = radius.minCoverageRadius
-        maxCoverageRadius = radius.maxCoverageRadius
-
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateAmbulanceServiceDTO = {
-        phoneNumber,
-        openingTime,
-        closingTime,
-        baseRate,
-        minCoverageRadius,
-        mileageRate,
-        maxCoverageRadius
-      }
-
-      const dao = new AmbulanceServiceDAO();
-      return {dao, service, type:"Ambulance"}
-    }
-
-    case "Blood Bank": {
-      let phoneNumber: string
-      let openingTime: Date
-      let closingTime: Date
-      let basePricePerUnit: number
-      let turnaroundTimeD: number
-      let turnaroundTimeH: number
-
-      try {
-        phoneNumber = validatePhone(phone);
-        basePricePerUnit = validateFloat(rates, "Price Per Unit");
-
-        let OCTime = validateOperatingHours(open, close)
-        openingTime = OCTime.openingTime
-        closingTime = OCTime.closingTime
-
-        let TTime = validateCompletionTime(turnTD, turnTH, "Turnarond")
-        turnaroundTimeD = TTime.days
-        turnaroundTimeH = TTime.hours
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateBloodBankServiceDTO = {
-        phoneNumber,
-        openingTime,
-        closingTime,
-        basePricePerUnit,
-        turnaroundTimeD,
-        turnaroundTimeH
-      }
-
-      const dao = new BloodBankServiceDAO();
-      return {dao, service, type:"Blood Bank"}
-    }
-
-    case "Emergency Room": {
-      let phoneNumber: string
-
-      try {
-        phoneNumber = validatePhone(phone);
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateERServiceDTO = {
-        phoneNumber
-      }
-
-      const dao = new ERServiceDAO();
-      return {dao, service, type:"Emergency Room"}
-    }
-
-    case "Intensive Care Unit": {
-      let phoneNumber: string
-      let baseRate: number
-
-      try {
-        phoneNumber = validatePhone(phone);
-        baseRate = validateFloat(rates, "Base Rate");
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateICUServiceDTO = {
-        phoneNumber,
-        baseRate
-      }
-
-      const dao = new ICUServiceDAO();
-      return {dao, service, type:"Intensive Care Unit"}
-    }
-
-    case "Outpatient": {
-      let basePrice: number
-      let completionTimeD: number
-      let completionTimeH: number
-
-      const OPserviceType     = OPType as string;
-      const acceptsWalkIns    = walkins === 'on';
-
-      try {
-        basePrice = validateFloat(rates, "Price");
-      
-        let CTime = validateCompletionTime(compTD, compTH, "Completion")
-        completionTimeD = CTime.days
-        completionTimeH = CTime.hours
-      } catch (error) {
-        throw new Error((error as Error).message);
-      }
-
-      const service: CreateOutpatientServiceDTO = {
-        type: OPserviceType,
-        basePrice,
-        completionTimeD,
-        completionTimeH,
-        acceptsWalkIns
-      }
-
-      const dao = new OutpatientServiceDAO();
-      return {dao, service, type:"Outpatient"}
-    }
-  }
-}

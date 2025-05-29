@@ -1,0 +1,611 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./app/generated/prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// MODELS
+
+model Region {
+  regionID Int @id
+
+  name String @unique
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // Region - POrC : A Region may have multiple Provinces or Cities.
+
+  pOrCs POrC[]
+
+  // Region - Address : A Region may be referenced by multiple Addresses.
+
+  addresses Address[]
+}
+
+model POrC {
+  pOrCID Int @id
+
+  name String @unique
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // POrC - Region : A Province is associated with one Region.
+
+  region   Region @relation(fields: [regionID], references: [regionID])
+  regionID Int
+
+  // POrC - COrM : A Province may have multiple Cities or Municipalities.
+
+  cOrMs COrM[]
+
+  // POrC - Address : A Province may be referenced by multiple Addresses.
+
+  addresses Address[]
+}
+
+model COrM {
+  cOrMID Int @id
+
+  name String
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // COrM - POrC : A City or Municipality is associated with one Province.
+
+  pOrC   POrC @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID Int
+
+  // COrM - Brgy : A City or Municipality may have multiple Barangays.
+
+  brgys Brgy[]
+
+  // COrM - Address : A Municipality or Barangay may be referenced by multiple Addresses.
+
+  addresses Address[]
+}
+
+model Brgy {
+  brgyID Int @id
+
+  name String
+  id   Int    @default(autoincrement())
+
+  // RELATIONS
+
+  // Brgy - COrM : A Barangay is associated with one City or Municipality.
+
+  cOrM   COrM @relation(fields: [cOrMID], references: [cOrMID])
+  cOrMID Int
+
+  // Brgy - Address : A Barangay may be referenced by multiple Addresses.
+
+  addresses Address[]
+}
+
+// Address cohesion is (e.g. region = 3, pOrC = NCR, COrM = Platero is not allowed) is handled by business logic.
+
+// A separate Prisma model may not be so good for performance but a needed cop-out solution because only Prisma + MongoDB supports composite attributes.
+
+model Address {
+  region   Region @relation(fields: [regionID], references: [regionID])
+  regionID Int
+
+  pOrC   POrC @relation(fields: [pOrCID], references: [pOrCID])
+  pOrCID Int
+
+  cOrM   COrM @relation(fields: [cOrMID], references: [cOrMID])
+  cOrMID Int
+
+  brgy   Brgy @relation(fields: [brgyID], references: [brgyID])
+  brgyID Int
+
+  street String
+
+  // RELATIONS
+
+  // Address - Facility : An Address is tied to one Facility.
+
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String   @id
+
+  @@unique([regionID, pOrCID, cOrMID, brgyID, street]) // Ensures each Facility has a unique Address.
+}
+
+model Facility {
+  facilityID String @id @default(dbgenerated("randomid()")) @db.Text
+
+  name              String
+  photo             String
+  address           Address? // "?" because Prisma cannot enforce "at least one ..." constraints.
+  openingTime       DateTime?    @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime       DateTime?    @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  facilityType      FacilityType
+  ownership         Ownership // Enum: PUBLIC or PRIVATE
+  bookingSystem     String?
+  acceptedProviders Provider[]
+  updatedAt         DateTime     @updatedAt
+
+  // RELATIONS
+
+  // Facility - Contact :
+
+  // If a Facility has no Divisions, it must have at least one Phone Number. This constraint is handled by business logic.
+
+  // If it has Divisions, it may still have Phone Numbers, but it is not required.
+
+  // A Facility may or may not have Emails regardless of whether it has Divisions. 
+
+  contacts Contact[]
+
+  // operatingHours OperatingHour[]
+
+  // Facility - Service : A Facility must have at least one Service. This constraint is handled by business logic.
+
+  // A Facility may have exactly one of each specialized Service: Ambulance, Blood Bank, Emergency Room, Intensive Care Unit, or multiple Outpatient Services. This constraint is handled by business logic.
+
+  services Service[]
+
+  // Facility - Manager : A Facility must have exactly one Manager. This constraint is handled by business logic.
+
+  // Facility - Admin : A Facility may or may not have Admins.
+
+  employees Employee[]
+
+  // Facility - Division : A Facility may or may not have Divisions.
+
+  divisions Division[]
+
+  // Facility - Update Log : A Facility may or may not have Update Logs.
+
+  logs UpdateLog[]
+}
+
+model Division {
+  divisionID String @id @default(dbgenerated("randomid()")) @db.Text
+
+  name        String
+  openingTime DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // RELATIONS
+
+  // Division - Contact :
+
+  // A Division must have at least one Phone Number. This constraint is handled by business logic.
+
+  // A Division may or may not have Emails.
+
+  contacts Contact[]
+
+  // operatingHours OperatingHour[]
+
+  // Facility - Divisions : A Facility may or may not have Divisions.
+
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Division - Service : A Division must have at least one Service. This constraint is handled by business logic.
+
+  // A Division may have exactly one of each specialized Service (Ambulance, Blood Bank, Emergency Room, Intensive Care Unit) or multiple Outpatient Services. This constraint is handled by business logic.
+
+  services Service[]
+
+  // Division - Admin : A Division may or may not have Admins.
+
+  admins Employee[]
+
+  // Division - Update Log : A Division may or may not have Update Logs.
+
+  logs UpdateLog[]
+}
+
+// Table for both Managers and Admins of a Facility.
+
+model Employee {
+  employeeID String @id @default(dbgenerated("randomid()")) @db.Text
+
+  password String
+
+  role      Role
+  fname     String
+  mname     String?
+  lname     String
+  photo     String   @default("https://placehold.co/1080x1080/png")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // RELATIONS
+
+  sessions Session[]
+
+  // Manager - Facility : A Manager must work for exactly one Facility.
+
+  // Admin - Facility : An Admin must work for exactly one Facility.
+
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Admin - Division : If a Facility has Divisions, every Admin must be assigned to at least one Division. This constraint is handled by business logic.
+
+  divisions Division[]
+
+  // Employee : An Employee may or may not be associated with Update Logs.
+
+  updateLog UpdateLog[]
+}
+
+model Session {
+  sessionID String @id
+
+  expiresAt DateTime
+
+  employee   Employee @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
+  employeeID String
+}
+
+model Service {
+  serviceID String @id @default(dbgenerated("randomid()")) @db.Text
+
+  type      String
+  keywords  String[]
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // RELATIONS
+
+  // Service - Contact :
+
+  // A specialized Service (Ambulance, Blood Bank, Emergency Room, Intensive Care Unit) may or may not have its own Phone Numbers.
+
+  // If a specialized Service has no Phone Numbers, it is associated with the Phone Numbers of its offering Facility or Division.
+
+  // Outpatient Services are always associated with the Phone Numbers of their offering Facility or Division.
+
+  // JOKE LANG HEHE BUSINESS LOGIC LAYER NA TO
+
+  phoneNumbers Contact[]
+
+  // operatingHours OperatingHour[]
+
+  // Service - Facility : A Service must belong to exactly one Facility.
+
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Service - Division : If a Facility has Divisions, every Service must belong to a Division.
+
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: SetNull) // More sophisticated deletion handling is handled by business logic.
+  divisionID String?
+
+  // Links to specific Services
+  ambulanceService  AmbulanceService?
+  bloodBankService  BloodBankService?
+  erService         ERService?
+  icuService        ICUService?
+  outpatientService OutpatientService?
+
+  // REMINDER FOR PAUL: DO POSTGRESQL MANUAL ENFORCEMENT OF RELATION THINGIES
+
+  @@unique([facilityID, type]) // Ensures one Service of a specific type exists per Facility.
+}
+
+model AmbulanceService {
+  openingTime       DateTime?    @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime       DateTime?    @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  availability      Availability @default(UNAVAILABLE)
+  baseRate          Float
+  minCoverageRadius Float
+  mileageRate       Float
+  maxCoverageRadius Float
+
+  // RELATIONS
+
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
+}
+
+model BloodTypeMapping {
+  // Naming Convention: _P = Positive, _N = Negative
+  A_P  Boolean @default(false)
+  A_N  Boolean @default(false)
+  B_P  Boolean @default(false)
+  B_N  Boolean @default(false)
+  O_P  Boolean @default(false)
+  O_N  Boolean @default(false)
+  AB_P Boolean @default(false)
+  AB_N Boolean @default(false)
+
+  // RELATIONS
+
+  BloodBankService BloodBankService @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID        String           @id
+}
+
+model BloodBankService {
+  openingTime           DateTime?         @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime           DateTime?         @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  basePricePerUnit      Float
+  turnaroundTimeD       Int // Day.
+  turnaroundTimeH       Int // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  bloodTypeAvailability BloodTypeMapping? // "?" because Prisma cannot enforce "at least one ..." constraints.
+
+  // RELATIONS
+
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
+}
+
+model ERService {
+  openingTime          DateTime? @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime          DateTime? @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  load                 Load      @default(CLOSED)
+  availableBeds        Int       @default(0)
+  nonUrgentPatients    Int       @default(0)
+  nonUrgentQueueLength Int       @default(0)
+  urgentPatients       Int       @default(0)
+  urgentQueueLength    Int       @default(0)
+  criticalPatients     Int       @default(0)
+  criticalQueueLength  Int       @default(0)
+
+  // RELATIONS
+
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
+}
+
+model ICUService {
+  openingTime         DateTime? @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  closingTime         DateTime? @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic. // TEMPORARY
+  load                Load      @default(CLOSED)
+  baseRate            Float
+  availableBeds       Int       @default(0)
+  cardiacSupport      Boolean   @default(false)
+  neurologicalSupport Boolean   @default(false)
+  renalSupport        Boolean   @default(false)
+  respiratorySupport  Boolean   @default(false)
+
+  // RELATIONS
+
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
+}
+
+model OutpatientService {
+  basePrice       Float
+  completionTimeD Int // Day.
+  completionTimeH Int // Hour. The limit to its possible values (0 - 23) is handled by business logic.
+  isAvailable     Boolean @default(false)
+  acceptsWalkIns  Boolean
+
+  // RELATIONS
+
+  service   Service @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String  @id
+}
+
+model Contact {
+  contactID String      @id @default(dbgenerated("randomid()")) @db.Text
+  info      String      @unique // Either a Phone Number or an Email.
+  type      ContactType // Enum: PHONE or EMAIL
+
+  // RELATIONS 
+
+  // A Contact may be associated with either a Facility, a Division, or a specialized Service.
+
+  facility   Facility? @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String?
+
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
+  divisionID String?
+
+  service   Service? @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+  serviceID String?
+
+  // REMINDER FOR PAUL: DO POSTGRESQL MANUAL ENFORCEMENT OF RELATION THINGIES
+}
+
+/**
+ * model OperatingHour {
+ * operatingHourID String   @id @default(dbgenerated("randomid()")) @db.Text
+ * day             Day
+ * openingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+ * closingTime     DateTime @db.Time(0) // Format: 00:00:00. In UTC. Timezone conversion is handled by business logic.
+ * // RELATIONS
+ * // An Operating Hour may be related to a Facility or a Division, or a specialized Service. This constraint is handled by business logic.
+ * facility   Facility? @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+ * facilityID String?
+ * division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
+ * divisionID String?
+ * service    Service?  @relation(fields: [serviceID], references: [serviceID], onDelete: Cascade)
+ * serviceID  String?
+ * // REMINDER FOR PAUL: DO POSTGRESQL MANUAL ENFORCEMENT OF RELATION THINGIES
+ * @@unique([day, facilityID])
+ * @@unique([day, divisionID])
+ * @@unique([day, serviceID])
+ * }
+ */
+
+model UpdateLog {
+  updateLogID String @id @default(dbgenerated("randomid()")) @db.Text
+
+  entity    String
+  action    Action
+  createdAt DateTime @default(now())
+
+  // Update Log - Facility : An Update Log is linked to exactly one Facility.
+  facility   Facility @relation(fields: [facilityID], references: [facilityID], onDelete: Cascade)
+  facilityID String
+
+  // Update Log - Division : If a Facility has Divisions, every Update Log must be linked to exactly one Division.
+  division   Division? @relation(fields: [divisionID], references: [divisionID], onDelete: Cascade)
+  divisionID String?
+
+  // Update Log - Employee : An Update Log is linked to exactly one Employee, who is either a Manager or an Admin.
+  employee   Employee @relation(fields: [employeeID], references: [employeeID], onDelete: Cascade)
+  employeeID String
+}
+
+// ENUMS
+
+enum FacilityType {
+  // Hospitals & General Medical Centers  
+  BARANGAY_HEALTH_CENTER
+  CLINIC
+  HEALTH_CENTER
+  HOSPITAL
+  INFIRMARY
+  POLYCLINIC
+  PRIMARY_CARE_CLINIC
+
+  // Specialty Medical Clinics
+  ALLERGY_CLINIC
+  CARDIOLOGY_CLINIC
+  DENTAL_CLINIC
+  DERMATOLOGY_CLINIC
+  ENDOCRINOLOGY_CLINIC
+  ENT_CLINIC
+  FERTILITY_CLINIC
+  GASTROENTEROLOGY_CLINIC
+  IMMUNOLOGY_CLINIC
+  INFECTIOUS_DISEASE_CLINIC
+  MATERNITY_CLINIC
+  NEPHROLOGY_CLINIC
+  NEUROLOGY_CLINIC
+  ONCOLOGY_CLINIC
+  OPHTHALMOLOGY_CLINIC
+  ORTHOPEDIC_CLINIC
+  PEDIATRIC_CLINIC
+  PULMONOLOGY_CLINIC
+  RHEUMATOLOGY_CLINIC
+  UROLOGY_CLINIC
+
+  // Diagnostic & Laboratory Facilities
+  DIAGNOSTIC_LAB
+  GENETIC_TESTING_LAB
+  PATHOLOGY_LAB
+  RADIOLOGY_CENTER
+  MICROBIOLOGY_LAB
+  TOXICOLOGY_LAB
+
+  // Emergency & Critical Care
+  BURN_CENTER
+  CRITICAL_CARE_CENTER
+  EMERGENCY_CENTER
+  POISON_CONTROL_CENTER
+  TRAUMA_CENTER
+  URGENT_CARE_CENTER
+
+  // Specialized Treatment Centers
+  BLOOD_BANK
+  DIALYSIS_CENTER
+  MENTAL_HEALTH_CENTER
+  PAIN_MANAGEMENT_CENTER
+  REHABILITATION_CENTER
+  SLEEP_CENTER
+  SUBSTANCE_ABUSE_CENTER
+  TRANSPLANT_CENTER
+
+  // Therapy & Alternative Medicine
+  ALTERNATIVE_MEDICINE_CENTER
+  PHYSICAL_THERAPY_CENTER
+  OCCUPATIONAL_THERAPY_CENTER
+  SPEECH_THERAPY_CENTER
+
+  // Surgical & Ambulatory Care
+  AMBULATORY_CARE_CENTER
+  SURGICAL_CENTER
+
+  // Ambulance Services
+  AMBULANCE_SERVICE
+}
+
+enum Ownership {
+  PUBLIC
+  PRIVATE
+}
+
+enum Provider {
+  INTELLICARE // Asalus Corporation
+  ASIACARE // Asiancare Health Systems, Inc.
+  AVEGA // Avega Managed Care, Inc.
+  CAREWELL // Carewell Health Systems, Inc.
+  one_COOPHEALTH // Cooperative Health Management Federation
+  DYNAMIC_CARE_CORPORATION // Dynamic Care Corporation
+  EASTWEST_HEALTHCARE // EastWest Healthcare, Inc.
+  FORTICARE // Forticare Health Systems International, Inc.
+  GETWELL // Getwell Health Systems, Inc.
+  HC_and_D // Healthcare and Development Corporation of the Philippines
+  HEALTHFIRST // Health Delivery System, Inc.
+  HMI // Health Maintenance, Inc. // has optional Dental Plan
+  HPPI // Health Plan Philippines, Inc.
+  IWC // IMS Wellth Care, Inc.
+  ICARE // Insular Health Care, Inc.
+  KAISER // Kaiser International Healthgroup, Inc.
+  LIFE_and_HEALTH // Life & Health HMP, Inc.
+  MAXICARE // Maxicare Healthcare Corp.
+  MEDICARD // Medicard Philippines, Inc.
+  MEDICARE // iMedicare Plus, Inc.
+  MEDOCARE // Medocare Health Systems, Inc.
+  METROCARE // Metrocare Health Systems, Incorporated
+  OMHSI // Optimum Medical and Healthcare Services, Inc.
+  PACIFIC_CROSS // Pacific Cross Health Care, Inc.
+  PHILHEALTH // PhilhealthCare, Inc.
+  VALUCARE // Value Care Health Systems, Inc.
+  WELLCARE // Wellcare Health Maintenance, Inc.
+}
+
+enum Role {
+  MANAGER
+  ADMIN
+}
+
+enum Availability {
+  AVAILABLE
+  SHORT_DELAY
+  MODERATE_DELAY
+  EXTENDED_DELAY
+  UNAVAILABLE
+}
+
+enum Load {
+  STEADY
+  MODERATE
+  CROWDED
+  NEAR_CAPACITY
+  FULL_CAPACITY
+  CLOSED
+}
+
+enum ContactType {
+  PHONE
+  EMAIL
+}
+
+/**
+ * enum Day {
+ * MON
+ * TUE
+ * WED
+ * THU
+ * FRI
+ * SAT
+ * SUN
+ * }
+ */
+
+enum Action {
+  CREATE
+  UPDATE
+  DELETE
+}

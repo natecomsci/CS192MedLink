@@ -1,18 +1,21 @@
-import { PrismaClient } from "@prisma/client"
+import { prisma } from "../../src/lib/server/dataLayer/prisma";
 
-import { seedFacility } from "./FacilityAddressManager"
-import { seedDivision } from "./Division"
-import { seedAdmin } from "./Admin"
-import { seedAmbulanceService } from "./Ambulance"
-import { seedBloodBankService } from "./BloodBank"
-import { seedERService } from "./ER"
-import { seedICUService } from "./ICU"
-import { seedOutpatientService } from "./Outpatient"
-
-const prisma = new PrismaClient()
+import { seedFacility } from "./Facility";
+import { seedManager } from "./Manager";
+import { seedAddress } from "./Address";
+import { seedDivision } from "./Division";
+import { seedAdmin } from "./Admin";
+import { seedAmbulanceService } from "./Ambulance";
+import { seedBloodBankService } from "./BloodBank";
+import { seedERService } from "./ER";
+import { seedICUService } from "./ICU";
+import { seedOutpatientService } from "./Outpatient";
+import { seedContact } from "./Contact";
 
 async function main() {
   await seedFacility();
+  await seedManager();
+  await seedAddress();
   await seedDivision();
   await seedAdmin();
   await seedAmbulanceService();
@@ -20,6 +23,7 @@ async function main() {
   await seedERService();
   await seedICUService();
   await seedOutpatientService();
+  await seedContact();
 }
 
 main()
