@@ -3,7 +3,7 @@
 
   import { Load } from '@prisma/client';
 
-  import { updatedAtMapping } from '$lib/mappings';
+  import { updatedAtMapping } from '$lib/Mappings';
 
   import Header from '$lib/patientComponents/Header.svelte';
   import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';

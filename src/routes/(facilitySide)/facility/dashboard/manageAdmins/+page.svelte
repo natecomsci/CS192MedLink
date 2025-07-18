@@ -215,12 +215,12 @@
     .info {
         flex-grow: 1;
     }
-
+/*
     .name {
         font-size: 1.1rem;
         font-weight: bold;
         color: #4a148c;
-    }
+    }*/
 
 /*    .id {
         font-size: 0.9rem;

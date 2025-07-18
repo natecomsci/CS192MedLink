@@ -3,7 +3,7 @@
 
   import type { BloodTypeMappingDTO } from '$lib';
 
-  import { completionTimeMapping, moneyMapping, updatedAtMapping } from '$lib/mappings';
+  import { completionTimeMapping, moneyMapping, updatedAtMapping } from '$lib/Mappings';
 
   import Header from '$lib/patientComponents/Header.svelte';
   import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';

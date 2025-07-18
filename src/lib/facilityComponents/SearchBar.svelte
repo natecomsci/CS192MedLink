@@ -1,10 +1,7 @@
 <script lang="ts">
-    import type { PageProps } from "./$types";
-    import { dateToTimeMapping } from "$lib/Mappings";
     import { pagingQueryHandler } from "$lib/postHandlers";
-    import PageBar from "$lib/facilityComponents/PageBar.svelte";
 
-    let { data }: PageProps = $props();
+    let { data } = $props();
 
     let updateLogs = $state(data.updateLogs)
     let currentPage = $state(data.currentPage)

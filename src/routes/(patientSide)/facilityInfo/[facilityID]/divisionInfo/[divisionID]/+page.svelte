@@ -4,7 +4,7 @@
   import { normalizePhoneNumberForSMS } from '$lib/patientComponents/details/detailsUtility';
 
   import {type ServiceDTO } from '$lib';
-  import { dateToTimeMapping } from '$lib/mappings'; 
+  import { dateToTimeMapping } from '$lib/Mappings'; 
 
   import Header from '$lib/patientComponents/Header.svelte';
   import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';

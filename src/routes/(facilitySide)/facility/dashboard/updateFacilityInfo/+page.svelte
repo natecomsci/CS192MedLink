@@ -2,7 +2,7 @@
     import type { Provider } from '@prisma/client';
     import type { PageProps } from './$types';
     import { enhance } from '$app/forms';
-    import { formatUnderscoredString } from '$lib/mappings';
+    import { formatUnderscoredString } from '$lib/Mappings';
 
 
     import type { POrCDTO, COrMDTO, BrgyDTO } from '$lib';
@@ -128,11 +128,11 @@
         <img src={$imageSrc || data.photo} alt="Facility" class="w-full h-full object-cover transition-opacity duration-300" />
         
         <!-- Hover Overlay (Opens File Manager) -->
-        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white text-lg font-semibold"
+        <button class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white text-lg font-semibold"
             onclick={openFileDialog}
         >
             Change Image
-        </div>
+        </button>
 
         <!-- Hidden File Input -->
         <input type="file" name="facilityImage" accept="image/*" bind:this={fileInput} class="hidden" onchange={handleFileChange} />

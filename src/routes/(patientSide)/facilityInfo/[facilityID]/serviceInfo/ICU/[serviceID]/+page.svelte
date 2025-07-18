@@ -3,7 +3,7 @@
 
   import { Load } from '@prisma/client';
 
-  import { moneyMapping, updatedAtMapping } from '$lib/mappings';
+  import { moneyMapping, updatedAtMapping } from '$lib/Mappings';
 
   import Header from '$lib/patientComponents/Header.svelte';
   import InfoRow from '$lib/patientComponents/details/InfoRow.svelte';
@@ -207,12 +207,6 @@
     Updated {mappedUpdatedAt}
   </p>
 
-  {#if fromSearch}
-    <div class="flex justify-center mt-6">
-      <NavigateButton text="View Facility Page" href={`/facilityInfo/${facilityID}`} />
-    </div>
-  {/if}
-</div>
   {#if fromSearch}
     <div class="flex justify-center mt-6">
       <NavigateButton text="View Facility Page" href={`/facilityInfo/${facilityID}`} />

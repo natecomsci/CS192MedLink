@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dateToTimeMapping } from '$lib/mappings';
+	import { dateToTimeMapping } from '../../Mappings';
 
 	import { normalizePhoneNumberForSMS } from './detailsUtility';
 

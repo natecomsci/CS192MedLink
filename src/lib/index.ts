@@ -3,7 +3,7 @@ import {
   completionTimeMapping,
   moneyMapping,
   updatedAtMapping,
-} from "./mappings";
+} from "./Mappings";
 
 import {
   availability,

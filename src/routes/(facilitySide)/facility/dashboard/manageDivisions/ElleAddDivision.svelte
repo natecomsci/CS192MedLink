@@ -273,8 +273,8 @@
                                     <p class="text-sm text-gray-500">from {divisionNameMap[divisionID]}</p>
                                 </div>
                             </div>
-                            <button class="text-red-600 hover:text-red-800" onclick={() => toggleServiceSelection(divisionID, serviceID)}>
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <button class="text-red-600 hover:text-red-800" onclick={() => toggleServiceSelection(divisionID, serviceID)} aria-label="Toggle">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" >
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
@@ -305,7 +305,7 @@
                                             newServiceTypes = newServiceTypes.filter((_, idx) => idx !== index);
                                             newServicesCount--;
                                         }}
-                                
+                                aria-label="Toggle"
                                 >
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />

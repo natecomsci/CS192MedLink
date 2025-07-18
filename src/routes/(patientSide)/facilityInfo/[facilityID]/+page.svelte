@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	import { dateToTimeMapping, formatUnderscoredString } from '$lib/mappings';
+	import { dateToTimeMapping, formatUnderscoredString } from '$lib/Mappings';
 
 	import { normalizePhoneNumberForSMS } from '$lib/patientComponents/details/detailsUtility';
 

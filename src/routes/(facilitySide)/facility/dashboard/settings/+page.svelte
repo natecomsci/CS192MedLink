@@ -57,12 +57,12 @@
           {/if}
   
           <!-- Hover Overlay -->
-          <div
+          <button
             class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 text-white text-sm font-semibold"
             onclick={openFileDialog}
           >
             Change Image
-          </div>
+          </button>
   
           <!-- Remove Button -->
           {#if $imageSrc}
